@@ -1,0 +1,1187 @@
+{
+ "source": {
+  "projet": "SuperDude88/TWWHD-Randomizer",
+  "commit": "a66347af1c2b035887d82b3450da7472612971df",
+  "licence": "MIT, Copyright (c) 2024 SuperDude88 (LICENSE_TWWHD.txt)",
+  "sha256": {
+   "world.yaml": "50678dd87f3eeb720d77fae00d520965e6d2b2a612462b31059643cbc1b20717",
+   "macros.yaml": "368e0cd8b76f09c1ef4e0b26864e6d6d4e5d7702d13d96ef8db9dc53631ed069",
+   "location_data.yaml": "daff75b0a436543fcbda9c20af2586c85b61f6fb18def7a57af17103ea7d58f7",
+   "item_data.yaml": "415916885766705257f3487e4eba27d34acc927856d3bc837921e1a103189047"
+  }
+ },
+ "objets": [
+  {
+   "nom": "Heart Drop",
+   "nom_fr": "Cœur",
+   "id": 0
+  },
+  {
+   "nom": "Green Rupee",
+   "nom_fr": "Rubis Vert",
+   "id": 1
+  },
+  {
+   "nom": "Blue Rupee",
+   "nom_fr": "Rubis Bleu",
+   "id": 2
+  },
+  {
+   "nom": "Yellow Rupee",
+   "nom_fr": "Rubis Jaune",
+   "id": 3
+  },
+  {
+   "nom": "Red Rupee",
+   "nom_fr": "Rubis Rouge",
+   "id": 4
+  },
+  {
+   "nom": "Purple Rupee",
+   "nom_fr": "Rubis Violet",
+   "id": 5
+  },
+  {
+   "nom": "Orange Rupee",
+   "nom_fr": "Rubis Orange",
+   "id": 6
+  },
+  {
+   "nom": "Piece of Heart",
+   "nom_fr": "Quart de Cœur",
+   "id": 7
+  },
+  {
+   "nom": "Heart Container",
+   "nom_fr": "Réceptacle de Cœur",
+   "id": 8
+  },
+  {
+   "nom": "Small Magic Drop",
+   "nom_fr": "Petite Jarre Magique",
+   "id": 9
+  },
+  {
+   "nom": "Large Magic Drop",
+   "nom_fr": "Grande Jarre Magique",
+   "id": 10
+  },
+  {
+   "nom": "Five Bombs",
+   "nom_fr": "Bombes (5)",
+   "id": 11
+  },
+  {
+   "nom": "Ten Bombs",
+   "nom_fr": "Bombes (10)",
+   "id": 12
+  },
+  {
+   "nom": "Twenty Bombs",
+   "nom_fr": "Bombes (20)",
+   "id": 13
+  },
+  {
+   "nom": "Thirty Bombs",
+   "nom_fr": "Bombes (30)",
+   "id": 14
+  },
+  {
+   "nom": "Silver Rupee",
+   "nom_fr": "Rubis Argenté",
+   "id": 15
+  },
+  {
+   "nom": "Ten Arrows",
+   "nom_fr": "Flèches (10)",
+   "id": 16
+  },
+  {
+   "nom": "Twenty Arrows",
+   "nom_fr": "Flèches (20)",
+   "id": 17
+  },
+  {
+   "nom": "Thirty Arrows",
+   "nom_fr": "Flèches (30)",
+   "id": 18
+  },
+  {
+   "nom": "Small Key",
+   "nom_fr": "Petite Clé",
+   "id": 21
+  },
+  {
+   "nom": "Fairy",
+   "nom_fr": "Fée",
+   "id": 22
+  },
+  {
+   "nom": "Yellow Rupee 2",
+   "nom_fr": "Rubis Jaune 2",
+   "id": 26
+  },
+  {
+   "nom": "Three Hearts",
+   "nom_fr": "Trois Cœurs",
+   "id": 30
+  },
+  {
+   "nom": "Joy Pendant",
+   "nom_fr": "Pendentif du Bonheur",
+   "id": 31
+  },
+  {
+   "nom": "Telescope",
+   "nom_fr": "Longue-Vue",
+   "id": 32
+  },
+  {
+   "nom": "Tingle Bottle",
+   "nom_fr": "Bouteille de Tingle",
+   "id": 33
+  },
+  {
+   "nom": "Wind Waker",
+   "nom_fr": "Baguette du Vent",
+   "id": 34
+  },
+  {
+   "nom": "Progressive Picto Box",
+   "nom_fr": "Boîte à Image Progressive",
+   "id": 35
+  },
+  {
+   "nom": "Spoils Bag",
+   "nom_fr": "Sac à Butin",
+   "id": 36
+  },
+  {
+   "nom": "Grappling Hook",
+   "nom_fr": "Grappin-Griffe",
+   "id": 37
+  },
+  {
+   "nom": "Deluxe Picto Box",
+   "nom_fr": "Boîte à Image DX",
+   "id": 38
+  },
+  {
+   "nom": "Progressive Bow",
+   "nom_fr": "Arc Progressif",
+   "id": 39
+  },
+  {
+   "nom": "Power Bracelets",
+   "nom_fr": "Bracelets de Force",
+   "id": 40
+  },
+  {
+   "nom": "Iron Boots",
+   "nom_fr": "Bottes de Plomb",
+   "id": 41
+  },
+  {
+   "nom": "Magic Armor",
+   "nom_fr": "Armure Magique",
+   "id": 42
+  },
+  {
+   "nom": "Bait Bag",
+   "nom_fr": "Sac à Appâts",
+   "id": 44
+  },
+  {
+   "nom": "Boomerang",
+   "nom_fr": "Boomerang",
+   "id": 45
+  },
+  {
+   "nom": "Hookshot",
+   "nom_fr": "Grappin",
+   "id": 47
+  },
+  {
+   "nom": "Delivery Bag",
+   "nom_fr": "Sac de Facteur",
+   "id": 48
+  },
+  {
+   "nom": "Bombs",
+   "nom_fr": "Bombes",
+   "id": 49
+  },
+  {
+   "nom": "Heros Clothes",
+   "nom_fr": null,
+   "id": 50
+  },
+  {
+   "nom": "Skull Hammer",
+   "nom_fr": "Masse",
+   "id": 51
+  },
+  {
+   "nom": "Deku Leaf",
+   "nom_fr": "Feuille Mojo",
+   "id": 52
+  },
+  {
+   "nom": "Fire Ice Arrows",
+   "nom_fr": "Flèches de Glace et de Feu",
+   "id": 53
+  },
+  {
+   "nom": "Light Arrow",
+   "nom_fr": "Flèche de Lumière",
+   "id": 54
+  },
+  {
+   "nom": "Heros New Clothes",
+   "nom_fr": null,
+   "id": 55
+  },
+  {
+   "nom": "Progressive Sword",
+   "nom_fr": "Epée Progressive",
+   "id": 56
+  },
+  {
+   "nom": "Master Sword Powerless",
+   "nom_fr": "Excalibur Affaibli",
+   "id": 57
+  },
+  {
+   "nom": "Master Sword Half",
+   "nom_fr": "Excalibur Mi-Réanimé",
+   "id": 58
+  },
+  {
+   "nom": "Progressive Shield",
+   "nom_fr": "Bouclier Progressif",
+   "id": 59
+  },
+  {
+   "nom": "Mirror Shield",
+   "nom_fr": "Bouclier Miroir",
+   "id": 60
+  },
+  {
+   "nom": "Recovered Heros Sword",
+   "nom_fr": null,
+   "id": 61
+  },
+  {
+   "nom": "Master Sword Full",
+   "nom_fr": "Excalibur Réanimé",
+   "id": 62
+  },
+  {
+   "nom": "Piece of Heart 2",
+   "nom_fr": "Quart de Cœur 2",
+   "id": 63
+  },
+  {
+   "nom": "Pirates Charm",
+   "nom_fr": "Amulette Pirate",
+   "id": 66
+  },
+  {
+   "nom": "Hero's Charm",
+   "nom_fr": "Amulette du Héros",
+   "id": 67
+  },
+  {
+   "nom": "Skull Necklace",
+   "nom_fr": "Collier Macabre",
+   "id": 69
+  },
+  {
+   "nom": "Boko Baba Seed",
+   "nom_fr": "Graine de Bokobaba",
+   "id": 70
+  },
+  {
+   "nom": "Golden Feather",
+   "nom_fr": "Plume d'Or",
+   "id": 71
+  },
+  {
+   "nom": "Knights Crest",
+   "nom_fr": "Blason d'Epéiste",
+   "id": 72
+  },
+  {
+   "nom": "Red Chu Jelly",
+   "nom_fr": "Gelée Chuchu Rouge",
+   "id": 73
+  },
+  {
+   "nom": "Green Chu Jelly",
+   "nom_fr": "Gelée Chuchu Verte",
+   "id": 74
+  },
+  {
+   "nom": "Blue Chu Jelly",
+   "nom_fr": "Gelée Chuchu Bleue",
+   "id": 75
+  },
+  {
+   "nom": "Dungeon Map",
+   "nom_fr": "Carte du Donjon",
+   "id": 76
+  },
+  {
+   "nom": "Compass",
+   "nom_fr": "Boussole",
+   "id": 77
+  },
+  {
+   "nom": "Big Key",
+   "nom_fr": "Grande Clé",
+   "id": 78
+  },
+  {
+   "nom": "Empty Bottle",
+   "nom_fr": "Flacon",
+   "id": 80
+  },
+  {
+   "nom": "Red Potion",
+   "nom_fr": "Potion Rouge",
+   "id": 81
+  },
+  {
+   "nom": "Green Potion",
+   "nom_fr": "Potion Verte",
+   "id": 82
+  },
+  {
+   "nom": "Blue Potion",
+   "nom_fr": "Potion Bleue",
+   "id": 83
+  },
+  {
+   "nom": "Elixir Soup Half",
+   "nom_fr": "Soupe de Mémé (1/2)",
+   "id": 84
+  },
+  {
+   "nom": "Elixir Soup",
+   "nom_fr": "Soupe de Mémé",
+   "id": 85
+  },
+  {
+   "nom": "Bottled Water",
+   "nom_fr": "Eau",
+   "id": 86
+  },
+  {
+   "nom": "Fairy In Bottle",
+   "nom_fr": "Fée",
+   "id": 87
+  },
+  {
+   "nom": "Forest Firefly",
+   "nom_fr": "Luciole de la Forêt",
+   "id": 88
+  },
+  {
+   "nom": "Forest Water",
+   "nom_fr": "Eau de la Forêt",
+   "id": 89
+  },
+  {
+   "nom": "Triforce Shard 1",
+   "nom_fr": "Fragment de la Triforce 1",
+   "id": 97
+  },
+  {
+   "nom": "Triforce Shard 2",
+   "nom_fr": "Fragment de la Triforce 2",
+   "id": 98
+  },
+  {
+   "nom": "Triforce Shard 3",
+   "nom_fr": "Fragment de la Triforce 3",
+   "id": 99
+  },
+  {
+   "nom": "Triforce Shard 4",
+   "nom_fr": "Fragment de la Triforce 4",
+   "id": 100
+  },
+  {
+   "nom": "Triforce Shard 5",
+   "nom_fr": "Fragment de la Triforce 5",
+   "id": 101
+  },
+  {
+   "nom": "Triforce Shard 6",
+   "nom_fr": "Fragment de la Triforce 6",
+   "id": 102
+  },
+  {
+   "nom": "Triforce Shard 7",
+   "nom_fr": "Fragment de la Triforce 7",
+   "id": 103
+  },
+  {
+   "nom": "Triforce Shard 8",
+   "nom_fr": "Fragment de la Triforce 8",
+   "id": 104
+  },
+  {
+   "nom": "Nayru's Pearl",
+   "nom_fr": "Perle de Nayru",
+   "id": 105
+  },
+  {
+   "nom": "Din's Pearl",
+   "nom_fr": "Perle de Din",
+   "id": 106
+  },
+  {
+   "nom": "Farore's Pearl",
+   "nom_fr": "Perle de Farore",
+   "id": 107
+  },
+  {
+   "nom": "Wind's Requiem",
+   "nom_fr": "Mélodie du Vent",
+   "id": 109
+  },
+  {
+   "nom": "Ballad of Gales",
+   "nom_fr": "Requiem de la Tornade",
+   "id": 110
+  },
+  {
+   "nom": "Command Melody",
+   "nom_fr": "Air du Marionnettiste",
+   "id": 111
+  },
+  {
+   "nom": "Earth God's Lyric",
+   "nom_fr": "Hymne du Dieu de la Terre",
+   "id": 112
+  },
+  {
+   "nom": "Wind God's Aria",
+   "nom_fr": "Hymne du Dieu du Vent",
+   "id": 113
+  },
+  {
+   "nom": "Song of Passing",
+   "nom_fr": "Chant du Soleil",
+   "id": 114
+  },
+  {
+   "nom": "Swift Sail",
+   "nom_fr": "Voile Rapide",
+   "id": 119
+  },
+  {
+   "nom": "Progressive Sail",
+   "nom_fr": "Voile de Bateau Progressive",
+   "id": 120
+  },
+  {
+   "nom": "Triforce Chart 1 Deciphered",
+   "nom_fr": "Carte de la Triforce 1 Décryptée",
+   "id": 121
+  },
+  {
+   "nom": "Triforce Chart 2 Deciphered",
+   "nom_fr": "Carte de la Triforce 2 Décryptée",
+   "id": 122
+  },
+  {
+   "nom": "Triforce Chart 3 Deciphered",
+   "nom_fr": "Carte de la Triforce 3 Décryptée",
+   "id": 123
+  },
+  {
+   "nom": "Triforce Chart 4 Deciphered",
+   "nom_fr": "Carte de la Triforce 4 Décryptée",
+   "id": 124
+  },
+  {
+   "nom": "Triforce Chart 5 Deciphered",
+   "nom_fr": "Carte de la Triforce 5 Décryptée",
+   "id": 125
+  },
+  {
+   "nom": "Triforce Chart 6 Deciphered",
+   "nom_fr": "Carte de la Triforce 6 Décryptée",
+   "id": 126
+  },
+  {
+   "nom": "Triforce Chart 7 Deciphered",
+   "nom_fr": "Carte de la Triforce 7 Décryptée",
+   "id": 127
+  },
+  {
+   "nom": "Triforce Chart 8 Deciphered",
+   "nom_fr": "Carte de la Triforce 8 Décryptée",
+   "id": 128
+  },
+  {
+   "nom": "All Purpose Bait",
+   "nom_fr": "Appât Universel",
+   "id": 130
+  },
+  {
+   "nom": "Hyoi Pear",
+   "nom_fr": "Fruit Miam Miam",
+   "id": 131
+  },
+  {
+   "nom": "Town Flower",
+   "nom_fr": "Fleur de la Ville",
+   "id": 140
+  },
+  {
+   "nom": "Sea Flower",
+   "nom_fr": "Fleur Marine",
+   "id": 141
+  },
+  {
+   "nom": "Exotic Flower",
+   "nom_fr": "Fleur du Sud",
+   "id": 142
+  },
+  {
+   "nom": "Heros Flag",
+   "nom_fr": "Drapeau du Héros",
+   "id": 143
+  },
+  {
+   "nom": "Big Catch Flag",
+   "nom_fr": "Drapeau de la Pêche Miraculeuse",
+   "id": 144
+  },
+  {
+   "nom": "Big Sale Flag",
+   "nom_fr": "Drapeau des Soldes",
+   "id": 145
+  },
+  {
+   "nom": "Pinwheel",
+   "nom_fr": "Moulin à Vent",
+   "id": 146
+  },
+  {
+   "nom": "Sickle Moon Flag",
+   "nom_fr": "Drapeau du Croissant",
+   "id": 147
+  },
+  {
+   "nom": "Skull Tower Idol",
+   "nom_fr": "Statue Ricrâne",
+   "id": 148
+  },
+  {
+   "nom": "Fountain Idol",
+   "nom_fr": "Statue Naïade",
+   "id": 149
+  },
+  {
+   "nom": "Postman Statue",
+   "nom_fr": "Statue du Facteur",
+   "id": 150
+  },
+  {
+   "nom": "Shop Guru Statue",
+   "nom_fr": "Statue du Marchand",
+   "id": 151
+  },
+  {
+   "nom": "Fathers Letter",
+   "nom_fr": "Lettre de Père",
+   "id": 152
+  },
+  {
+   "nom": "Note to Mom",
+   "nom_fr": "Lettre à la Mère",
+   "id": 153
+  },
+  {
+   "nom": "Maggie's Letter",
+   "nom_fr": "Lettre de Maggy",
+   "id": 154
+  },
+  {
+   "nom": "Moblin's Letter",
+   "nom_fr": "Lettre du Molblin",
+   "id": 155
+  },
+  {
+   "nom": "Cabana Deed",
+   "nom_fr": "Titre de Propriété de la Villa",
+   "id": 156
+  },
+  {
+   "nom": "Complimentary ID",
+   "nom_fr": "Ticket Flatteur",
+   "id": 157
+  },
+  {
+   "nom": "Fill Up Coupon",
+   "nom_fr": "Ticket de Plein",
+   "id": 158
+  },
+  {
+   "nom": "Legendary Pictograph",
+   "nom_fr": "Photo de Légende",
+   "id": 159
+  },
+  {
+   "nom": "Dragon Tingle Statue",
+   "nom_fr": "Statue Tingle du Dragon",
+   "id": 163
+  },
+  {
+   "nom": "Forbidden Tingle Statue",
+   "nom_fr": "Statue Tingle Défendue",
+   "id": 164
+  },
+  {
+   "nom": "Goddess Tingle Statue",
+   "nom_fr": "Statue Tingle Divine",
+   "id": 165
+  },
+  {
+   "nom": "Earth Tingle Statue",
+   "nom_fr": "Statue Tingle Terrestre",
+   "id": 166
+  },
+  {
+   "nom": "Wind Tingle Statue",
+   "nom_fr": "Statue Tingle du Vent",
+   "id": 167
+  },
+  {
+   "nom": "Hurricane Spin",
+   "nom_fr": "Attaque Tourbillon",
+   "id": 170
+  },
+  {
+   "nom": "Progressive Wallet",
+   "nom_fr": "Bourse Progressive",
+   "id": 171
+  },
+  {
+   "nom": "Five Thousand Wallet",
+   "nom_fr": "Bourse (5000)",
+   "id": 172
+  },
+  {
+   "nom": "Progressive Bomb Bag",
+   "nom_fr": "Sac de Bombes Progressif",
+   "id": 173
+  },
+  {
+   "nom": "Ninety Nine Bomb Bag",
+   "nom_fr": "Sac de Bombes (99)",
+   "id": 174
+  },
+  {
+   "nom": "Progressive Quiver",
+   "nom_fr": "Carquois Progressif",
+   "id": 175
+  },
+  {
+   "nom": "Ninety Nine Quiver",
+   "nom_fr": "Carquois (99)",
+   "id": 176
+  },
+  {
+   "nom": "Magic Meter",
+   "nom_fr": "Energie Magique",
+   "id": 177
+  },
+  {
+   "nom": "Progressive Magic Meter",
+   "nom_fr": "Energie Magique Progressive",
+   "id": 178
+  },
+  {
+   "nom": "Fifty Rupees",
+   "nom_fr": "Cinquante Rubis",
+   "id": 179
+  },
+  {
+   "nom": "Hundred Rupees",
+   "nom_fr": "Cent Rubis",
+   "id": 180
+  },
+  {
+   "nom": "Hundred Fifty Rupees",
+   "nom_fr": "Cent-Cinquante Rubis",
+   "id": 181
+  },
+  {
+   "nom": "Two Hundred Rupees",
+   "nom_fr": "Deux-Cents Rubis",
+   "id": 182
+  },
+  {
+   "nom": "Two Hundred Fifty Rupees",
+   "nom_fr": "Deux-Cent-Cinquante Rubis",
+   "id": 183
+  },
+  {
+   "nom": "Rainbow Rupee",
+   "nom_fr": "Rubis Arc-en-Ciel",
+   "id": 184
+  },
+  {
+   "nom": "Submarine Chart",
+   "nom_fr": "Carte des Sous-marins",
+   "id": 194
+  },
+  {
+   "nom": "Beedle's Chart",
+   "nom_fr": "Carte de Terry",
+   "id": 195
+  },
+  {
+   "nom": "Platform Chart",
+   "nom_fr": "Carte des Tours de Guet",
+   "id": 196
+  },
+  {
+   "nom": "Light Ring Chart",
+   "nom_fr": "Carte des Cercles de Lumière",
+   "id": 197
+  },
+  {
+   "nom": "Secret Cave Chart",
+   "nom_fr": "Carte Secrète",
+   "id": 198
+  },
+  {
+   "nom": "Sea Hearts Chart",
+   "nom_fr": "Carte Marine des Cœurs",
+   "id": 199
+  },
+  {
+   "nom": "Island Hearts Chart",
+   "nom_fr": "Carte Insulaire des Cœurs",
+   "id": 200
+  },
+  {
+   "nom": "Great Fairy Chart",
+   "nom_fr": "Carte des Grandes Fées",
+   "id": 201
+  },
+  {
+   "nom": "Octo Chart",
+   "nom_fr": "Carte des Kalamars",
+   "id": 202
+  },
+  {
+   "nom": "INcredible Chart",
+   "nom_fr": "Super Carte",
+   "id": 203
+  },
+  {
+   "nom": "Treasure Chart 7",
+   "nom_fr": "Carte au Trésor 7",
+   "id": 204
+  },
+  {
+   "nom": "Treasure Chart 27",
+   "nom_fr": "Carte au Trésor 27",
+   "id": 205
+  },
+  {
+   "nom": "Treasure Chart 21",
+   "nom_fr": "Carte au Trésor 21",
+   "id": 206
+  },
+  {
+   "nom": "Treasure Chart 13",
+   "nom_fr": "Carte au Trésor 13",
+   "id": 207
+  },
+  {
+   "nom": "Treasure Chart 32",
+   "nom_fr": "Carte au Trésor 32",
+   "id": 208
+  },
+  {
+   "nom": "Treasure Chart 19",
+   "nom_fr": "Carte au Trésor 19",
+   "id": 209
+  },
+  {
+   "nom": "Treasure Chart 41",
+   "nom_fr": "Carte au Trésor 41",
+   "id": 210
+  },
+  {
+   "nom": "Treasure Chart 26",
+   "nom_fr": "Carte au Trésor 26",
+   "id": 211
+  },
+  {
+   "nom": "Treasure Chart 8",
+   "nom_fr": "Carte au Trésor 8",
+   "id": 212
+  },
+  {
+   "nom": "Treasure Chart 37",
+   "nom_fr": "Carte au Trésor 37",
+   "id": 213
+  },
+  {
+   "nom": "Treasure Chart 25",
+   "nom_fr": "Carte au Trésor 25",
+   "id": 214
+  },
+  {
+   "nom": "Treasure Chart 17",
+   "nom_fr": "Carte au Trésor 17",
+   "id": 215
+  },
+  {
+   "nom": "Treasure Chart 36",
+   "nom_fr": "Carte au Trésor 36",
+   "id": 216
+  },
+  {
+   "nom": "Treasure Chart 22",
+   "nom_fr": "Carte au Trésor 22",
+   "id": 217
+  },
+  {
+   "nom": "Treasure Chart 9",
+   "nom_fr": "Carte au Trésor 9",
+   "id": 218
+  },
+  {
+   "nom": "Ghost Ship Chart",
+   "nom_fr": "Carte du Vaisseau Fantôme",
+   "id": 219
+  },
+  {
+   "nom": "Tingle's Chart",
+   "nom_fr": "Carte de Tingle",
+   "id": 220
+  },
+  {
+   "nom": "Treasure Chart 14",
+   "nom_fr": "Carte au Trésor 14",
+   "id": 221
+  },
+  {
+   "nom": "Treasure Chart 10",
+   "nom_fr": "Carte au Trésor 10",
+   "id": 222
+  },
+  {
+   "nom": "Treasure Chart 40",
+   "nom_fr": "Carte au Trésor 40",
+   "id": 223
+  },
+  {
+   "nom": "Treasure Chart 3",
+   "nom_fr": "Carte au Trésor 3",
+   "id": 224
+  },
+  {
+   "nom": "Treasure Chart 4",
+   "nom_fr": "Carte au Trésor 4",
+   "id": 225
+  },
+  {
+   "nom": "Treasure Chart 28",
+   "nom_fr": "Carte au Trésor 28",
+   "id": 226
+  },
+  {
+   "nom": "Treasure Chart 16",
+   "nom_fr": "Carte au Trésor 16",
+   "id": 227
+  },
+  {
+   "nom": "Treasure Chart 18",
+   "nom_fr": "Carte au Trésor 18",
+   "id": 228
+  },
+  {
+   "nom": "Treasure Chart 34",
+   "nom_fr": "Carte au Trésor 34",
+   "id": 229
+  },
+  {
+   "nom": "Treasure Chart 29",
+   "nom_fr": "Carte au Trésor 29",
+   "id": 230
+  },
+  {
+   "nom": "Treasure Chart 1",
+   "nom_fr": "Carte au Trésor 1",
+   "id": 231
+  },
+  {
+   "nom": "Treasure Chart 35",
+   "nom_fr": "Carte au Trésor 35",
+   "id": 232
+  },
+  {
+   "nom": "Treasure Chart 12",
+   "nom_fr": "Carte au Trésor 12",
+   "id": 233
+  },
+  {
+   "nom": "Treasure Chart 6",
+   "nom_fr": "Carte au Trésor 6",
+   "id": 234
+  },
+  {
+   "nom": "Treasure Chart 24",
+   "nom_fr": "Carte au Trésor 24",
+   "id": 235
+  },
+  {
+   "nom": "Treasure Chart 39",
+   "nom_fr": "Carte au Trésor 39",
+   "id": 236
+  },
+  {
+   "nom": "Treasure Chart 38",
+   "nom_fr": "Carte au Trésor 38",
+   "id": 237
+  },
+  {
+   "nom": "Treasure Chart 2",
+   "nom_fr": "Carte au Trésor 2",
+   "id": 238
+  },
+  {
+   "nom": "Treasure Chart 33",
+   "nom_fr": "Carte au Trésor 33",
+   "id": 239
+  },
+  {
+   "nom": "Treasure Chart 31",
+   "nom_fr": "Carte au Trésor 31",
+   "id": 240
+  },
+  {
+   "nom": "Treasure Chart 23",
+   "nom_fr": "Carte au Trésor 23",
+   "id": 241
+  },
+  {
+   "nom": "Treasure Chart 5",
+   "nom_fr": "Carte au Trésor 5",
+   "id": 242
+  },
+  {
+   "nom": "Treasure Chart 20",
+   "nom_fr": "Carte au Trésor 20",
+   "id": 243
+  },
+  {
+   "nom": "Treasure Chart 30",
+   "nom_fr": "Carte au Trésor 30",
+   "id": 244
+  },
+  {
+   "nom": "Treasure Chart 15",
+   "nom_fr": "Carte au Trésor 15",
+   "id": 245
+  },
+  {
+   "nom": "Treasure Chart 11",
+   "nom_fr": "Carte au Trésor 11",
+   "id": 246
+  },
+  {
+   "nom": "Treasure Chart 46",
+   "nom_fr": "Carte au Trésor 46",
+   "id": 247
+  },
+  {
+   "nom": "Treasure Chart 45",
+   "nom_fr": "Carte au Trésor 45",
+   "id": 248
+  },
+  {
+   "nom": "Treasure Chart 44",
+   "nom_fr": "Carte au Trésor 44",
+   "id": 249
+  },
+  {
+   "nom": "Triforce Chart 3",
+   "nom_fr": "Carte de la Triforce 3",
+   "id": 250
+  },
+  {
+   "nom": "Treasure Chart 43",
+   "nom_fr": "Carte au Trésor 43",
+   "id": 251
+  },
+  {
+   "nom": "Triforce Chart 2",
+   "nom_fr": "Carte de la Triforce 2",
+   "id": 252
+  },
+  {
+   "nom": "Treasure Chart 42",
+   "nom_fr": "Carte au Trésor 42",
+   "id": 253
+  },
+  {
+   "nom": "Triforce Chart 1",
+   "nom_fr": "Carte de la Triforce 1",
+   "id": 254
+  },
+  {
+   "nom": "Dragon Roost Cavern Small Key",
+   "nom_fr": "Petite Clé de la Caverne du Dragon",
+   "id": 64,
+   "petite_cle": "Dragon Roost Cavern"
+  },
+  {
+   "nom": "Dragon Roost Cavern Big Key",
+   "nom_fr": "Grande Clé de la Caverne du Dragon",
+   "id": 65,
+   "grande_cle": "Dragon Roost Cavern"
+  },
+  {
+   "nom": "Dragon Roost Cavern Dungeon Map",
+   "nom_fr": "Carte du Donjon de la Caverne du Dragon",
+   "id": 90,
+   "carte": "Dragon Roost Cavern"
+  },
+  {
+   "nom": "Dragon Roost Cavern Compass",
+   "nom_fr": "Boussole de la Caverne du Dragon",
+   "id": 91,
+   "boussole": "Dragon Roost Cavern"
+  },
+  {
+   "nom": "Forbidden Woods Small Key",
+   "nom_fr": "Petite Clé des Bois Défendus",
+   "id": 92,
+   "petite_cle": "Forbidden Woods"
+  },
+  {
+   "nom": "Forbidden Woods Big Key",
+   "nom_fr": "Grande Clé des Bois Défendus",
+   "id": 93,
+   "grande_cle": "Forbidden Woods"
+  },
+  {
+   "nom": "Forbidden Woods Dungeon Map",
+   "nom_fr": "Carte du Donjon des Bois Défendus",
+   "id": 94,
+   "carte": "Forbidden Woods"
+  },
+  {
+   "nom": "Forbidden Woods Compass",
+   "nom_fr": "Boussole des Bois Défendus",
+   "id": 95,
+   "boussole": "Forbidden Woods"
+  },
+  {
+   "nom": "Tower of the Gods Small Key",
+   "nom_fr": "Petite Clé de la Tour des Dieux",
+   "id": 96,
+   "petite_cle": "Tower of the Gods"
+  },
+  {
+   "nom": "Tower of the Gods Big Key",
+   "nom_fr": "Grande Clé de la Tour des Dieux",
+   "id": 115,
+   "grande_cle": "Tower of the Gods"
+  },
+  {
+   "nom": "Tower of the Gods Dungeon Map",
+   "nom_fr": "Carte du Donjon de la Tour des Dieux",
+   "id": 116,
+   "carte": "Tower of the Gods"
+  },
+  {
+   "nom": "Tower of the Gods Compass",
+   "nom_fr": "Boussole de la Tour des Dieux",
+   "id": 117,
+   "boussole": "Tower of the Gods"
+  },
+  {
+   "nom": "Forsaken Fortress Dungeon Map",
+   "nom_fr": "Carte du Donjon de la Forteresse Maudite",
+   "id": 118,
+   "carte": "Forsaken Fortress"
+  },
+  {
+   "nom": "Forsaken Fortress Compass",
+   "nom_fr": "Boussole de la Forteresse Maudite",
+   "id": 129,
+   "boussole": "Forsaken Fortress"
+  },
+  {
+   "nom": "Earth Temple Small Key",
+   "nom_fr": "Petite Clé du Temple de la Terre",
+   "id": 132,
+   "petite_cle": "Earth Temple"
+  },
+  {
+   "nom": "Earth Temple Big Key",
+   "nom_fr": "Grande Clé du Temple de la Terre",
+   "id": 133,
+   "grande_cle": "Earth Temple"
+  },
+  {
+   "nom": "Earth Temple Dungeon Map",
+   "nom_fr": "Carte du Donjon du Temple de la Terre",
+   "id": 134,
+   "carte": "Earth Temple"
+  },
+  {
+   "nom": "Earth Temple Compass",
+   "nom_fr": "Boussole du Temple de la Terre",
+   "id": 135,
+   "boussole": "Earth Temple"
+  },
+  {
+   "nom": "Wind Temple Small Key",
+   "nom_fr": "Petite Clé du Temple du Vent",
+   "id": 136,
+   "petite_cle": "Wind Temple"
+  },
+  {
+   "nom": "Wind Temple Big Key",
+   "nom_fr": "Grande Clé du Temple du Vent",
+   "id": 137,
+   "grande_cle": "Wind Temple"
+  },
+  {
+   "nom": "Wind Temple Dungeon Map",
+   "nom_fr": "Carte du Donjon du Temple du Vent",
+   "id": 138,
+   "carte": "Wind Temple"
+  },
+  {
+   "nom": "Wind Temple Compass",
+   "nom_fr": "Boussole du Temple du Vent",
+   "id": 139,
+   "boussole": "Wind Temple"
+  },
+  {
+   "nom": "Nothing",
+   "nom_fr": null,
+   "id": 23
+  },
+  {
+   "nom": "Game Beatable",
+   "nom_fr": null,
+   "id": 24
+  }
+ ]
+}

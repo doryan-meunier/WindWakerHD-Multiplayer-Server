@@ -1,0 +1,3614 @@
+{
+ "source": {
+  "projet": "SuperDude88/TWWHD-Randomizer",
+  "commit": "a66347af1c2b035887d82b3450da7472612971df",
+  "licence": "MIT, Copyright (c) 2024 SuperDude88 (LICENSE_TWWHD.txt)",
+  "sha256": {
+   "world.yaml": "50678dd87f3eeb720d77fae00d520965e6d2b2a612462b31059643cbc1b20717",
+   "macros.yaml": "368e0cd8b76f09c1ef4e0b26864e6d6d4e5d7702d13d96ef8db9dc53631ed069",
+   "location_data.yaml": "daff75b0a436543fcbda9c20af2586c85b61f6fb18def7a57af17103ea7d58f7",
+   "item_data.yaml": "415916885766705257f3487e4eba27d34acc927856d3bc837921e1a103189047"
+  }
+ },
+ "lieux": [
+  {
+   "nom": "Mailbox - Letter from Hoskit's Girlfriend",
+   "nom_fr": "Boîte aux Lettres - Lattre de la copine d'Odelf",
+   "objet": "Piece of Heart 2",
+   "categories": [
+    "Mail",
+    "Spoils Trading"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Baito's Mother",
+   "nom_fr": "Boîte aux Lettres - Lettre de la maman du Commis de la Poste",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Mail"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Baito",
+   "nom_fr": "Boîte aux Lettres - Lettre du Commis de la Poste",
+   "objet": "Red Rupee",
+   "categories": [
+    "Mail",
+    "Dungeon"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Komali's Father",
+   "nom_fr": "Boîte aux Lettres - Lettre du père de Scaff",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Mail"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter Advertising Bombs",
+   "nom_fr": "Boîte aux Lettres - Lettre promotionnelle des Bombes",
+   "objet": "Beedle's Chart",
+   "categories": [
+    "Mail"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter Advertising Rock Spire Shop Ship",
+   "nom_fr": "Boîte aux Lettres - Lettre promotionnelle de la Boutique Terry de l'Ile de la Rocaille",
+   "objet": "Green Rupee",
+   "categories": [
+    "Mail"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Beedle's Silver Membership Reward",
+   "nom_fr": "Boîte aux Lettres - Membre d'Argent de la Boutique de Terry",
+   "objet": "Complimentary ID",
+   "categories": [
+    "Mail",
+    "Expensive Purchase",
+    "Obscure"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Beedle's Gold Membership Reward",
+   "nom_fr": "Boîte aux Lettres - Membre d'Honneur de la Boutique de Terry",
+   "objet": "Fill Up Coupon",
+   "categories": [
+    "Mail",
+    "Expensive Purchase",
+    "Obscure"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Orca",
+   "nom_fr": "Boîte aux Lettres - Lettre d'Orco",
+   "objet": "Red Rupee",
+   "categories": [
+    "Mail",
+    "Dungeon"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Grandma",
+   "nom_fr": "Boîte aux Lettres - Lettre de Mémé",
+   "objet": "Red Rupee",
+   "categories": [
+    "Mail"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Aryll",
+   "nom_fr": "Boîte aux Lettres - Lettre d'Arielle",
+   "objet": "Red Rupee",
+   "categories": [
+    "Mail",
+    "Dungeon"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mailbox - Letter from Tingle",
+   "nom_fr": "Boîte aux Lettres - Lettre de Tingle",
+   "objet": "INcredible Chart",
+   "categories": [
+    "Mail",
+    "Expensive Purchase",
+    "Dungeon"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Great Sea - Beedle Shop 20 Rupee Item",
+   "nom_fr": "Océan - Objet à 20 rubis de la Boutique de Terry",
+   "objet": "Bait Bag",
+   "categories": [
+    "Misc"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Great Sea - Salvage Corp Gift",
+   "nom_fr": "Océan - Cadeau de l'Equipage Nautilus",
+   "objet": "Treasure Chart 34",
+   "categories": [
+    "Free Gift"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Great Sea - Cyclos",
+   "nom_fr": "Océan - Cyclos",
+   "objet": "Ballad of Gales",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Great Sea - Goron Trading Reward",
+   "nom_fr": "Océan - Récompense des Echanges Commerciaux des Gorons",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Long Side Quest",
+    "Expensive Purchase"
+   ],
+   "type": "RPX",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Great Sea - Withered Trees",
+   "nom_fr": "Océan - Arbres desséchés",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Great Sea - Ghost Ship Chest",
+   "nom_fr": "Océan - Coffre du Vaisseau Fantôme",
+   "objet": "Triforce Shard 4",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Phantom Ganon",
+   "nom_fr": "Forteresse Maudite - Fantôme de Ganon",
+   "objet": "Skull Hammer",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Inside Lower Jail Cell",
+   "nom_fr": "Forteresse Maudite - Coffre dans la cellule du RDC",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Chest on Bed",
+   "nom_fr": "Forteresse Maudite - Coffre sur le lit",
+   "objet": "Yellow Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Outside Upper Jail Cell",
+   "nom_fr": "Forteresse Maudite - Coffre à l'extérieur de la cellule du 1e étage",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Guarded by Bokoblin",
+   "nom_fr": "Forteresse Maudite - Coffre gardé par un Bokoblin",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress - Helmaroc King Heart Container",
+   "nom_fr": "Forteresse Maudite - Réceptacle de Cœur du Roi Cuirasse",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forsaken Fortress Sector - Sunken Treasure",
+   "nom_fr": "Secteur de la Forteresse Maudite - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Island - Blue Chu Chu",
+   "nom_fr": "Ile Etoilée - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Island - Lookout Platform Chest",
+   "nom_fr": "Ile Etoilée - Coffre de la tour de guet",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Island - Cave Chest",
+   "nom_fr": "Ile Etoilée - Coffre de la grotte",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Island - Sunken Treasure",
+   "nom_fr": "Ile Etoilée - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Northern Fairy Island - Blue Chu Chu",
+   "nom_fr": "Ilot Septentrional des Fées - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Northern Fairy Island - Submarine Chest",
+   "nom_fr": "Ilot Septentrional des Fées - Coffre du sous-marin",
+   "objet": "Treasure Chart 22",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Northern Fairy Island - Great Fairy",
+   "nom_fr": "Ilot Septentrional des Fées - Grande Fée",
+   "objet": "Progressive Wallet",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Northern Fairy Island - Sunken Treasure",
+   "nom_fr": "Ilot Septentrional des Fées - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Gale Isle - Sunken Treasure",
+   "nom_fr": "Ile du Vent - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Crescent Moon Island - Chest on Island",
+   "nom_fr": "Ile du Croissant - Coffre sur l'île",
+   "objet": "Treasure Chart 10",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Crescent Moon Island - Blue Chu Chu North",
+   "nom_fr": "Ile du Croissant - Blob Bleu du Nord",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Crescent Moon Island - Blue Chu Chu South",
+   "nom_fr": "Ile du Croissant - Blob Bleu du Sud",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Crescent Moon Island - Submarine Chest",
+   "nom_fr": "Ile du Croissant - Coffre du sous-marin",
+   "objet": "Treasure Chart 9",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Crescent Moon Island - Sunken Treasure",
+   "nom_fr": "Ile du Croissant - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Seven Star Isles - Big Octo",
+   "nom_fr": "Archipel Ursa Major - Kalamar",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Big Octo"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Seven Star Isles - Center Lookout Platform Chest",
+   "nom_fr": "Archipel Ursa Major - Coffre de la tour de guet centrale",
+   "objet": "Red Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Seven Star Isles - Northern Lookout Platform Chest",
+   "nom_fr": "Archipel Ursa Major - Coffre de la tour de guet du Nord",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Seven Star Isles - Southern Lookout Platform Chest",
+   "nom_fr": "Archipel Ursa Major - Coffre de la tour de guet du Sud",
+   "objet": "Treasure Chart 16",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Seven Star Isles - Sunken Treasure",
+   "nom_fr": "Archipel Ursa Major - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Overlook Island - Blue Chu Chu",
+   "nom_fr": "Ile aux Trois Tours - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Overlook Island - Cave Chest",
+   "nom_fr": "Ile aux Trois Tours - Coffre de la grotte",
+   "objet": "Triforce Shard 8",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Overlook Island - Sunken Treasure",
+   "nom_fr": "Ile aux Trois Tours - Trésor englouti",
+   "objet": "Secret Cave Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Four Eye Reef - Destroy Cannons and Gunboats",
+   "nom_fr": "Ile de la Face Quatre - Vaincre les navires de guerre et les canons",
+   "objet": "Treasure Chart 19",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Four Eye Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Quatre - Trésor englouti",
+   "objet": "Great Fairy Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mother & Child Isles - Blue Chu Chu",
+   "nom_fr": "Ile Geminée - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mother & Child Isles - Inside Mother Isle",
+   "nom_fr": "Ile Geminée - A l'intérieur de la grande île",
+   "objet": "Fire Ice Arrows",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Mother & Child Isles - Sunken Treasure",
+   "nom_fr": "Ile Geminée - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Spectacle Island - Barrel Shooting First Prize",
+   "nom_fr": "Ile des Binocles - Première Récompense du Stand de Tir",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Spectacle Island - Barrel Shooting Second Prize",
+   "nom_fr": "Ile des Binocles - Deuxième Récompense du Stand de Tir",
+   "objet": "Treasure Chart 17",
+   "categories": [
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Spectacle Island - Blue Chu Chu",
+   "nom_fr": "Ile des Binocles - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Spectacle Island - Sunken Treasure",
+   "nom_fr": "Ile des Binocles - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Tingle First Gift",
+   "nom_fr": "Mercantîle - Premier Cadeau de Tingle",
+   "objet": "Tingle Bottle",
+   "categories": [
+    "Free Gift"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Tingle Second Gift",
+   "nom_fr": "Mercantîle - Deuxième Cadeau de Tingle",
+   "objet": "Tingle's Chart",
+   "categories": [
+    "Free Gift"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Windfall Jail Maze Chest",
+   "nom_fr": "Mercantîle - Coffre du labyrinthe de la prison",
+   "objet": "Progressive Picto Box",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Potion Shop 15 Green Chu",
+   "nom_fr": "Mercantîle - 15 Gelées Chuchu Vertes au Magasin de Potion",
+   "objet": "Green Potion",
+   "categories": [
+    "Spoils Trading"
+   ],
+   "type": "Custom_Symbol",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Potion Shop 15 Blue Chu",
+   "nom_fr": "Mercantîle - 15 Gelées Chuchu Bleues au Magasin de Potion",
+   "objet": "Blue Potion",
+   "categories": [
+    "Spoils Trading",
+    "Long Side Quest"
+   ],
+   "type": "Custom_Symbol",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Windfall Island - Ivan Catch Killer Bees",
+   "nom_fr": "Mercantîle - Cache-cache des Abeilles Tueuses (Ivan)",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie Catch Killer Bees",
+   "nom_fr": "Mercantîle - Cache-cache des Abeilles Tueuses (Mrs Mary)",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 1 Joy Pendant",
+   "nom_fr": "Mercantîle - 1 Pendentif du Bonheur pour Mrs Mary",
+   "objet": "Red Rupee",
+   "categories": [
+    "Spoils Trading",
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 21 Joy Pendant",
+   "nom_fr": "Mercantîle - 21 Pendentifs du Bonheur pour Mrs Mary",
+   "objet": "Cabana Deed",
+   "categories": [
+    "Spoils Trading",
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 40 Joy Pendant",
+   "nom_fr": "Mercantîle - 40 Pendentifs du Bonheur pour Mrs Mary",
+   "objet": "Treasure Chart 45",
+   "categories": [
+    "Spoils Trading",
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Lenzo House Left Chest",
+   "nom_fr": "Mercantîle - Coffre de gauche de la maison d'Autofocus",
+   "objet": "Treasure Chart 29",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Lenzo House Right Chest",
+   "nom_fr": "Mercantîle - Coffre de droite de la maison d'Autofocus",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Lenzo Become Assistant",
+   "nom_fr": "Mercantîle - Devenir l'Assistant d'Autofocus",
+   "objet": "Progressive Picto Box",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Lenzo Bring Forest Firefly",
+   "nom_fr": "Mercantîle - Apporter une Luciole de la Forêt à Autofocus",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - House of Wealth Chest",
+   "nom_fr": "Mercantîle - Coffre de la Maison de la Richesse",
+   "objet": "Red Rupee",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Maggie's Father Give 20 Skull Necklaces",
+   "nom_fr": "Mercantîle - 20 Colliers Macabres pour le père de Maggy",
+   "objet": "Treasure Chart 2",
+   "categories": [
+    "Spoils Trading"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Maggie Free Item",
+   "nom_fr": "Mercantîle - Objet donné par Maggy",
+   "objet": "Maggie's Letter",
+   "categories": [
+    "Free Gift"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Maggie Delivery Reward",
+   "nom_fr": "Mercantîle - Délivrer la lettre à Maggy",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Cafe Postman Delivery",
+   "nom_fr": "Mercantîle - Courrier délivré au Café-Bar",
+   "objet": "Moblin's Letter",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kreeb Light the Lighthouse",
+   "nom_fr": "Mercantîle - Rallumer le phare pour Vince",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Transparent Chest",
+   "nom_fr": "Mercantîle - Coffre transparant",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Tott Teach Rhythm",
+   "nom_fr": "Mercantîle - Danse de Johnny",
+   "objet": "Song of Passing",
+   "categories": [
+    "Free Gift"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Pirate Ship Chest",
+   "nom_fr": "Mercantîle - Coffre du Bateau Pirate",
+   "objet": "Bombs",
+   "categories": [
+    "Minigame"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Auction 5 Rupee",
+   "nom_fr": "Mercantîle - Enchère à 5 Rubis",
+   "objet": "Treasure Chart 18",
+   "categories": [
+    "Expensive Purchase",
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Auction 40 Rupee",
+   "nom_fr": "Mercantîle - Enchère à 40 Rubis",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Expensive Purchase",
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Auction 60 Rupee",
+   "nom_fr": "Mercantîle - Enchère à 60 Rubis",
+   "objet": "Treasure Chart 38",
+   "categories": [
+    "Expensive Purchase",
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Auction 80 Rupee",
+   "nom_fr": "Mercantîle - Enchère à 80 Rubis",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Expensive Purchase",
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Auction 100 Rupee",
+   "nom_fr": "Mercantîle - Enchère à 100 Rubis",
+   "objet": "Swift Sail",
+   "categories": [
+    "Expensive Purchase",
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Zunari Exotic Flower",
+   "nom_fr": "Mercantîle - Fleur du Sud à Naglagla",
+   "objet": "Magic Armor",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Custom_Symbol",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Sam Decorate Island",
+   "nom_fr": "Mercantîle - Décorer l'île pour Pat",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Shop Guru",
+   "nom_fr": "Mercantîle - Statue du Marchand pour Joe",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Obscure",
+    "Expensive Purchase",
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Postman Statue",
+   "nom_fr": "Mercantîle - Statue du Facteur pour Joe",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Obscure",
+    "Expensive Purchase",
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Six Flags",
+   "nom_fr": "Mercantîle - Six Drapeaux pour Joe",
+   "objet": "Red Rupee",
+   "categories": [
+    "Obscure",
+    "Expensive Purchase",
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Six Idols",
+   "nom_fr": "Mercantîle - Six Statues pour Joe",
+   "objet": "Red Rupee",
+   "categories": [
+    "Obscure",
+    "Expensive Purchase",
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Mila Catch Thief",
+   "nom_fr": "Mercantîle - Mina la voleuse",
+   "objet": "Empty Bottle",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid First Prize",
+   "nom_fr": "Mercantîle - Premier Prix de la Bataille Navale",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Battle Squid"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid Second Prize",
+   "nom_fr": "Mercantîle - Deuxième Prix de la Bataille Navale",
+   "objet": "Treasure Chart 7",
+   "categories": [
+    "Battle Squid"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid Under 20 Prize",
+   "nom_fr": "Mercantîle - Moins de 20 tirs à la Bataille Navale",
+   "objet": "Treasure Chart 23",
+   "categories": [
+    "Battle Squid"
+   ],
+   "type": "RPX",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Windfall Island - Dampa Pig Minigame",
+   "nom_fr": "Mercantîle - Mini-jeu des cochons de Tchen",
+   "objet": "Treasure Chart 42",
+   "categories": [
+    "Spoils Trading",
+    "Minigame"
+   ],
+   "type": "Custom_Symbol",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Pompie & Vera Secret Meeting Photo",
+   "nom_fr": "Mercantîle - Image de la rencontre secrète pour Olga et Vera",
+   "objet": "Treasure Chart 24",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Kamo Full Moon Picture",
+   "nom_fr": "Mercantîle - Image de la Pleine Lune pour Camille",
+   "objet": "Treasure Chart 31",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Minenco Miss Windfall Picture",
+   "nom_fr": "Mercantîle - Image de Miss Mercantîle Geneviève",
+   "objet": "Treasure Chart 33",
+   "categories": [
+    "Short Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Linda and Anton",
+   "nom_fr": "Mercantîle - Linda et Anton",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Long Side Quest"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Windfall Island - Sunken Treasure",
+   "nom_fr": "Mercantîle - Trésor englouti",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Blue Chu Chu",
+   "nom_fr": "Pas de Chat - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest",
+   "nom_fr": "Pas de Chat - Coffre de la Grotte des Blobs",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Behind Left Boulder",
+   "nom_fr": "Pas de Chat - Coffre derrière la rocher de gauche de la Grotte des Blobs",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Behind Right Boulder",
+   "nom_fr": "Pas de Chat - Coffre derrière le rocher de droite de la Grotte des Blobs",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Scale Wall",
+   "nom_fr": "Pas de Chat - Coffre en haut du mur de la Grotte des Blobs",
+   "objet": "Red Rupee",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Wizzrobe Cave Chest",
+   "nom_fr": "Pas de Chat - Coffre de la Grotte des Sorciers",
+   "objet": "Treasure Chart 46",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Lookout Platform Defeat Enemies",
+   "nom_fr": "Pas de Chat - Vaincre les ennemis de la tour de guet",
+   "objet": "Red Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Pawprint Isle - Sunken Treasure",
+   "nom_fr": "Pas de Chat - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Wind Shrine",
+   "nom_fr": "Ile du Dragon - Stèle du Vent",
+   "objet": "Wind's Requiem",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Boulder Chest",
+   "nom_fr": "Ile du Dragon - Coffre sur le rocher",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Hoskit Give 20 Golden Feathers",
+   "nom_fr": "Ile du Dragon - 20 Plumes d'Or pour Odelf",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Spoils Trading"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Baito Mail Game",
+   "nom_fr": "Ile du Dragon - Mini-jeu du tri du Commis de la Poste",
+   "objet": "Note to Mom",
+   "categories": [
+    "Minigame"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Fly Across Platforms Around Island",
+   "nom_fr": "Ile du Dragon - Planer autour de l'île",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Cave Chest",
+   "nom_fr": "Ile du Dragon - Coffre de la grotte",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Island - Sunken Treasure",
+   "nom_fr": "Ile du Dragon - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Flight Control Platform - First Prize",
+   "nom_fr": "Tour de l'Envol - Récompense du concours",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Minigame"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Flight Control Platform - Submarine Chest",
+   "nom_fr": "Tour de l'Envol - Coffre du sous-marin",
+   "objet": "Platform Chart",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Flight Control Platform - Sunken Treasure",
+   "nom_fr": "Tour de l'Envol - Trésor englouti",
+   "objet": "Island Hearts Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Western Fairy Island - Blue Chu Chu",
+   "nom_fr": "Ilot Occidental des Fées - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Western Fairy Island - Great Fairy",
+   "nom_fr": "Ilot Occidental des Fées - Grande Fée",
+   "objet": "Progressive Quiver",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Western Fairy Island - Lookout Platform Chest",
+   "nom_fr": "Ilot Occidental des Fées - Coffre de la tour de guet",
+   "objet": "Skull Necklace",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Western Fairy Island - Sunken Treasure",
+   "nom_fr": "Ilot Occidental des Fées - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Blue Chu Chu",
+   "nom_fr": "Ile de la Rocaille - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Defeat Southeast Gunboat",
+   "nom_fr": "Ile de la Rocaille - Vaincre le navire de guerre au Sud",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Gunboat"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 500 Rupee Item",
+   "nom_fr": "Ile de la Rocaille - Objet à 500 Rubis de la Boutique de Terry",
+   "objet": "Empty Bottle",
+   "categories": [
+    "Expensive Purchase"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 950 Rupee Item",
+   "nom_fr": "Ile de la Rocaille - Objet à 950 Rubis de la Boutique de Terry",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Expensive Purchase"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 900 Rupee Item",
+   "nom_fr": "Ile de la Rocaille - Objet à 900 Rubis de la Boutique de Terry",
+   "objet": "Treasure Chart 4",
+   "categories": [
+    "Expensive Purchase"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Western Lookout Platform Destroy Cannons",
+   "nom_fr": "Ile de la Rocaille - Détruire les canons de la tour de guet de l'Ouest",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Eastern Lookout Platform Destroy Cannons",
+   "nom_fr": "Ile de la Rocaille - Détruire les canons de la tour de guet de l'Est",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Center Lookout Platform Chest",
+   "nom_fr": "Ile de la Rocaille - Coffre de la tour de guet centrale",
+   "objet": "Red Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Cave Chest",
+   "nom_fr": "Ile de la Rocaille - Coffre de la grotte",
+   "objet": "Treasure Chart 37",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Rock Spire Isle - Sunken Treasure",
+   "nom_fr": "Ile de la Rocaille - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tingle Island - Ankle All Statues Reward",
+   "nom_fr": "Ile de Tingle - Récompense des 5 Statues Tingle par Dingle",
+   "objet": "Rainbow Rupee",
+   "categories": [
+    "Misc"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tingle Island - Blue Chu Chu",
+   "nom_fr": "Ile de Tingle - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tingle Island - Big Octo",
+   "nom_fr": "Ile de Tingle - Kalamar",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Big Octo"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tingle Island - Sunken Treasure",
+   "nom_fr": "Ile de Tingle - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Northern Triangle Island - Sunken Treasure",
+   "nom_fr": "Ile Triangulaire du Nord - Trésor englouti",
+   "objet": "Octo Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Eastern Fairy Island - Blue Chu Chu",
+   "nom_fr": "Ilot Oriental des Fées - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Eastern Fairy Island - Great Fairy",
+   "nom_fr": "Ilot Oriental des Fées - Grande Fée",
+   "objet": "Progressive Bomb Bag",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Eastern Fairy Island - Lookout Platform Defeat Cannons and Enemies",
+   "nom_fr": "Ilot Oriental des Fées - Vaincre les ennemis et les canons de la tour de guet",
+   "objet": "Boko Baba Seed",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Eastern Fairy Island - Sunken Treasure",
+   "nom_fr": "Ilot Oriental des Fées - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Fire Mountain - Big Octo",
+   "nom_fr": "Montagne de Feu - Kalamar",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Big Octo"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Fire Mountain - Interior Chest",
+   "nom_fr": "Montagne de Feu - Coffre intérieur",
+   "objet": "Power Bracelets",
+   "categories": [
+    "Puzzle Secret Cave",
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Fire Mountain - Lookout Platform Chest",
+   "nom_fr": "Montagne de Feu - Coffre de la tour de guet",
+   "objet": "Yellow Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Fire Mountain - Lookout Platform Destroy Cannons",
+   "nom_fr": "Montagne de Feu - Détruire les canons de la tour de guet",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Fire Mountain - Sunken Treasure",
+   "nom_fr": "Montagne de Feu - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Belt Archipelago - Lookout Platform Chest",
+   "nom_fr": "Archipel d'Orion - Coffre de la tour de guet",
+   "objet": "Treasure Chart 44",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Star Belt Archipelago - Sunken Treasure",
+   "nom_fr": "Archipel d'Orion - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Three Eye Reef - Destroy Cannons and Gunboats",
+   "nom_fr": "Ile de la Face Trois - Vaincre les navires de guerre et les canons",
+   "objet": "Treasure Chart 32",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Three Eye Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Trois - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Greatfish Isle - Hidden Chest",
+   "nom_fr": "Ile du Poisson - Coffre caché",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Greatfish Isle - Sunken Treasure",
+   "nom_fr": "Ile du Poisson - Trésor englouti",
+   "objet": "Triforce Shard 1",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cyclops Reef - Destroy Cannons and Gunboats",
+   "nom_fr": "Ile de la Face Une - Vaincre les navires de guerre et les canons",
+   "objet": "Treasure Chart 21",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cyclops Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Une - Trésor englouti",
+   "objet": "Light Ring Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cyclops Reef - Lookout Platform Defeat Enemies",
+   "nom_fr": "Ile de la Face Une - Vaincre les ennemis de la tour de guet",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Six Eye Reef - Destroy Cannons and Gunboats",
+   "nom_fr": "Ile de la Face Six - Vaincre les navires de guerre et les canons",
+   "objet": "Treasure Chart 26",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Six Eye Reef - Submarine Chest",
+   "nom_fr": "Ile de la Face Six - Coffre du sous-marin",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Six Eye Reef - Lookout Platform Destroy Cannons",
+   "nom_fr": "Ile de la Face Six - Détruire les canons de la tour de guet",
+   "objet": "Skull Necklace",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Six Eye Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Six - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods Sector - Sunken Treasure",
+   "nom_fr": "Secteur de la Tour des Dieux - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Eastern Triangle Island - Sunken Treasure",
+   "nom_fr": "Ile Triangulaire de l'Est - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Thorned Fairy Island - Blue Chu Chu",
+   "nom_fr": "Ilot Epineux des Fées - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Thorned Fairy Island - Great Fairy",
+   "nom_fr": "Ilot Epineux des Fées - Grande Fée",
+   "objet": "Progressive Quiver",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Thorned Fairy Island - Northeastern Lookout Platform Destroy Cannons",
+   "nom_fr": "Ilot Epineux des Fées - Détruire les canons de la tour de guet du Nord-Est",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Thorned Fairy Island - Southwestern Lookout Platform Defeat Enemies",
+   "nom_fr": "Ilot Epineux des Fées - Vaincre les ennemis de la tour de guet du Sud-Ouest",
+   "objet": "Boko Baba Seed",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Thorned Fairy Island - Sunken Treasure",
+   "nom_fr": "Ilot Epineux des Fées - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Needle Rock Isle - Chest",
+   "nom_fr": "Serrure de Pierre - Coffre de l'île",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Needle Rock Isle - Blue Chu Chu",
+   "nom_fr": "Serrure de Pierre - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Needle Rock Isle - Golden Gunboat",
+   "nom_fr": "Serrure de Pierre - Navire de guerre doré",
+   "objet": "Triforce Chart 3",
+   "categories": [
+    "Gunboat"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Needle Rock Isle - Cave Chest",
+   "nom_fr": "Serrure de Pierre - Coffre de la grotte",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Needle Rock Isle - Sunken Treasure",
+   "nom_fr": "Serrure de Pierre - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Islet of Steel - Interior Chest",
+   "nom_fr": "Canonnière - Coffre intérieur",
+   "objet": "Triforce Chart 1",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Islet of Steel - Lookout Platform Defeat Enemies",
+   "nom_fr": "Canonnière - Vaincre les ennemis de la tour de guet",
+   "objet": "Skull Necklace",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Islet of Steel - Sunken Treasure",
+   "nom_fr": "Canonnière - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Stone Watcher Island - Blue Chu Chu",
+   "nom_fr": "Ile de la Tête de Pierre - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Stone Watcher Island - Cave Chest",
+   "nom_fr": "Ile de la Tête de Pierre - Coffre de la grotte",
+   "objet": "Triforce Shard 7",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Stone Watcher Island - Lookout Platform Chest",
+   "nom_fr": "Ile de la Tête de Pierre - Coffre de la tour de guet",
+   "objet": "Red Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Stone Watcher Island - Lookout Platform Destroy Cannons",
+   "nom_fr": "Ile de la Tête de Pierre - Détruire les canons de la tour de guet",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Stone Watcher Island - Sunken Treasure",
+   "nom_fr": "Ile de la Tête de Pierre - Trésor englouti",
+   "objet": "Triforce Shard 3",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Triangle Island - Sunken Treasure",
+   "nom_fr": "Ile Triangulaire du Sud - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Private Oasis - Top of Waterfall Chest",
+   "nom_fr": "Ile de Qui-ça - Coffre au sommet de la cascade",
+   "objet": "Treasure Chart 27",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Private Oasis - Big Octo",
+   "nom_fr": "Ile de Qui-ça - Kalamar",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Big Octo"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Private Oasis - Cabana Labyrinth Lower Floor Chest",
+   "nom_fr": "Ile de Qui-ça - Coffre au sous-sol du labyrinthe",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Private Oasis - Cabana Labyrinth Upper Floor Chest",
+   "nom_fr": "Ile de Qui-ça - Coffre au RDC du labyrinthe",
+   "objet": "Triforce Shard 2",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Private Oasis - Sunken Treasure",
+   "nom_fr": "Ile de Qui-ça - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Bomb Island - Cave Chest",
+   "nom_fr": "Ile de la Bombe - Coffre de la grotte",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Bomb Island - Submarine Chest",
+   "nom_fr": "Ile de la Bombe - Coffre du sous-marin",
+   "objet": "Empty Bottle",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Bomb Island - Lookout Platform Defeat Enemies",
+   "nom_fr": "Ile de la Bombe - Vaincre les ennemis de la tour de guet",
+   "objet": "Red Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Bomb Island - Sunken Treasure",
+   "nom_fr": "Ile de la Bombe - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Birds Peak Rock - Blue Chu Chu",
+   "nom_fr": "Ile aux Nichoirs - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Birds Peak Rock - Cave Chest",
+   "nom_fr": "Ile aux Nichoirs - Coffre intérieur",
+   "objet": "Triforce Chart 3",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Birds Peak Rock - Sunken Treasure",
+   "nom_fr": "Ile aux Nichoirs - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Diamond Steppe Island - Blue Chu Chu",
+   "nom_fr": "Ile du Losange - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Diamond Steppe Island - Big Octo",
+   "nom_fr": "Ile du Losange - Kalamar",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Big Octo"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Diamond Steppe Island - Maze First Chest",
+   "nom_fr": "Ile du Losange - Premier Coffre du labyrinthe",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Diamond Steppe Island - Maze Second Chest",
+   "nom_fr": "Ile du Losange - Deuxième Coffre du labyrinthe",
+   "objet": "Ghost Ship Chart",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Diamond Steppe Island - Sunken Treasure",
+   "nom_fr": "Ile du Losange - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Eye Reef - Destroy Cannons",
+   "nom_fr": "Ile de la Face Cinq - Détruire les canons",
+   "objet": "Treasure Chart 41",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Eye Reef - Lookout Platform Chest",
+   "nom_fr": "Ile de la Face Cinq - Coffre de la tour de guet",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Eye Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Cinq - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Shark Island - Blue Chu Chu",
+   "nom_fr": "Ile du Requin - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Shark Island - Cave Chest",
+   "nom_fr": "Ile du Requin - Coffre de la grotte",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Shark Island - Sunken Treasure",
+   "nom_fr": "Ile du Requin - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Fairy Island - Blue Chu Chu",
+   "nom_fr": "Ilot Méridional des Fées - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Fairy Island - Great Fairy",
+   "nom_fr": "Ilot Méridional des Fées - Grande Fée",
+   "objet": "Progressive Bomb Bag",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Fairy Island - Lookout Platform Destroy Northwest Cannons",
+   "nom_fr": "Ilot Méridional des Fées - Détruire les canons de la tour de guet du Nord-Ouest",
+   "objet": "Treasure Chart 40",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Fairy Island - Lookout Platform Destroy Southeast Cannons",
+   "nom_fr": "Ilot Méridional des Fées - Détruire les canons de la tour de guet du Sud-Est",
+   "objet": "Skull Necklace",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Southern Fairy Island - Sunken Treasure",
+   "nom_fr": "Ilot Méridional des Fées - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Ice Ring Isle - Frozen Chest",
+   "nom_fr": "Ile Gelée - Coffre gelé",
+   "objet": "Treasure Chart 36",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Ice Ring Isle - Interior Chest",
+   "nom_fr": "Ile Gelée - Coffre intérieur",
+   "objet": "Iron Boots",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Ice Ring Isle - Inner Cave Chest",
+   "nom_fr": "Ile Gelée - Coffre de la grotte intérieure",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Puzzle Secret Cave",
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Ice Ring Isle - Sunken Treasure",
+   "nom_fr": "Ile Gelée - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forest Haven - On Tree Branch",
+   "nom_fr": "Ile aux Forêts - Sur la branche d'arbre",
+   "objet": "Deku Leaf",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forest Haven - Chest on Small Island",
+   "nom_fr": "Ile aux Forêts - Coffre de la Petite Ile",
+   "objet": "Treasure Chart 3",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forest Haven - Sunken Treasure",
+   "nom_fr": "Ile aux Forêts - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Cave Chest",
+   "nom_fr": "Saut de Roc - Coffre de la grotte",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Highest Isle Chest",
+   "nom_fr": "Saut de Roc - Coffre sur la Haute Ile",
+   "objet": "Treasure Chart 25",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Blue Chu Chu",
+   "nom_fr": "Saut de Roc - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Lookout Platform Chest",
+   "nom_fr": "Saut de Roc - Coffre de la tour de guet",
+   "objet": "Boko Baba Seed",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Sunken Treasure",
+   "nom_fr": "Saut de Roc - Trésor englouti",
+   "objet": "Triforce Shard 5",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Blue Chu Chu",
+   "nom_fr": "Ile du Fer à Cheval - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Play Golf",
+   "nom_fr": "Ile du Fer à Cheval - Jouer au Golf",
+   "objet": "Treasure Chart 28",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Cave Chest",
+   "nom_fr": "Ile du Fer à Cheval - Coffre de la grotte",
+   "objet": "Treasure Chart 8",
+   "categories": [
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Northwestern Lookout Platform Chest",
+   "nom_fr": "Ile du Fer à Cheval - Coffre de la tour de guet du Nord-Ouest",
+   "objet": "Treasure Chart 43",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Southeastern Lookout Platform Chest",
+   "nom_fr": "Ile du Fer à Cheval - Coffre de la tour de guet du Sud-Est",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Horseshoe Island - Sunken Treasure",
+   "nom_fr": "Ile du Fer à Cheval - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Under Link's House",
+   "nom_fr": "Ile de l'Aurore - Sous la Maison de Mémé",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Mesa's House Chest",
+   "nom_fr": "Ile de l'Aurore - Coffre de la Maison d'André",
+   "objet": "Red Rupee",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Orca Give 10 Knight's Crests",
+   "nom_fr": "Ile de l'Aurore - 10 Blasons d'Epeiste pour Orco",
+   "objet": "Hurricane Spin",
+   "categories": [
+    "Spoils Trading"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Great Fairy",
+   "nom_fr": "Ile de l'Aurore - Grande Fée",
+   "objet": "Progressive Wallet",
+   "categories": [
+    "Great Fairy"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Jabun's Cave Chest",
+   "nom_fr": "Ile de l'Aurore - Coffre de la caverne de Jabu",
+   "objet": "Nayru's Pearl",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Dig up Black Soil",
+   "nom_fr": "Ile de l'Aurore - Creuser avec Link le Cochon",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Orca Hit 500 Times",
+   "nom_fr": "Ile de l'Aurore - Frapper Orco 500 fois",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Obscure"
+   ],
+   "type": "RPX",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Savage Labyrinth Floor 30",
+   "nom_fr": "Ile de l'Aurore - 30e étage de la Crypte Magique",
+   "objet": "Triforce Shard 6",
+   "categories": [
+    "Savage Labyrinth"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Savage Labyrinth Floor 50",
+   "nom_fr": "Ile de l'Aurore - 50e étage de la Crypte Magique",
+   "objet": "Hero's Charm",
+   "categories": [
+    "Savage Labyrinth"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Outset Island - Sunken Treasure",
+   "nom_fr": "Ile de l'Aurore - Trésor englouti",
+   "objet": "Triforce Shard 6",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Headstone Island - Top of Island",
+   "nom_fr": "Ile de la Terre - Sommet de l'Ile",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Headstone Island - Submarine Chest",
+   "nom_fr": "Ile de la Terre - Coffre du sous-marin",
+   "objet": "Treasure Chart 14",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Headstone Island - Sunken Treasure",
+   "nom_fr": "Ile de la Terre - Trésor englouti",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Two Eye Reef - Destroy Cannons and Gunboats",
+   "nom_fr": "Ile de la Face Deux - Vaincre les navires de guerre et les canons",
+   "objet": "Treasure Chart 13",
+   "categories": [
+    "Eye Reef Chests"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Two Eye Reef - Big Octo Great Fairy",
+   "nom_fr": "Ile de la Face Deux - Grande Fée du Kalamar",
+   "objet": "Progressive Magic Meter",
+   "categories": [
+    "Big Octo",
+    "Great Fairy"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Two Eye Reef - Lookout Platform Chest",
+   "nom_fr": "Ile de la Face Deux - Coffre de la tour de guet",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Two Eye Reef - Sunken Treasure",
+   "nom_fr": "Ile de la Face Deux - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Angular Isles - Peak Chest",
+   "nom_fr": "Ilots Kif Kif - Coffre au sommet",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Island Puzzle"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Angular Isles - Blue Chu Chu",
+   "nom_fr": "Ilots Kif Kif - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Angular Isles - Cave Chest",
+   "nom_fr": "Ilots Kif Kif - Coffre de la grotte",
+   "objet": "Silver Rupee",
+   "categories": [
+    "Puzzle Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Angular Isles - Sunken Treasure",
+   "nom_fr": "Ilots Kif Kif - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Boating Course - Blue Chu Chu",
+   "nom_fr": "Batodrome - Blob Bleu",
+   "objet": "Blue Chu Jelly",
+   "categories": [
+    "Blue Chu Chu"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Boating Course - Raft Chest",
+   "nom_fr": "Batodrome - Coffre du radeau",
+   "objet": "Boko Baba Seed",
+   "categories": [
+    "Raft"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Boating Course - Cave Chest",
+   "nom_fr": "Batodrome -Coffre de la grotte",
+   "objet": "Submarine Chart",
+   "categories": [
+    "Puzzle Secret Cave",
+    "Combat Secret Cave"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Boating Course - Sunken Treasure",
+   "nom_fr": "Batodrome - Trésor englouti",
+   "objet": "Sea Hearts Chart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Star Isles - Raft Chest",
+   "nom_fr": "Archipel de Cassiopée - Coffre du radeau",
+   "objet": "Red Rupee",
+   "categories": [
+    "Raft"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Star Isles - Submarine Chest",
+   "nom_fr": "Archipel de Cassiopée - Coffre du sous-marin",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Submarine"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Star Isles - Lookout Platform Destroy Cannons",
+   "nom_fr": "Archipel de Cassiopée - Détruire les canons de la tour de guet",
+   "objet": "Golden Feather",
+   "categories": [
+    "Platform"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Five Star Isles - Sunken Treasure",
+   "nom_fr": "Archipel de Cassiopée - Trésor englouti",
+   "objet": "Piece of Heart",
+   "categories": [
+    "Sunken Treasure"
+   ],
+   "type": "SCOB",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - First Room Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de l'entrée",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Water Jug Alcove Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de l'alcôve des pots d'eau",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Water Jug On Upper Shelf",
+   "nom_fr": "Caverne du Dragon - Jarre d'eau sur l'étagère supérieure",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boarded Up Chest",
+   "nom_fr": "Caverne du Dragon - Coffre barricadé",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Swing Across Lava Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de l'autre côté de la lave",
+   "objet": "Treasure Chart 11",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Rat Room Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de la Salle des Rats",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Rat Room Boarded Up Chest",
+   "nom_fr": "Caverne du Dragon - Coffre barricadé de la Salle des Rats",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Bird's Nest",
+   "nom_fr": "Caverne du Dragon - Nid du Condor",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Dark Room Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de la salle sombre",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Pot Room Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de la salle des pots",
+   "objet": "Treasure Chart 39",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Pot on Upper Shelf in Pot Room",
+   "nom_fr": "Caverne du Dragon - Pot de l'étagère de la salle des pots",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Right Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de droite des escaliers du Boss",
+   "objet": "Knights Crest",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Left Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de gauche des escaliers du Boss",
+   "objet": "Yellow Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Right Pot",
+   "nom_fr": "Caverne du Dragon - Pot de droite des escaliers du Boss",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Mini Boss",
+   "nom_fr": "Caverne du Dragon - Mini-Boss",
+   "objet": "Grappling Hook",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Under Rope Bridge Chest",
+   "nom_fr": "Caverne du Dragon - Coffre sous le pont de corde",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Tingle Statue Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de la Statue Tingle",
+   "objet": "Dragon Tingle Statue",
+   "categories": [
+    "Dungeon",
+    "Tingle Chest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Big Key Chest",
+   "nom_fr": "Caverne du Dragon - Coffre de la Grande Clé",
+   "objet": "Big Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Gohma Heart Container",
+   "nom_fr": "Caverne du Dragon - Réceptacle de Cœur de Gohma",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - First Room Chest",
+   "nom_fr": "Bois Défendus - Coffre de l'entrée",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Boko Baba Climb Chest",
+   "nom_fr": "Bois Défendus - Coffre de la montée par Bud Baba",
+   "objet": "Treasure Chart 1",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Pot High Above Hollow Tree",
+   "nom_fr": "Bois Défendus - Pot de la cime de l'arbre creux",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Inside Hollow Tree Chest",
+   "nom_fr": "Bois Défendus - Coffre à l'intérieur de l'arbre creux",
+   "objet": "Knights Crest",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Hole In Tree Chest",
+   "nom_fr": "Bois Défendus - Coffre du trou de l'arbre",
+   "objet": "Red Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Morth Pit Chest",
+   "nom_fr": "Bois Défendus - Coffre de la fosse aux Chardons",
+   "objet": "Yellow Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Vine Maze Left Chest",
+   "nom_fr": "Bois Défendus - Coffre de gauche du labyrinthe des plantes grimpantes",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Vine Maze Right Chest",
+   "nom_fr": "Bois Défendus - Coffre de droite du labyrinthe des plantes grimpantes",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Highest Pot in Vine Maze",
+   "nom_fr": "Bois Défendus - Pot supérieur du labyrinthe des plantes grimpantes",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Tall Room Chest",
+   "nom_fr": "Bois Défendus - Coffre de la haute pièce",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Mothula Mini Boss Chest",
+   "nom_fr": "Bois Défendus - Mini-Boss Mite",
+   "objet": "Boomerang",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Past Seeds Hanging by Vines Chest",
+   "nom_fr": "Bois Défendus - Coffre derrière les noix pendus",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Chest Across Hanging Flower",
+   "nom_fr": "Bois Défendus - Coffre derrière la fleur pendue",
+   "objet": "Yellow Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Tingle Statue Chest",
+   "nom_fr": "Bois Défendus - Coffre de la Statue Tingle",
+   "objet": "Forbidden Tingle Statue",
+   "categories": [
+    "Dungeon",
+    "Tingle Chest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Locked Tree Trunk Chest",
+   "nom_fr": "Bois Défendus - Coffre du tronc d'arbre verrouillé",
+   "objet": "Treasure Chart 15",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Big Key Chest",
+   "nom_fr": "Bois Défendus - Coffre de la Grande Clé",
+   "objet": "Big Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Double Mothula Room Chest",
+   "nom_fr": "Bois Défendus - Coffre de la Salle aux deux Mites",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Forbidden Woods - Kalle Demos Heart Container",
+   "nom_fr": "Bois Défendus - Réceptacle de Cœur de Karle Demos",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Hop Across Floating Boxes Chest",
+   "nom_fr": "Tour des Dieux - Coffre de la traversée par caisses flottantes",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Chest Behind Bombable Wall",
+   "nom_fr": "Tour des Dieux - Coffre derrière le Mur Fissuré",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Pot Behind Bombable Wall",
+   "nom_fr": "Tour des Dieux - Pot derrière le Mur Fissuré",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Light Two Torches Chest",
+   "nom_fr": "Tour des Dieux - Coffre des deux torches",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Skull Room Chest",
+   "nom_fr": "Tour des Dieux - Coffre de la Salle du Tetdoss",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Shoot Eye Above Skulls Chest",
+   "nom_fr": "Tour des Dieux - Coffre de l'interrupteur œil de la Salle du Tetdoss",
+   "objet": "Treasure Chart 6",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Tingle Statue Chest",
+   "nom_fr": "Tour des Dieux - Coffre de la Statue Tingle",
+   "objet": "Goddess Tingle Statue",
+   "categories": [
+    "Dungeon",
+    "Tingle Chest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Stone Tablet",
+   "nom_fr": "Tour des Dieux - Stèle de Pierre",
+   "objet": "Command Melody",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Event",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - First Armos Knights Chest",
+   "nom_fr": "Tour des Dieux - Premier Coffre des Grands Armos",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Darknut Mini Boss",
+   "nom_fr": "Tour des Dieux - Mini-Boss Darknut",
+   "objet": "Progressive Bow",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Floating Platforms Room Lower Chest",
+   "nom_fr": "Tour des Dieux - Coffre inférieur de la Salle aux Platefomes",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Floating Platforms Room Upper Chest",
+   "nom_fr": "Tour des Dieux - Coffre supérieur de la Salle aux Plateformes",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Second Armos Knights Chest",
+   "nom_fr": "Tour des Dieux - Deuxième Coffre des Grands Armos",
+   "objet": "Treasure Chart 30",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Big Key Chest",
+   "nom_fr": "Tour des Dieux - Coffre de la Grande Clé",
+   "objet": "Big Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Eastern Pot in Big Key Chest Room",
+   "nom_fr": "Tour des Dieux - Pot de l'Est de la Salle du Coffre de la Grande Clé",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Tower of the Gods - Gohdan Heart Container",
+   "nom_fr": "Tour des Dieux - Réceptacle de Cœur de Gordon",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Warp Pot Room Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la Salle des Blobs",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Warp Pot Room Behind Curtain",
+   "nom_fr": "Temple de la Terre - Derrière le Rideau de la Salle des Blobs",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - First Crypt Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la première crypte",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Chest Behind Destructable Wall",
+   "nom_fr": "Temple de la Terre - Coffre derrière le Mur Fissuré",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Three Blocks Room Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la Salle aux Trois Blocs",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Behind Statues Chest",
+   "nom_fr": "Temple de la Terre - Coffre derrière les statues",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Second Crypt Casket",
+   "nom_fr": "Temple de la Terre - Sarcophage de la deuxième crypte",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Stalfos Mini Boss",
+   "nom_fr": "Temple de la Terre - Mini-Boss Stalfos",
+   "objet": "Mirror Shield",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Tingle Statue Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la Statue Tingle",
+   "objet": "Earth Tingle Statue",
+   "categories": [
+    "Dungeon",
+    "Tingle Chest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Foggy Floormaster Room End Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la Salle brumeuse des Mains",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Kill All Floormasters Chest",
+   "nom_fr": "Temple de la Terre - Vaincre toutes les Mains",
+   "objet": "Treasure Chart 20",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Near Hammer Button Behind Curtain",
+   "nom_fr": "Temple de la Terre - Derrière le Rideau près du bouton de la Masse",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Third Crypt Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la troisième crypte",
+   "objet": "Red Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Many Mirrors Room Right Chest",
+   "nom_fr": "Temple de la Terre - Coffre de droite de la Salle des Miroirs",
+   "objet": "Purple Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Many Mirrors Room Left Chest",
+   "nom_fr": "Temple de la Terre - Coffre de gauche de la Salle des Miroirs",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Big Key Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la Grande Clé",
+   "objet": "Big Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Stalfos Crypt Room Chest",
+   "nom_fr": "Temple de la Terre - Coffre de la crypte des Stalfos",
+   "objet": "Treasure Chart 12",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Earth Temple - Jalhalla Heart Container",
+   "nom_fr": "Temple de la Terre - Réceptacle de Cœur de Jay Harla",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Between Dirt Patches Chest",
+   "nom_fr": "Temple du Vent - Coffre entre les deux arbres",
+   "objet": "Orange Rupee",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head in Hidden Upper Room",
+   "nom_fr": "Temple du Vent - Derrière la Tête de Pierre de la Salle Supérieure Secrète",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Tingle Statue Chest",
+   "nom_fr": "Temple du Vent - Coffre de la Statue Tingle",
+   "objet": "Wind Tingle Statue",
+   "categories": [
+    "Dungeon",
+    "Tingle Chest"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head Chest",
+   "nom_fr": "Temple du Vent - Coffre derrière la Tête de Pierre",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Left Alcove Chest",
+   "nom_fr": "Temple du Vent - Coffre de l'alcôve de gauche",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Big Key Chest",
+   "nom_fr": "Temple du Vent - Coffre de la Grande Clé",
+   "objet": "Big Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Cyclones Room Chest",
+   "nom_fr": "Temple du Vent - Coffre de la Salle des Cyclones",
+   "objet": "Dungeon Map",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head in Many Cyclones Room",
+   "nom_fr": "Temple du Vent - Derrière la Tête de Pierre de la Salle des Cyclones",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon",
+    "Dungeon Secret"
+   ],
+   "type": "Actor",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Hub Room Center Chest",
+   "nom_fr": "Temple du Vent - Coffre de la Salle Centrale",
+   "objet": "Compass",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Wizzrobe Mini Boss",
+   "nom_fr": "Temple du Vent - Mini-Boss Sorcier",
+   "objet": "Hookshot",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Spike Wall Room First Chest",
+   "nom_fr": "Temple du Vent - Premier Coffre de la Salle des Pointes",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Spike Wall Room Destroy Floors",
+   "nom_fr": "Temple du Vent - Détruire les plaques au sol de la Salle des Pointes",
+   "objet": "Treasure Chart 35",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Hub Room Top Chest",
+   "nom_fr": "Temple du Vent - Coffre au sommet de la Salle Centrale",
+   "objet": "Joy Pendant",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Behind Armos Chest",
+   "nom_fr": "Temple du Vent - Coffre des Armos",
+   "objet": "Small Key",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Kill All Basement Room Enemies",
+   "nom_fr": "Temple du Vent - Vaincre les ennemis du Sous-Sol",
+   "objet": "Treasure Chart 5",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Wind Temple - Molgera Heart Container",
+   "nom_fr": "Temple du Vent - Réceptacle de Cœur de Gayla",
+   "objet": "Heart Container",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Boss",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Hyrule Castle - Sword Chamber Chest",
+   "nom_fr": "Château d'Hyrule - Coffre de la Chambre d'Excalibur",
+   "objet": "Master Sword Powerless",
+   "categories": [
+    "Misc"
+   ],
+   "type": "Chest",
+   "priorite": "Sometimes"
+  },
+  {
+   "nom": "Ganon's Tower - Maze Chest",
+   "nom_fr": "Château de Ganon - Coffre du labyrinthe",
+   "objet": "Light Arrow",
+   "categories": [
+    "Dungeon"
+   ],
+   "type": "Chest",
+   "priorite": "Always"
+  },
+  {
+   "nom": "Ganon's Tower - Defeat Ganondorf",
+   "nom_fr": "Château de Ganon - Vaincre Ganondorf",
+   "objet": "Game Beatable",
+   "categories": [
+    "Always Progression"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Forsaken Fortress Sector - Old Man Ho Ho",
+   "nom_fr": "Secteur de la Forteresse Maudite - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Northern Fairy Island - Old Man Ho Ho",
+   "nom_fr": "Ilot Septentrional des Fées - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Crescent Moon Island - Old Man Ho Ho",
+   "nom_fr": "Ile du Croissant - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Flight Control Platform - Old Man Ho Ho",
+   "nom_fr": "Tour de l'Envol - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Stone Watcher Island - Old Man Ho Ho",
+   "nom_fr": "Ile de la Tête de Pierre - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Private Oasis - Old Man Ho Ho",
+   "nom_fr": "Ile de Qui-ça - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Bomb Island - Old Man Ho Ho",
+   "nom_fr": "Ile de la Bombe - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Horseshoe Island - Old Man Ho Ho",
+   "nom_fr": "Ile du Fer à Cheval - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Outset Island - Old Man Ho Ho",
+   "nom_fr": "Ile de l'Aurore - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  },
+  {
+   "nom": "Two Eye Reef - Old Man Ho Ho",
+   "nom_fr": "Ile de la Face Deux - Biggle",
+   "objet": "Nothing",
+   "categories": [
+    "Ho Ho Hint"
+   ],
+   "type": "Do Nothing",
+   "priorite": "Never"
+  }
+ ]
+}

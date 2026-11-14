@@ -1,0 +1,1717 @@
+{
+ "description": "Randomizer par fichiers, lot 6 (docs/etudes/rando_fichiers.md) : lieux changés par le pack WWMP_Rando GÉNÉRÉ sur chaque PC (fichiers du jeu et lignes de code). Chemins, décalages et adresses repris de TWWHD-Randomizer (logic/data/location_data.yaml ; SuperDude88 et contributeurs, licence MIT, Copyright (c) 2024 SuperDude88 : LICENSE_TWWHD.txt), puis RELUS dans le dump USA v0 (tools/tests/test_rando_lot6.py). « id » : objet du jeu d'origine relu dans le dump ; « objet » : objet de logique ; l'index dans « sites » est le site des entrées de type 5 de la table. Aucun fichier du jeu ici.",
+ "sites": [
+  {
+   "famille": "tresors",
+   "nom": "Forsaken Fortress Sector - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room1.szs@YAZ0@SARC@Room1.bfres@BFRES@room.dzr",
+   "decalages": [
+    8856,
+    9216,
+    9252,
+    9288
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Star Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room2.szs@YAZ0@SARC@Room2.bfres@BFRES@room.dzr",
+   "decalages": [
+    12292,
+    12328,
+    12364,
+    12400
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Northern Fairy Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room3.szs@YAZ0@SARC@Room3.bfres@BFRES@room.dzr",
+   "decalages": [
+    5052,
+    5088,
+    5124,
+    5160
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Gale Isle - Sunken Treasure",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room4.szs@YAZ0@SARC@Room4.bfres@BFRES@room.dzr",
+   "decalages": [
+    7380,
+    7416,
+    7452,
+    7488
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Crescent Moon Island - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room5.szs@YAZ0@SARC@Room5.bfres@BFRES@room.dzr",
+   "decalages": [
+    2216,
+    2252,
+    2288,
+    2324
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Seven Star Isles - Big Octo",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room6.szs@YAZ0@SARC@Room6.bfres@BFRES@room.dzr",
+   "decalages": [
+    4728
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Seven Star Isles - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room6.szs@YAZ0@SARC@Room6.bfres@BFRES@room.dzr",
+   "decalages": [
+    5016,
+    5052,
+    5088,
+    5124
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Overlook Island - Sunken Treasure",
+   "objet": "Secret Cave Chart",
+   "id": 198,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room7.szs@YAZ0@SARC@Room7.bfres@BFRES@room.dzr",
+   "decalages": [
+    5448,
+    5484,
+    5520,
+    5556
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Four Eye Reef - Sunken Treasure",
+   "objet": "Great Fairy Chart",
+   "id": 201,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room8.szs@YAZ0@SARC@Room8.bfres@BFRES@room.dzr",
+   "decalages": [
+    7932,
+    7968,
+    8004,
+    8040
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Mother & Child Isles - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent2.pack@SARC@sea_Room9.szs@YAZ0@SARC@Room9.bfres@BFRES@room.dzr",
+   "decalages": [
+    6644,
+    6680,
+    6716,
+    6752
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Spectacle Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room10.szs@YAZ0@SARC@Room10.bfres@BFRES@room.dzr",
+   "decalages": [
+    3056,
+    3092,
+    3128,
+    3164
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Windfall Island - Sunken Treasure",
+   "objet": "Green Rupee",
+   "id": 1,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room11.szs@YAZ0@SARC@Room11.bfres@BFRES@room.dzr",
+   "decalages": [
+    12600,
+    12636,
+    12672,
+    12708
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Pawprint Isle - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room12.szs@YAZ0@SARC@Room12.bfres@BFRES@room.dzr",
+   "decalages": [
+    11072,
+    11108,
+    11144,
+    11180
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Dragon Roost Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room13.szs@YAZ0@SARC@Room13.bfres@BFRES@room.dzr",
+   "decalages": [
+    10496,
+    10532,
+    10568,
+    10604
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Flight Control Platform - Sunken Treasure",
+   "objet": "Island Hearts Chart",
+   "id": 200,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room14.szs@YAZ0@SARC@Room14.bfres@BFRES@room.dzr",
+   "decalages": [
+    4384,
+    4420,
+    4456,
+    4492
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Western Fairy Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room15.szs@YAZ0@SARC@Room15.bfres@BFRES@room.dzr",
+   "decalages": [
+    5760,
+    5796,
+    5832,
+    5868
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Rock Spire Isle - Defeat Southeast Gunboat",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room16.szs@YAZ0@SARC@Room16.bfres@BFRES@room.dzr",
+   "decalages": [
+    6788
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Rock Spire Isle - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room16.szs@YAZ0@SARC@Room16.bfres@BFRES@room.dzr",
+   "decalages": [
+    7076,
+    7112,
+    7148,
+    7184
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Tingle Island - Big Octo",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room17.szs@YAZ0@SARC@Room17.bfres@BFRES@room.dzr",
+   "decalages": [
+    3024
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Tingle Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room17.szs@YAZ0@SARC@Room17.bfres@BFRES@room.dzr",
+   "decalages": [
+    3384,
+    3420,
+    3456,
+    3492
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Northern Triangle Island - Sunken Treasure",
+   "objet": "Octo Chart",
+   "id": 202,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room18.szs@YAZ0@SARC@Room18.bfres@BFRES@room.dzr",
+   "decalages": [
+    2496,
+    2532,
+    2568,
+    2604
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Eastern Fairy Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room19.szs@YAZ0@SARC@Room19.bfres@BFRES@room.dzr",
+   "decalages": [
+    5240,
+    5276,
+    5312,
+    5348
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Fire Mountain - Big Octo",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room20.szs@YAZ0@SARC@Room20.bfres@BFRES@room.dzr",
+   "decalages": [
+    3784
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Fire Mountain - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room20.szs@YAZ0@SARC@Room20.bfres@BFRES@room.dzr",
+   "decalages": [
+    4144,
+    4180,
+    4216,
+    4252
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Star Belt Archipelago - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room21.szs@YAZ0@SARC@Room21.bfres@BFRES@room.dzr",
+   "decalages": [
+    4840,
+    4876,
+    4912,
+    4948
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Three Eye Reef - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room22.szs@YAZ0@SARC@Room22.bfres@BFRES@room.dzr",
+   "decalages": [
+    8472,
+    8508,
+    8544,
+    8580
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Greatfish Isle - Sunken Treasure",
+   "objet": "Triforce Shard 1",
+   "id": 97,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room23.szs@YAZ0@SARC@Room23.bfres@BFRES@room.dzr",
+   "decalages": [
+    6752,
+    6788,
+    6824,
+    6860
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Cyclops Reef - Sunken Treasure",
+   "objet": "Light Ring Chart",
+   "id": 197,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room24.szs@YAZ0@SARC@Room24.bfres@BFRES@room.dzr",
+   "decalages": [
+    9924,
+    9960,
+    9996,
+    10032
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Six Eye Reef - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room25.szs@YAZ0@SARC@Room25.bfres@BFRES@room.dzr",
+   "decalages": [
+    10916,
+    10952,
+    10988,
+    11024
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Tower of the Gods Sector - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room26.szs@YAZ0@SARC@Room26.bfres@BFRES@room.dzr",
+   "decalages": [
+    1700,
+    1736,
+    1772,
+    1808
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Eastern Triangle Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room27.szs@YAZ0@SARC@Room27.bfres@BFRES@room.dzr",
+   "decalages": [
+    3564,
+    3600,
+    3636,
+    3672
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Thorned Fairy Island - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room28.szs@YAZ0@SARC@Room28.bfres@BFRES@room.dzr",
+   "decalages": [
+    6788,
+    6824,
+    6860,
+    6896
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Needle Rock Isle - Golden Gunboat",
+   "objet": "Triforce Chart 3",
+   "id": 250,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room29.szs@YAZ0@SARC@Room29.bfres@BFRES@room.dzr",
+   "decalages": [
+    8596
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Needle Rock Isle - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room29.szs@YAZ0@SARC@Room29.bfres@BFRES@room.dzr",
+   "decalages": [
+    8344,
+    8380,
+    8416,
+    8452
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Islet of Steel - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room30.szs@YAZ0@SARC@Room30.bfres@BFRES@room.dzr",
+   "decalages": [
+    3184,
+    3220,
+    3256,
+    3292
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Stone Watcher Island - Sunken Treasure",
+   "objet": "Triforce Shard 3",
+   "id": 99,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room31.szs@YAZ0@SARC@Room31.bfres@BFRES@room.dzr",
+   "decalages": [
+    8956,
+    8992,
+    9028,
+    9064
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Southern Triangle Island - Sunken Treasure",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room32.szs@YAZ0@SARC@Room32.bfres@BFRES@room.dzr",
+   "decalages": [
+    2752,
+    2788,
+    2824,
+    2860
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Private Oasis - Big Octo",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room33.szs@YAZ0@SARC@Room33.bfres@BFRES@room.dzr",
+   "decalages": [
+    9696
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Private Oasis - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room33.szs@YAZ0@SARC@Room33.bfres@BFRES@room.dzr",
+   "decalages": [
+    9228,
+    9264,
+    9300,
+    9336
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Bomb Island - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room34.szs@YAZ0@SARC@Room34.bfres@BFRES@room.dzr",
+   "decalages": [
+    8140,
+    8176,
+    8212,
+    8248
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Birds Peak Rock - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room35.szs@YAZ0@SARC@Room35.bfres@BFRES@room.dzr",
+   "decalages": [
+    5560,
+    5596,
+    5632,
+    5668
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Diamond Steppe Island - Big Octo",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room36.szs@YAZ0@SARC@Room36.bfres@BFRES@room.dzr",
+   "decalages": [
+    5740
+   ],
+   "acteurs": [
+    "SwSlvg"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Diamond Steppe Island - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room36.szs@YAZ0@SARC@Room36.bfres@BFRES@room.dzr",
+   "decalages": [
+    6028,
+    6064,
+    6100,
+    6136
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Five Eye Reef - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room37.szs@YAZ0@SARC@Room37.bfres@BFRES@room.dzr",
+   "decalages": [
+    11308,
+    11344,
+    11380,
+    11416
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Shark Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room38.szs@YAZ0@SARC@Room38.bfres@BFRES@room.dzr",
+   "decalages": [
+    5456,
+    5492,
+    5528,
+    5564
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Southern Fairy Island - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent2.pack@SARC@sea_Room39.szs@YAZ0@SARC@Room39.bfres@BFRES@room.dzr",
+   "decalages": [
+    8256,
+    8292,
+    8328,
+    8364
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Ice Ring Isle - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room40.szs@YAZ0@SARC@Room40.bfres@BFRES@room.dzr",
+   "decalages": [
+    4800,
+    4836,
+    4872,
+    4908
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Forest Haven - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent2.pack@SARC@sea_Room41.szs@YAZ0@SARC@Room41.bfres@BFRES@room.dzr",
+   "decalages": [
+    15656,
+    15692,
+    15728,
+    15764
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Cliff Plateau Isles - Sunken Treasure",
+   "objet": "Triforce Shard 5",
+   "id": 101,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room42.szs@YAZ0@SARC@Room42.bfres@BFRES@room.dzr",
+   "decalages": [
+    5376,
+    5412,
+    5448,
+    5484
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Horseshoe Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room43.szs@YAZ0@SARC@Room43.bfres@BFRES@room.dzr",
+   "decalages": [
+    7404,
+    7440,
+    7476,
+    7512
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Outset Island - Dig up Black Soil",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent2.pack@SARC@sea_Room44.szs@YAZ0@SARC@Room44.bfres@BFRES@room.dzr",
+   "decalages": [
+    15060
+   ],
+   "acteurs": [
+    "TagKb"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Outset Island - Sunken Treasure",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "scob",
+   "chemin": "content/Common/Pack/szs_permanent2.pack@SARC@sea_Room44.szs@YAZ0@SARC@Room44.bfres@BFRES@room.dzr",
+   "decalages": [
+    13656,
+    13692,
+    13728,
+    13764
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Headstone Island - Sunken Treasure",
+   "objet": "Silver Rupee",
+   "id": 15,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room45.szs@YAZ0@SARC@Room45.bfres@BFRES@room.dzr",
+   "decalages": [
+    5476,
+    5512,
+    5548,
+    5584
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Two Eye Reef - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room46.szs@YAZ0@SARC@Room46.bfres@BFRES@room.dzr",
+   "decalages": [
+    9488,
+    9524,
+    9560,
+    9596
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Angular Isles - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room47.szs@YAZ0@SARC@Room47.bfres@BFRES@room.dzr",
+   "decalages": [
+    1844,
+    1880,
+    1916,
+    1952
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Boating Course - Sunken Treasure",
+   "objet": "Sea Hearts Chart",
+   "id": 199,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room48.szs@YAZ0@SARC@Room48.bfres@BFRES@room.dzr",
+   "decalages": [
+    3736,
+    3772,
+    3808,
+    3844
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "tresors",
+   "nom": "Five Star Isles - Sunken Treasure",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "scob",
+   "chemin": "content/Common/Stage/sea_Room49.szs@YAZ0@SARC@Room49.bfres@BFRES@room.dzr",
+   "decalages": [
+    4920,
+    4956,
+    4992,
+    5028
+   ],
+   "acteurs": [
+    "Salvage",
+    "Salvage",
+    "Salvage",
+    "Salvage"
+   ]
+  },
+  {
+   "famille": "evenements",
+   "nom": "Great Sea - Cyclos",
+   "objet": "Ballad of Gales",
+   "id": 110,
+   "voie": "evenement",
+   "chemin": "content/Common/Pack/first_szs_permanent.pack@SARC@sea_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 688883,
+   "decalage_nom": 372256,
+   "action": "059get_dance"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Windfall Island - Maggie's Father Give 20 Skull Necklaces",
+   "objet": "Treasure Chart 2",
+   "id": 238,
+   "voie": "evenement",
+   "chemin": "content/Common/Stage/Orichh_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 182687,
+   "decalage_nom": 113600,
+   "action": "011get_item"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Windfall Island - Cafe Postman Delivery",
+   "objet": "Moblin's Letter",
+   "id": 155,
+   "voie": "evenement",
+   "chemin": "content/Common/Stage/Opub_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 140355,
+   "decalage_nom": 46144,
+   "action": "011get_item"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Windfall Island - Tott Teach Rhythm",
+   "objet": "Song of Passing",
+   "id": 114,
+   "voie": "evenement",
+   "chemin": "content/Common/Pack/first_szs_permanent.pack@SARC@sea_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 688991,
+   "decalage_nom": 375056,
+   "action": "059get_dance"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Windfall Island - Mila Catch Thief",
+   "objet": "Empty Bottle",
+   "id": 80,
+   "voie": "evenement",
+   "chemin": "content/Common/Pack/first_szs_permanent.pack@SARC@sea_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 684719,
+   "decalage_nom": 229776,
+   "action": "011get_item"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Dragon Roost Island - Hoskit Give 20 Golden Feathers",
+   "objet": "Orange Rupee",
+   "id": 6,
+   "voie": "evenement",
+   "chemin": "content/Common/Stage/Atorizk_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 130107,
+   "decalage_nom": 34656,
+   "action": "011get_item"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Dragon Roost Island - Baito Mail Game",
+   "objet": "Note to Mom",
+   "id": 153,
+   "voie": "evenement",
+   "chemin": "content/Common/Stage/Atorizk_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 130123,
+   "decalage_nom": 35456,
+   "action": "011_get_item"
+  },
+  {
+   "famille": "evenements",
+   "nom": "Tower of the Gods - Stone Tablet",
+   "objet": "Command Melody",
+   "id": 111,
+   "voie": "evenement",
+   "chemin": "content/Common/Stage/Siren_Stage.szs@YAZ0@SARC@Stage.bfres@BFRES@event_list.dat",
+   "decalage": 200215,
+   "decalage_nom": 124512,
+   "action": "059get_dance"
+  },
+  {
+   "famille": "boss",
+   "nom": "Forsaken Fortress - Helmaroc King Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     33996950,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/M2tower_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     6316
+    ],
+    [
+     "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room1.szs@YAZ0@SARC@Room1.bfres@BFRES@room.dzr",
+     13044
+    ],
+    [
+     "content/Common/Pack/szs_permanent1.pack@SARC@sea_Room1.szs@YAZ0@SARC@Room1.bfres@BFRES@room.dzr",
+     13368
+    ]
+   ]
+  },
+  {
+   "famille": "boss",
+   "nom": "Dragon Roost Cavern - Gohma Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     34561750,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/M_DragB_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     1728
+    ]
+   ]
+  },
+  {
+   "famille": "boss",
+   "nom": "Forbidden Woods - Kalle Demos Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     34273558,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/kinBOSS_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     276
+    ]
+   ]
+  },
+  {
+   "famille": "boss",
+   "nom": "Tower of the Gods - Gohdan Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     34536987,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/SirenB_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     960
+    ]
+   ]
+  },
+  {
+   "famille": "boss",
+   "nom": "Earth Temple - Jalhalla Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     34450910,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/M_DaiB_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     192
+    ]
+   ]
+  },
+  {
+   "famille": "boss",
+   "nom": "Wind Temple - Molgera Heart Container",
+   "objet": "Heart Container",
+   "id": 8,
+   "voie": "boss",
+   "octets_rpx": [
+    [
+     34615783,
+     0
+    ]
+   ],
+   "bitem": [
+    [
+     "content/Common/Stage/kazeB_Room0.szs@YAZ0@SARC@Room0.bfres@BFRES@room.dzr",
+     276
+    ]
+   ]
+  },
+  {
+   "famille": "fees",
+   "nom": "Northern Fairy Island - Great Fairy",
+   "objet": "Progressive Wallet",
+   "id": 171,
+   "voie": "fee",
+   "numero": 0
+  },
+  {
+   "famille": "fees",
+   "nom": "Outset Island - Great Fairy",
+   "objet": "Progressive Wallet",
+   "id": 172,
+   "voie": "fee",
+   "numero": 1
+  },
+  {
+   "famille": "fees",
+   "nom": "Eastern Fairy Island - Great Fairy",
+   "objet": "Progressive Bomb Bag",
+   "id": 173,
+   "voie": "fee",
+   "numero": 2
+  },
+  {
+   "famille": "fees",
+   "nom": "Southern Fairy Island - Great Fairy",
+   "objet": "Progressive Bomb Bag",
+   "id": 174,
+   "voie": "fee",
+   "numero": 3
+  },
+  {
+   "famille": "fees",
+   "nom": "Western Fairy Island - Great Fairy",
+   "objet": "Progressive Quiver",
+   "id": 175,
+   "voie": "fee",
+   "numero": 4
+  },
+  {
+   "famille": "fees",
+   "nom": "Thorned Fairy Island - Great Fairy",
+   "objet": "Progressive Quiver",
+   "id": 176,
+   "voie": "fee",
+   "numero": 5
+  },
+  {
+   "famille": "sol",
+   "nom": "Headstone Island - Top of Island",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/sea_Room45.szs@YAZ0@SARC@Room45.bfres@BFRES@room.dzr",
+   "decalages": [
+    3404
+   ],
+   "acteurs": [
+    "item"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Dragon Roost Cavern - Water Jug On Upper Shelf",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/M_NewD2_Room13.szs@YAZ0@SARC@Room13.bfres@BFRES@room.dzr",
+   "decalages": [
+    1060
+   ],
+   "acteurs": [
+    "Kmtub"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Dragon Roost Cavern - Pot on Upper Shelf in Pot Room",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/M_NewD2_Room6.szs@YAZ0@SARC@Room6.bfres@BFRES@room.dzr",
+   "decalages": [
+    1368
+   ],
+   "acteurs": [
+    "ootubo1"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Dragon Roost Cavern - Boss Stairs Right Pot",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/M_NewD2_Room10.szs@YAZ0@SARC@Room10.bfres@BFRES@room.dzr",
+   "decalages": [
+    1268
+   ],
+   "acteurs": [
+    "ootubo1"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Forbidden Woods - Pot High Above Hollow Tree",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/kindan_Room1.szs@YAZ0@SARC@Room1.bfres@BFRES@room.dzr",
+   "decalages": [
+    3712
+   ],
+   "acteurs": [
+    "ootubo1"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Forbidden Woods - Highest Pot in Vine Maze",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/kindan_Room7.szs@YAZ0@SARC@Room7.bfres@BFRES@room.dzr",
+   "decalages": [
+    7456
+   ],
+   "acteurs": [
+    "ootubo1"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Tower of the Gods - Pot Behind Bombable Wall",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/Siren_Room3.szs@YAZ0@SARC@Room3.bfres@BFRES@room.dzr",
+   "decalages": [
+    536
+   ],
+   "acteurs": [
+    "kotubo"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Tower of the Gods - Eastern Pot in Big Key Chest Room",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/Siren_Room17.szs@YAZ0@SARC@Room17.bfres@BFRES@room.dzr",
+   "decalages": [
+    564
+   ],
+   "acteurs": [
+    "kotubo"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Earth Temple - Warp Pot Room Behind Curtain",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/M_Dai_Room2.szs@YAZ0@SARC@Room2.bfres@BFRES@room.dzr",
+   "decalages": [
+    1044
+   ],
+   "acteurs": [
+    "item"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Earth Temple - Near Hammer Button Behind Curtain",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/M_Dai_Room13.szs@YAZ0@SARC@Room13.bfres@BFRES@room.dzr",
+   "decalages": [
+    1168
+   ],
+   "acteurs": [
+    "item"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Wind Temple - Behind Stone Head in Hidden Upper Room",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/kaze_Room1.szs@YAZ0@SARC@Room1.bfres@BFRES@room.dzr",
+   "decalages": [
+    744
+   ],
+   "acteurs": [
+    "Homen2"
+   ]
+  },
+  {
+   "famille": "sol",
+   "nom": "Wind Temple - Behind Stone Head in Many Cyclones Room",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "acteur",
+   "chemin": "content/Common/Stage/kaze_Room7.szs@YAZ0@SARC@Room7.bfres@BFRES@room.dzr",
+   "decalages": [
+    1936
+   ],
+   "acteurs": [
+    "Homen2"
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Tingle First Gift",
+   "objet": "Tingle Bottle",
+   "id": 33,
+   "voie": "immediat",
+   "adresses": [
+    36608239
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Tingle Second Gift",
+   "objet": "Tingle's Chart",
+   "id": 220,
+   "voie": "immediat",
+   "adresses": [
+    36608291
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Mrs. Marie Catch Killer Bees",
+   "objet": "Purple Rupee",
+   "id": 5,
+   "voie": "immediat",
+   "adresses": [
+    35912831
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Mrs. Marie 1 Joy Pendant",
+   "objet": "Red Rupee",
+   "id": 4,
+   "voie": "immediat",
+   "adresses": [
+    35913107
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Mrs. Marie 21 Joy Pendant",
+   "objet": "Cabana Deed",
+   "id": 156,
+   "voie": "immediat",
+   "adresses": [
+    35913155
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Mrs. Marie 40 Joy Pendant",
+   "objet": "Treasure Chart 45",
+   "id": 248,
+   "voie": "immediat",
+   "adresses": [
+    35913403
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Lenzo Bring Forest Firefly",
+   "objet": "Joy Pendant",
+   "id": 31,
+   "voie": "immediat",
+   "adresses": [
+    36502187
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Maggie Free Item",
+   "objet": "Maggie's Letter",
+   "id": 154,
+   "voie": "immediat",
+   "adresses": [
+    36160163
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Battle Squid First Prize",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "immediat",
+   "adresses": [
+    36073863
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Battle Squid Second Prize",
+   "objet": "Treasure Chart 7",
+   "id": 204,
+   "voie": "immediat",
+   "adresses": [
+    36073879
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Battle Squid Under 20 Prize",
+   "objet": "Treasure Chart 23",
+   "id": 241,
+   "voie": "immediat",
+   "adresses": [
+    36074343
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Flight Control Platform - First Prize",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "immediat",
+   "adresses": [
+    35677691
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Tingle Island - Ankle All Statues Reward",
+   "objet": "Rainbow Rupee",
+   "id": 184,
+   "voie": "immediat",
+   "adresses": [
+    36608371
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Outset Island - Orca Hit 500 Times",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "immediat",
+   "adresses": [
+    36013879
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Great Sea - Withered Trees",
+   "objet": "Piece of Heart",
+   "id": 7,
+   "voie": "immediat",
+   "adresses": [
+    36994091,
+    36993707
+   ]
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Potion Shop 15 Green Chu",
+   "objet": "Green Potion",
+   "id": 82,
+   "voie": "potion",
+   "emplacement": 0
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Potion Shop 15 Blue Chu",
+   "objet": "Blue Potion",
+   "id": 83,
+   "voie": "potion",
+   "emplacement": 1
+  },
+  {
+   "famille": "pnj_code",
+   "nom": "Windfall Island - Zunari Exotic Flower",
+   "objet": "Magic Armor",
+   "id": 42,
+   "voie": "zunari",
+   "adresses": [
+    36545959,
+    36546907
+   ]
+  },
+  {
+   "famille": "beedle",
+   "nom": "Great Sea - Beedle Shop 20 Rupee Item",
+   "objet": "Bait Bag",
+   "id": 44,
+   "voie": "boutique",
+   "entree": 0
+  },
+  {
+   "famille": "beedle",
+   "nom": "Rock Spire Isle - Beedle 900 Rupee Item",
+   "objet": "Treasure Chart 4",
+   "id": 225,
+   "voie": "boutique",
+   "entree": 13
+  }
+ ]
+}

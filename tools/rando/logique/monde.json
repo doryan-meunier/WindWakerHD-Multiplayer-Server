@@ -1,0 +1,4872 @@
+{
+ "source": {
+  "projet": "SuperDude88/TWWHD-Randomizer",
+  "commit": "a66347af1c2b035887d82b3450da7472612971df",
+  "licence": "MIT, Copyright (c) 2024 SuperDude88 (LICENSE_TWWHD.txt)",
+  "sha256": {
+   "world.yaml": "50678dd87f3eeb720d77fae00d520965e6d2b2a612462b31059643cbc1b20717",
+   "macros.yaml": "368e0cd8b76f09c1ef4e0b26864e6d6d4e5d7702d13d96ef8db9dc53631ed069",
+   "location_data.yaml": "daff75b0a436543fcbda9c20af2586c85b61f6fb18def7a57af17103ea7d58f7",
+   "item_data.yaml": "415916885766705257f3487e4eba27d34acc927856d3bc837921e1a103189047"
+  }
+ },
+ "zones": [
+  {
+   "nom": "Root",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Link's Spawn": "Nothing"
+   }
+  },
+  {
+   "nom": "Link's Spawn",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Mailbox Checks",
+   "region": "Mailbox",
+   "evenements": {},
+   "lieux": {
+    "Mailbox - Letter from Hoskit's Girlfriend": "Can_Farm_Golden_Feathers and Can_Play_SoP and Spoils_Bag and can_access(Dragon Roost Rito Aerie)",
+    "Mailbox - Letter from Baito's Mother": "Can_Play_SoP and Note_to_Mom and Delivery_Bag",
+    "Mailbox - Letter from Baito": "Note_to_Mom and Delivery_Bag and 'Jalhalla_Defeated'",
+    "Mailbox - Letter from Komali's Father": "Farores_Pearl",
+    "Mailbox - Letter Advertising Bombs": "Bombs",
+    "Mailbox - Letter Advertising Rock Spire Shop Ship": "Wallet_Upgrade",
+    "Mailbox - Beedle's Silver Membership Reward": "Can_Play_SoP and (Bait_Bag or Bombs or Heros_Bow or Empty_Bottle)",
+    "Mailbox - Beedle's Gold Membership Reward": "Can_Play_SoP and (Bait_Bag or Bombs or Heros_Bow or Empty_Bottle)",
+    "Mailbox - Letter from Orca": "'Kalle_Demos_Defeated'",
+    "Mailbox - Letter from Grandma": "Can_Play_SoP and can_access(Outset Link's House) and Empty_Bottle and 'Can_Get_Fairies'",
+    "Mailbox - Letter from Aryll": "Can_Play_SoP and 'Helmaroc_King_Defeated'",
+    "Mailbox - Letter from Tingle": "Can_Play_SoP and 'Rescued_Tingle' and 'Helmaroc_King_Defeated'"
+   },
+   "sorties": {}
+  },
+  {
+   "nom": "The Great Sea",
+   "region": "The Great Sea",
+   "evenements": {},
+   "lieux": {
+    "Great Sea - Salvage Corp Gift": "Can_Sail_Away",
+    "Great Sea - Cyclos": "Can_Sail_Away and Heros_Bow",
+    "Great Sea - Goron Trading Reward": "Can_Trade_With_All_Gorons and Rescued_Aryll and Delivery_Bag",
+    "Great Sea - Withered Trees": "Can_Play_BoG and 'Can_Get_Forest_Water' and can_access(Star Island) and can_access(Mother & Child Isles) and can_access(Eastern Fairy Island) and can_access(Greatfish Isle) and can_access(Needle Rock Isle) and can_access(Private Oasis) and can_access(Shark Island) and can_access(Cliff Plateau Highest Isle)"
+   },
+   "sorties": {
+    "Forsaken Fortress Sector": "Can_Sail_Away",
+    "Star Island": "Can_Sail_Away",
+    "Northern Fairy Island": "Can_Sail_Away",
+    "Gale Isle": "Can_Sail_Away",
+    "Crescent Moon Island": "Can_Sail_Away",
+    "Seven Star Isles": "Can_Sail_Away",
+    "Overlook Island": "Can_Sail_Away",
+    "Four Eye Reef": "Can_Sail_Away",
+    "Mother & Child Isles": "Can_Sail_Away",
+    "Mother & Child Inside Mother Isle": "Can_Play_BoG",
+    "Spectacle Island": "Can_Sail_Away",
+    "Windfall Island": "Can_Sail_Away or Can_Play_BoG",
+    "Pawprint Isle": "Can_Sail_Away",
+    "Dragon Roost Island": "Can_Sail_Away or Can_Play_BoG",
+    "Flight Control Platform": "Can_Sail_Away",
+    "Western Fairy Island": "Can_Sail_Away",
+    "Rock Spire Isle": "Can_Sail_Away",
+    "Tingle Island": "Can_Sail_Away or Can_Play_BoG",
+    "Northern Triangle Island": "Can_Sail_Away",
+    "Eastern Fairy Island": "Can_Sail_Away",
+    "Fire Mountain": "Can_Sail_Away",
+    "Star Belt Archipelago": "Can_Sail_Away",
+    "Three Eye Reef": "Can_Sail_Away",
+    "Greatfish Isle": "Can_Sail_Away or Can_Play_BoG",
+    "Cyclops Reef": "Can_Sail_Away",
+    "Six Eye Reef": "Can_Sail_Away",
+    "Tower of the Gods Sector": "Can_Sail_Away",
+    "Eastern Triangle Island": "Can_Sail_Away",
+    "Thorned Fairy Island": "Can_Sail_Away",
+    "Needle Rock Isle": "Can_Sail_Away",
+    "Islet of Steel": "Can_Sail_Away",
+    "Stone Watcher Island": "Can_Sail_Away",
+    "Southern Triangle Island": "Can_Sail_Away",
+    "Private Oasis": "Can_Sail_Away",
+    "Bomb Island": "Can_Sail_Away",
+    "Birds Peak Rock": "Can_Sail_Away",
+    "Diamond Steppe Island": "Can_Sail_Away",
+    "Five Eye Reef": "Can_Sail_Away",
+    "Shark Island": "Can_Sail_Away",
+    "Southern Fairy Island": "Can_Sail_Away or Can_Play_BoG",
+    "Ice Ring Isle": "Can_Sail_Away",
+    "Forest Haven": "Can_Sail_Away or Can_Play_BoG",
+    "Cliff Plateau Isles": "Can_Sail_Away",
+    "Horseshoe Island": "Can_Sail_Away",
+    "Outset Island": "Can_Sail_Away or Can_Play_BoG",
+    "Headstone Island": "Can_Sail_Away",
+    "Two Eye Reef": "Can_Sail_Away",
+    "Angular Isles": "Can_Sail_Away",
+    "Boating Course": "Can_Sail_Away",
+    "Five Star Isles": "Can_Sail_Away",
+    "Ghost Ship Interior": "Can_Sail_Away and Can_Play_BoG and Can_Play_SoP and Ghost_Ship_Chart"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Sector",
+   "ile": "Forsaken Fortress Sector",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress Sector - Sunken Treasure": "Chart_For_Island_1 and Can_Salvage_Sunken_Treasure",
+    "Forsaken Fortress Sector - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Forsaken Fortress Inner Courtyard": "Bombs",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Inner Courtyard",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress - Phantom Ganon": "Can_Defeat_Phantom_Ganon"
+   },
+   "sorties": {
+    "Forsaken Fortress Barrel Storage Room Lower": "Can_Defeat_Phantom_Ganon",
+    "Forsaken Fortress Sleeping Quarters Outside Ledge": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Forsaken Fortress Up Switch Back Stairs": "Skull_Hammer",
+    "Forsaken Fortress Sector": "Bombs or Can_Play_BoG"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Sleeping Quarters Outside Ledge",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Sleeping Quarters": "Can_Defeat_Phantom_Ganon"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Sleeping Quarters",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress - Chest on Bed": "Nothing"
+   },
+   "sorties": {
+    "Forsaken Fortress Sleeping Quarters Outside Ledge": "Nothing",
+    "Forsaken Fortress Southwest Hallway Upper": "Nothing",
+    "Forsaken Fortress Sleeping Quarters Past Hammer Pegs": "Can_Fly_With_Deku_Leaf_Indoors and Skull_Hammer",
+    "Forsaken Fortress Northwest Hallway Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Northwest Hallway Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Sleeping Quarters": "Nothing",
+    "Forsaken Fortress Boat Room Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Boat Room Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Northwest Hallway Lower": "Nothing",
+    "Forsaken Fortress Northeast Hallway Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Northeast Hallway Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Boat Room Lower": "Nothing",
+    "Forsaken Fortress Barrel Storage Room Lower": "Skull_Hammer"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Barrel Storage Room Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Southeast Hallway Lower": "Nothing",
+    "Forsaken Fortress Northeast Hallway Lower": "Skull_Hammer"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Southeast Hallway Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Mess Hall Lower": "Skull_Hammer",
+    "Forsaken Fortress Barrel Storage Room Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Mess Hall Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress South Hallway Lower": "Nothing",
+    "Forsaken Fortress Southeast Hallway Lower": "Skull_Hammer",
+    "Forsaken Fortress Mess Hall Upper South": "Hookshot",
+    "Forsaken Fortress Mess Hall Upper North": "Skull_Hammer"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress South Hallway Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Mess Hall Lower": "Nothing",
+    "Forsaken Fortress Jail Cell Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Jail Cell Lower",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress - Chest Inside Lower Jail Cell": "Nothing"
+   },
+   "sorties": {
+    "Forsaken Fortress South Hallway Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Sleeping Quarters Past Hammer Pegs",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Sleeping Quarters": "Skull_Hammer",
+    "Forsaken Fortress Northwest Hallway Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Northwest Hallway Upper",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Sleeping Quarters Past Hammer Pegs": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Boat Room Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Boat Room Upper",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Northwest Hallway Upper": "Nothing",
+    "Forsaken Fortress Boat Room Lower": "Nothing",
+    "Forsaken Fortress Outside Path to Boss": "Nothing",
+    "Forsaken Fortress Northeast Hallway Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Northeast Hallway Upper",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Boat Room Upper": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Barrel Storage Room Upper North": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Barrel Storage Room Upper North",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Barrel Storage Room Upper South": "Hookshot or Can_Fly_With_Deku_Leaf_Indoors",
+    "Forsaken Fortress Barrel Storage Room Lower": "Nothing",
+    "Forsaken Fortress Northeast Hallway Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Barrel Storage Room Upper South",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Southeast Hallway Upper": "Nothing",
+    "Forsaken Fortress Barrel Storage Room Lower": "Nothing",
+    "Forsaken Fortress Barrel Storage Room Upper North": "Hookshot or Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Southeast Hallway Upper",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Barrel Storage Room Upper South": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Mess Hall Upper North": "Nothing",
+    "Forsaken Fortress Southeast Searchlight": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Southeast Searchlight",
+   "donjon": "Forsaken Fortress",
+   "evenements": {
+    "Can Disable Southeast Searchlight": "Can_Defeat_Bokoblins"
+   },
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Southeast Hallway Upper": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Up Switch Back Stairs": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Mess Hall Upper North",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Southeast Hallway Upper": "Nothing",
+    "Forsaken Fortress Mess Hall Lower": "Skull_Hammer",
+    "Forsaken Fortress Mess Hall Upper South": "Skull_Hammer and (Hookshot or Can_Fly_With_Deku_Leaf_Indoors)"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Mess Hall Upper South",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress - Chest Guarded by Bokoblin": "Nothing"
+   },
+   "sorties": {
+    "Forsaken Fortress Mess Hall Upper North": "Skull_Hammer and Can_Fly_With_Deku_Leaf_Indoors",
+    "Forsaken Fortress Mess Hall Lower": "Nothing",
+    "Forsaken Fortress Up Switch Back Stairs": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Up Switch Back Stairs",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Jail Cell Upper East": "Nothing",
+    "Forsaken Fortress Southwest Hallway Upper": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Mess Hall Upper South": "Nothing",
+    "Forsaken Fortress Southwest Searchlight": "Nothing",
+    "Forsaken Fortress West Searchlight": "Nothing",
+    "Forsaken Fortress Sleeping Quarters Outside Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Southwest Searchlight",
+   "donjon": "Forsaken Fortress",
+   "evenements": {
+    "Can Disable Southwest Searchlight": "Can_Defeat_Bokoblins"
+   },
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Southwest Hallway Upper": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Up Switch Back Stairs": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress West Searchlight",
+   "donjon": "Forsaken Fortress",
+   "evenements": {
+    "Can Disable West Searchlight": "Can_Defeat_Bokoblins"
+   },
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Up Switch Back Stairs": "Nothing",
+    "Forsaken Fortress Sleeping Quarters Outside Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Jail Cell Upper East",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Jail Cell Upper West": "Can_Fly_With_Deku_Leaf_Indoors or Hookshot",
+    "Forsaken Fortress Jail Cell Lower": "Nothing",
+    "Forsaken Fortress Southwest Hallway Upper": "Nothing",
+    "Forsaken Fortress Up Switch Back Stairs": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Jail Cell Upper West",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {
+    "Forsaken Fortress - Chest Outside Upper Jail Cell": "Nothing"
+   },
+   "sorties": {
+    "Forsaken Fortress Jail Cell Upper East": "Can_Fly_With_Deku_Leaf_Indoors",
+    "Forsaken Fortress Jail Cell Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Southwest Hallway Upper",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Jail Cell Upper East": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Sleeping Quarters": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Outside Path to Boss",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Before First Sidle Gap": "Skull_Hammer",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Boat Room Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Before First Sidle Gap",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Before Second Sidle Gap": "Nothing",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Southeast Hallway Upper": "Nothing",
+    "Forsaken Fortress Outside Path to Boss": "Skull_Hammer"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Before Second Sidle Gap",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forsaken Fortress Before Boss Door": "Can_Fly_With_Deku_Leaf_Outdoors or Grappling_Hook or 'Can_Disable_Southeast_Searchlight'",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Southeast Hallway Upper": "Nothing",
+    "Forsaken Fortress Before First Sidle Gap": "Nothing"
+   }
+  },
+  {
+   "nom": "Forsaken Fortress Before Boss Door",
+   "donjon": "Forsaken Fortress",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Helmaroc King Battle Arena": "Skull_Hammer",
+    "Forsaken Fortress Inner Courtyard": "Nothing",
+    "Forsaken Fortress Before Second Sidle Gap": "Nothing"
+   }
+  },
+  {
+   "nom": "Helmaroc King Battle Arena",
+   "evenements": {
+    "Helmaroc King Defeated": "Can_Defeat_Helmaroc_King"
+   },
+   "lieux": {
+    "Forsaken Fortress - Helmaroc King Heart Container": "Can_Defeat_Helmaroc_King"
+   },
+   "sorties": {
+    "Forsaken Fortress Before Boss Door": "Can_Defeat_Helmaroc_King"
+   }
+  },
+  {
+   "nom": "Star Island",
+   "ile": "Star Island",
+   "evenements": {},
+   "lieux": {
+    "Star Island - Blue Chu Chu": "Can_Move_Boulders and Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Star Island - Sunken Treasure": "Chart_For_Island_2 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Star Island Cave": "Can_Move_Boulders",
+    "The Great Sea": "Nothing",
+    "Star Island Lookout Platform": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Star Island Lookout Platform",
+   "ile": "Star Island",
+   "evenements": {},
+   "lieux": {
+    "Star Island - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Star Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Star Island Cave",
+   "evenements": {},
+   "lieux": {
+    "Star Island - Cave Chest": "Can_Defeat_Magtails"
+   },
+   "sorties": {
+    "Star Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Northern Fairy Island",
+   "ile": "Northern Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Northern Fairy Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Northern Fairy Island - Sunken Treasure": "Chart_For_Island_3 and Can_Salvage_Sunken_Treasure",
+    "Northern Fairy Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Northern Fairy Island - Great Fairy Fountain": "Nothing",
+    "Northern Fairy Island Submarine Exterior": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Northern Fairy Island Submarine Exterior",
+   "ile": "Northern Fairy Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Northern Fairy Island Submarine Interior": "Nothing",
+    "Northern Fairy Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Northern Fairy Island Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Northern Fairy Island - Submarine Chest": "Nothing"
+   },
+   "sorties": {
+    "Northern Fairy Island Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Northern Fairy Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Northern Fairy Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Northern Fairy Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Gale Isle",
+   "ile": "Gale Isle",
+   "evenements": {},
+   "lieux": {
+    "Gale Isle - Sunken Treasure": "Chart_For_Island_4 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing",
+    "Gale Isle Interior": "Skull_Hammer and Iron_Boots"
+   }
+  },
+  {
+   "nom": "Gale Isle Interior",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Gale Isle": "Nothing",
+    "WT First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "Crescent Moon Island",
+   "ile": "Crescent Moon Island",
+   "evenements": {},
+   "lieux": {
+    "Crescent Moon Island - Chest on Island": "Nothing",
+    "Crescent Moon Island - Blue Chu Chu North": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Crescent Moon Island - Blue Chu Chu South": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Crescent Moon Island - Sunken Treasure": "Chart_For_Island_5 and Can_Salvage_Sunken_Treasure",
+    "Crescent Moon Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Crescent Moon Submarine Exterior": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Crescent Moon Submarine Exterior",
+   "ile": "Crescent Moon Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Crescent Moon Submarine Interior": "Nothing",
+    "Crescent Moon Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Crescent Moon Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Crescent Moon Island - Submarine Chest": "Can_Defeat_Miniblins"
+   },
+   "sorties": {
+    "Crescent Moon Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Seven Star Isles",
+   "ile": "Seven Star Isles",
+   "evenements": {},
+   "lieux": {
+    "Seven Star Isles - Big Octo": "Can_Defeat_12_Eye_Big_Octos and Can_Salvage_Sunken_Treasure",
+    "Seven Star Isles - Sunken Treasure": "Chart_For_Island_6 and Can_Salvage_Sunken_Treasure and Can_Defeat_Gunboats"
+   },
+   "sorties": {
+    "Seven Star Lookout Platforms": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Seven Star Lookout Platforms",
+   "ile": "Seven Star Isles",
+   "evenements": {},
+   "lieux": {
+    "Seven Star Isles - Center Lookout Platform Chest": "Nothing",
+    "Seven Star Isles - Northern Lookout Platform Chest": "Nothing",
+    "Seven Star Isles - Southern Lookout Platform Chest": "Can_Defeat_Wizzrobes_At_Range"
+   },
+   "sorties": {
+    "Seven Star Isles": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Overlook Island",
+   "ile": "Overlook Island",
+   "evenements": {},
+   "lieux": {
+    "Overlook Island - Sunken Treasure": "Chart_For_Island_7 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing",
+    "Overlook Island Upper Isles": "Hookshot"
+   }
+  },
+  {
+   "nom": "Overlook Island Upper Isles",
+   "ile": "Overlook Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Overlook Cave": "Nothing",
+    "Overlook Island Upper Isles Chu Platform": "Hookshot or Can_Fly_With_Deku_Leaf_Outdoors",
+    "Overlook Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Overlook Island Upper Isles Chu Platform",
+   "ile": "Overlook Island",
+   "evenements": {},
+   "lieux": {
+    "Overlook Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {
+    "Overlook Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Overlook Cave",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag and Can_Defeat_Darknuts_Easily",
+    "Can Farm Lots Of Rupees": "(Can_Defeat_Stalfos and Can_Defeat_Wizzrobes and Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus and Can_Defeat_Keese and Can_Defeat_Fire_Keese and Can_Defeat_Morths and Can_Defeat_Kargarocs) or Skull_Hammer"
+   },
+   "lieux": {
+    "Overlook Island - Cave Chest": "Can_Defeat_Stalfos and Can_Defeat_Wizzrobes and Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus and Can_Defeat_Keese and Can_Defeat_Fire_Keese and Can_Defeat_Morths and Can_Defeat_Kargarocs and Can_Defeat_Darknuts and Can_Play_WR"
+   },
+   "sorties": {
+    "Overlook Island Upper Isles": "Nothing"
+   }
+  },
+  {
+   "nom": "Four Eye Reef",
+   "ile": "Four Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Four Eye Reef - Destroy Cannons and Gunboats": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Defeat_Gunboats",
+    "Four Eye Reef - Sunken Treasure": "Chart_For_Island_8 and Can_Salvage_Sunken_Treasure and Can_Defeat_Gunboats"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Mother & Child Isles",
+   "ile": "Mother & Child Isles",
+   "evenements": {},
+   "lieux": {
+    "Mother & Child Isles - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Mother & Child Isles - Sunken Treasure": "Chart_For_Island_9 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Mother & Child Inside Mother Isle",
+   "ile": "Mother & Child Isles",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Mother & Child Isles - Inside Mother Isle": "Nothing"
+   },
+   "sorties": {
+    "The Great Sea": "Can_Play_BoG"
+   }
+  },
+  {
+   "nom": "Spectacle Island",
+   "ile": "Spectacle Island",
+   "evenements": {},
+   "lieux": {
+    "Spectacle Island - Barrel Shooting First Prize": "Nothing",
+    "Spectacle Island - Barrel Shooting Second Prize": "Nothing",
+    "Spectacle Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Spectacle Island - Sunken Treasure": "Chart_For_Island_10 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Spectacle Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Spectacle Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Spectacle Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Island",
+   "ile": "Windfall Island",
+   "evenements": {
+    "Activate Ferris Wheel": "Can_Play_WR",
+    "Can Farm Lots Of Rupees": "Nothing"
+   },
+   "lieux": {
+    "Windfall Island - Ivan Catch Killer Bees": "can_access(Windfall School of Joy)",
+    "Windfall Island - Transparent Chest": "'Can_Light_Windfall_Lighthouse' and (Hookshot or Can_Fly_With_Deku_Leaf_Outdoors)",
+    "Windfall Island - Tott Teach Rhythm": "Wind_Waker",
+    "Windfall Island - Zunari Exotic Flower": "Rescued_Aryll and Delivery_Bag and can_access(Greatfish Isle)",
+    "Windfall Island - Sam Decorate Island": "Rescued_Aryll and Delivery_Bag",
+    "Windfall Island - Kane Decorate Shop Guru": "Rescued_Aryll and Delivery_Bag and Can_Trade_With_All_Gorons",
+    "Windfall Island - Kane Decorate Postman Statue": "Rescued_Aryll and Delivery_Bag and Can_Trade_With_All_Gorons",
+    "Windfall Island - Kane Decorate Six Flags": "Rescued_Aryll and Delivery_Bag and Can_Trade_With_All_Gorons",
+    "Windfall Island - Kane Decorate Six Idols": "Rescued_Aryll and Delivery_Bag and Can_Trade_With_All_Gorons",
+    "Windfall Island - Mila Catch Thief": "Rescued_Aryll and Can_Play_SoP",
+    "Windfall Island - Dampa Pig Minigame": "Rescued_Aryll and Can_Farm_Skull_Necklaces and Spoils_Bag",
+    "Windfall Island - Pompie & Vera Secret Meeting Photo": "can_access(Windfall Lenzo's House Upper) and 'Can_Start_Lenzo_Quest'",
+    "Windfall Island - Kamo Full Moon Picture": "Deluxe_Picto_Box and Can_Play_SoP",
+    "Windfall Island - Minenco Miss Windfall Picture": "Deluxe_Picto_Box",
+    "Windfall Island - Sunken Treasure": "Chart_For_Island_11 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Windfall Island Riding Ferris Wheel": "'Activate_Ferris_Wheel' and (Can_Fly_With_Deku_Leaf_Outdoors or Heros_Sword or Skull_Hammer)",
+    "Windfall Jail": "Nothing",
+    "Windfall School of Joy": "Nothing",
+    "Windfall Lenzo's House from Bottom Entry": "Nothing",
+    "Windfall Lenzo's House Upper Ledge": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Windfall Cafe Bar": "Nothing",
+    "Windfall Battle Squid Interior": "Nothing",
+    "Windfall Battle Squid Upper Ledge": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Windfall House of Wealth Lower": "Nothing",
+    "Windfall House of Wealth Upper": "Nothing",
+    "Windfall Potion Shop": "Nothing",
+    "Windfall Bomb Shop": "Nothing",
+    "Windfall Bomb Shop Upper Ledge": "Nothing",
+    "Windfall Pirate Ship": "Nothing",
+    "Windfall Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Island Riding Ferris Wheel",
+   "evenements": {
+    "Can Light Windfall Lighthouse": "Fire_Arrows and Can_Play_SoP"
+   },
+   "lieux": {},
+   "sorties": {
+    "Windfall Island": "Nothing",
+    "Windfall Lenzo's House Upper Ledge": "Nothing",
+    "Windfall Battle Squid Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Jail",
+   "evenements": {
+    "Rescued Tingle": "Nothing"
+   },
+   "lieux": {
+    "Windfall Island - Tingle First Gift": "Nothing",
+    "Windfall Island - Tingle Second Gift": "Nothing",
+    "Windfall Island - Windfall Jail Maze Chest": "Nothing"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall School of Joy",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Mrs. Marie Catch Killer Bees": "can_access(Windfall Island)",
+    "Windfall Island - Mrs. Marie 1 Joy Pendant": "Spoils_Bag and can_access(Windfall Island)",
+    "Windfall Island - Mrs. Marie 21 Joy Pendant": "Spoils_Bag and Can_Farm_Joy_Pendants and can_access(Windfall Island)",
+    "Windfall Island - Mrs. Marie 40 Joy Pendant": "Spoils_Bag and Can_Farm_Joy_Pendants and can_access(Windfall Island)"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Lenzo's House from Bottom Entry",
+   "evenements": {
+    "Can Start Lenzo Quest": "Picto_Box"
+   },
+   "lieux": {},
+   "sorties": {
+    "Windfall Lenzo's House Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Lenzo's House Lower",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Lenzo Become Assistant": "can_access(Windfall Island) and can_access(Windfall Cafe Bar) and 'Can_Start_Lenzo_Quest'",
+    "Windfall Island - Lenzo Bring Forest Firefly": "can_access(Windfall Island) and can_access(Windfall Cafe Bar) and 'Can_Start_Lenzo_Quest' and 'Can_Get_Forest_Firefly'"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Lenzo's House Upper",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Lenzo House Left Chest": "Nothing",
+    "Windfall Island - Lenzo House Right Chest": "Nothing"
+   },
+   "sorties": {
+    "Windfall Lenzo's House Lower": "Nothing",
+    "Windfall Lenzo's House Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Lenzo's House Upper Ledge",
+   "ile": "Windfall Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Windfall Lenzo's House Upper": "Picto_Box and 'Can_Start_Lenzo_Quest'",
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Cafe Bar",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Cafe Postman Delivery": "Rescued_Aryll and Delivery_Bag and Maggies_Letter and can_access(Windfall House of Wealth Upper)",
+    "Windfall Island - Linda and Anton": "Deluxe_Picto_Box and Can_Play_SoP and can_access(Windfall Island) and can_access(Windfall Lenzo's House Lower)"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Battle Squid Interior",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Battle Squid First Prize": "Nothing",
+    "Windfall Island - Battle Squid Second Prize": "Nothing",
+    "Windfall Island - Battle Squid Under 20 Prize": "Nothing"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing",
+    "Windfall Battle Squid Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Battle Squid Upper Ledge",
+   "ile": "Windfall Island",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Kreeb Light the Lighthouse": "'Can_Light_Windfall_Lighthouse'"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing",
+    "Windfall Battle Squid Interior": "Nothing",
+    "Windfall Island Riding Ferris Wheel": "'Activate_Ferris_Wheel'"
+   }
+  },
+  {
+   "nom": "Windfall House of Wealth Lower",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Auction 5 Rupee": "Nothing",
+    "Windfall Island - Auction 40 Rupee": "Nothing",
+    "Windfall Island - Auction 60 Rupee": "Nothing",
+    "Windfall Island - Auction 80 Rupee": "Nothing",
+    "Windfall Island - Auction 100 Rupee": "Nothing"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall House of Wealth Upper",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - House of Wealth Chest": "Nothing",
+    "Windfall Island - Maggie's Father Give 20 Skull Necklaces": "Rescued_Aryll and Spoils_Bag and Can_Farm_Skull_Necklaces",
+    "Windfall Island - Maggie Free Item": "Rescued_Aryll",
+    "Windfall Island - Maggie Delivery Reward": "Rescued_Aryll and Delivery_Bag and Moblins_Letter"
+   },
+   "sorties": {
+    "Windfall House of Wealth Lower": "Nothing",
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Potion Shop",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Potion Shop 15 Green Chu": "Can_Farm_Green_Chu_Jelly",
+    "Windfall Island - Potion Shop 15 Blue Chu": "Spoils_Bag and count(15, Blue_Chu_Jelly)"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Bomb Shop",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Bomb Shop Upper Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Windfall Bomb Shop": "Nothing",
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Pirate Ship",
+   "evenements": {},
+   "lieux": {
+    "Windfall Island - Pirate Ship Chest": "Nothing"
+   },
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Windfall Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "Windfall Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Pawprint Isle",
+   "ile": "Pawprint Isle",
+   "evenements": {},
+   "lieux": {
+    "Pawprint Isle - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Pawprint Isle - Sunken Treasure": "Chart_For_Island_12 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Pawprint Chu Chu Cave": "Nothing",
+    "Pawprint Wizzrobe Cave Isle": "Hookshot",
+    "Pawprint Lookout Platform": "Can_Sail_Away",
+    "Pawprint Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Pawprint Chu Chu Cave",
+   "evenements": {},
+   "lieux": {
+    "Pawprint Isle - Chu Chu Cave Chest": "Nothing",
+    "Pawprint Isle - Chu Chu Cave Chest Behind Left Boulder": "Can_Move_Boulders",
+    "Pawprint Isle - Chu Chu Cave Chest Behind Right Boulder": "Can_Move_Boulders",
+    "Pawprint Isle - Chu Chu Cave Chest Scale Wall": "Grappling_Hook"
+   },
+   "sorties": {
+    "Pawprint Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Pawprint Wizzrobe Cave Isle",
+   "ile": "Pawprint Isle",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Pawprint Wizzrobe Cave": "Nothing",
+    "Pawprint Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Pawprint Wizzrobe Cave",
+   "evenements": {},
+   "lieux": {
+    "Pawprint Isle - Wizzrobe Cave Chest": "Can_Defeat_Wizzrobes_At_Range and Can_Defeat_Fire_Keese and Can_Defeat_Magtails and Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus and Can_Defeat_Yellow_Chu_Chus and Can_Defeat_Red_Bubbles and Can_Remove_Peahat_Armor"
+   },
+   "sorties": {
+    "Pawprint Wizzrobe Cave Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Pawprint Lookout Platform",
+   "ile": "Pawprint Isle",
+   "evenements": {},
+   "lieux": {
+    "Pawprint Isle - Lookout Platform Defeat Enemies": "Nothing"
+   },
+   "sorties": {
+    "Pawprint Isle": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Pawprint Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Pawprint Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Island",
+   "ile": "Dragon Roost Island",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Island - Wind Shrine": "Wind_Waker",
+    "Dragon Roost Island - Boulder Chest": "Heros_Bow or Bombs or Boomerang or (Bait_Bag and 'Can_Buy_Hyoi_Pears')",
+    "Dragon Roost Island - Sunken Treasure": "Chart_For_Island_13 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Dragon Roost Rito Aerie": "Nothing",
+    "Dragon Roost Island Cave": "Can_Move_Boulders",
+    "Dragon Roost Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Rito Aerie",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Island - Hoskit Give 20 Golden Feathers": "Spoils_Bag and Can_Farm_Golden_Feathers",
+    "Dragon Roost Island - Baito Mail Game": "Nothing"
+   },
+   "sorties": {
+    "Dragon Roost Island": "Nothing",
+    "Dragon Roost Pond": "Nothing",
+    "Dragon Roost Pond Upper Ledge": "Nothing",
+    "Dragon Roost Island Flight Deck": "Nothing",
+    "Dragon Roost Komali's Room": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Pond",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Dragon Roost Rito Aerie": "Nothing",
+    "Dragon Roost Pond Past Statues": "Open_DRC == true or Bombs or Power_Bracelets or Empty_Bottle or Can_Fly_With_Deku_Leaf_Outdoors"
+   }
+  },
+  {
+   "nom": "Dragon Roost Pond Past Statues",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Dragon Roost Pond": "Bombs or Can_Fly_With_Deku_Leaf_Outdoors",
+    "DRC First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Pond Upper Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Dragon Roost Rito Aerie": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Island Flight Deck",
+   "ile": "Dragon Roost Island",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Island - Fly Across Platforms Around Island": "Can_Fly_With_Deku_Leaf_Outdoors and (Can_Cut_Grass or Double_Magic)"
+   },
+   "sorties": {
+    "Dragon Roost Island": "Nothing",
+    "Dragon Roost Rito Aerie": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Komali's Room",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Dragon Roost Rito Aerie": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Island Cave",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Island - Cave Chest": "Can_Defeat_Keese and Can_Defeat_Red_Chu_Chus"
+   },
+   "sorties": {
+    "Dragon Roost Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Dragon Roost Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Dragon Roost Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Flight Control Platform",
+   "ile": "Flight Control Platform",
+   "evenements": {},
+   "lieux": {
+    "Flight Control Platform - First Prize": "Can_Fly_With_Deku_Leaf_Outdoors and Double_Magic",
+    "Flight Control Platform - Sunken Treasure": "Chart_For_Island_14 and Can_Salvage_Sunken_Treasure",
+    "Flight Control Platform - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Flight Control Platform Submarine Exterior": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Flight Control Platform Submarine Exterior",
+   "ile": "Flight Control Platform",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Flight Control Platform Submarine Interior": "Nothing",
+    "Flight Control Platform": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Flight Control Platform Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Flight Control Platform - Submarine Chest": "Can_Defeat_Wizzrobes and Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus and Can_Defeat_Miniblins and Can_Defeat_Wizzrobes_At_Range"
+   },
+   "sorties": {
+    "Flight Control Platform Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Western Fairy Island",
+   "ile": "Western Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Western Fairy Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Western Fairy Island - Sunken Treasure": "Chart_For_Island_15 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Western Fairy Island Past Flames": "Skull_Hammer",
+    "Western Fairy Lookout Platform": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Western Fairy Island Past Flames",
+   "ile": "Western Fairy Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Western Fairy Island - Great Fairy Fountain": "Nothing"
+   }
+  },
+  {
+   "nom": "Western Fairy Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Western Fairy Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Western Fairy Island Past Flames": "Nothing"
+   }
+  },
+  {
+   "nom": "Western Fairy Lookout Platform",
+   "ile": "Western Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Western Fairy Island - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Western Fairy Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Rock Spire Isle",
+   "ile": "Rock Spire Isle",
+   "evenements": {},
+   "lieux": {
+    "Rock Spire Isle - Defeat Southeast Gunboat": "Can_Defeat_Gunboats and Can_Salvage_Sunken_Treasure",
+    "Rock Spire Isle - Sunken Treasure": "Chart_For_Island_16 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Rock Spire Beedle Shop": "Nothing",
+    "Rock Spire Upper Ledges": "Bombs",
+    "Rock Spire Platforms": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Rock Spire Upper Ledges",
+   "ile": "Rock Spire Isle",
+   "evenements": {},
+   "lieux": {
+    "Rock Spire Isle - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {
+    "Rock Spire Cave": "Nothing",
+    "Rock Spire Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Rock Spire Beedle Shop",
+   "evenements": {},
+   "lieux": {
+    "Rock Spire Isle - Beedle 500 Rupee Item": "'Can_Farm_Lots_Of_Rupees'",
+    "Rock Spire Isle - Beedle 950 Rupee Item": "Wallet_Upgrade and 'Can_Farm_Lots_Of_Rupees'",
+    "Rock Spire Isle - Beedle 900 Rupee Item": "Wallet_Upgrade and 'Can_Farm_Lots_Of_Rupees'"
+   },
+   "sorties": {
+    "Rock Spire Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Rock Spire Platforms",
+   "evenements": {},
+   "lieux": {
+    "Rock Spire Isle - Western Lookout Platform Destroy Cannons": "Can_Destroy_Cannons and Can_Fly_With_Deku_Leaf_Outdoors",
+    "Rock Spire Isle - Eastern Lookout Platform Destroy Cannons": "Can_Destroy_Cannons and Can_Fly_With_Deku_Leaf_Outdoors",
+    "Rock Spire Isle - Center Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Rock Spire Isle": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Rock Spire Cave",
+   "evenements": {},
+   "lieux": {
+    "Rock Spire Isle - Cave Chest": "Nothing"
+   },
+   "sorties": {
+    "Rock Spire Upper Ledges": "Nothing"
+   }
+  },
+  {
+   "nom": "Tingle Island",
+   "ile": "Tingle Island",
+   "evenements": {},
+   "lieux": {
+    "Tingle Island - Ankle All Statues Reward": "Dragon_Tingle_Statue and Forbidden_Tingle_Statue and Goddess_Tingle_Statue and Earth_Tingle_Statue and Wind_Tingle_Statue and 'Rescued_Tingle'",
+    "Tingle Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Tingle Island - Big Octo": "Can_Defeat_12_Eye_Big_Octos and Can_Salvage_Sunken_Treasure",
+    "Tingle Island - Sunken Treasure": "Chart_For_Island_17 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Northern Triangle Island",
+   "ile": "Northern Triangle Island",
+   "evenements": {},
+   "lieux": {
+    "Northern Triangle Island - Sunken Treasure": "Chart_For_Island_18 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Eastern Fairy Island",
+   "ile": "Eastern Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Eastern Fairy Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Eastern Fairy Island - Sunken Treasure": "Chart_For_Island_19 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Eastern Fairy Island Past Boulder": "Can_Move_Boulders",
+    "Eastern Fairy Lookout Platform": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Eastern Fairy Island Past Boulder",
+   "ile": "Eastern Fairy Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Eastern Fairy Island - Great Fairy Fountain": "Nothing",
+    "Eastern Fairy Island": "Can_Move_Boulders"
+   }
+  },
+  {
+   "nom": "Eastern Fairy Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Eastern Fairy Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Eastern Fairy Island Past Boulder": "Nothing"
+   }
+  },
+  {
+   "nom": "Eastern Fairy Lookout Platform",
+   "ile": "Eastern Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Eastern Fairy Island - Lookout Platform Defeat Cannons and Enemies": "Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Eastern Fairy Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Fire Mountain",
+   "ile": "Fire Mountain",
+   "evenements": {},
+   "lieux": {
+    "Fire Mountain - Big Octo": "Can_Defeat_Big_Octos and Can_Salvage_Sunken_Treasure",
+    "Fire Mountain - Sunken Treasure": "Chart_For_Island_20 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Fire Mountain Interior": "Ice_Arrows",
+    "Fire Mountain Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Fire Mountain Interior",
+   "evenements": {},
+   "lieux": {
+    "Fire Mountain - Interior Chest": "Can_Defeat_Magtails"
+   },
+   "sorties": {
+    "Fire Mountain": "Can_Defeat_Magtails and (Power_Bracelets or Ice_Arrows)"
+   }
+  },
+  {
+   "nom": "Fire Mountain Lookout Platform",
+   "ile": "Fire Mountain",
+   "evenements": {},
+   "lieux": {
+    "Fire Mountain - Lookout Platform Chest": "Nothing",
+    "Fire Mountain - Lookout Platform Destroy Cannons": "Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Fire Mountain": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Star Belt Archipelago",
+   "ile": "Star Belt Archipelago",
+   "evenements": {},
+   "lieux": {
+    "Star Belt Archipelago - Sunken Treasure": "Chart_For_Island_21 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Star Belt Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Star Belt Lookout Platform",
+   "ile": "Star Belt Archipelago",
+   "evenements": {},
+   "lieux": {
+    "Star Belt Archipelago - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Star Belt Archipelago": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Three Eye Reef",
+   "ile": "Three Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Three Eye Reef - Destroy Cannons and Gunboats": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Defeat_Gunboats",
+    "Three Eye Reef - Sunken Treasure": "Chart_For_Island_22 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Greatfish Isle",
+   "ile": "Greatfish Isle",
+   "evenements": {},
+   "lieux": {
+    "Greatfish Isle - Hidden Chest": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Greatfish Isle - Sunken Treasure": "Chart_For_Island_23 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Greatfish Beedle Shop": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Greatfish Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Greatfish Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Cyclops Reef",
+   "ile": "Cyclops Reef",
+   "evenements": {},
+   "lieux": {
+    "Cyclops Reef - Destroy Cannons and Gunboats": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Defeat_Gunboats",
+    "Cyclops Reef - Sunken Treasure": "Chart_For_Island_24 and Can_Salvage_Sunken_Treasure and Can_Defeat_Gunboats"
+   },
+   "sorties": {
+    "Cyclops Reef Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Cyclops Reef Lookout Platform",
+   "ile": "Cyclops Reef",
+   "evenements": {},
+   "lieux": {
+    "Cyclops Reef - Lookout Platform Defeat Enemies": "Nothing"
+   },
+   "sorties": {
+    "Cyclops Reef": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Six Eye Reef",
+   "ile": "Six Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Six Eye Reef - Destroy Cannons and Gunboats": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Defeat_Gunboats",
+    "Six Eye Reef - Sunken Treasure": "Chart_For_Island_25 and Can_Salvage_Sunken_Treasure and Can_Defeat_Gunboats"
+   },
+   "sorties": {
+    "Six Eye Reef Submarine Exterior": "Can_Sail_Away",
+    "Six Eye Reef Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Six Eye Reef Submarine Exterior",
+   "ile": "Six Eye Reef",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Six Eye Reef Submarine Interior": "Nothing",
+    "Six Eye Reef": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Six Eye Reef Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Six Eye Reef - Submarine Chest": "Nothing"
+   },
+   "sorties": {
+    "Six Eye Reef Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Six Eye Reef Lookout Platform",
+   "ile": "Six Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Six Eye Reef - Lookout Platform Destroy Cannons": "Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Six Eye Reef": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Tower of the Gods Sector",
+   "ile": "Tower of the Gods Sector",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods Sector - Sunken Treasure": "Chart_For_Island_26 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "TOTG Entrance Room": "Dins_Pearl and Farores_Pearl and Nayrus_Pearl",
+    "Hyrule Castle Front": "All_8_Shards",
+    "Tower of the Gods Beedle Shop": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Tower of the Gods Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Tower of the Gods Sector": "Nothing"
+   }
+  },
+  {
+   "nom": "Eastern Triangle Island",
+   "ile": "Eastern Triangle Island",
+   "evenements": {},
+   "lieux": {
+    "Eastern Triangle Island - Sunken Treasure": "Chart_For_Island_27 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Eastern Triangle Beedle Shop": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Eastern Triangle Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Eastern Triangle Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Thorned Fairy Island",
+   "ile": "Thorned Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Thorned Fairy Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Thorned Fairy Island - Sunken Treasure": "Chart_For_Island_28 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Thorned Fairy Island Past Tentacles": "Skull_Hammer",
+    "Thorned Fairy Lookout Platforms": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Thorned Fairy Island Past Tentacles",
+   "ile": "Thorned Fairy Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Thorned Fairy Island - Great Fairy Fountain": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Thorned Fairy Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Thorned Fairy Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Thorned Fairy Island Past Tentacles": "Nothing"
+   }
+  },
+  {
+   "nom": "Thorned Fairy Lookout Platforms",
+   "ile": "Thorned Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Thorned Fairy Island - Northeastern Lookout Platform Destroy Cannons": "Can_Destroy_Cannons",
+    "Thorned Fairy Island - Southwestern Lookout Platform Defeat Enemies": "Can_Fly_With_Deku_Leaf_Outdoors"
+   },
+   "sorties": {
+    "Thorned Fairy Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Needle Rock Isle",
+   "ile": "Needle Rock Isle",
+   "evenements": {},
+   "lieux": {
+    "Needle Rock Isle - Chest": "Bait_Bag and 'Can_Buy_Hyoi_Pears'",
+    "Needle Rock Isle - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Needle Rock Isle - Golden Gunboat": "Can_Defeat_Gunboats and Can_Salvage_Sunken_Treasure",
+    "Needle Rock Isle - Sunken Treasure": "Chart_For_Island_29 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Needle Rock Cave": "Fire_Arrows",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Needle Rock Cave",
+   "evenements": {},
+   "lieux": {
+    "Needle Rock Isle - Cave Chest": "Fire_Arrows"
+   },
+   "sorties": {
+    "Needle Rock Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Islet of Steel",
+   "ile": "Islet of Steel",
+   "evenements": {},
+   "lieux": {
+    "Islet of Steel - Sunken Treasure": "Chart_For_Island_30 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Islet of Steel Interior": "Can_Defeat_Gunboats",
+    "Islet of Steel Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Islet of Steel Interior",
+   "evenements": {
+    "Can Farm Lots Of Rupees": "Nothing"
+   },
+   "lieux": {
+    "Islet of Steel - Interior Chest": "Can_Play_WR"
+   },
+   "sorties": {
+    "Islet of Steel": "Nothing"
+   }
+  },
+  {
+   "nom": "Islet of Steel Lookout Platform",
+   "ile": "Islet of Steel",
+   "evenements": {},
+   "lieux": {
+    "Islet of Steel - Lookout Platform Defeat Enemies": "Can_Defeat_Wizzrobes_At_Range"
+   },
+   "sorties": {
+    "Islet of Steel": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Stone Watcher Island",
+   "ile": "Stone Watcher Island",
+   "evenements": {},
+   "lieux": {
+    "Stone Watcher Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Stone Watcher Island - Sunken Treasure": "Chart_For_Island_31 and Can_Salvage_Sunken_Treasure",
+    "Stone Watcher Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Stone Watcher Cave": "Power_Bracelets",
+    "Stone Watcher Lookout Platform": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Stone Watcher Cave",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag and Can_Defeat_Darknuts_Easily",
+    "Can Farm Lots Of Rupees": "(Can_Defeat_Armos and Can_Defeat_Wizzrobes) or Skull_Hammer"
+   },
+   "lieux": {
+    "Stone Watcher Island - Cave Chest": "Can_Defeat_Armos and Can_Defeat_Wizzrobes and Can_Defeat_Darknuts and Can_Play_WR"
+   },
+   "sorties": {
+    "Stone Watcher Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Stone Watcher Lookout Platform",
+   "ile": "Stone Watcher Island",
+   "evenements": {},
+   "lieux": {
+    "Stone Watcher Island - Lookout Platform Chest": "Nothing",
+    "Stone Watcher Island - Lookout Platform Destroy Cannons": "Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Stone Watcher Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Southern Triangle Island",
+   "ile": "Southern Triangle Island",
+   "evenements": {},
+   "lieux": {
+    "Southern Triangle Island - Sunken Treasure": "Chart_For_Island_32 and Can_Salvage_Sunken_Treasure and Can_Defeat_Seahats"
+   },
+   "sorties": {
+    "Southern Triangle Beedle Shop": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Southern Triangle Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Southern Triangle Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Private Oasis",
+   "ile": "Private Oasis",
+   "evenements": {},
+   "lieux": {
+    "Private Oasis - Top of Waterfall Chest": "Can_Fly_With_Deku_Leaf_Outdoors or Hookshot",
+    "Private Oasis - Big Octo": "Can_Defeat_Big_Octos and Can_Salvage_Sunken_Treasure",
+    "Private Oasis - Sunken Treasure": "Chart_For_Island_33 and Can_Salvage_Sunken_Treasure",
+    "Private Oasis - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "The Cabana": "Delivery_Bag and Cabana_Deed",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "The Cabana",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Cabana Labyrinth": "Grappling_Hook",
+    "Private Oasis": "Nothing"
+   }
+  },
+  {
+   "nom": "Cabana Labyrinth",
+   "evenements": {},
+   "lieux": {
+    "Private Oasis - Cabana Labyrinth Lower Floor Chest": "Skull_Hammer",
+    "Private Oasis - Cabana Labyrinth Upper Floor Chest": "Skull_Hammer and Can_Play_WR"
+   },
+   "sorties": {
+    "The Cabana": "Nothing"
+   }
+  },
+  {
+   "nom": "Bomb Island",
+   "ile": "Bomb Island",
+   "evenements": {},
+   "lieux": {
+    "Bomb Island - Sunken Treasure": "Chart_For_Island_34 and Can_Salvage_Sunken_Treasure",
+    "Bomb Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Bomb Island Cave": "Can_Move_Boulders",
+    "Bomb Island Submarine Exterior": "Can_Sail_Away",
+    "Bomb Island Lookout Platform": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Bomb Island Cave",
+   "evenements": {},
+   "lieux": {
+    "Bomb Island - Cave Chest": "Can_Stun_Magtails"
+   },
+   "sorties": {
+    "Bomb Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Bomb Island Submarine Exterior",
+   "ile": "Bomb Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Bomb Island Submarine Interior": "Nothing",
+    "Bomb Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Bomb Island Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Bomb Island - Submarine Chest": "Nothing"
+   },
+   "sorties": {
+    "Bomb Island Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Bomb Island Lookout Platform",
+   "ile": "Bomb Island",
+   "evenements": {},
+   "lieux": {
+    "Bomb Island - Lookout Platform Defeat Enemies": "Nothing"
+   },
+   "sorties": {
+    "Bomb Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Birds Peak Rock",
+   "ile": "Birds Peak Rock",
+   "evenements": {},
+   "lieux": {
+    "Birds Peak Rock - Sunken Treasure": "Chart_For_Island_35 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Birds Peak Rock Behind Bars": "Bait_Bag and 'Can_Buy_Hyoi_Pears'",
+    "Birds Peak Rock Upper Isle": "Grappling_Hook",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Birds Peak Rock Upper Isle",
+   "ile": "Birds Peak Rock",
+   "evenements": {},
+   "lieux": {
+    "Birds Peak Rock - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {}
+  },
+  {
+   "nom": "Birds Peak Rock Behind Bars",
+   "ile": "Birds Peak Rock",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Birds Peak Rock Cave": "Nothing"
+   }
+  },
+  {
+   "nom": "Birds Peak Rock Cave",
+   "evenements": {
+    "Can Farm Lots Of Rupees": "Nothing"
+   },
+   "lieux": {
+    "Birds Peak Rock - Cave Chest": "Can_Play_WR"
+   },
+   "sorties": {
+    "Birds Peak Rock Behind Bars": "Nothing"
+   }
+  },
+  {
+   "nom": "Diamond Steppe Island",
+   "ile": "Diamond Steppe Island",
+   "evenements": {},
+   "lieux": {
+    "Diamond Steppe Island - Big Octo": "Can_Defeat_Big_Octos and Can_Salvage_Sunken_Treasure",
+    "Diamond Steppe Island - Sunken Treasure": "Chart_For_Island_36 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Diamond Steppe Upper Island": "Hookshot",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Diamond Steppe Upper Island",
+   "ile": "Diamond Steppe Island",
+   "evenements": {},
+   "lieux": {
+    "Diamond Steppe Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {
+    "Diamond Steppe Warp Maze": "Nothing",
+    "Diamond Steppe Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Diamond Steppe Warp Maze",
+   "evenements": {},
+   "lieux": {
+    "Diamond Steppe Island - Maze First Chest": "Nothing",
+    "Diamond Steppe Island - Maze Second Chest": "Nothing"
+   },
+   "sorties": {
+    "Diamond Steppe Upper Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Five Eye Reef",
+   "ile": "Five Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Five Eye Reef - Destroy Cannons": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Destroy_Cannons",
+    "Five Eye Reef - Sunken Treasure": "Chart_For_Island_37 and Can_Salvage_Sunken_Treasure and Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Five Eye Reef Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Five Eye Reef Lookout Platform",
+   "ile": "Five Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Five Eye Reef - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Five Eye Reef": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Shark Island",
+   "ile": "Shark Island",
+   "evenements": {},
+   "lieux": {
+    "Shark Island - Sunken Treasure": "Chart_For_Island_38 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Shark Island Cave": "Skull_Hammer and Iron_Boots",
+    "Shark Island Upper Isle": "Skull_Hammer and Iron_Boots and Can_Fly_With_Deku_Leaf_Outdoors",
+    "Shark Island Beedle Shop": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Shark Island Upper Isle",
+   "ile": "Shark Island",
+   "evenements": {},
+   "lieux": {
+    "Shark Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {}
+  },
+  {
+   "nom": "Shark Island Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Shark Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Shark Island Cave",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag"
+   },
+   "lieux": {
+    "Shark Island - Cave Chest": "Can_Defeat_Bokoblins and health(3)"
+   },
+   "sorties": {
+    "Shark Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Southern Fairy Island",
+   "ile": "Southern Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Southern Fairy Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Southern Fairy Island - Sunken Treasure": "Chart_For_Island_39 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Southern Fairy Island Behind Wooden Barrier": "Can_Destroy_Wooden_Barriers",
+    "Southern Fairy Lookout Platforms": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Southern Fairy Island Behind Wooden Barrier",
+   "ile": "Southern Fairy Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Southern Fairy Island - Great Fairy Fountain": "Nothing"
+   }
+  },
+  {
+   "nom": "Southern Fairy Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Southern Fairy Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Southern Fairy Island Behind Wooden Barrier": "Nothing"
+   }
+  },
+  {
+   "nom": "Southern Fairy Lookout Platforms",
+   "ile": "Southern Fairy Island",
+   "evenements": {},
+   "lieux": {
+    "Southern Fairy Island - Lookout Platform Destroy Northwest Cannons": "Can_Destroy_Cannons and Can_Fly_With_Deku_Leaf_Outdoors",
+    "Southern Fairy Island - Lookout Platform Destroy Southeast Cannons": "Can_Destroy_Cannons and Can_Fly_With_Deku_Leaf_Outdoors"
+   },
+   "sorties": {
+    "Southern Fairy Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Ice Ring Isle",
+   "ile": "Ice Ring Isle",
+   "evenements": {},
+   "lieux": {
+    "Ice Ring Isle - Frozen Chest": "Fire_Arrows",
+    "Ice Ring Isle - Sunken Treasure": "Chart_For_Island_40 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "The Great Sea": "Nothing",
+    "Ice Ring Interior": "Fire_Arrows"
+   }
+  },
+  {
+   "nom": "Ice Ring Interior",
+   "evenements": {},
+   "lieux": {
+    "Ice Ring Isle - Interior Chest": "Nothing"
+   },
+   "sorties": {
+    "Ice Ring Isle": "Iron_Boots or Grappling_Hook",
+    "Ice Ring Inner Cave": "Iron_Boots"
+   }
+  },
+  {
+   "nom": "Ice Ring Inner Cave",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag"
+   },
+   "lieux": {
+    "Ice Ring Isle - Inner Cave Chest": "Fire_Arrows"
+   },
+   "sorties": {
+    "Ice Ring Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {
+    "Forest Haven - Sunken Treasure": "Chart_For_Island_41 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Forest Haven Interior": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Outdoors",
+    "Forest Haven Waterfall Cave": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Outdoors",
+    "Forest Haven Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior",
+   "evenements": {
+    "Can Get Forest Water": "Empty_Bottle",
+    "Can Get Forest Firefly": "Empty_Bottle"
+   },
+   "lieux": {},
+   "sorties": {
+    "Forest Haven": "Nothing",
+    "Forest Potion Shop": "Nothing",
+    "Forest Haven Interior Upper Baba Buds": "Grappling_Hook",
+    "Forest Haven Interior West Lower Ledge": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Forest Potion Shop",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior Upper Baba Buds",
+   "evenements": {},
+   "lieux": {
+    "Forest Haven - On Tree Branch": "Nothing"
+   },
+   "sorties": {
+    "Forest Haven Interior North Ledge": "Can_Fly_With_Deku_Leaf_Indoors",
+    "Forest Haven Interior West Upper Ledge": "Can_Fly_With_Deku_Leaf_Indoors",
+    "Forest Haven Interior South Ledge": "Can_Fly_With_Deku_Leaf_Indoors",
+    "Forest Haven Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior North Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Exterior North Ledge": "Nothing",
+    "Forest Haven Interior Upper Baba Buds": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior West Lower Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Exterior West Lower Ledge": "Nothing",
+    "Forest Haven Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior West Upper Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Exterior West Upper Ledge": "Nothing",
+    "Forest Haven Interior West Lower Ledge": "Nothing",
+    "Forest Haven Interior Upper Baba Buds": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Forest Haven Interior South Ledge",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Exterior South Ledge": "Nothing",
+    "Forest Haven Interior Upper Baba Buds": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Forest Haven Exterior North Ledge",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Exterior West Upper Ledge": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Forest Haven Interior North Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Exterior West Lower Ledge",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Interior West Lower Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Exterior West Upper Ledge",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Entrance Platform": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Cut_Grass",
+    "Forest Haven Exterior West Lower Ledge": "Nothing",
+    "Forest Haven South Isle": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Cut_Grass",
+    "Forest Haven Nintendo Gallery Isle": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Cut_Grass",
+    "Forest Haven Interior West Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Exterior South Ledge",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven South Isle": "Can_Fly_With_Deku_Leaf_Outdoors and Can_Cut_Grass",
+    "Forest Haven Exterior West Upper Ledge": "Can_Fly_With_Deku_Leaf_Outdoors",
+    "Forest Haven Interior South Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven South Isle",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {
+    "Forest Haven - Chest on Small Island": "Nothing"
+   },
+   "sorties": {}
+  },
+  {
+   "nom": "FW Entrance Platform",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Nintendo Gallery Isle",
+   "ile": "Forest Haven",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Nintendo Gallery": "Nothing",
+    "Forest Haven": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Nintendo Gallery",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven Nintendo Gallery Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Waterfall Cave",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Forest Haven": "Nothing"
+   }
+  },
+  {
+   "nom": "Forest Haven Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Forest Haven": "Nothing"
+   }
+  },
+  {
+   "nom": "Cliff Plateau Isles",
+   "ile": "Cliff Plateau Isles",
+   "evenements": {},
+   "lieux": {
+    "Cliff Plateau Isles - Sunken Treasure": "Chart_For_Island_42 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Cliff Plateau Cave": "Nothing",
+    "Cliff Plateau Lookout Platform": "Can_Sail_Away",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Cliff Plateau Cave",
+   "evenements": {},
+   "lieux": {
+    "Cliff Plateau Isles - Cave Chest": "Can_Defeat_Boko_Babas"
+   },
+   "sorties": {
+    "Cliff Plateau Isles": "Nothing",
+    "Cliff Plateau Cave Past Wooden Barrier": "Can_Defeat_Boko_Babas and Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Cliff Plateau Cave Past Wooden Barrier",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Cliff Plateau Highest Isle": "Nothing",
+    "Cliff Plateau Cave": "Can_Destroy_Wooden_Barriers"
+   }
+  },
+  {
+   "nom": "Cliff Plateau Highest Isle",
+   "ile": "Cliff Plateau Isles",
+   "evenements": {},
+   "lieux": {
+    "Cliff Plateau Isles - Highest Isle Chest": "Nothing",
+    "Cliff Plateau Isles - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {
+    "Cliff Plateau Cave Past Wooden Barrier": "Nothing",
+    "Cliff Plateau Isles": "Nothing"
+   }
+  },
+  {
+   "nom": "Cliff Plateau Lookout Platform",
+   "ile": "Cliff Plateau Isles",
+   "evenements": {},
+   "lieux": {
+    "Cliff Plateau Isles - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Cliff Plateau Isles": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Horseshoe Island",
+   "ile": "Horseshoe Island",
+   "evenements": {},
+   "lieux": {
+    "Horseshoe Island - Sunken Treasure": "Chart_For_Island_43 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Horseshoe Island Past Tentacles": "Can_Fan_With_Deku_Leaf",
+    "Horseshoe Lookout Platforms": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Horseshoe Island Past Tentacles",
+   "ile": "Horseshoe Island",
+   "evenements": {},
+   "lieux": {
+    "Horseshoe Island - Play Golf": "Hookshot or Can_Fly_With_Deku_Leaf_Outdoors",
+    "Horseshoe Island - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Horseshoe Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Horseshoe Island": "Nothing",
+    "Horseshoe Cave": "Nothing"
+   }
+  },
+  {
+   "nom": "Horseshoe Cave",
+   "evenements": {},
+   "lieux": {
+    "Horseshoe Island - Cave Chest": "Can_Defeat_Mothulas and Can_Defeat_Winged_Mothulas"
+   },
+   "sorties": {
+    "Horseshoe Island Past Tentacles": "Nothing"
+   }
+  },
+  {
+   "nom": "Horseshoe Lookout Platforms",
+   "ile": "Horseshoe Island",
+   "evenements": {},
+   "lieux": {
+    "Horseshoe Island - Northwestern Lookout Platform Chest": "Nothing",
+    "Horseshoe Island - Southeastern Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Horseshoe Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Outset Island",
+   "ile": "Outset Island",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Dig up Black Soil": "Power_Bracelets and Bait_Bag and 'Can_Buy_Bait'",
+    "Outset Island - Sunken Treasure": "Chart_For_Island_44 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Outset Link's House": "Nothing",
+    "Outset Under Link's House": "Nothing",
+    "Outset Orca's House": "Nothing",
+    "Outset Sturgeon's House": "Nothing",
+    "Outset Rose's House": "Nothing",
+    "Outset Rose's Attic": "Nothing",
+    "Outset Mesa's House": "Can_Play_SoP",
+    "Outset Near Bridge": "Can_Cut_Down_Outset_Trees",
+    "Outset Near Savage Headstone": "Hookshot",
+    "Outset Jabun's Cave": "Bombs",
+    "Outset Beedle Shop": "Nothing",
+    "Mailbox Checks": "Nothing",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Link's House",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Under Link's House",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Under Link's House": "Nothing"
+   },
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Orca's House",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Orca Give 10 Knight's Crests": "Spoils_Bag and 'Can_Farm_Knights_Crests' and Can_Sword_Fight_With_Orca and Magic",
+    "Outset Island - Orca Hit 500 Times": "Can_Sword_Fight_With_Orca"
+   },
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Sturgeon's House",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Rose's House",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Rose's Attic",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Rose's House": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Mesa's House",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Mesa's House Chest": "Nothing"
+   },
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Near Bridge",
+   "ile": "Outset Island",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Outset Island": "Nothing",
+    "Outset Across Bridge": "Can_Fly_With_Deku_Leaf_Outdoors"
+   }
+  },
+  {
+   "nom": "Outset Across Bridge",
+   "ile": "Outset Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing",
+    "Outset Forest of Fairies": "Nothing",
+    "Outset Near Savage Headstone": "Can_Fly_With_Deku_Leaf_Outdoors"
+   }
+  },
+  {
+   "nom": "Outset Near Savage Headstone",
+   "ile": "Outset Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Island": "Nothing",
+    "Outset Savage Labyrinth": "Power_Bracelets"
+   }
+  },
+  {
+   "nom": "Outset Forest of Fairies",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Outset Across Bridge": "Nothing",
+    "Outset Island - Great Fairy Fountain": "Can_Move_Boulders"
+   }
+  },
+  {
+   "nom": "Outset Island - Great Fairy Fountain",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Outset Island - Great Fairy": "Nothing"
+   },
+   "sorties": {
+    "Outset Forest of Fairies": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Savage Labyrinth",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "Outset Near Savage Headstone": "Nothing",
+    "Outset Savage Floor 30": "Can_Defeat_Keese and Can_Defeat_Miniblins and Can_Defeat_Red_Chu_Chus and Can_Defeat_Magtails and Can_Defeat_Fire_Keese and Can_Defeat_Peahats and Can_Defeat_Green_Chu_Chus and Can_Defeat_Boko_Babas and Can_Defeat_Mothulas and Can_Defeat_Winged_Mothulas and Can_Defeat_Wizzrobes and Can_Defeat_Armos and Can_Defeat_Yellow_Chu_Chus and Can_Defeat_Red_Bubbles and Can_Defeat_Darknuts and (Grappling_Hook or Heros_Sword or Skull_Hammer)"
+   }
+  },
+  {
+   "nom": "Outset Savage Floor 30",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag"
+   },
+   "lieux": {
+    "Outset Island - Savage Labyrinth Floor 30": "Can_Play_WR"
+   },
+   "sorties": {
+    "Outset Near Savage Headstone": "Can_Play_WR",
+    "Outset Savage Floor 50": "Can_Aim_Mirror_Shield and Can_Defeat_ReDeads and Can_Defeat_Blue_Bubbles and Can_Defeat_Dark_Chu_Chus_With_Light_Ray and Can_Defeat_Poes and Can_Defeat_Stalfos and Can_Defeat_Darknuts and Can_Defeat_Winged_Mothulas and Can_Defeat_Wizzrobes and Skull_Hammer"
+   }
+  },
+  {
+   "nom": "Outset Savage Floor 50",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Savage Labyrinth Floor 50": "Nothing"
+   },
+   "sorties": {
+    "Outset Near Savage Headstone": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Jabun's Cave",
+   "evenements": {},
+   "lieux": {
+    "Outset Island - Jabun's Cave Chest": "Nothing"
+   },
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Outset Beedle Shop",
+   "region": "The Great Sea",
+   "evenements": {
+    "Can Buy Bait": "Nothing",
+    "Can Buy Hyoi Pears": "Nothing"
+   },
+   "lieux": {
+    "Great Sea - Beedle Shop 20 Rupee Item": "Nothing"
+   },
+   "sorties": {
+    "Outset Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Headstone Island",
+   "ile": "Headstone Island",
+   "evenements": {},
+   "lieux": {
+    "Headstone Island - Top of Island": "Bait_Bag and 'Can_Buy_Hyoi_Pears'",
+    "Headstone Island - Sunken Treasure": "Chart_For_Island_45 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Headstone Island Interior": "Power_Bracelets",
+    "Headstone Island Submarine Exterior": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Headstone Island Interior",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET First Room": "Nothing",
+    "Headstone Island": "Nothing"
+   }
+  },
+  {
+   "nom": "Headstone Island Submarine Exterior",
+   "ile": "Headstone Island",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Headstone Island Submarine Interior": "Nothing",
+    "Headstone Island": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Headstone Island Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Headstone Island - Submarine Chest": "Can_Defeat_Bombchus"
+   },
+   "sorties": {
+    "Headstone Island Submarine Exterior": "Can_Defeat_Bombchus"
+   }
+  },
+  {
+   "nom": "Two Eye Reef",
+   "ile": "Two Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Two Eye Reef - Destroy Cannons and Gunboats": "Can_Defeat_Gunboats and Can_Fly_With_Deku_Leaf_Outdoors",
+    "Two Eye Reef - Big Octo Great Fairy": "Can_Defeat_Big_Octos",
+    "Two Eye Reef - Sunken Treasure": "Chart_For_Island_46 and Can_Salvage_Sunken_Treasure and Can_Defeat_Gunboats",
+    "Two Eye Reef - Old Man Ho Ho": "Nothing"
+   },
+   "sorties": {
+    "Two Eye Reef Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Two Eye Reef Lookout Platform",
+   "ile": "Two Eye Reef",
+   "evenements": {},
+   "lieux": {
+    "Two Eye Reef - Lookout Platform Chest": "Nothing"
+   },
+   "sorties": {
+    "Two Eye Reef": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Angular Isles",
+   "ile": "Angular Isles",
+   "evenements": {},
+   "lieux": {
+    "Angular Isles - Peak Chest": "Nothing",
+    "Angular Isles - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus",
+    "Angular Isles - Sunken Treasure": "Chart_For_Island_47 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Angular Isles Small Isle": "Hookshot or Can_Fly_With_Deku_Leaf_Outdoors",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Angular Isles Small Isle",
+   "ile": "Angular Isles",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Angular Isles Cave": "Nothing",
+    "Angular Isles": "Nothing"
+   }
+  },
+  {
+   "nom": "Angular Isles Cave",
+   "evenements": {},
+   "lieux": {
+    "Angular Isles - Cave Chest": "Can_Aim_Mirror_Shield and (Hookshot or Can_Fly_With_Deku_Leaf_Indoors)"
+   },
+   "sorties": {
+    "Angular Isles Small Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Boating Course",
+   "ile": "Boating Course",
+   "evenements": {},
+   "lieux": {
+    "Boating Course - Raft Chest": "Nothing",
+    "Boating Course - Sunken Treasure": "Chart_For_Island_48 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Boating Course Small Isle": "Hookshot or Can_Fly_With_Deku_Leaf_Outdoors",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Boating Course Small Isle",
+   "ile": "Boating Course",
+   "evenements": {},
+   "lieux": {
+    "Boating Course - Blue Chu Chu": "Can_Get_Blue_Chu_Jelly_From_Blue_Chu_Chus"
+   },
+   "sorties": {
+    "Boating Course Cave": "Nothing",
+    "Boating Course": "Nothing"
+   }
+  },
+  {
+   "nom": "Boating Course Cave",
+   "evenements": {},
+   "lieux": {
+    "Boating Course - Cave Chest": "Can_Hit_Diamond_Switches_At_Range and Can_Defeat_Miniblins_Easily"
+   },
+   "sorties": {
+    "Boating Course Small Isle": "Nothing"
+   }
+  },
+  {
+   "nom": "Five Star Isles",
+   "ile": "Five Star Isles",
+   "evenements": {},
+   "lieux": {
+    "Five Star Isles - Sunken Treasure": "Chart_For_Island_49 and Can_Salvage_Sunken_Treasure"
+   },
+   "sorties": {
+    "Five Star Submarine Exterior": "Can_Sail_Away",
+    "Five Star Lookout Platform": "Can_Sail_Away",
+    "The Great Sea": "Nothing"
+   }
+  },
+  {
+   "nom": "Five Star Submarine Exterior",
+   "ile": "Five Star Isles",
+   "evenements": {},
+   "lieux": {
+    "Five Star Isles - Raft Chest": "Nothing"
+   },
+   "sorties": {
+    "Five Star Submarine Interior": "Nothing",
+    "Five Star Isles": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Five Star Submarine Interior",
+   "evenements": {},
+   "lieux": {
+    "Five Star Isles - Submarine Chest": "Nothing"
+   },
+   "sorties": {
+    "Five Star Submarine Exterior": "Nothing"
+   }
+  },
+  {
+   "nom": "Five Star Lookout Platform",
+   "ile": "Five Star Isles",
+   "evenements": {},
+   "lieux": {
+    "Five Star Isles - Lookout Platform Destroy Cannons": "Can_Destroy_Cannons"
+   },
+   "sorties": {
+    "Five Star Isles": "Can_Sail_Away"
+   }
+  },
+  {
+   "nom": "Ghost Ship Interior",
+   "region": "The Great Sea",
+   "evenements": {},
+   "lieux": {
+    "Great Sea - Ghost Ship Chest": "Can_Defeat_Wizzrobes and Can_Defeat_Poes and Can_Defeat_ReDeads and Can_Defeat_Stalfos"
+   },
+   "sorties": {}
+  },
+  {
+   "nom": "DRC First Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - First Room Chest": "Nothing"
+   },
+   "sorties": {
+    "DRC Hub Room Lower Area": "count(1, Dragon_Roost_Cavern_Small_Key)",
+    "Dragon Roost Pond Past Statues": "Nothing",
+    "DRC Hub Room Upper Bridge": "'Can_Open_DRC_Blue_Pot'",
+    "DRC Boss Door Room Before Lava": "'Can_Open_DRC_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "DRC Hub Room Lower Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Map Chest Room": "Nothing",
+    "DRC Hub Room Lower Area Near Dim Room": "Can_Fly_With_Deku_Leaf_Indoors or Can_Move_Boulders",
+    "DRC Switch Behind Wooden Barrier Room": "count(2, Dragon_Roost_Cavern_Small_Key)",
+    "DRC Hub Room Mouth Area": "Can_Fly_With_Deku_Leaf_Indoors or Ice_Arrows or (can_access(DRC Hub Room Highest Platform) and Can_Cut_Down_Hanging_DRC_Platform)",
+    "DRC First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Hub Room Lower Area Near Dim Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Hub Room Lower Area": "Nothing",
+    "DRC Lower Dim Room Chu Chu Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Map Chest Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Water Jug Alcove Chest": "Nothing",
+    "Dragon Roost Cavern - Water Jug On Upper Shelf": "Nothing"
+   },
+   "sorties": {
+    "DRC Hub Room Lower Area": "Nothing",
+    "DRC Lower Dim Room Bokoblin Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Lower Dim Room Bokoblin Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Map Chest Room": "Nothing",
+    "DRC Lower Dim Room Chu Chu Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Lower Dim Room Chu Chu Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Boarded Up Chest": "Can_Destroy_Wooden_Barriers or can_access(DRC Lower Dim Room Bokoblin Area)"
+   },
+   "sorties": {
+    "DRC Hub Room Lower Area Near Dim Room": "Nothing",
+    "DRC Lower Dim Room Bokoblin Area": "Can_Destroy_Wooden_Barriers"
+   }
+  },
+  {
+   "nom": "DRC Switch Behind Wooden Barrier Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Swing Across Lava Chest": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors"
+   },
+   "sorties": {
+    "DRC Hub Room Lower Area": "Nothing",
+    "DRC Outside Lower Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Outside Lower Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Switch Behind Wooden Barrier Room": "Nothing",
+    "DRC Rat Room": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Rat Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Rat Room Chest": "Nothing",
+    "Dragon Roost Cavern - Rat Room Boarded Up Chest": "Nothing"
+   },
+   "sorties": {
+    "DRC Outside Lower Area": "Nothing",
+    "DRC Outside Upper Area": "count(3, Dragon_Roost_Cavern_Small_Key)"
+   }
+  },
+  {
+   "nom": "DRC Outside Upper Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Bird's Nest": "Nothing"
+   },
+   "sorties": {
+    "DRC Dark Room Chest Area": "count(4, Dragon_Roost_Cavern_Small_Key)",
+    "DRC Rat Room": "Nothing",
+    "DRC Outside Lower Area": "Can_Fly_With_Deku_Leaf_Outdoors"
+   }
+  },
+  {
+   "nom": "DRC Dark Room Chest Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Dark Room Chest": "Nothing"
+   },
+   "sorties": {
+    "DRC Dark Room Past Wooden Barrier": "Nothing",
+    "DRC Outside Upper Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Dark Room Past Wooden Barrier",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Dark Room Chest Area": "Can_Destroy_Wooden_Barriers",
+    "DRC Hub Room Upper Bridge": "Fire_Arrows or can_access(DRC Dark Room Chest Area)"
+   }
+  },
+  {
+   "nom": "DRC Hub Room Upper Bridge",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {
+    "Can Open DRC Blue Pot": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "DRC Dark Room Past Wooden Barrier": "Nothing",
+    "DRC Triple Bokoblin Room": "Nothing",
+    "DRC Hub Room Lower Area": "Nothing",
+    "DRC Hub Room Mouth Area": "Can_Fly_With_Deku_Leaf_Indoors",
+    "DRC First Room": "'Can_Open_DRC_Blue_Pot'",
+    "DRC Boss Door Room Before Lava": "'Can_Open_DRC_Blue_Pot' and 'Can_Open_DRC_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "DRC Triple Bokoblin Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Pot Room Chest": "Nothing",
+    "Dragon Roost Cavern - Pot on Upper Shelf in Pot Room": "Nothing"
+   },
+   "sorties": {
+    "DRC Hub Room Upper Bridge": "Nothing",
+    "DRC Magtail Lava Geyser Room": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Magtail Lava Geyser Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Boss Door Room Before Lava": "Nothing",
+    "DRC Triple Bokoblin Room": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Boss Door Room Before Lava",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {
+    "Can Open DRC Gold Pot": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "DRC Mini Boss Upper Area": "Nothing",
+    "DRC Boss Door Room Across Lava": "Grappling_Hook or Hookshot or Can_Fly_With_Deku_Leaf_Indoors or Ice_Arrows",
+    "DRC Magtail Lava Geyser Room": "Nothing",
+    "DRC First Room": "'Can_Open_DRC_Gold_Pot'",
+    "DRC Hub Room Upper Bridge": "'Can_Open_DRC_Blue_Pot' and 'Can_Open_DRC_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "DRC Boss Door Room Across Lava",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {
+    "Dragon Roost Cavern - Boss Stairs Right Chest": "Nothing",
+    "Dragon Roost Cavern - Boss Stairs Left Chest": "Nothing",
+    "Dragon Roost Cavern - Boss Stairs Right Pot": "Nothing"
+   },
+   "sorties": {
+    "DRC Boss Door Room Before Lava": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors or Ice_Arrows",
+    "Gohma Battle Arena": "Dragon_Roost_Cavern_Big_Key"
+   }
+  },
+  {
+   "nom": "DRC Mini Boss Upper Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Mini Boss": "Nothing"
+   },
+   "sorties": {
+    "DRC Boss Door Room Before Lava": "Nothing",
+    "DRC Mini Boss Lower Area": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Outdoors"
+   }
+  },
+  {
+   "nom": "DRC Mini Boss Lower Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Rope Bridge Underpass Room": "Nothing",
+    "DRC Mini Boss Upper Area": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "DRC Rope Bridge Underpass Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Under Rope Bridge Chest": "Nothing"
+   },
+   "sorties": {
+    "DRC Hub Room Highest Platform": "Nothing",
+    "DRC Mini Boss Lower Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Hub Room Highest Platform",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Rope Bridge Underpass Room": "Nothing",
+    "DRC Hub Room Upper Bridge": "Can_Fly_With_Deku_Leaf_Indoors",
+    "DRC Hub Room Lower Area": "Nothing"
+   }
+  },
+  {
+   "nom": "DRC Hub Room Mouth Area",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Hub Room Lower Area": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors",
+    "DRC Before Big Key Room Upper": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "DRC Before Big Key Room Upper",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Tingle Statue Chest": "Bombs and (Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors)"
+   },
+   "sorties": {
+    "DRC Hub Room Mouth Area": "Nothing",
+    "DRC Before Big Key Room Lower": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "DRC Before Big Key Room Lower",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "DRC Big Key Room": "Nothing",
+    "DRC Before Big Key Room Upper": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "DRC Big Key Room",
+   "donjon": "Dragon Roost Cavern",
+   "evenements": {},
+   "lieux": {
+    "Dragon Roost Cavern - Big Key Chest": "Can_Stun_Magtails"
+   },
+   "sorties": {
+    "DRC Before Big Key Room Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "Gohma Battle Arena",
+   "evenements": {
+    "Gohma Defeated": "Can_Defeat_Gohma"
+   },
+   "lieux": {
+    "Dragon Roost Cavern - Gohma Heart Container": "Can_Defeat_Gohma"
+   },
+   "sorties": {
+    "DRC Boss Door Room Across Lava": "Can_Defeat_Gohma"
+   }
+  },
+  {
+   "nom": "FW First Room",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - First Room Chest": "Nothing"
+   },
+   "sorties": {
+    "FW Second Room South Platform": "Nothing",
+    "FW Entrance Platform": "Nothing",
+    "FW Hub Room Third Floor Upper West Platform": "'Can_Open_FW_Blue_Pot'",
+    "FW Boss Door Room": "'Can_Open_FW_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "FW Second Room South Platform",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW First Room": "Nothing",
+    "FW Second Room Ground Path": "Nothing",
+    "FW Second Room North Platform": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "FW Second Room North Platform",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Boko Baba Climb Chest": "Can_Fly_With_Deku_Leaf_Indoors and Can_Defeat_Door_Flowers",
+    "Forbidden Woods - Pot High Above Hollow Tree": "Can_Fly_With_Deku_Leaf_Indoors"
+   },
+   "sorties": {
+    "FW Short Cable Ride Room South Side": "Nothing",
+    "FW Second Room Ground Path": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Second Room Ground Path",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Inside Hollow Tree Chest": "Can_Defeat_Door_Flowers or Can_Defeat_Boko_Babas"
+   },
+   "sorties": {
+    "FW Second Room South Platform": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "FW Short Cable Ride Room South Side",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Short Cable Ride Room North Side": "Can_Fan_With_Deku_Leaf",
+    "FW Second Room North Platform": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Short Cable Ride Room North Side",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Hole in Tree Room Near Lower Door": "Nothing",
+    "FW Short Cable Ride Room South Side": "Can_Fan_With_Deku_Leaf"
+   }
+  },
+  {
+   "nom": "FW Hole in Tree Room Near Lower Door",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Short Cable Ride Room North Side": "Nothing",
+    "FW Hole in Tree Room Near Upper Door": "Can_Defeat_Boko_Babas"
+   }
+  },
+  {
+   "nom": "FW Hole in Tree Room Near Upper Door",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Hole In Tree Chest": "Can_Fly_With_Deku_Leaf_Indoors"
+   },
+   "sorties": {
+    "FW Vine Circle Hallway": "Can_Defeat_Boko_Babas",
+    "FW Hole in Tree Room Near Lower Door": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Vine Circle Hallway",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Hole in Tree Room Near Upper Door": "Nothing",
+    "FW Hub Room Third Floor Lower": "Can_Fan_With_Deku_Leaf or Can_Defeat_Door_Flowers"
+   }
+  },
+  {
+   "nom": "FW Hub Room Third Floor Lower",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Hub Room Third Floor Upper": "Grappling_Hook",
+    "FW Hub Room Second Floor": "Nothing",
+    "FW Vine Circle Hallway": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Hub Room Third Floor Upper",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Hub Room Third Floor Upper West Platform": "Can_Fly_With_Deku_Leaf_Indoors",
+    "FW Cable Ride Above Poison Water Room Lower South": "count(1, Forbidden_Woods_Small_Key)",
+    "FW Hub Room Third Floor Lower": "Grappling_Hook",
+    "FW Hub Room Second Floor": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Hub Room Third Floor Upper West Platform",
+   "donjon": "Forbidden Woods",
+   "evenements": {
+    "Can Open FW Blue Pot": "Can_Destroy_Leaf_Piles"
+   },
+   "lieux": {},
+   "sorties": {
+    "FW Morth Pit Hallway": "Can_Defeat_Door_Flowers",
+    "FW Hub Room Third Floor Upper": "Can_Fly_With_Deku_Leaf_Indoors",
+    "FW Hub Room Third Floor Lower": "Nothing",
+    "FW Hub Room Second Floor": "Nothing",
+    "FW Hub Room First Floor": "Boomerang",
+    "FW First Room": "'Can_Open_FW_Blue_Pot'",
+    "FW Boss Door Room": "'Can_Open_FW_Blue_Pot' and 'Can_Open_FW_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "FW Morth Pit Hallway",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Morth Pit Chest": "Nothing"
+   },
+   "sorties": {
+    "FW Vine Maze Room": "Nothing",
+    "FW Hub Room Third Floor Upper West Platform": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Vine Maze Room",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Vine Maze Left Chest": "Nothing",
+    "Forbidden Woods - Vine Maze Right Chest": "Nothing",
+    "Forbidden Woods - Highest Pot in Vine Maze": "Can_Fly_With_Deku_Leaf_Indoors"
+   },
+   "sorties": {
+    "FW Morth Pit Hallway": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Cable Ride Above Poison Water Room Lower South",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Cable Ride Above Poison Water Room Lower North": "Can_Fly_With_Deku_Leaf_Indoors",
+    "FW Hub Room Third Floor Upper": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Cable Ride Above Poison Water Room Lower North",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Tall Room Before Mini Boss": "Nothing",
+    "FW Cable Ride Above Poison Water Room Lower South": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Tall Room Before Mini Boss",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Tall Room Chest": "Grappling_Hook"
+   },
+   "sorties": {
+    "FW Mini Boss Room": "Nothing",
+    "FW Cable Ride Above Poison Water Room Upper North": "Can_Defeat_Door_Flowers",
+    "FW Cable Ride Above Poison Water Room Lower North": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Mini Boss Room",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Mothula Mini Boss Chest": "Can_Defeat_Winged_Mothulas"
+   },
+   "sorties": {
+    "FW Tall Room Before Mini Boss": "Boomerang"
+   }
+  },
+  {
+   "nom": "FW Cable Ride Above Poison Water Room Upper North",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Cable Ride Above Poison Water Room Upper South": "Can_Destroy_Hanging_Seeds and (Hookshot or Can_Fly_With_Deku_Leaf_Indoors)",
+    "FW Cable Ride Above Poison Water Room Lower North": "Nothing",
+    "FW Tall Room Before Mini Boss": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Cable Ride Above Poison Water Room Upper South",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Past Seeds Hanging by Vines Chest": "Nothing"
+   },
+   "sorties": {
+    "FW Cable Ride Above Poison Water Room Upper North": "Can_Fly_With_Deku_Leaf_Indoors and Can_Destroy_Hanging_Seeds",
+    "FW Cable Ride Above Poison Water Room Lower South": "Nothing",
+    "FW Hub Room Highest Platform": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Hub Room Highest Platform",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Cable Ride Above Poison Water Room Upper South": "Nothing",
+    "FW Hub Room Third Floor Upper": "Nothing",
+    "FW Hub Room First Floor": "Boomerang"
+   }
+  },
+  {
+   "nom": "FW Hub Room Second Floor",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Mothula Hallway": "Can_Defeat_Door_Flowers or can_access(FW Hub Room Third Floor Upper)",
+    "FW Hub Room Third Floor Lower": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "FW Hub Room First Floor",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Forked Hallway Lower": "Nothing",
+    "FW Hub Room Second Floor": "Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "FW Forked Hallway Lower",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Poison River Room Before River": "Nothing",
+    "FW Hub Room First Floor": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Poison River Room Before River",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Chest Across Hanging Flower": "Nothing"
+   },
+   "sorties": {
+    "FW Poison River Room After River": "(Boomerang or Heros_Sword) and Can_Fan_With_Deku_Leaf",
+    "FW Tingle Chest Room": "(Boomerang or Heros_Sword) or Can_Destroy_Wooden_Barriers",
+    "FW Forked Hallway Lower": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Poison River Room After River",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Poison River Room Before River": "Nothing",
+    "FW Big Key Room": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Tingle Chest Room",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Tingle Statue Chest": "Bombs",
+    "Forbidden Woods - Locked Tree Trunk Chest": "Bombs or Fire_Arrows or (Can_Defeat_Boko_Babas_At_Range and Can_Fly_With_Deku_Leaf_Indoors)"
+   },
+   "sorties": {
+    "FW Poison River Room Before River": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Big Key Room",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Big Key Chest": "Boomerang"
+   },
+   "sorties": {
+    "FW Big Key Room Higher Ledge": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "FW Big Key Room Higher Ledge",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Forked Hallway Higher Ledge": "Boomerang and Can_Defeat_Moblins",
+    "FW Big Key Room": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Forked Hallway Higher Ledge",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "FW Forked Hallway Lower": "Nothing",
+    "FW Big Key Room Higher Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "FW Mothula Hallway",
+   "donjon": "Forbidden Woods",
+   "evenements": {},
+   "lieux": {
+    "Forbidden Woods - Double Mothula Room Chest": "Can_Defeat_Mothulas"
+   },
+   "sorties": {
+    "FW Boss Door Room": "Can_Defeat_Mothulas",
+    "FW Hub Room Second Floor": "Can_Defeat_Mothulas"
+   }
+  },
+  {
+   "nom": "FW Boss Door Room",
+   "donjon": "Forbidden Woods",
+   "evenements": {
+    "Can Open FW Gold Pot": "Nothing",
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "Kalle Demos Battle Arena": "Forbidden_Woods_Big_Key",
+    "FW Mothula Hallway": "Nothing",
+    "FW First Room": "'Can_Open_FW_Gold_Pot'",
+    "FW Hub Room Third Floor Upper West Platform": "'Can_Open_FW_Blue_Pot' and 'Can_Open_FW_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "Kalle Demos Battle Arena",
+   "evenements": {
+    "Kalle Demos Defeated": "Can_Defeat_Kalle_Demos"
+   },
+   "lieux": {
+    "Forbidden Woods - Kalle Demos Heart Container": "Can_Defeat_Kalle_Demos"
+   },
+   "sorties": {
+    "FW Boss Door Room": "Can_Defeat_Kalle_Demos"
+   }
+  },
+  {
+   "nom": "TOTG Entrance Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG East Golden Statue Room": "Nothing",
+    "TOTG Entrance Room Past Gate": "'Can_Bring_East_Golden_Statue'",
+    "TOTG Entrance Room past Bombable Walls": "Bombs",
+    "TOTG Map Chest Room": "Nothing",
+    "TOTG Entrance Room Past Waterfall": "'Can_Bring_West_Golden_Statue'",
+    "Tower of the Gods Sector": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG East Golden Statue Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring East Golden Statue": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG Entrance Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Entrance Room Past Gate",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG Hop Across Floating Boxes Room": "Nothing",
+    "TOTG Entrance Room": "'Can_Bring_East_Golden_Statue'"
+   }
+  },
+  {
+   "nom": "TOTG Hop Across Floating Boxes Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Hop Across Floating Boxes Chest": "Nothing"
+   },
+   "sorties": {
+    "TOTG Entrance Room Past Gate": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Map Chest Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Chest Behind Bombable Wall": "Bombs",
+    "Tower of the Gods - Pot Behind Bombable Wall": "Bombs"
+   },
+   "sorties": {
+    "TOTG Entrance Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Entrance Room past Bombable Walls",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Light Two Torches Chest": "Nothing"
+   },
+   "sorties": {
+    "TOTG Skulls Room": "Nothing",
+    "TOTG West Golden Statue Room": "count(1, Tower_of_the_Gods_Small_Key)",
+    "TOTG Entrance Room": "Bombs"
+   }
+  },
+  {
+   "nom": "TOTG Skulls Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Skull Room Chest": "Nothing",
+    "Tower of the Gods - Shoot Eye Above Skulls Chest": "Heros_Bow"
+   },
+   "sorties": {
+    "TOTG Entrance Room past Bombable Walls": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG West Golden Statue Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring West Golden Statue": "Can_Defeat_Yellow_Chu_Chus"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG Entrance Room past Bombable Walls": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Entrance Room Past Waterfall",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG Rising Platforms Room": "Nothing",
+    "TOTG Entrance Room": "'Can Bring West Golden Statue'"
+   }
+  },
+  {
+   "nom": "TOTG Rising Platforms Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Tingle Statue Chest": "Bombs"
+   },
+   "sorties": {
+    "TOTG Hub Room": "Nothing",
+    "TOTG Entrance Room Past Waterfall": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Hub Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Stone Tablet": "Wind_Waker and ('Can_Bring_East_Servant_of_the_Tower' or 'Can_Bring_West_Servant_of_the_Tower' or 'Can_Bring_North_Servant_of_the_Tower')"
+   },
+   "sorties": {
+    "TOTG East Servant Corridor": "Nothing",
+    "TOTG West Servant Corridor Near Hub Room": "Nothing",
+    "TOTG North Servant Corridor": "Nothing",
+    "TOTG Big Key Room": "Wind_Waker and 'Can_Bring_East_Servant_of_the_Tower' and 'Can_Bring_West_Servant_of_the_Tower' and 'Can_Bring_North_Servant_of_the_Tower'",
+    "TOTG Rising Platforms Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG East Servant Corridor",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG East Servant Room": "Nothing",
+    "TOTG East Servant Corridor Armos Knights Room": "Heros_Bow",
+    "TOTG Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG East Servant Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring East Servant of the Tower": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG East Servant Corridor": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG East Servant Corridor Armos Knights Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - First Armos Knights Chest": "Bombs"
+   },
+   "sorties": {
+    "TOTG East Servant Corridor": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG West Servant Corridor Near Hub Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring Statue to TOTG Miniboss Switch": "Heros_Bow"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG West Servant Corridor Near West Servant Room": "Heros_Bow or Grappling_Hook",
+    "TOTG West Servant Corridor Near Mini Boss Room": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors",
+    "TOTG Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG West Servant Corridor Near Mini Boss Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG Mini Boss Room": "'Can_Bring_Statue_to_TOTG_Miniboss_Switch'",
+    "TOTG West Servant Corridor Near Hub Room": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors",
+    "TOTG West Servant Corridor Near West Servant Room": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "TOTG West Servant Corridor Near West Servant Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG West Servant Room Near Corridor": "Nothing",
+    "TOTG West Servant Corridor Near Mini Boss Room": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors",
+    "TOTG West Servant Corridor Near Hub Room": "Heros_Bow or Grappling_Hook"
+   }
+  },
+  {
+   "nom": "TOTG West Servant Room Near Corridor",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG West Servant Corridor Near West Servant Room": "Nothing",
+    "TOTG West Servant Room Near Statue": "Grappling_Hook or Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "TOTG West Servant Room Near Statue",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring Statue to TOTG Miniboss Switch": "Can_Play_CM",
+    "Can Bring West Servant of the Tower": "Can_Play_CM and Heros_Bow"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG West Servant Room Near Corridor": "Can_Play_CM"
+   }
+  },
+  {
+   "nom": "TOTG Mini Boss Room",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Darknut Mini Boss": "Can_Defeat_Darknuts"
+   },
+   "sorties": {
+    "TOTG West Servant Corridor Near Mini Boss Room": "Can_Defeat_Darknuts"
+   }
+  },
+  {
+   "nom": "TOTG North Servant Corridor",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG Hub Room": "Nothing",
+    "TOTG Many Moving Platforms Room": "Nothing",
+    "TOTG North Servant Room": "count(2, Tower_of_the_Gods_Small_Key)",
+    "TOTG North Servant Corridor Past Bombable Wall": "Bombs"
+   }
+  },
+  {
+   "nom": "TOTG Many Moving Platforms Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Floating Platforms Room Lower Chest": "Heros_Bow or Can_Fly_With_Deku_Leaf_Indoors",
+    "Tower of the Gods - Floating Platforms Room Upper Chest": "Heros_Bow"
+   },
+   "sorties": {
+    "TOTG North Servant Corridor": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG North Servant Corridor Past Bombable Wall",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG North Servant Corridor Armos Knights Room": "Nothing",
+    "TOTG North Servant Corridor": "Bombs"
+   }
+  },
+  {
+   "nom": "TOTG North Servant Corridor Armos Knights Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Second Armos Knights Chest": "Can_Play_WR"
+   },
+   "sorties": {
+    "TOTG North Servant Corridor Past Bombable Wall": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG North Servant Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "TOTG North Servant Room Past Lasers": "Can_Fly_With_Deku_Leaf_Indoors",
+    "TOTG North Servant Corridor": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG North Servant Room Past Lasers",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Bring North Servant of the Tower": "Can_Play_CM"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG North Servant Room": "Can_Play_CM"
+   }
+  },
+  {
+   "nom": "TOTG Big Key Room",
+   "donjon": "Tower of the Gods",
+   "evenements": {},
+   "lieux": {
+    "Tower of the Gods - Big Key Chest": "Nothing",
+    "Tower of the Gods - Eastern Pot in Big Key Chest Room": "Nothing"
+   },
+   "sorties": {
+    "TOTG Outside Area": "Nothing",
+    "TOTG Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "TOTG Outside Area",
+   "donjon": "Tower of the Gods",
+   "evenements": {
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "TOTG Big Key Room": "Nothing",
+    "Gohdan Battle Arena": "Tower_of_the_Gods_Big_Key"
+   }
+  },
+  {
+   "nom": "Gohdan Battle Arena",
+   "evenements": {
+    "Gohdan Defeated": "Can_Defeat_Gohdan"
+   },
+   "lieux": {
+    "Tower of the Gods - Gohdan Heart Container": "Can_Defeat_Gohdan"
+   },
+   "sorties": {
+    "TOTG Outside Area": "Can_Defeat_Gohdan"
+   }
+  },
+  {
+   "nom": "ET First Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Early Two Switches Room": "Nothing",
+    "Headstone Island Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Early Two Switches Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Map Chest Room": "Can_Play_CM",
+    "ET First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Map Chest Room",
+   "donjon": "Earth Temple",
+   "evenements": {
+    "Can Open ET Green Pot": "Nothing"
+   },
+   "lieux": {
+    "Earth Temple - Warp Pot Room Chest": "Can_Play_CM or Mirror_Shield",
+    "Earth Temple - Warp Pot Room Behind Curtain": "Fire_Arrows and (Hookshot or Boomerang)"
+   },
+   "sorties": {
+    "ET Giant Statue Room": "Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus",
+    "ET Early Two Switches Room": "Can_Defeat_Red_Chu_Chus and Can_Defeat_Green_Chu_Chus",
+    "ET Block Push Corridor": "'Can_Open_ET_Green_Pot' and 'Can_Open_ET_Blue_Pot'",
+    "ET Boss Door Room": "'Can_Open_ET_Green_Pot' and 'Can_Open_ET_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "ET Giant Statue Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET First Crypt": "Skull_Hammer and Can_Play_CM",
+    "ET Chu Chus and Switches Room": "count(2, Earth_Temple_Small_Key)",
+    "ET Giant Statue Room Under Statue": "Can_Play_CM and Can_Aim_Mirror_Shield",
+    "ET Map Chest Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET First Crypt",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - First Crypt Chest": "Power_Bracelets and (Can_Play_CM or Mirror_Shield)"
+   },
+   "sorties": {
+    "ET Small Room West of First Crypt": "Nothing",
+    "ET Giant Statue Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Small Room West of First Crypt",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Chest Behind Destructable Wall": "Mirror_Shield"
+   },
+   "sorties": {
+    "ET First Crypt": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Chu Chus and Switches Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Block Push Corridor": "Power_Bracelets and Fire_Arrows",
+    "ET Giant Statue Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Block Push Corridor",
+   "donjon": "Earth Temple",
+   "evenements": {
+    "Can Open ET Blue Pot": "Can_Defeat_Floormasters and (Can_Play_CM or Mirror_Shield)"
+   },
+   "lieux": {
+    "Earth Temple - Three Blocks Room Chest": "Can_Defeat_Floormasters and (Can_Play_CM or Can_Aim_Mirror_Shield)"
+   },
+   "sorties": {
+    "ET Two Moblins and Poes Room": "Can_Defeat_Floormasters and (Can_Play_CM or Mirror_Shield)",
+    "ET Chu Chus and Switches Room": "Nothing",
+    "ET Map Chest Room": "'Can_Open_ET_Green_Pot' and 'Can_Open_ET_Blue_Pot'",
+    "ET Boss Door Room": "'Can_Open_ET_Blue_Pot' and 'Can_Open_ET_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "ET Two Moblins and Poes Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Behind Statues Chest": "Can_Play_CM or Mirror_Shield"
+   },
+   "sorties": {
+    "ET Two Moblins and Poes Room Past Stairs": "Nothing",
+    "ET Two Moblins and Poes Room Past Light Wall": "Can_Play_CM and Mirror_Shield",
+    "ET Block Push Corridor": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Two Moblins and Poes Room Past Stairs",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Second Crypt": "Nothing",
+    "ET Mini Boss Room": "count(3, Earth_Temple_Small_Key)"
+   }
+  },
+  {
+   "nom": "ET Second Crypt",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Second Crypt Casket": "Can_Defeat_ReDeads"
+   },
+   "sorties": {
+    "ET Two Moblins and Poes Room Past Stairs": "Can_Defeat_ReDeads"
+   }
+  },
+  {
+   "nom": "ET Mini Boss Room",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Mini Boss Room Upper Ledge": "Can_Defeat_Stalfos or Hookshot",
+    "ET Two Moblins and Poes Room Past Stairs": "Can_Aim_Mirror_Shield and can_access(ET Mini Boss Room Upper Ledge)"
+   }
+  },
+  {
+   "nom": "ET Mini Boss Room Upper Ledge",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Stalfos Mini Boss": "Nothing"
+   },
+   "sorties": {
+    "ET Mini Boss Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Two Moblins and Poes Room Past Light Wall",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Giant Statue Room Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Giant Statue Room Upper Ledge",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Two Moblins and Poes Room Past Light Wall": "Nothing",
+    "ET Giant Statue Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Giant Statue Room Under Statue",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Hanging Bridge Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Hanging Bridge Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Tingle Statue Chest": "Bombs"
+   },
+   "sorties": {
+    "ET Basement Hub Room": "Can_Play_EGL",
+    "ET Giant Statue Room Under Statue": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Basement Hub Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Foggy Floormasters Room": "Can_Play_CM or Can_Aim_Mirror_Shield",
+    "ET Poes and Bubbles Room Behind Grating": "Can_Play_CM or Can_Aim_Mirror_Shield",
+    "ET Basement Hub Room Upper Ledge": "Can_Play_CM or Can_Aim_Mirror_Shield",
+    "ET Hanging Bridge Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Foggy Floormasters Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Foggy Floormaster Room End Chest": "Nothing",
+    "Earth Temple - Kill All Floormasters Chest": "Can_Defeat_Floormasters"
+   },
+   "sorties": {
+    "ET Basement Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Poes and Bubbles Room Behind Grating",
+   "donjon": "Earth Temple",
+   "evenements": {
+    "Can Light Up ET Poes and Bubbles Room": "Skull_Hammer and Power_Bracelets"
+   },
+   "lieux": {
+    "Earth Temple - Near Hammer Button Behind Curtain": "Fire_Arrows and (Hookshot or Boomerang)"
+   },
+   "sorties": {
+    "ET Basement Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Basement Hub Room Upper Ledge",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Poes and Bubbles Room": "count(3, Earth_Temple_Small_Key)",
+    "ET Basement Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Poes and Bubbles Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Basement Hub Room Upper Ledge": "Nothing",
+    "ET Third Crypt": "Can_Play_CM and Can_Aim_Mirror_Shield and 'Can_Light_Up_ET_Poes_and_Bubbles_Room'"
+   }
+  },
+  {
+   "nom": "ET Third Crypt",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Third Crypt Chest": "Nothing"
+   },
+   "sorties": {
+    "ET Poes and Bubbles Room": "Nothing",
+    "ET Boss Door Room": "Can_Play_EGL"
+   }
+  },
+  {
+   "nom": "ET Boss Door Room",
+   "donjon": "Earth Temple",
+   "evenements": {
+    "Can Open ET Gold Pot": "Bombs",
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "ET Many Mirrors Room": "Nothing",
+    "Jalhalla Battle Arena": "Earth_Temple_Big_Key",
+    "ET Third Crypt": "Nothing",
+    "ET Map Chest Room": "'Can_Open_ET_Green_Pot' and 'Can_Open_ET_Gold_Pot'",
+    "ET Block Push Corridor": "'Can_Open_ET_Blue_Pot' and 'Can_Open_ET_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "ET Many Mirrors Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Many Mirrors Room Right Chest": "Can_Play_CM",
+    "Earth Temple - Many Mirrors Room Left Chest": "Power_Bracelets and Can_Play_CM and Can_Aim_Mirror_Shield"
+   },
+   "sorties": {
+    "ET Big Key Chest Room": "Power_Bracelets and Can_Play_CM and Can_Aim_Mirror_Shield",
+    "ET Many Mirrors Room Past Light Wall": "Power_Bracelets and Can_Play_CM and Can_Aim_Mirror_Shield",
+    "ET Boss Door Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Big Key Chest Room",
+   "donjon": "Earth Temple",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag and Can_Defeat_Darknuts_Easily"
+   },
+   "lieux": {
+    "Earth Temple - Big Key Chest": "Can_Defeat_Blue_Bubbles and Can_Defeat_Darknuts"
+   },
+   "sorties": {
+    "ET Many Mirrors Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Many Mirrors Room Past Light Wall",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "ET Triple Stalfos Room": "Nothing"
+   }
+  },
+  {
+   "nom": "ET Triple Stalfos Room",
+   "donjon": "Earth Temple",
+   "evenements": {},
+   "lieux": {
+    "Earth Temple - Stalfos Crypt Room Chest": "(Can_Play_CM or Can_Aim_Mirror_Shield) and Can_Defeat_Stalfos"
+   },
+   "sorties": {
+    "ET Many Mirrors Room Past Light Wall": "Nothing"
+   }
+  },
+  {
+   "nom": "Jalhalla Battle Arena",
+   "evenements": {
+    "Jalhalla Defeated": "Can_Defeat_Jalhalla"
+   },
+   "lieux": {
+    "Earth Temple - Jalhalla Heart Container": "Can_Defeat_Jalhalla"
+   },
+   "sorties": {
+    "ET Boss Door Room": "Can_Defeat_Jalhalla"
+   }
+  },
+  {
+   "nom": "WT First Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT First Warp Pot Room Front": "Nothing",
+    "Gale Isle Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "WT First Warp Pot Room Front",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT First Warp Pot Room Lower Area": "Nothing",
+    "WT First Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT First Warp Pot Room Lower Area",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Open WT Green Pot": "Bombs or Fire_Arrows or Skull_Hammer or Heros_Sword"
+   },
+   "lieux": {
+    "Wind Temple - Between Dirt Patches Chest": "Can_Play_CM"
+   },
+   "sorties": {
+    "WT First Warp Pot Room Front": "Iron_Boots",
+    "WT First Warp Pot Room Back": "Iron_Boots and Can_Fly_With_Deku_Leaf_Indoors and Can_Play_CM",
+    "WT Hub Room First Floor South Platform": "'Can_Open_WT_Green_Pot' and 'Can_Open_WT_Blue_Pot'",
+    "WT Three Big Fans Room Past Song Stone": "'Can_Open_WT_Green_Pot' and 'Can_Open_WT_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "WT First Warp Pot Room Back",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT First Warp Pot Room Lower Area": "Nothing",
+    "WT Early Turn Floor Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Early Turn Floor Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT First Warp Pot Room Back": "Nothing",
+    "WT Early Turn Floor Room Past Turn Floor": "Can_Fan_With_Deku_Leaf"
+   }
+  },
+  {
+   "nom": "WT Early Turn Floor Room Past Turn Floor",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Makar Capture Room": "Can_Play_CM",
+    "WT Early Turn Floor Room": "Nothing",
+    "WT Early Turn Floor Room Upper Area Far Side": "Hookshot"
+   }
+  },
+  {
+   "nom": "WT Early Turn Floor Room Upper Area Near Side",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Behind Stone Head in Hidden Upper Room": "Hookshot and Iron_Boots"
+   },
+   "sorties": {
+    "WT Early Turn Floor Room": "Iron_Boots",
+    "WT Early Turn Floor Room Upper Area Far Side": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Early Turn Floor Room Upper Area Far Side",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Early Turn Floor Room Upper Area Near Side": "Can_Fan_With_Deku_Leaf",
+    "WT Early Turn Floor Room Past Turn Floor": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Makar Capture Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Tingle Statue Chest": "Bombs"
+   },
+   "sorties": {
+    "WT Hub Room First Floor West Platform": "Can_Play_CM",
+    "WT Makar Capture Room Upper Platform": "Hookshot and Can_Play_CM and Can_Defeat_Wizzrobes_At_Range",
+    "WT Early Turn Floor Room Past Turn Floor": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room Above First Floor Grate",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room First Floor North Platform": "Can_Fly_With_Deku_Leaf_Indoors",
+    "WT Hub Room First Floor South Platform": "Can_Fly_With_Deku_Leaf_Indoors and 'Can_Start_WT_Hub_Room_Fan'",
+    "WT Hub Room First Floor West Platform": "Can_Fly_With_Deku_Leaf_Indoors",
+    "WT Hub Room First Floor East Platform": "Can_Fly_With_Deku_Leaf_Indoors",
+    "WT Hub Room Second Floor South Platform": "Can_Fly_With_Deku_Leaf_Indoors and 'Can_Start_WT_Hub_Room_Fan'",
+    "WT Hub Room Second Floor East Platform": "Can_Fly_With_Deku_Leaf_Indoors and 'Can_Start_WT_Hub_Room_Fan'",
+    "WT Hub Room Basement Above Fan": "'Can_Open_WT_Hub_Room_1F_Grate'"
+   }
+  },
+  {
+   "nom": "WT Hub Room First Floor West Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room Above First Floor Grate": "Nothing",
+    "WT Hub Room First Floor North Platform": "Hookshot and 'Can_Open_WT_Hub_Room_1F_Grate'",
+    "WT Hub Room Compass Chest Platform": "'Can_Open_WT_Hub_Room_1F_Grate'",
+    "WT Makar Capture Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room First Floor North Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Behind Stone Head Chest": "Hookshot and Iron_Boots"
+   },
+   "sorties": {
+    "WT Hub Room Above First Floor Grate": "Nothing",
+    "WT Hub Room First Floor West Platform": "Hookshot and 'Can_Open_WT_Hub_Room_1F_Grate'",
+    "WT Hub Room Compass Chest Platform": "'Can_Open_WT_Hub_Room_1F_Grate'"
+   }
+  },
+  {
+   "nom": "WT Hub Room First Floor East Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Song Stone and Turn Platform Near Hub Room": "Nothing",
+    "WT Hub Room Above First Floor Grate": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Song Stone and Turn Platform Near Hub Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room First Floor East Platform": "Nothing",
+    "WT Song Stone and Turn Platform Near Cyclones Room": "Iron_Boots and Can_Fan_With_Deku_Leaf"
+   }
+  },
+  {
+   "nom": "WT Song Stone and Turn Platform Near Cyclones Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Left Alcove Chest": "Nothing"
+   },
+   "sorties": {
+    "WT Many Cyclones Room East Side": "Nothing",
+    "WT Big Key Chest Room": "Can_Play_WGA",
+    "WT Song Stone and Turn Platform Near Hub Room": "Can_Fan_With_Deku_Leaf"
+   }
+  },
+  {
+   "nom": "WT Big Key Chest Room",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag and Can_Defeat_Darknuts_Easily"
+   },
+   "lieux": {
+    "Wind Temple - Big Key Chest": "Can_Defeat_Darknuts"
+   },
+   "sorties": {
+    "WT Song Stone and Turn Platform Near Cyclones Room": "Can_Defeat_Darknuts"
+   }
+  },
+  {
+   "nom": "WT Many Cyclones Room East Side",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Cyclones Room Chest": "Can_Fly_With_Deku_Leaf_Indoors and (Can_Cut_Grass or Double_Magic)"
+   },
+   "sorties": {
+    "WT Many Cyclones Room West Side": "Can_Fly_With_Deku_Leaf_Indoors and (Can_Cut_Grass or Double_Magic)",
+    "WT Song Stone and Turn Platform Near Cyclones Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Many Cyclones Room West Side",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Behind Stone Head in Many Cyclones Room": "Hookshot and Iron_Boots"
+   },
+   "sorties": {
+    "WT Hub Room First Floor South Platform": "Nothing",
+    "WT Many Cyclones Room East Side": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room First Floor South Platform",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Open WT Blue Pot": "Bombs or Fire_Arrows or Skull_Hammer or Heros_Sword",
+    "Can Open WT Hub Room 1F Grate": "Iron_Boots"
+   },
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room Above First Floor Grate": "Nothing",
+    "WT Many Cyclones Room West Side": "Nothing",
+    "WT First Warp Pot Room Lower Area": "'Can_Open_WT_Green_Pot' and 'Can_Open_WT_Blue_Pot'",
+    "WT Three Big Fans Room Past Song Stone": "'Can_Open_WT_Blue_Pot' and 'Can_Open_WT_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "WT Hub Room Compass Chest Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Hub Room Center Chest": "Nothing"
+   },
+   "sorties": {
+    "WT Hub Room Basement Above Fan": "Nothing",
+    "WT Hub Room First Floor West Platform": "Hookshot and Iron_Boots and 'Can_Open_WT_Hub_Room_1F_Grate''",
+    "WT Hub Room First Floor North Platform": "Hookshot and Iron_Boots and 'Can_Open_WT_Hub_Room_1F_Grate''"
+   }
+  },
+  {
+   "nom": "WT Hub Room Basement Above Fan",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Start WT Hub Room Fan": "Can_Play_CM"
+   },
+   "lieux": {},
+   "sorties": {
+    "WT Cracked Floors Room": "Nothing",
+    "WT Mini Boss Room": "count(2, Wind_Temple_Small_Key)",
+    "WT Hub Room Compass Chest Platform": "(Hookshot or 'Can_Start_WT_Hub_Room_Fan') and Can_Fly_With_Deku_Leaf_Indoors",
+    "WT Hub Room Above First Floor Grate": "'Can_Open_WT_Hub_Room_1F_Grate' and 'Can_Start_WT_Hub_Room_Fan'",
+    "WT Hub Room Basement Below Fan": "'Can_Open_WT_Hub_Room_Fan_Grate'"
+   }
+  },
+  {
+   "nom": "WT Mini Boss Room",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Wizzrobe Mini Boss": "Can_Defeat_Darknuts and Can_Defeat_Wizzrobes and Can_Remove_Peahat_Armor"
+   },
+   "sorties": {
+    "WT Hub Room Basement Above Fan": "Hookshot and Skull_Hammer"
+   }
+  },
+  {
+   "nom": "WT Cracked Floors Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Spike Wall Room First Chest": "Iron_Boots",
+    "Wind Temple - Spike Wall Room Destroy Floors": "Iron_Boots and Can_Defeat_Floormasters"
+   },
+   "sorties": {
+    "WT Hub Room Basement Above Fan": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Makar Capture Room Upper Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Makar Capture Room": "Nothing",
+    "WT Blue Bubbles Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Blue Bubbles Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Blue Bubbles Room Upper Ledge": "Hookshot and Can_Play_CM and Can_Defeat_Blue_Bubbles",
+    "WT Makar Capture Room Upper Platform": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Blue Bubbles Room Upper Ledge",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room Second Floor North Platform": "Nothing",
+    "WT Blue Bubbles Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room Second Floor North Platform",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Open WT Hub Room Fan Grate": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room Above First Floor Grate": "Nothing",
+    "WT Blue Bubbles Room Upper Ledge": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room Second Floor East Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Hub Room Top Chest": "Nothing"
+   },
+   "sorties": {
+    "WT Hub Room Above First Floor Grate": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Hub Room Second Floor South Platform",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Seven Armos Room": "Nothing",
+    "WT Hub Room Above First Floor Grate": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Seven Armos Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Behind Armos Chest": "Can_Defeat_Armos"
+   },
+   "sorties": {
+    "WT Hub Room Second Floor South Platform": "Can_Defeat_Armos"
+   }
+  },
+  {
+   "nom": "WT Hub Room Basement Below Fan",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Hub Room Basement Above Fan": "Nothing",
+    "WT Tall Basement Room": "count(2, Wind_Temple_Small_Key)"
+   }
+  },
+  {
+   "nom": "WT Tall Basement Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {
+    "Wind Temple - Kill All Basement Room Enemies": "Hookshot and Iron_Boots and Can_Fly_With_Deku_Leaf_Indoors and Can_Defeat_Blue_Bubbles and Can_Defeat_Stalfos and Can_Defeat_Wizzrobes and Can_Defeat_Morths"
+   },
+   "sorties": {
+    "WT Hub Room Basement Below Fan": "Nothing",
+    "WT Long Narrow Room": "Hookshot and Iron_Boots"
+   }
+  },
+  {
+   "nom": "WT Long Narrow Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Long Narrow Room Past Gap": "Hookshot and Can_Play_CM",
+    "WT Tall Basement Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Long Narrow Room Past Gap",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Long Narrow Room": "Nothing",
+    "WT Three Big Fans Room": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Three Big Fans Room",
+   "donjon": "Wind Temple",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "WT Three Big Fans Room Past Song Stone": "Iron_Boots and Can_Play_WGA",
+    "WT Long Narrow Room Past Gap": "Nothing"
+   }
+  },
+  {
+   "nom": "WT Three Big Fans Room Past Song Stone",
+   "donjon": "Wind Temple",
+   "evenements": {
+    "Can Open WT Gold Pot": "Bombs or Fire_Arrows or Skull_Hammer or Heros_Sword",
+    "Can Get Fairies": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "Molgera Battle Arena": "Wind_Temple_Big_Key",
+    "WT First Warp Pot Room Lower Area": "'Can_Open_WT_Green_Pot' and 'Can_Open_WT_Gold_Pot'",
+    "WT Hub Room First Floor South Platform": "'Can_Open_WT_Blue_Pot' and 'Can_Open_WT_Gold_Pot'"
+   }
+  },
+  {
+   "nom": "Molgera Battle Arena",
+   "evenements": {
+    "Molgera Defeated": "Can_Defeat_Molgera"
+   },
+   "lieux": {
+    "Wind Temple - Molgera Heart Container": "Can_Defeat_Molgera"
+   },
+   "sorties": {
+    "WT Three Big Fans Room Past Song Stone": "Can_Defeat_Molgera"
+   }
+  },
+  {
+   "nom": "Hyrule Castle Front",
+   "region": "Hyrule",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Tower of the Gods Sector": "Nothing",
+    "Hyrule Castle Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Hyrule Castle Interior",
+   "region": "Hyrule",
+   "evenements": {
+    "Can Farm Knights Crests": "Grappling_Hook and Spoils_Bag"
+   },
+   "lieux": {},
+   "sorties": {
+    "Hyrule Castle Sword Chamber": "Nothing",
+    "Hyrule Castle Bridge": "Nothing",
+    "Hyrule Castle Front": "Nothing"
+   }
+  },
+  {
+   "nom": "Hyrule Castle Sword Chamber",
+   "evenements": {},
+   "lieux": {
+    "Hyrule Castle - Sword Chamber Chest": "Can_Defeat_Mighty_Darknuts"
+   },
+   "sorties": {
+    "Hyrule Castle Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Hyrule Castle Bridge",
+   "region": "Hyrule",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Hyrule Field Path": "Can_Get_Past_Hyrule_Barrier",
+    "Hyrule Castle Interior": "Nothing"
+   }
+  },
+  {
+   "nom": "Hyrule Field Path",
+   "region": "Hyrule",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Hyrule Field Path Past Broken Bridge": "Hookshot or Can_Fly_With_Deku_Leaf_Indoors",
+    "Hyrule Castle Bridge": "Nothing"
+   }
+  },
+  {
+   "nom": "Hyrule Field Path Past Broken Bridge",
+   "region": "Hyrule",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Trials Hub": "Nothing",
+    "Hyrule Field Path": "Hookshot or Can_Fly_With_Deku_Leaf_Indoors"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Trials Hub",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower DRC Trial": "Nothing",
+    "Ganon's Tower FW Trial": "Nothing",
+    "Ganon's Tower ET Trial": "Nothing",
+    "Ganon's Tower WT Trial": "Nothing",
+    "Ganon's Tower First Staircase": "Skip_Refights == true or (Can_Defeat_Gohma and can_access(Ganon's Tower Gohma Refight) and Can_Defeat_Kalle_Demos and can_access(Ganon's Tower Kalle Demos Refight) and Can_Defeat_Jalhalla and can_access(Ganon's Tower Jalhalla Refight) and Can_Defeat_Molgera and can_access(Ganon's Tower Molgera Refight))",
+    "Hyrule Field Path Past Broken Bridge": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower DRC Trial",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Gohma Refight": "Grappling_Hook and Can_Fly_With_Deku_Leaf_Indoors",
+    "Ganon's Tower Trials Hub": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Gohma Refight",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Trials Hub": "Can_Defeat_Gohma"
+   }
+  },
+  {
+   "nom": "Ganon's Tower FW Trial",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Kalle Demos Refight": "Can_Fan_With_Deku_Leaf and Can_Fly_With_Deku_Leaf_Indoors",
+    "Ganon's Tower Trials Hub": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Kalle Demos Refight",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Trials Hub": "Can_Defeat_Kalle_Demos"
+   }
+  },
+  {
+   "nom": "Ganon's Tower ET Trial",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Jalhalla Refight": "Nothing",
+    "Ganon's Tower Trials Hub": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Jalhalla Refight",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Trials Hub": "Can_Defeat_Jalhalla"
+   }
+  },
+  {
+   "nom": "Ganon's Tower WT Trial",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Molgera Refight": "Hookshot and Can_Fly_With_Deku_Leaf_Indoors",
+    "Ganon's Tower Trials Hub": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Molgera Refight",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Trials Hub": "Can_Defeat_Molgera"
+   }
+  },
+  {
+   "nom": "Ganon's Tower First Staircase",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Middle Hub Room": "Nothing",
+    "Ganon's Tower Trials Hub": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Middle Hub Room",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Phantom Ganon Maze": "Nothing",
+    "Ganon's Tower Final Staircase": "Light_Arrows",
+    "Ganon's Tower First Staircase": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Phantom Ganon Maze",
+   "region": "Ganon's Tower",
+   "evenements": {
+    "Can Farm Lots Of Rupees": "Can_Defeat_Phantom_Ganon"
+   },
+   "lieux": {
+    "Ganon's Tower - Maze Chest": "Can_Defeat_Phantom_Ganon"
+   },
+   "sorties": {
+    "Ganon's Tower Middle Hub Room": "Can_Defeat_Phantom_Ganon"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Final Staircase",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Can_Defeat_Moblins and Can_Defeat_Mighty_Darknuts and All_Required_Bosses_Defeated",
+    "Ganon's Tower Middle Hub Room": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Arena",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena Side Shelves": "Hookshot",
+    "Ganon's Tower Puppet Ganon Boss Room Lowest Platform": "Can_Defeat_Puppet_Ganon",
+    "Ganon's Tower Puppet Ganon Boss Room Morth Platform": "'Can_Open_PG_Warp_Pot'"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Arena Side Shelves",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Room Lowest Platform",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Nothing",
+    "Ganon's Tower Puppet Ganon Boss Room Pot Platform": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Room Pot Platform",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Nothing",
+    "Ganon's Tower Puppet Ganon Boss Room Morth Platform": "Grappling_Hook"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Room Morth Platform",
+   "region": "Ganon's Tower",
+   "evenements": {
+    "Can Open PG Warp Pot": "Nothing"
+   },
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Nothing",
+    "Ganon's Tower Puppet Ganon Boss Room Pot Platform": "Nothing",
+    "Ganon's Tower Puppet Ganon Boss Room Highest Platform": "Hookshot"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Puppet Ganon Boss Room Highest Platform",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {},
+   "sorties": {
+    "Ganon's Tower Puppet Ganon Boss Arena": "Nothing",
+    "Ganon's Tower Puppet Ganon Boss Room Highest Platform": "Nothing",
+    "Ganon's Tower Spire": "Nothing"
+   }
+  },
+  {
+   "nom": "Ganon's Tower Spire",
+   "region": "Ganon's Tower",
+   "evenements": {},
+   "lieux": {
+    "Ganon's Tower - Defeat Ganondorf": "Can_Defeat_Ganondorf"
+   },
+   "sorties": {}
+  }
+ ]
+}

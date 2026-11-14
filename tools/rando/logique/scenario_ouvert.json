@@ -1,0 +1,36 @@
+{
+ "description": "Seconde couche de scénario, à nous : la logique du MONDE OUVERT (option monde = ouvert, lot 7 du randomizer par fichiers, wwmp/rando_lot7.py). La logique de TWWHD-Randomizer suppose déjà un monde ouvert ; cette couche dit seulement ce que NOTRE monde ouvert donne au départ (objets que l'histoire d'origine donnait par des cinématiques que TWWHD retire, et que notre moteur ne sait pas mettre dans la réserve d'objets) et garde, du scénario d'origine, ce qui ne dépend pas de l'histoire. « garde » : clés reprises telles quelles de scenario_vanilla.json ; « remplace » : clés remplacées. Jamais essayé en jeu.",
+ "garde": ["depart", "fin", "reglages", "objets_corriges", "objets_corriges_raisons", "sorties_corrigees", "verrous_lieux", "verrous_donnees"],
+ "remplace": {
+  "macros": {},
+  "macros_raisons": {},
+  "evenements": [],
+  "lieux_deplaces": [],
+  "verrou_general": {"exigence": "Nothing", "zones_libres": [], "prefixes_libres": [], "donjons_libres": [], "raison": "monde ouvert : la mer entière est ouverte dès le départ (Baguette, Requiem du Vent et voile donnés à la création)"},
+  "verrous_zones": [{"zone": "Windfall Pirate Ship", "exigence": "Impossible", "raison": "monde ouvert : le bateau pirate ne vient à Mercantîle que pendant la nuit sans fin, que les bits de départ empêchent (TWWHD l'ajoute par un acteur et un événement neufs, non portés) ; les bombes sont données au départ"}],
+  "verrous_donjons": [],
+  "lieux_histoire": [
+   {"nom": "Start - Wind Waker", "nom_fr": "Départ - Baguette du Vent", "zone": "Root", "objet": "Wind Waker", "exigence": "Nothing"},
+   {"nom": "Start - Wind's Requiem", "nom_fr": "Départ - Requiem du Vent", "zone": "Root", "objet": "Wind's Requiem", "exigence": "Nothing"},
+   {"nom": "Start - Boat's Sail", "nom_fr": "Départ - Voile", "zone": "Root", "objet": "Progressive Sail", "exigence": "Nothing"},
+   {"nom": "Start - Hero's Sword", "nom_fr": "Départ - Épée du héros", "zone": "Root", "objet": "Progressive Sword", "exigence": "Nothing"},
+   {"nom": "Start - Master Sword", "nom_fr": "Départ - Épée de légende (sans pouvoir)", "zone": "Root", "objet": "Progressive Sword", "exigence": "Nothing"},
+   {"nom": "Start - Hero's Shield", "nom_fr": "Départ - Bouclier du héros", "zone": "Root", "objet": "Progressive Shield", "exigence": "Nothing"},
+   {"nom": "Start - Spoils Bag", "nom_fr": "Départ - Sac à butin", "zone": "Root", "objet": "Spoils Bag", "exigence": "Nothing"},
+   {"nom": "Start - Delivery Bag", "nom_fr": "Départ - Sac de facteur", "zone": "Root", "objet": "Delivery Bag", "exigence": "Nothing"},
+   {"nom": "Start - Empty Bottle", "nom_fr": "Départ - Flacon", "zone": "Root", "objet": "Empty Bottle", "exigence": "Nothing"},
+   {"nom": "Start - Magic Meter", "nom_fr": "Départ - Jauge de magie", "zone": "Root", "objet": "Progressive Magic Meter", "exigence": "Nothing"},
+   {"nom": "Start - Din's Pearl", "nom_fr": "Départ - Perle de Din", "zone": "Root", "objet": "Din's Pearl", "exigence": "Nothing"},
+   {"nom": "Start - Farore's Pearl", "nom_fr": "Départ - Perle de Farore", "zone": "Root", "objet": "Farore's Pearl", "exigence": "Nothing"},
+   {"nom": "Start - Earth God's Lyric", "nom_fr": "Départ - Hymne du Dieu de la Terre", "zone": "Root", "objet": "Earth God's Lyric", "exigence": "Nothing"},
+   {"nom": "Start - Wind God's Aria", "nom_fr": "Départ - Hymne du Dieu du Vent", "zone": "Root", "objet": "Wind God's Aria", "exigence": "Nothing"},
+   {"nom": "Start - Bombs", "nom_fr": "Départ - Bombes", "zone": "Root", "objet": "Bombs", "exigence": "Nothing"},
+   {"nom": "Story - Sword Chamber Full Power", "nom_fr": "Histoire - Épée de légende, pleine puissance", "zone": "Hyrule Castle Sword Chamber", "objet": "Progressive Sword", "exigence": "Can_Defeat_Mighty_Darknuts"}
+  ]
+ },
+ "raisons": {
+  "lieux_histoire": "objets donnés par le crochet de création (execItemGet, wwmp/rando_lot7.OBJETS_OUVERT ; la jauge de magie par deux octets, comme TWWHD) : l'histoire d'origine les donnait par des cinématiques que le monde ouvert retire (introduction, bateau pirate, Île du Dragon, Bois Défendus, sorties des boss, sages). Le Talisman des pirates est aussi donné (aucun objet de logique). Les bombes sont données au départ : le coffre du bateau pirate de Mercantîle (leur lieu d'origine) n'est pas atteignable en monde ouvert (verrou « Impossible » sur la zone du bateau). L'Épée de légende (sans pouvoir) est donnée AU DÉPART : TWWHD ouvre Hyrule seulement avec les huit fragments de la Triforce, et plusieurs fragments du jeu d'origine sont derrière Spectre-Ganon, qui exige l'épée (blocage sinon). Le coffre de l'Épée de légende donne l'épée À PLEINE PUISSANCE (0x3E) : les prières des sages, retirées avec les cinématiques de sortie des boss, ne la chargent plus ; la logique le compte comme le coffre (un palier) plus un palier.",
+  "verrous": "aucun verrou d'histoire : TWWHD décrit déjà le monde ouvert. Gardés du scénario d'origine : verrous prudents des cadeaux et des lieux « donnée » (Helmaroc vaincu), corrections des portes du Temple de la Terre et des Bois Défendus, objet corrigé du trésor de l'Île de l'Aurore, fin.",
+  "tour_des_dieux": "les serviteurs de la Tour des Dieux restent dans l'ordre d'origine (le correctif de TWWHD n'est pas porté) : la logique de la tour est la même qu'en monde « histoire »."
+ }
+}

@@ -1,0 +1,53 @@
+# Serveur Wind Waker Coop (wwmp) avec Docker Compose. Pas à pas : docs/hotes/JOUER_PAR_INTERNET.md.
+#
+#   cd serveur_dedie/docker
+#   docker compose up -d --build          # construit et démarre (redémarre tout seul ensuite)
+#   docker compose logs -f                # journal en direct (compte admin créé : affiché au premier démarrage)
+#   docker compose exec wwmp cat /donnees/admin.txt          # compte admin (lanceur : « Administrer le serveur »)
+#   docker compose exec wwmp cat /donnees/mot_de_passe.txt   # mot de passe de partie
+#   docker compose down                   # arrête (les données restent dans le volume)
+#
+# RIEN À ÉDITER ICI POUR JOUER : tout vit dans le volume wwmp-donnees (/donnees) : config.json (monde, randomizer,
+# mode Hanteurs, joueurs max, deathlink, difficulté), mot_de_passe.txt, admin.txt, mondes/, cles.json, spoilers,
+# mises_a_jour/. La configuration se règle depuis le lanceur : Héberger › « Sur mon serveur dédié » › « Administrer
+# le serveur » (utilisateur + mot de passe admin, distincts du mot de passe de partie). Plus besoin de
+# docker-compose.override.yml.
+#
+# Fichier .env facultatif à côté de ce fichier (copie .env.exemple) : WWMP_PORT (7777 par défaut),
+# WWMP_ADMIN_UTILISATEUR / WWMP_ADMIN_MOT_DE_PASSE (compte admin ; sinon créé au hasard dans le volume),
+# WWMP_MOT_DE_PASSE (mot de passe de partie au PREMIER démarrage seulement ; ensuite il se change dans le lanceur).
+name: wwmp
+services:
+  wwmp:
+    build:
+      context: ../..
+      dockerfile: serveur_dedie/docker/Dockerfile
+    image: wwmp-serveur
+    container_name: wwmp-serveur
+    # un redémarrage demandé depuis le lanceur arrête proprement le serveur : Docker le relance
+    restart: unless-stopped
+    ports:
+      - "${WWMP_PORT:-7777}:7777/tcp"
+    environment:
+      WWMP_MOT_DE_PASSE: "${WWMP_MOT_DE_PASSE:-}"
+      WWMP_ADMIN_UTILISATEUR: "${WWMP_ADMIN_UTILISATEUR:-}"
+      WWMP_ADMIN_MOT_DE_PASSE: "${WWMP_ADMIN_MOT_DE_PASSE:-}"
+    volumes:
+      - wwmp-donnees:/donnees
+    stop_grace_period: 10s
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  wwmp-donnees:

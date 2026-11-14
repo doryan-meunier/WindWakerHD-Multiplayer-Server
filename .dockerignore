@@ -1,0 +1,10 @@
+# Docker (serveur_dedie/docker) : seul le serveur part dans l'image, jamais de fichier du jeu.
+*
+!tools/wwmp_server.py
+!tools/commun/
+!tools/jeu/
+!tools/synchro/
+!tools/rando/
+!tools/serveur/
+**/__pycache__
+**/*.pyc

@@ -1,0 +1,6 @@
+# Clé publique Ed25519 qui signe les mises à jour du mod (docs/joueurs/MISES_A_JOUR.md).
+# Le lanceur n'installe QUE les paquets signés par la clé privée correspondante.
+# Pas encore de clé : le propriétaire du mod la crée UNE fois avec
+#     python outils/publier.py cle
+# qui écrit la clé publique ici (64 caractères hexadécimaux sur une ligne), puis il commite ce fichier.
+# La clé privée reste sur son PC (%APPDATA%\WWMP_signature), jamais dans le dépôt.

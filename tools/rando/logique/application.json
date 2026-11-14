@@ -1,0 +1,2792 @@
+{
+ "description": "Pour chaque lieu de la logique : applicable en mémoire ou non (méthode « coffre » : stub N1, clé index de sauvegarde + numéro de coffre ; méthode « n2 » : cadeau d'un personnage, stub N2, site de wwmp.rando.SITES_N2), et pourquoi le reste garde son objet. Produit par tools/rando_logique_import.py à partir de rando_coffres.json ; ne pas éditer.",
+ "description_donnees": "Champ « donnees » d'un lieu (portage TWWHD, lot 1) : lieu changé par une écriture du client en mémoire, site de wwmp.rando.SITES_DONNEES, seulement avec l'option de son groupe ; son « reste » remplace alors celui du lieu. Ce champ, celui-ci et « verrous_donnees » du scénario ne comptent pas dans la version des données quand ces options sont coupées.",
+ "coffres_sha256": "aaec5b37f7435144eb071358f165f2137f092c7214ae35790836b9fc8a2863f7",
+ "lieux": [
+  {
+   "nom": "Mailbox - Letter from Hoskit's Girlfriend",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Mailbox - Letter from Baito's Mother",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 0,
+    "objet": 7,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter from Baito",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 5,
+    "objet": 4,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter from Komali's Father",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 1,
+    "objet": 7,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter Advertising Bombs",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Mailbox - Letter Advertising Rock Spire Shop Ship",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Mailbox - Beedle's Silver Membership Reward",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Mailbox - Beedle's Gold Membership Reward",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Mailbox - Letter from Orca",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 2,
+    "objet": 4,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter from Grandma",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 3,
+    "objet": 4,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter from Aryll",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu",
+   "donnees": {
+    "groupe": "courrier",
+    "site": 4,
+    "objet": 4,
+    "interdits": [],
+    "reste": "lettre : l'objet est un octet de la table du courrier du jeu ; mélangé seulement avec l'option « lieux_courrier » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Mailbox - Letter from Tingle",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet joint à une lettre : la table du courrier (0x1003150C) est lue à un seul site pour toutes les lettres, avec des objets en double ; aucune clé sûre par lettre sans écrire dans les données du jeu"
+  },
+  {
+   "nom": "Great Sea - Beedle Shop 20 Rupee Item",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "article de boutique de Terry : l'achat ne passe pas par la démo de cadeau (execItemGet direct) et l'article a aussi son modèle, son prix et son texte dans des tables séparées ; non changé"
+  },
+  {
+   "nom": "Great Sea - Salvage Corp Gift",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 4,
+   "objet": 229
+  },
+  {
+   "nom": "Great Sea - Cyclos",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Great Sea - Goron Trading Reward",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 12,
+   "objet": 7
+  },
+  {
+   "nom": "Great Sea - Withered Trees",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "quart de cœur créé par une autre fonction du jeu (0x025D8AB0) que la démo de cadeau : hors du stub N2"
+  },
+  {
+   "nom": "Great Sea - Ghost Ship Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 23,
+   "objet": 100
+  },
+  {
+   "nom": "Forsaken Fortress - Phantom Ganon",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 16,
+   "objet": 51
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Inside Lower Jail Cell",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 2,
+   "tbox": 3,
+   "objet": 7
+  },
+  {
+   "nom": "Forsaken Fortress - Chest on Bed",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 2,
+   "tbox": 1,
+   "objet": 3
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Outside Upper Jail Cell",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 2,
+   "tbox": 0,
+   "objet": 76
+  },
+  {
+   "nom": "Forsaken Fortress - Chest Guarded by Bokoblin",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 2,
+   "tbox": 2,
+   "objet": 77
+  },
+  {
+   "nom": "Forsaken Fortress - Helmaroc King Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Forsaken Fortress Sector - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Star Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Star Island - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 4,
+   "objet": 71
+  },
+  {
+   "nom": "Star Island - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 6,
+   "objet": 7
+  },
+  {
+   "nom": "Star Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Northern Fairy Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Northern Fairy Island - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 6,
+   "objet": 217
+  },
+  {
+   "nom": "Northern Fairy Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Northern Fairy Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Gale Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Crescent Moon Island - Chest on Island",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 4,
+   "objet": 222
+  },
+  {
+   "nom": "Crescent Moon Island - Blue Chu Chu North",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Crescent Moon Island - Blue Chu Chu South",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Crescent Moon Island - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 7,
+   "objet": 218
+  },
+  {
+   "nom": "Crescent Moon Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Seven Star Isles - Big Octo",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Seven Star Isles - Center Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 8,
+   "objet": 4
+  },
+  {
+   "nom": "Seven Star Isles - Northern Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 7,
+   "objet": 71
+  },
+  {
+   "nom": "Seven Star Isles - Southern Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 22,
+   "objet": 227
+  },
+  {
+   "nom": "Seven Star Isles - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Overlook Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Overlook Island - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 11,
+   "objet": 104
+  },
+  {
+   "nom": "Overlook Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Four Eye Reef - Destroy Cannons and Gunboats",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 14,
+   "objet": 209
+  },
+  {
+   "nom": "Four Eye Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Mother & Child Isles - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Mother & Child Isles - Inside Mother Isle",
+   "type": "Chest",
+   "applicable": false,
+   "reste": "coffre absent du relevé du jeu d'origine : dans le jeu non modifié cet objet n'est pas dans un coffre (il est donné par l'histoire), il n'y a donc aucune clé de coffre à réécrire"
+  },
+  {
+   "nom": "Mother & Child Isles - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Spectacle Island - Barrel Shooting First Prize",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 2,
+   "objet": 7
+  },
+  {
+   "nom": "Spectacle Island - Barrel Shooting Second Prize",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 3,
+   "objet": 215
+  },
+  {
+   "nom": "Spectacle Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Spectacle Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Windfall Island - Tingle First Gift",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "bouteille de Tingle (0x21) : objet d'inventaire absent des coffres du jeu d'origine, hors de la liste d'objets du pack"
+  },
+  {
+   "nom": "Windfall Island - Tingle Second Gift",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "carte de Tingle (0xDC) : carte spéciale, hors de la liste d'objets du pack"
+  },
+  {
+   "nom": "Windfall Island - Windfall Jail Maze Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 0,
+   "objet": 35
+  },
+  {
+   "nom": "Windfall Island - Potion Shop 15 Green Chu",
+   "type": "Custom_Symbol",
+   "applicable": false,
+   "reste": "lieu qui repose sur du code ajouté par TWWHD-Randomizer, absent de notre pack"
+  },
+  {
+   "nom": "Windfall Island - Potion Shop 15 Blue Chu",
+   "type": "Custom_Symbol",
+   "applicable": false,
+   "reste": "lieu qui repose sur du code ajouté par TWWHD-Randomizer, absent de notre pack"
+  },
+  {
+   "nom": "Windfall Island - Ivan Catch Killer Bees",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 0,
+   "objet": 7
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie Catch Killer Bees",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 1 Joy Pendant",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 21 Joy Pendant",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Mrs. Marie 40 Joy Pendant",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Lenzo House Left Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 1,
+   "objet": 230
+  },
+  {
+   "nom": "Windfall Island - Lenzo House Right Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 2,
+   "objet": 5
+  },
+  {
+   "nom": "Windfall Island - Lenzo Become Assistant",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Lenzo Bring Forest Firefly",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - House of Wealth Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 3,
+   "objet": 4
+  },
+  {
+   "nom": "Windfall Island - Maggie's Father Give 20 Skull Necklaces",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Windfall Island - Maggie Free Item",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "lettre de Maggie (0x9A) : objet de quête du sac de livraison, hors de la liste d'objets du pack"
+  },
+  {
+   "nom": "Windfall Island - Maggie Delivery Reward",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 1,
+   "objet": 7
+  },
+  {
+   "nom": "Windfall Island - Cafe Postman Delivery",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Windfall Island - Kreeb Light the Lighthouse",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "même appel du jeu (retour 0x022C103C) et même objet d'origine (quart de cœur) que deux autres cadeaux : le stub du pack ne peut pas les distinguer, changer l'un changerait les trois",
+   "donnees": {
+    "groupe": "pnj",
+    "site": 14,
+    "objet": 7,
+    "interdits": [
+     235,
+     239,
+     240
+    ],
+    "reste": "cadeau lu dans une table du jeu partagée avec les photos de Mercantîle ; mélangé seulement avec l'option « lieux_pnj » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Windfall Island - Transparent Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 10,
+   "objet": 7
+  },
+  {
+   "nom": "Windfall Island - Tott Teach Rhythm",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Windfall Island - Pirate Ship Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 5,
+   "objet": 49,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Auction 5 Rupee",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 9,
+   "objet": 228,
+   "donnees": {
+    "groupe": "encheres",
+    "site": 9,
+    "objet": 228,
+    "interdits": []
+   }
+  },
+  {
+   "nom": "Windfall Island - Auction 40 Rupee",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 8,
+   "objet": 31,
+   "donnees": {
+    "groupe": "encheres",
+    "site": 8,
+    "objet": 31,
+    "interdits": []
+   }
+  },
+  {
+   "nom": "Windfall Island - Auction 60 Rupee",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 10,
+   "objet": 237,
+   "donnees": {
+    "groupe": "encheres",
+    "site": 10,
+    "objet": 237,
+    "interdits": []
+   }
+  },
+  {
+   "nom": "Windfall Island - Auction 80 Rupee",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 11,
+   "objet": 7,
+   "donnees": {
+    "groupe": "encheres",
+    "site": 11,
+    "objet": 7,
+    "interdits": []
+   }
+  },
+  {
+   "nom": "Windfall Island - Auction 100 Rupee",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "voile rapide (0x77) : objet à paliers de la voile, hors de la liste d'objets du pack ; ce lot des enchères garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Zunari Exotic Flower",
+   "type": "Custom_Symbol",
+   "applicable": false,
+   "reste": "lieu qui repose sur du code ajouté par TWWHD-Randomizer, absent de notre pack"
+  },
+  {
+   "nom": "Windfall Island - Sam Decorate Island",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "même appel du jeu (retour 0x022C103C) et même objet d'origine (quart de cœur) que deux autres cadeaux : le stub du pack ne peut pas les distinguer, changer l'un changerait les trois",
+   "donnees": {
+    "groupe": "pnj",
+    "site": 12,
+    "objet": 7,
+    "interdits": [
+     235,
+     239,
+     240
+    ],
+    "reste": "cadeau lu dans une table du jeu partagée avec les photos de Mercantîle ; mélangé seulement avec l'option « lieux_pnj » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Shop Guru",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Postman Statue",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Six Flags",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Kane Decorate Six Idols",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Mila Catch Thief",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid First Prize",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid Second Prize",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Battle Squid Under 20 Prize",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Windfall Island - Dampa Pig Minigame",
+   "type": "Custom_Symbol",
+   "applicable": false,
+   "reste": "lieu qui repose sur du code ajouté par TWWHD-Randomizer, absent de notre pack"
+  },
+  {
+   "nom": "Windfall Island - Pompie & Vera Secret Meeting Photo",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 5,
+   "objet": 235
+  },
+  {
+   "nom": "Windfall Island - Kamo Full Moon Picture",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 7,
+   "objet": 240
+  },
+  {
+   "nom": "Windfall Island - Minenco Miss Windfall Picture",
+   "type": "RPX",
+   "applicable": true,
+   "methode": "n2",
+   "site": 6,
+   "objet": 239
+  },
+  {
+   "nom": "Windfall Island - Linda and Anton",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "même appel du jeu (retour 0x022C103C) et même objet d'origine (quart de cœur) que deux autres cadeaux : le stub du pack ne peut pas les distinguer, changer l'un changerait les trois",
+   "donnees": {
+    "groupe": "pnj",
+    "site": 13,
+    "objet": 7,
+    "interdits": [
+     235,
+     239,
+     240
+    ],
+    "reste": "cadeau lu dans une table du jeu partagée avec les photos de Mercantîle ; mélangé seulement avec l'option « lieux_pnj » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Windfall Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Pawprint Isle - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 26,
+   "objet": 7
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Behind Left Boulder",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 24,
+   "objet": 5
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Behind Right Boulder",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 25,
+   "objet": 31
+  },
+  {
+   "nom": "Pawprint Isle - Chu Chu Cave Chest Scale Wall",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 2,
+   "objet": 4
+  },
+  {
+   "nom": "Pawprint Isle - Wizzrobe Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 2,
+   "objet": 247
+  },
+  {
+   "nom": "Pawprint Isle - Lookout Platform Defeat Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 5,
+   "objet": 4
+  },
+  {
+   "nom": "Pawprint Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Dragon Roost Island - Wind Shrine",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Dragon Roost Island - Boulder Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 8,
+   "objet": 15
+  },
+  {
+   "nom": "Dragon Roost Island - Hoskit Give 20 Golden Feathers",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Dragon Roost Island - Baito Mail Game",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Dragon Roost Island - Fly Across Platforms Around Island",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 9,
+   "objet": 6
+  },
+  {
+   "nom": "Dragon Roost Island - Cave Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 0,
+   "objet": 5,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Dragon Roost Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Flight Control Platform - First Prize",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Flight Control Platform - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 3,
+   "objet": 196
+  },
+  {
+   "nom": "Flight Control Platform - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Western Fairy Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Western Fairy Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Western Fairy Island - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 6,
+   "objet": 69
+  },
+  {
+   "nom": "Western Fairy Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Rock Spire Isle - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Rock Spire Isle - Defeat Southeast Gunboat",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 500 Rupee Item",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "article de boutique de Terry : l'achat ne passe pas par la démo de cadeau (execItemGet direct) et l'article a aussi son modèle, son prix et son texte dans des tables séparées ; non changé",
+   "donnees": {
+    "groupe": "boutiques",
+    "site": 6,
+    "objet": 80,
+    "interdits": [
+     7,
+     44,
+     80,
+     225
+    ],
+    "reste": "étal de la boutique de l'Île du Pic : l'objet est un octet de la table des boutiques du jeu ; mélangé seulement avec l'option « lieux_boutiques » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 950 Rupee Item",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "article de boutique de Terry : l'achat ne passe pas par la démo de cadeau (execItemGet direct) et l'article a aussi son modèle, son prix et son texte dans des tables séparées ; non changé",
+   "donnees": {
+    "groupe": "boutiques",
+    "site": 7,
+    "objet": 7,
+    "interdits": [
+     7,
+     44,
+     80,
+     225
+    ],
+    "reste": "étal de la boutique de l'Île du Pic : l'objet est un octet de la table des boutiques du jeu ; mélangé seulement avec l'option « lieux_boutiques » (écriture en mémoire par le client, jamais essayée en jeu), d'origine sinon"
+   }
+  },
+  {
+   "nom": "Rock Spire Isle - Beedle 900 Rupee Item",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "article de boutique de Terry : l'achat ne passe pas par la démo de cadeau (execItemGet direct) et l'article a aussi son modèle, son prix et son texte dans des tables séparées ; non changé"
+  },
+  {
+   "nom": "Rock Spire Isle - Western Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 23,
+   "objet": 6
+  },
+  {
+   "nom": "Rock Spire Isle - Eastern Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 24,
+   "objet": 71
+  },
+  {
+   "nom": "Rock Spire Isle - Center Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 25,
+   "objet": 4
+  },
+  {
+   "nom": "Rock Spire Isle - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 8,
+   "objet": 213
+  },
+  {
+   "nom": "Rock Spire Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Tingle Island - Ankle All Statues Reward",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "rubis arc-en-ciel (0xB8) : objet absent des coffres du jeu d'origine, hors de la liste d'objets du pack"
+  },
+  {
+   "nom": "Tingle Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Tingle Island - Big Octo",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Tingle Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Northern Triangle Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Eastern Fairy Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Eastern Fairy Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Eastern Fairy Island - Lookout Platform Defeat Cannons and Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 10,
+   "objet": 70
+  },
+  {
+   "nom": "Eastern Fairy Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Fire Mountain - Big Octo",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Fire Mountain - Interior Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 0,
+   "objet": 40
+  },
+  {
+   "nom": "Fire Mountain - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 1,
+   "objet": 3
+  },
+  {
+   "nom": "Fire Mountain - Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 0,
+   "objet": 71
+  },
+  {
+   "nom": "Fire Mountain - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Star Belt Archipelago - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 11,
+   "objet": 249
+  },
+  {
+   "nom": "Star Belt Archipelago - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Three Eye Reef - Destroy Cannons and Gunboats",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 12,
+   "objet": 208
+  },
+  {
+   "nom": "Three Eye Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Greatfish Isle - Hidden Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 6,
+   "objet": 7
+  },
+  {
+   "nom": "Greatfish Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Cyclops Reef - Destroy Cannons and Gunboats",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 11,
+   "objet": 206
+  },
+  {
+   "nom": "Cyclops Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Cyclops Reef - Lookout Platform Defeat Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 12,
+   "objet": 71
+  },
+  {
+   "nom": "Six Eye Reef - Destroy Cannons and Gunboats",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 17,
+   "objet": 211
+  },
+  {
+   "nom": "Six Eye Reef - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 0,
+   "objet": 7
+  },
+  {
+   "nom": "Six Eye Reef - Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 13,
+   "objet": 69
+  },
+  {
+   "nom": "Six Eye Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Tower of the Gods Sector - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Eastern Triangle Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Thorned Fairy Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Thorned Fairy Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Thorned Fairy Island - Northeastern Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 14,
+   "objet": 71
+  },
+  {
+   "nom": "Thorned Fairy Island - Southwestern Lookout Platform Defeat Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 15,
+   "objet": 70
+  },
+  {
+   "nom": "Thorned Fairy Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Needle Rock Isle - Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 3,
+   "objet": 7
+  },
+  {
+   "nom": "Needle Rock Isle - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Needle Rock Isle - Golden Gunboat",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Needle Rock Isle - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 9,
+   "objet": 6
+  },
+  {
+   "nom": "Needle Rock Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Islet of Steel - Interior Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 4,
+   "objet": 254,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Islet of Steel - Lookout Platform Defeat Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 16,
+   "objet": 69
+  },
+  {
+   "nom": "Islet of Steel - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Stone Watcher Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Stone Watcher Island - Cave Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 10,
+   "objet": 103,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Stone Watcher Island - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 18,
+   "objet": 4
+  },
+  {
+   "nom": "Stone Watcher Island - Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 20,
+   "objet": 7
+  },
+  {
+   "nom": "Stone Watcher Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Southern Triangle Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Private Oasis - Top of Waterfall Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 19,
+   "objet": 205
+  },
+  {
+   "nom": "Private Oasis - Big Octo",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Private Oasis - Cabana Labyrinth Lower Floor Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 22,
+   "objet": 6
+  },
+  {
+   "nom": "Private Oasis - Cabana Labyrinth Upper Floor Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 17,
+   "objet": 98
+  },
+  {
+   "nom": "Private Oasis - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Bomb Island - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 5,
+   "objet": 7
+  },
+  {
+   "nom": "Bomb Island - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 2,
+   "objet": 80
+  },
+  {
+   "nom": "Bomb Island - Lookout Platform Defeat Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 3,
+   "objet": 4
+  },
+  {
+   "nom": "Bomb Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Birds Peak Rock - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Birds Peak Rock - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 16,
+   "objet": 252
+  },
+  {
+   "nom": "Birds Peak Rock - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Diamond Steppe Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Diamond Steppe Island - Big Octo",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Diamond Steppe Island - Maze First Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 23,
+   "objet": 31
+  },
+  {
+   "nom": "Diamond Steppe Island - Maze Second Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 3,
+   "objet": 219
+  },
+  {
+   "nom": "Diamond Steppe Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Five Eye Reef - Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 15,
+   "objet": 210
+  },
+  {
+   "nom": "Five Eye Reef - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 20,
+   "objet": 71
+  },
+  {
+   "nom": "Five Eye Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Shark Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Shark Island - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 22,
+   "objet": 15
+  },
+  {
+   "nom": "Shark Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Southern Fairy Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Southern Fairy Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Southern Fairy Island - Lookout Platform Destroy Northwest Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 23,
+   "objet": 223
+  },
+  {
+   "nom": "Southern Fairy Island - Lookout Platform Destroy Southeast Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 17,
+   "objet": 69
+  },
+  {
+   "nom": "Southern Fairy Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Ice Ring Isle - Frozen Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 18,
+   "objet": 216
+  },
+  {
+   "nom": "Ice Ring Isle - Interior Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 1,
+   "objet": 41
+  },
+  {
+   "nom": "Ice Ring Isle - Inner Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 21,
+   "objet": 6
+  },
+  {
+   "nom": "Ice Ring Isle - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Forest Haven - On Tree Branch",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Forest Haven - Chest on Small Island",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 7,
+   "objet": 224
+  },
+  {
+   "nom": "Forest Haven - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Cave Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 12,
+   "tbox": 7,
+   "objet": 31,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Highest Isle Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 1,
+   "objet": 214
+  },
+  {
+   "nom": "Cliff Plateau Isles - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Cliff Plateau Isles - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 19,
+   "objet": 70
+  },
+  {
+   "nom": "Cliff Plateau Isles - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Horseshoe Island - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Horseshoe Island - Play Golf",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 5,
+   "objet": 226
+  },
+  {
+   "nom": "Horseshoe Island - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 1,
+   "objet": 212
+  },
+  {
+   "nom": "Horseshoe Island - Northwestern Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 26,
+   "objet": 251
+  },
+  {
+   "nom": "Horseshoe Island - Southeastern Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 27,
+   "objet": 71
+  },
+  {
+   "nom": "Horseshoe Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Outset Island - Under Link's House",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 5,
+   "objet": 6
+  },
+  {
+   "nom": "Outset Island - Mesa's House Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 11,
+   "tbox": 4,
+   "objet": 4
+  },
+  {
+   "nom": "Outset Island - Orca Give 10 Knight's Crests",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Outset Island - Great Fairy",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "objet à paliers (bourse, sac de bombes, carquois) donné par une Grande Fée : jamais déplacé (hors de la liste d'objets du pack ; une amélioration reçue ailleurs que dans son ordre n'est pas validée)"
+  },
+  {
+   "nom": "Outset Island - Jabun's Cave Chest",
+   "type": "Chest",
+   "applicable": false,
+   "reste": "coffre absent du relevé du jeu d'origine : dans le jeu non modifié cet objet n'est pas dans un coffre (il est donné par l'histoire), il n'y a donc aucune clé de coffre à réécrire"
+  },
+  {
+   "nom": "Outset Island - Dig up Black Soil",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Outset Island - Orca Hit 500 Times",
+   "type": "RPX",
+   "applicable": false,
+   "reste": "cadeau dont l'identifiant ne vient ni d'une constante ni d'une table du jeu lisible au site d'appel (champ de l'acteur ou valeur de pile) : le site n'a pas pu être relié à ce lieu de façon sûre dans le RPX, il garde son objet"
+  },
+  {
+   "nom": "Outset Island - Savage Labyrinth Floor 30",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 11,
+   "objet": 102
+  },
+  {
+   "nom": "Outset Island - Savage Labyrinth Floor 50",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 12,
+   "objet": 67
+  },
+  {
+   "nom": "Outset Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Headstone Island - Top of Island",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Headstone Island - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 4,
+   "objet": 221
+  },
+  {
+   "nom": "Headstone Island - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Two Eye Reef - Destroy Cannons and Gunboats",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 13,
+   "objet": 207
+  },
+  {
+   "nom": "Two Eye Reef - Big Octo Great Fairy",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Two Eye Reef - Lookout Platform Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 21,
+   "objet": 5
+  },
+  {
+   "nom": "Two Eye Reef - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Angular Isles - Peak Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 0,
+   "objet": 7
+  },
+  {
+   "nom": "Angular Isles - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Angular Isles - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 6,
+   "objet": 15
+  },
+  {
+   "nom": "Angular Isles - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Boating Course - Blue Chu Chu",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Boating Course - Raft Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 21,
+   "objet": 70
+  },
+  {
+   "nom": "Boating Course - Cave Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 13,
+   "tbox": 15,
+   "objet": 194
+  },
+  {
+   "nom": "Boating Course - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Five Star Isles - Raft Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 0,
+   "tbox": 2,
+   "objet": 4
+  },
+  {
+   "nom": "Five Star Isles - Submarine Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 10,
+   "tbox": 1,
+   "objet": 7
+  },
+  {
+   "nom": "Five Star Isles - Lookout Platform Destroy Cannons",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 1,
+   "tbox": 2,
+   "objet": 71
+  },
+  {
+   "nom": "Five Star Isles - Sunken Treasure",
+   "type": "SCOB",
+   "applicable": false,
+   "reste": "trésor englouti : l'objet repêché est porté par l'acteur de repêchage de la carte de la mer ; le lecteur de cette table n'est pas localisé dans le RPX de la version HD et l'objet d'origine n'identifie pas le lieu (rubis et quarts de cœur en double) ; non applicable sans modifier les fichiers du jeu"
+  },
+  {
+   "nom": "Dragon Roost Cavern - First Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 0,
+   "objet": 21
+  },
+  {
+   "nom": "Dragon Roost Cavern - Water Jug Alcove Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 2,
+   "objet": 76
+  },
+  {
+   "nom": "Dragon Roost Cavern - Water Jug On Upper Shelf",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boarded Up Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 1,
+   "objet": 21
+  },
+  {
+   "nom": "Dragon Roost Cavern - Swing Across Lava Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 13,
+   "objet": 246
+  },
+  {
+   "nom": "Dragon Roost Cavern - Rat Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 14,
+   "objet": 77
+  },
+  {
+   "nom": "Dragon Roost Cavern - Rat Room Boarded Up Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 3,
+   "objet": 21
+  },
+  {
+   "nom": "Dragon Roost Cavern - Bird's Nest",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Dark Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 4,
+   "objet": 31
+  },
+  {
+   "nom": "Dragon Roost Cavern - Pot Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 6,
+   "objet": 236
+  },
+  {
+   "nom": "Dragon Roost Cavern - Pot on Upper Shelf in Pot Room",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Right Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 11,
+   "objet": 72
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Left Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 10,
+   "objet": 3
+  },
+  {
+   "nom": "Dragon Roost Cavern - Boss Stairs Right Pot",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Mini Boss",
+   "type": "Chest",
+   "applicable": false,
+   "reste": "coffre absent du relevé du jeu d'origine : dans le jeu non modifié cet objet n'est pas dans un coffre (il est donné par l'histoire), il n'y a donc aucune clé de coffre à réécrire"
+  },
+  {
+   "nom": "Dragon Roost Cavern - Under Rope Bridge Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 7,
+   "objet": 31
+  },
+  {
+   "nom": "Dragon Roost Cavern - Tingle Statue Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 15,
+   "objet": 163
+  },
+  {
+   "nom": "Dragon Roost Cavern - Big Key Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 3,
+   "tbox": 12,
+   "objet": 78
+  },
+  {
+   "nom": "Dragon Roost Cavern - Gohma Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Forbidden Woods - First Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 0,
+   "objet": 76
+  },
+  {
+   "nom": "Forbidden Woods - Boko Baba Climb Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 2,
+   "objet": 231
+  },
+  {
+   "nom": "Forbidden Woods - Pot High Above Hollow Tree",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Forbidden Woods - Inside Hollow Tree Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 1,
+   "objet": 72
+  },
+  {
+   "nom": "Forbidden Woods - Hole In Tree Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 6,
+   "objet": 4
+  },
+  {
+   "nom": "Forbidden Woods - Morth Pit Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 8,
+   "objet": 3
+  },
+  {
+   "nom": "Forbidden Woods - Vine Maze Left Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 7,
+   "objet": 77
+  },
+  {
+   "nom": "Forbidden Woods - Vine Maze Right Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 5,
+   "objet": 21
+  },
+  {
+   "nom": "Forbidden Woods - Highest Pot in Vine Maze",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Forbidden Woods - Tall Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 12,
+   "objet": 31
+  },
+  {
+   "nom": "Forbidden Woods - Mothula Mini Boss Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 10,
+   "objet": 45,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Forbidden Woods - Past Seeds Hanging by Vines Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 3,
+   "objet": 31
+  },
+  {
+   "nom": "Forbidden Woods - Chest Across Hanging Flower",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 11,
+   "objet": 3
+  },
+  {
+   "nom": "Forbidden Woods - Tingle Statue Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 15,
+   "objet": 164
+  },
+  {
+   "nom": "Forbidden Woods - Locked Tree Trunk Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 9,
+   "objet": 245
+  },
+  {
+   "nom": "Forbidden Woods - Big Key Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 4,
+   "objet": 78
+  },
+  {
+   "nom": "Forbidden Woods - Double Mothula Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 4,
+   "tbox": 14,
+   "objet": 31
+  },
+  {
+   "nom": "Forbidden Woods - Kalle Demos Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Tower of the Gods - Hop Across Floating Boxes Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 1,
+   "objet": 21
+  },
+  {
+   "nom": "Tower of the Gods - Chest Behind Bombable Wall",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 2,
+   "objet": 76
+  },
+  {
+   "nom": "Tower of the Gods - Pot Behind Bombable Wall",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Tower of the Gods - Light Two Torches Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 10,
+   "objet": 31
+  },
+  {
+   "nom": "Tower of the Gods - Skull Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 3,
+   "objet": 77
+  },
+  {
+   "nom": "Tower of the Gods - Shoot Eye Above Skulls Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 9,
+   "objet": 234
+  },
+  {
+   "nom": "Tower of the Gods - Tingle Statue Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 15,
+   "objet": 165
+  },
+  {
+   "nom": "Tower of the Gods - Stone Tablet",
+   "type": "Event",
+   "applicable": false,
+   "reste": "objet donné par un script d'événement (event_list.dat) : tous passent par le même appel (retour 0x0241F800), l'identifiant est dans les données de l'événement ; non modifiable sans toucher aux fichiers du jeu"
+  },
+  {
+   "nom": "Tower of the Gods - First Armos Knights Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 6,
+   "objet": 31
+  },
+  {
+   "nom": "Tower of the Gods - Darknut Mini Boss",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 5,
+   "objet": 39
+  },
+  {
+   "nom": "Tower of the Gods - Floating Platforms Room Lower Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 4,
+   "objet": 21
+  },
+  {
+   "nom": "Tower of the Gods - Floating Platforms Room Upper Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 11,
+   "objet": 31
+  },
+  {
+   "nom": "Tower of the Gods - Second Armos Knights Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 8,
+   "objet": 244
+  },
+  {
+   "nom": "Tower of the Gods - Big Key Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 5,
+   "tbox": 0,
+   "objet": 78
+  },
+  {
+   "nom": "Tower of the Gods - Eastern Pot in Big Key Chest Room",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Tower of the Gods - Gohdan Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Earth Temple - Warp Pot Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 0,
+   "objet": 76
+  },
+  {
+   "nom": "Earth Temple - Warp Pot Room Behind Curtain",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Earth Temple - First Crypt Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 1,
+   "objet": 21
+  },
+  {
+   "nom": "Earth Temple - Chest Behind Destructable Wall",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 12,
+   "objet": 31
+  },
+  {
+   "nom": "Earth Temple - Three Blocks Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 2,
+   "objet": 77
+  },
+  {
+   "nom": "Earth Temple - Behind Statues Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 3,
+   "objet": 31
+  },
+  {
+   "nom": "Earth Temple - Second Crypt Casket",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Earth Temple - Stalfos Mini Boss",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 7,
+   "objet": 60,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Earth Temple - Tingle Statue Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 15,
+   "objet": 166
+  },
+  {
+   "nom": "Earth Temple - Foggy Floormaster Room End Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 4,
+   "objet": 21
+  },
+  {
+   "nom": "Earth Temple - Kill All Floormasters Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 11,
+   "objet": 243
+  },
+  {
+   "nom": "Earth Temple - Near Hammer Button Behind Curtain",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Earth Temple - Third Crypt Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 5,
+   "objet": 4
+  },
+  {
+   "nom": "Earth Temple - Many Mirrors Room Right Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 9,
+   "objet": 5
+  },
+  {
+   "nom": "Earth Temple - Many Mirrors Room Left Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 10,
+   "objet": 31
+  },
+  {
+   "nom": "Earth Temple - Big Key Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 6,
+   "objet": 78
+  },
+  {
+   "nom": "Earth Temple - Stalfos Crypt Room Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 6,
+   "tbox": 14,
+   "objet": 233
+  },
+  {
+   "nom": "Earth Temple - Jalhalla Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Wind Temple - Between Dirt Patches Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 0,
+   "objet": 6,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head in Hidden Upper Room",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Wind Temple - Tingle Statue Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 15,
+   "objet": 167
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 3,
+   "objet": 31
+  },
+  {
+   "nom": "Wind Temple - Left Alcove Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 7,
+   "objet": 31
+  },
+  {
+   "nom": "Wind Temple - Big Key Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 8,
+   "objet": 78
+  },
+  {
+   "nom": "Wind Temple - Cyclones Room Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 11,
+   "objet": 76,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Wind Temple - Behind Stone Head in Many Cyclones Room",
+   "type": "Actor",
+   "applicable": false,
+   "reste": "objet posé au sol ou caché dans un décor : il est porté par les paramètres d'un acteur de la salle (room.dzr), relus du disque à chaque chargement, et créé par un appel commun à tous les objets au sol (retour 0x0217EE84) : aucune clé par lieu sûre en mémoire"
+  },
+  {
+   "nom": "Wind Temple - Hub Room Center Chest",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 13,
+   "objet": 77,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Wind Temple - Wizzrobe Mini Boss",
+   "type": "Chest",
+   "applicable": false,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 5,
+   "objet": 47,
+   "reste": "coffre dont la clé en mémoire (index de sauvegarde, numéro de coffre) est partagée avec un autre coffre : impossible de les distinguer sans risque, il garde son objet"
+  },
+  {
+   "nom": "Wind Temple - Spike Wall Room First Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 9,
+   "objet": 21
+  },
+  {
+   "nom": "Wind Temple - Spike Wall Room Destroy Floors",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 10,
+   "objet": 232
+  },
+  {
+   "nom": "Wind Temple - Hub Room Top Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 2,
+   "objet": 31
+  },
+  {
+   "nom": "Wind Temple - Behind Armos Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 4,
+   "objet": 21
+  },
+  {
+   "nom": "Wind Temple - Kill All Basement Room Enemies",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 7,
+   "tbox": 12,
+   "objet": 242
+  },
+  {
+   "nom": "Wind Temple - Molgera Heart Container",
+   "type": "Boss",
+   "applicable": false,
+   "reste": "réceptacle de coeur d'un boss (0x08) : jamais déplacé ; le ramasser pose le bit « boss vaincu » du donjon, dont dépendent l'histoire et la synchro des boss"
+  },
+  {
+   "nom": "Hyrule Castle - Sword Chamber Chest",
+   "type": "Chest",
+   "applicable": false,
+   "reste": "coffre absent du relevé du jeu d'origine : dans le jeu non modifié cet objet n'est pas dans un coffre (il est donné par l'histoire), il n'y a donc aucune clé de coffre à réécrire"
+  },
+  {
+   "nom": "Ganon's Tower - Maze Chest",
+   "type": "Chest",
+   "applicable": true,
+   "methode": "coffre",
+   "idx": 8,
+   "tbox": 0,
+   "objet": 54
+  },
+  {
+   "nom": "Ganon's Tower - Defeat Ganondorf",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Forsaken Fortress Sector - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Northern Fairy Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Crescent Moon Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Flight Control Platform - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Stone Watcher Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Private Oasis - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Bomb Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Horseshoe Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Outset Island - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  },
+  {
+   "nom": "Two Eye Reef - Old Man Ho Ho",
+   "type": "Do Nothing",
+   "applicable": false,
+   "reste": "lieu sans objet à déplacer (gelée Chuchu bleue, indice du vieil Ho Ho)"
+  }
+ ]
+}

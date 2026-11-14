@@ -1,0 +1,2249 @@
+{
+ "format": 1,
+ "description": "Coffres de Wind Waker HD (USA v0) : clé runtime (index de sauvegarde, tboxNo) et objet vanilla relus dans le dump par tools/rando_map.py ; noms des lieux : TWWHD-Randomizer",
+ "source": {
+  "projet": "SuperDude88/TWWHD-Randomizer",
+  "commit": "a66347af (2026-11-07)",
+  "fichier": "logic/data/location_data.yaml",
+  "licence": "MIT, Copyright (c) 2024 SuperDude88 (tools/wwmp/rando_LICENSE_TWWHD.txt)"
+ },
+ "jeu": "Wind Waker HD USA v0 (cking.rpx, patchCRC Cemu 0x475BD29F)",
+ "coffres": [
+  {
+   "nom": "Ilots Kif Kif - Coffre au sommet",
+   "nom_en": "Angular Isles - Peak Chest",
+   "idx": 0,
+   "tbox": 0,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200000",
+   "fichier": "sea_Room47.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Saut de Roc - Coffre sur la Haute Ile",
+   "nom_en": "Cliff Plateau Isles - Highest Isle Chest",
+   "idx": 0,
+   "tbox": 1,
+   "objet": 214,
+   "func": 0,
+   "params": "0xFF100080",
+   "fichier": "sea_Room42.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel de Cassiopée - Coffre du radeau",
+   "nom_en": "Five Star Isles - Raft Chest",
+   "idx": 0,
+   "tbox": 2,
+   "objet": 4,
+   "func": 5,
+   "params": "0xFF0FF105",
+   "fichier": "sea_Room49.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Serrure de Pierre - Coffre de l'île",
+   "nom_en": "Needle Rock Isle - Chest",
+   "idx": 0,
+   "tbox": 3,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200180",
+   "fichier": "sea_Room29.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Croissant - Coffre sur l'île",
+   "nom_en": "Crescent Moon Island - Chest on Island",
+   "idx": 0,
+   "tbox": 4,
+   "objet": 222,
+   "func": 0,
+   "params": "0xFF100200",
+   "fichier": "sea_Room5.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Fer à Cheval - Jouer au Golf",
+   "nom_en": "Horseshoe Island - Play Golf",
+   "idx": 0,
+   "tbox": 5,
+   "objet": 226,
+   "func": 1,
+   "params": "0xFF131281",
+   "fichier": "sea_Room43.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Poisson - Coffre caché",
+   "nom_en": "Greatfish Isle - Hidden Chest",
+   "idx": 0,
+   "tbox": 6,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200300",
+   "fichier": "sea_Room23.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile aux Forêts - Coffre de la Petite Ile",
+   "nom_en": "Forest Haven - Chest on Small Island",
+   "idx": 0,
+   "tbox": 7,
+   "objet": 224,
+   "func": 0,
+   "params": "0xFF100380",
+   "fichier": "sea_Room41.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Dragon - Coffre sur le rocher",
+   "nom_en": "Dragon Roost Island - Boulder Chest",
+   "idx": 0,
+   "tbox": 8,
+   "objet": 15,
+   "func": 5,
+   "params": "0xFF0FF405",
+   "fichier": "sea_Room13.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Dragon - Planer autour de l'île",
+   "nom_en": "Dragon Roost Island - Fly Across Platforms Around Island",
+   "idx": 0,
+   "tbox": 9,
+   "objet": 6,
+   "func": 0,
+   "params": "0xFF000480",
+   "fichier": "sea_Room13.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre transparant",
+   "nom_en": "Windfall Island - Transparent Chest",
+   "idx": 0,
+   "tbox": 10,
+   "objet": 7,
+   "func": 4,
+   "params": "0xFF15D504",
+   "fichier": "sea_Room11.szs",
+   "couches": [
+    "TRE1",
+    "TRE3",
+    "TRE5"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Une - Vaincre les navires de guerre et les canons",
+   "nom_en": "Cyclops Reef - Destroy Cannons and Gunboats",
+   "idx": 0,
+   "tbox": 11,
+   "objet": 206,
+   "func": 1,
+   "params": "0xFF15F581",
+   "fichier": "sea_Room24.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Trois - Vaincre les navires de guerre et les canons",
+   "nom_en": "Three Eye Reef - Destroy Cannons and Gunboats",
+   "idx": 0,
+   "tbox": 12,
+   "objet": 208,
+   "func": 1,
+   "params": "0xFF160601",
+   "fichier": "sea_Room22.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Deux - Vaincre les navires de guerre et les canons",
+   "nom_en": "Two Eye Reef - Destroy Cannons and Gunboats",
+   "idx": 0,
+   "tbox": 13,
+   "objet": 207,
+   "func": 1,
+   "params": "0xFF161681",
+   "fichier": "sea_Room46.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Quatre - Vaincre les navires de guerre et les canons",
+   "nom_en": "Four Eye Reef - Destroy Cannons and Gunboats",
+   "idx": 0,
+   "tbox": 14,
+   "objet": 209,
+   "func": 1,
+   "params": "0xFF162701",
+   "fichier": "sea_Room8.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Cinq - Détruire les canons",
+   "nom_en": "Five Eye Reef - Destroy Cannons",
+   "idx": 0,
+   "tbox": 15,
+   "objet": 210,
+   "func": 1,
+   "params": "0xFF163781",
+   "fichier": "sea_Room37.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Forteresse Maudite - Fantôme de Ganon",
+   "nom_en": "Forsaken Fortress - Phantom Ganon",
+   "idx": 0,
+   "tbox": 16,
+   "objet": 51,
+   "func": 1,
+   "params": "0xFF22A801",
+   "fichier": "sea_Room1.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Six - Vaincre les navires de guerre et les canons",
+   "nom_en": "Six Eye Reef - Destroy Cannons and Gunboats",
+   "idx": 0,
+   "tbox": 17,
+   "objet": 211,
+   "func": 1,
+   "params": "0xFF164881",
+   "fichier": "sea_Room25.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile Gelée - Coffre gelé",
+   "nom_en": "Ice Ring Isle - Frozen Chest",
+   "idx": 0,
+   "tbox": 18,
+   "objet": 216,
+   "func": 0,
+   "params": "0xFF100900",
+   "fichier": "sea_Room40.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de Qui-ça - Coffre au sommet de la cascade",
+   "nom_en": "Private Oasis - Top of Waterfall Chest",
+   "idx": 0,
+   "tbox": 19,
+   "objet": 205,
+   "func": 0,
+   "params": "0xFF200980",
+   "fichier": "sea_Room33.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Tête de Pierre - Détruire les canons de la tour de guet",
+   "nom_en": "Stone Watcher Island - Lookout Platform Destroy Cannons",
+   "idx": 0,
+   "tbox": 20,
+   "objet": 7,
+   "func": 1,
+   "params": "0xFF2E8A01",
+   "fichier": "sea_Room31.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Batodrome - Coffre du radeau",
+   "nom_en": "Boating Course - Raft Chest",
+   "idx": 0,
+   "tbox": 21,
+   "objet": 70,
+   "func": 5,
+   "params": "0xFF0FFA85",
+   "fichier": "sea_Room48.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel Ursa Major - Coffre de la tour de guet du Sud",
+   "nom_en": "Seven Star Isles - Southern Lookout Platform Chest",
+   "idx": 0,
+   "tbox": 22,
+   "objet": 227,
+   "func": 1,
+   "params": "0xFF1E7B01",
+   "fichier": "sea_Room6.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Méridional des Fées - Détruire les canons de la tour de guet du Nord-Ouest",
+   "nom_en": "Southern Fairy Island - Lookout Platform Destroy Northwest Cannons",
+   "idx": 0,
+   "tbox": 23,
+   "objet": 223,
+   "func": 1,
+   "params": "0xFF1E8B81",
+   "fichier": "sea_Room39.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Montagne de Feu - Détruire les canons de la tour de guet",
+   "nom_en": "Fire Mountain - Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 0,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E4008",
+   "fichier": "sea_Room20.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Montagne de Feu - Coffre de la tour de guet",
+   "nom_en": "Fire Mountain - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 1,
+   "objet": 3,
+   "func": 7,
+   "params": "0xFF000087",
+   "fichier": "sea_Room20.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel de Cassiopée - Détruire les canons de la tour de guet",
+   "nom_en": "Five Star Isles - Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 2,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E4108",
+   "fichier": "sea_Room49.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Bombe - Vaincre les ennemis de la tour de guet",
+   "nom_en": "Bomb Island - Lookout Platform Defeat Enemies",
+   "idx": 1,
+   "tbox": 3,
+   "objet": 4,
+   "func": 8,
+   "params": "0xFF0E2188",
+   "fichier": "sea_Room34.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile Etoilée - Coffre de la tour de guet",
+   "nom_en": "Star Island - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 4,
+   "objet": 71,
+   "func": 7,
+   "params": "0xFF000207",
+   "fichier": "sea_Room2.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Vaincre les ennemis de la tour de guet",
+   "nom_en": "Pawprint Isle - Lookout Platform Defeat Enemies",
+   "idx": 1,
+   "tbox": 5,
+   "objet": 4,
+   "func": 8,
+   "params": "0xFF0E4288",
+   "fichier": "sea_Room12.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Occidental des Fées - Coffre de la tour de guet",
+   "nom_en": "Western Fairy Island - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 6,
+   "objet": 69,
+   "func": 7,
+   "params": "0xFF000307",
+   "fichier": "sea_Room15.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel Ursa Major - Coffre de la tour de guet du Nord",
+   "nom_en": "Seven Star Isles - Northern Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 7,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E2388",
+   "fichier": "sea_Room6.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel Ursa Major - Coffre de la tour de guet centrale",
+   "nom_en": "Seven Star Isles - Center Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 8,
+   "objet": 4,
+   "func": 8,
+   "params": "0xFF0E1408",
+   "fichier": "sea_Room6.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Oriental des Fées - Vaincre les ennemis et les canons de la tour de guet",
+   "nom_en": "Eastern Fairy Island - Lookout Platform Defeat Cannons and Enemies",
+   "idx": 1,
+   "tbox": 10,
+   "objet": 70,
+   "func": 8,
+   "params": "0xFF0E7508",
+   "fichier": "sea_Room19.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel d'Orion - Coffre de la tour de guet",
+   "nom_en": "Star Belt Archipelago - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 11,
+   "objet": 249,
+   "func": 7,
+   "params": "0xFF200587",
+   "fichier": "sea_Room21.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Une - Vaincre les ennemis de la tour de guet",
+   "nom_en": "Cyclops Reef - Lookout Platform Defeat Enemies",
+   "idx": 1,
+   "tbox": 12,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0ED608",
+   "fichier": "sea_Room24.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Six - Détruire les canons de la tour de guet",
+   "nom_en": "Six Eye Reef - Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 13,
+   "objet": 69,
+   "func": 8,
+   "params": "0xFF0EC688",
+   "fichier": "sea_Room25.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Epineux des Fées - Détruire les canons de la tour de guet du Nord-Est",
+   "nom_en": "Thorned Fairy Island - Northeastern Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 14,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E5708",
+   "fichier": "sea_Room28.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Epineux des Fées - Vaincre les ennemis de la tour de guet du Sud-Ouest",
+   "nom_en": "Thorned Fairy Island - Southwestern Lookout Platform Defeat Enemies",
+   "idx": 1,
+   "tbox": 15,
+   "objet": 70,
+   "func": 8,
+   "params": "0xFF0EA788",
+   "fichier": "sea_Room28.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Canonnière - Vaincre les ennemis de la tour de guet",
+   "nom_en": "Islet of Steel - Lookout Platform Defeat Enemies",
+   "idx": 1,
+   "tbox": 16,
+   "objet": 69,
+   "func": 8,
+   "params": "0xFF0E5808",
+   "fichier": "sea_Room30.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Méridional des Fées - Détruire les canons de la tour de guet du Sud-Est",
+   "nom_en": "Southern Fairy Island - Lookout Platform Destroy Southeast Cannons",
+   "idx": 1,
+   "tbox": 17,
+   "objet": 69,
+   "func": 8,
+   "params": "0xFF0E9888",
+   "fichier": "sea_Room39.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Tête de Pierre - Coffre de la tour de guet",
+   "nom_en": "Stone Watcher Island - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 18,
+   "objet": 4,
+   "func": 7,
+   "params": "0xFF000907",
+   "fichier": "sea_Room31.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Saut de Roc - Coffre de la tour de guet",
+   "nom_en": "Cliff Plateau Isles - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 19,
+   "objet": 70,
+   "func": 7,
+   "params": "0xFF000987",
+   "fichier": "sea_Room42.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Cinq - Coffre de la tour de guet",
+   "nom_en": "Five Eye Reef - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 20,
+   "objet": 71,
+   "func": 7,
+   "params": "0xFF000A07",
+   "fichier": "sea_Room37.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Deux - Coffre de la tour de guet",
+   "nom_en": "Two Eye Reef - Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 21,
+   "objet": 5,
+   "func": 7,
+   "params": "0xFF000A87",
+   "fichier": "sea_Room46.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Rocaille - Détruire les canons de la tour de guet de l'Ouest",
+   "nom_en": "Rock Spire Isle - Western Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 23,
+   "objet": 6,
+   "func": 8,
+   "params": "0xFF0E8B88",
+   "fichier": "sea_Room16.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Rocaille - Détruire les canons de la tour de guet de l'Est",
+   "nom_en": "Rock Spire Isle - Eastern Lookout Platform Destroy Cannons",
+   "idx": 1,
+   "tbox": 24,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E9C08",
+   "fichier": "sea_Room16.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Rocaille - Coffre de la tour de guet centrale",
+   "nom_en": "Rock Spire Isle - Center Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 25,
+   "objet": 4,
+   "func": 7,
+   "params": "0xFF000C87",
+   "fichier": "sea_Room16.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Fer à Cheval - Coffre de la tour de guet du Nord-Ouest",
+   "nom_en": "Horseshoe Island - Northwestern Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 26,
+   "objet": 251,
+   "func": 8,
+   "params": "0xFF2EAD08",
+   "fichier": "sea_Room43.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Fer à Cheval - Coffre de la tour de guet du Sud-Est",
+   "nom_en": "Horseshoe Island - Southeastern Lookout Platform Chest",
+   "idx": 1,
+   "tbox": 27,
+   "objet": 71,
+   "func": 8,
+   "params": "0xFF0E9D88",
+   "fichier": "sea_Room43.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Forteresse Maudite - Coffre à l'extérieur de la cellule du 1e étage",
+   "nom_en": "Forsaken Fortress - Chest Outside Upper Jail Cell",
+   "idx": 2,
+   "tbox": 0,
+   "objet": 76,
+   "func": 0,
+   "params": "0xFF100000",
+   "fichier": "ma2room_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Forteresse Maudite - Coffre sur le lit",
+   "nom_en": "Forsaken Fortress - Chest on Bed",
+   "idx": 2,
+   "tbox": 1,
+   "objet": 3,
+   "func": 0,
+   "params": "0xFF000080",
+   "fichier": "ma2room_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Forteresse Maudite - Coffre gardé par un Bokoblin",
+   "nom_en": "Forsaken Fortress - Chest Guarded by Bokoblin",
+   "idx": 2,
+   "tbox": 2,
+   "objet": 77,
+   "func": 0,
+   "params": "0xFF100100",
+   "fichier": "ma2room_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Forteresse Maudite - Coffre dans la cellule du RDC",
+   "nom_en": "Forsaken Fortress - Chest Inside Lower Jail Cell",
+   "idx": 2,
+   "tbox": 3,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200180",
+   "fichier": "ma2room_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de l'entrée",
+   "nom_en": "Dragon Roost Cavern - First Room Chest",
+   "idx": 3,
+   "tbox": 0,
+   "objet": 21,
+   "func": 1,
+   "params": "0xFF000001",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre barricadé",
+   "nom_en": "Dragon Roost Cavern - Boarded Up Chest",
+   "idx": 3,
+   "tbox": 1,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000080",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de l'alcôve des pots d'eau",
+   "nom_en": "Dragon Roost Cavern - Water Jug Alcove Chest",
+   "idx": 3,
+   "tbox": 2,
+   "objet": 76,
+   "func": 0,
+   "params": "0xFF100100",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre barricadé de la Salle des Rats",
+   "nom_en": "Dragon Roost Cavern - Rat Room Boarded Up Chest",
+   "idx": 3,
+   "tbox": 3,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000180",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de la salle sombre",
+   "nom_en": "Dragon Roost Cavern - Dark Room Chest",
+   "idx": 3,
+   "tbox": 4,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000200",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de la salle des pots",
+   "nom_en": "Dragon Roost Cavern - Pot Room Chest",
+   "idx": 3,
+   "tbox": 6,
+   "objet": 236,
+   "func": 1,
+   "params": "0xFF10E301",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre sous le pont de corde",
+   "nom_en": "Dragon Roost Cavern - Under Rope Bridge Chest",
+   "idx": 3,
+   "tbox": 7,
+   "objet": 31,
+   "func": 1,
+   "params": "0xFF01D381",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de gauche des escaliers du Boss",
+   "nom_en": "Dragon Roost Cavern - Boss Stairs Left Chest",
+   "idx": 3,
+   "tbox": 10,
+   "objet": 3,
+   "func": 0,
+   "params": "0xFF000500",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de droite des escaliers du Boss",
+   "nom_en": "Dragon Roost Cavern - Boss Stairs Right Chest",
+   "idx": 3,
+   "tbox": 11,
+   "objet": 72,
+   "func": 0,
+   "params": "0xFF000580",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de la Grande Clé",
+   "nom_en": "Dragon Roost Cavern - Big Key Chest",
+   "idx": 3,
+   "tbox": 12,
+   "objet": 78,
+   "func": 0,
+   "params": "0xFF300600",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de l'autre côté de la lave",
+   "nom_en": "Dragon Roost Cavern - Swing Across Lava Chest",
+   "idx": 3,
+   "tbox": 13,
+   "objet": 246,
+   "func": 0,
+   "params": "0xFF100680",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de la Salle des Rats",
+   "nom_en": "Dragon Roost Cavern - Rat Room Chest",
+   "idx": 3,
+   "tbox": 14,
+   "objet": 77,
+   "func": 0,
+   "params": "0xFF100700",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Caverne du Dragon - Coffre de la Statue Tingle",
+   "nom_en": "Dragon Roost Cavern - Tingle Statue Chest",
+   "idx": 3,
+   "tbox": 15,
+   "objet": 163,
+   "func": 1,
+   "params": "0xFF26F781",
+   "fichier": "M_NewD2_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de l'entrée",
+   "nom_en": "Forbidden Woods - First Room Chest",
+   "idx": 4,
+   "tbox": 0,
+   "objet": 76,
+   "func": 0,
+   "params": "0xFF100000",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre à l'intérieur de l'arbre creux",
+   "nom_en": "Forbidden Woods - Inside Hollow Tree Chest",
+   "idx": 4,
+   "tbox": 1,
+   "objet": 72,
+   "func": 3,
+   "params": "0xFF001083",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la montée par Bud Baba",
+   "nom_en": "Forbidden Woods - Boko Baba Climb Chest",
+   "idx": 4,
+   "tbox": 2,
+   "objet": 231,
+   "func": 3,
+   "params": "0xFF102103",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre derrière les noix pendus",
+   "nom_en": "Forbidden Woods - Past Seeds Hanging by Vines Chest",
+   "idx": 4,
+   "tbox": 3,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000180",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la Grande Clé",
+   "nom_en": "Forbidden Woods - Big Key Chest",
+   "idx": 4,
+   "tbox": 4,
+   "objet": 78,
+   "func": 0,
+   "params": "0xFF300200",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de droite du labyrinthe des plantes grimpantes",
+   "nom_en": "Forbidden Woods - Vine Maze Right Chest",
+   "idx": 4,
+   "tbox": 5,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000280",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre du trou de l'arbre",
+   "nom_en": "Forbidden Woods - Hole In Tree Chest",
+   "idx": 4,
+   "tbox": 6,
+   "objet": 4,
+   "func": 0,
+   "params": "0xFF000300",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de gauche du labyrinthe des plantes grimpantes",
+   "nom_en": "Forbidden Woods - Vine Maze Left Chest",
+   "idx": 4,
+   "tbox": 7,
+   "objet": 77,
+   "func": 0,
+   "params": "0xFF100380",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la fosse aux Chardons",
+   "nom_en": "Forbidden Woods - Morth Pit Chest",
+   "idx": 4,
+   "tbox": 8,
+   "objet": 3,
+   "func": 0,
+   "params": "0xFF000400",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre du tronc d'arbre verrouillé",
+   "nom_en": "Forbidden Woods - Locked Tree Trunk Chest",
+   "idx": 4,
+   "tbox": 9,
+   "objet": 245,
+   "func": 3,
+   "params": "0xFF116483",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Mini-Boss Mite",
+   "nom_en": "Forbidden Woods - Mothula Mini Boss Chest",
+   "idx": 4,
+   "tbox": 10,
+   "objet": 45,
+   "func": 0,
+   "params": "0xFF200500",
+   "fichier": "kinMB_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     255,
+     "kindan_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre derrière la fleur pendue",
+   "nom_en": "Forbidden Woods - Chest Across Hanging Flower",
+   "idx": 4,
+   "tbox": 11,
+   "objet": 3,
+   "func": 0,
+   "params": "0xFF000580",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la haute pièce",
+   "nom_en": "Forbidden Woods - Tall Room Chest",
+   "idx": 4,
+   "tbox": 12,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000600",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la Salle aux deux Mites",
+   "nom_en": "Forbidden Woods - Double Mothula Room Chest",
+   "idx": 4,
+   "tbox": 14,
+   "objet": 31,
+   "func": 1,
+   "params": "0xFF020701",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Bois Défendus - Coffre de la Statue Tingle",
+   "nom_en": "Forbidden Woods - Tingle Statue Chest",
+   "idx": 4,
+   "tbox": 15,
+   "objet": 164,
+   "func": 1,
+   "params": "0xFF278781",
+   "fichier": "kindan_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre de la Grande Clé",
+   "nom_en": "Tower of the Gods - Big Key Chest",
+   "idx": 5,
+   "tbox": 0,
+   "objet": 78,
+   "func": 0,
+   "params": "0xFF300000",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre de la traversée par caisses flottantes",
+   "nom_en": "Tower of the Gods - Hop Across Floating Boxes Chest",
+   "idx": 5,
+   "tbox": 1,
+   "objet": 21,
+   "func": 1,
+   "params": "0xFF015081",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre derrière le Mur Fissuré",
+   "nom_en": "Tower of the Gods - Chest Behind Bombable Wall",
+   "idx": 5,
+   "tbox": 2,
+   "objet": 76,
+   "func": 0,
+   "params": "0xFF100100",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre de la Salle du Tetdoss",
+   "nom_en": "Tower of the Gods - Skull Room Chest",
+   "idx": 5,
+   "tbox": 3,
+   "objet": 77,
+   "func": 0,
+   "params": "0xFF100180",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre inférieur de la Salle aux Platefomes",
+   "nom_en": "Tower of the Gods - Floating Platforms Room Lower Chest",
+   "idx": 5,
+   "tbox": 4,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000200",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Mini-Boss Darknut",
+   "nom_en": "Tower of the Gods - Darknut Mini Boss",
+   "idx": 5,
+   "tbox": 5,
+   "objet": 39,
+   "func": 2,
+   "params": "0xFF216282",
+   "fichier": "SirenMB_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Premier Coffre des Grands Armos",
+   "nom_en": "Tower of the Gods - First Armos Knights Chest",
+   "idx": 5,
+   "tbox": 6,
+   "objet": 31,
+   "func": 2,
+   "params": "0xFF009302",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Deuxième Coffre des Grands Armos",
+   "nom_en": "Tower of the Gods - Second Armos Knights Chest",
+   "idx": 5,
+   "tbox": 8,
+   "objet": 244,
+   "func": 6,
+   "params": "0xFF237406",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre de l'interrupteur œil de la Salle du Tetdoss",
+   "nom_en": "Tower of the Gods - Shoot Eye Above Skulls Chest",
+   "idx": 5,
+   "tbox": 9,
+   "objet": 234,
+   "func": 0,
+   "params": "0xFF100480",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre des deux torches",
+   "nom_en": "Tower of the Gods - Light Two Torches Chest",
+   "idx": 5,
+   "tbox": 10,
+   "objet": 31,
+   "func": 1,
+   "params": "0xFF002501",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre supérieur de la Salle aux Plateformes",
+   "nom_en": "Tower of the Gods - Floating Platforms Room Upper Chest",
+   "idx": 5,
+   "tbox": 11,
+   "objet": 31,
+   "func": 1,
+   "params": "0xFF012581",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour des Dieux - Coffre de la Statue Tingle",
+   "nom_en": "Tower of the Gods - Tingle Statue Chest",
+   "idx": 5,
+   "tbox": 15,
+   "objet": 165,
+   "func": 1,
+   "params": "0xFF274781",
+   "fichier": "Siren_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la Salle des Blobs",
+   "nom_en": "Earth Temple - Warp Pot Room Chest",
+   "idx": 6,
+   "tbox": 0,
+   "objet": 76,
+   "func": 4,
+   "params": "0xFF109004",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la première crypte",
+   "nom_en": "Earth Temple - First Crypt Chest",
+   "idx": 6,
+   "tbox": 1,
+   "objet": 21,
+   "func": 4,
+   "params": "0xFF016084",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la Salle aux Trois Blocs",
+   "nom_en": "Earth Temple - Three Blocks Room Chest",
+   "idx": 6,
+   "tbox": 2,
+   "objet": 77,
+   "func": 1,
+   "params": "0xFF123101",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre derrière les statues",
+   "nom_en": "Earth Temple - Behind Statues Chest",
+   "idx": 6,
+   "tbox": 3,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000180",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la Salle brumeuse des Mains",
+   "nom_en": "Earth Temple - Foggy Floormaster Room End Chest",
+   "idx": 6,
+   "tbox": 4,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000200",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la troisième crypte",
+   "nom_en": "Earth Temple - Third Crypt Chest",
+   "idx": 6,
+   "tbox": 5,
+   "objet": 4,
+   "func": 0,
+   "params": "0xFF000280",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la Grande Clé",
+   "nom_en": "Earth Temple - Big Key Chest",
+   "idx": 6,
+   "tbox": 6,
+   "objet": 78,
+   "func": 0,
+   "params": "0xFF300300",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Mini-Boss Stalfos",
+   "nom_en": "Earth Temple - Stalfos Mini Boss",
+   "idx": 6,
+   "tbox": 7,
+   "objet": 60,
+   "func": 0,
+   "params": "0xFF200380",
+   "fichier": "M_DaiMB_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     255,
+     "M_Dai_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de droite de la Salle des Miroirs",
+   "nom_en": "Earth Temple - Many Mirrors Room Right Chest",
+   "idx": 6,
+   "tbox": 9,
+   "objet": 5,
+   "func": 4,
+   "params": "0xFF065484",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de gauche de la Salle des Miroirs",
+   "nom_en": "Earth Temple - Many Mirrors Room Left Chest",
+   "idx": 6,
+   "tbox": 10,
+   "objet": 31,
+   "func": 4,
+   "params": "0xFF066504",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Vaincre toutes les Mains",
+   "nom_en": "Earth Temple - Kill All Floormasters Chest",
+   "idx": 6,
+   "tbox": 11,
+   "objet": 243,
+   "func": 2,
+   "params": "0xFF1FF582",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre derrière le Mur Fissuré",
+   "nom_en": "Earth Temple - Chest Behind Destructable Wall",
+   "idx": 6,
+   "tbox": 12,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000600",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la crypte des Stalfos",
+   "nom_en": "Earth Temple - Stalfos Crypt Room Chest",
+   "idx": 6,
+   "tbox": 14,
+   "objet": 233,
+   "func": 2,
+   "params": "0xFF1FF702",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple de la Terre - Coffre de la Statue Tingle",
+   "nom_en": "Earth Temple - Tingle Statue Chest",
+   "idx": 6,
+   "tbox": 15,
+   "objet": 166,
+   "func": 1,
+   "params": "0xFF27C781",
+   "fichier": "M_Dai_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre entre les deux arbres",
+   "nom_en": "Wind Temple - Between Dirt Patches Chest",
+   "idx": 7,
+   "tbox": 0,
+   "objet": 6,
+   "func": 1,
+   "params": "0xFF000001",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     76,
+     "Cave08_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre au sommet de la Salle Centrale",
+   "nom_en": "Wind Temple - Hub Room Top Chest",
+   "idx": 7,
+   "tbox": 2,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000100",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre derrière la Tête de Pierre",
+   "nom_en": "Wind Temple - Behind Stone Head Chest",
+   "idx": 7,
+   "tbox": 3,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000180",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre des Armos",
+   "nom_en": "Wind Temple - Behind Armos Chest",
+   "idx": 7,
+   "tbox": 4,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000200",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Mini-Boss Sorcier",
+   "nom_en": "Wind Temple - Wizzrobe Mini Boss",
+   "idx": 7,
+   "tbox": 5,
+   "objet": 47,
+   "func": 2,
+   "params": "0xFF2FF282",
+   "fichier": "kazeMB_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     255,
+     "kaze_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre de l'alcôve de gauche",
+   "nom_en": "Wind Temple - Left Alcove Chest",
+   "idx": 7,
+   "tbox": 7,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000380",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre de la Grande Clé",
+   "nom_en": "Wind Temple - Big Key Chest",
+   "idx": 7,
+   "tbox": 8,
+   "objet": 78,
+   "func": 0,
+   "params": "0xFF300400",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Premier Coffre de la Salle des Pointes",
+   "nom_en": "Wind Temple - Spike Wall Room First Chest",
+   "idx": 7,
+   "tbox": 9,
+   "objet": 21,
+   "func": 0,
+   "params": "0xFF000480",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Détruire les plaques au sol de la Salle des Pointes",
+   "nom_en": "Wind Temple - Spike Wall Room Destroy Floors",
+   "idx": 7,
+   "tbox": 10,
+   "objet": 232,
+   "func": 1,
+   "params": "0xFF131501",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre de la Salle des Cyclones",
+   "nom_en": "Wind Temple - Cyclones Room Chest",
+   "idx": 7,
+   "tbox": 11,
+   "objet": 76,
+   "func": 0,
+   "params": "0xFF100580",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     77,
+     "Cave08_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Vaincre les ennemis du Sous-Sol",
+   "nom_en": "Wind Temple - Kill All Basement Room Enemies",
+   "idx": 7,
+   "tbox": 12,
+   "objet": 242,
+   "func": 2,
+   "params": "0xFF133602",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre de la Salle Centrale",
+   "nom_en": "Wind Temple - Hub Room Center Chest",
+   "idx": 7,
+   "tbox": 13,
+   "objet": 77,
+   "func": 0,
+   "params": "0xFF100680",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     5,
+     "Cave08_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Temple du Vent - Coffre de la Statue Tingle",
+   "nom_en": "Wind Temple - Tingle Statue Chest",
+   "idx": 7,
+   "tbox": 15,
+   "objet": 167,
+   "func": 1,
+   "params": "0xFF21F781",
+   "fichier": "kaze_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Château de Ganon - Coffre du labyrinthe",
+   "nom_en": "Ganon's Tower - Maze Chest",
+   "idx": 8,
+   "tbox": 0,
+   "objet": 54,
+   "func": 2,
+   "params": "0xFF2E8002",
+   "fichier": "GanonJ_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Face Six - Coffre du sous-marin",
+   "nom_en": "Six Eye Reef - Submarine Chest",
+   "idx": 10,
+   "tbox": 0,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200000",
+   "fichier": "Abship_Room1.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Archipel de Cassiopée - Coffre du sous-marin",
+   "nom_en": "Five Star Isles - Submarine Chest",
+   "idx": 10,
+   "tbox": 1,
+   "objet": 7,
+   "func": 1,
+   "params": "0xFF2E6081",
+   "fichier": "Abship_Room0.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Bombe - Coffre du sous-marin",
+   "nom_en": "Bomb Island - Submarine Chest",
+   "idx": 10,
+   "tbox": 2,
+   "objet": 80,
+   "func": 1,
+   "params": "0xFF000101",
+   "fichier": "Abship_Room2.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Tour de l'Envol - Coffre du sous-marin",
+   "nom_en": "Flight Control Platform - Submarine Chest",
+   "idx": 10,
+   "tbox": 3,
+   "objet": 196,
+   "func": 1,
+   "params": "0xFF1E2181",
+   "fichier": "Abship_Room6.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Terre - Coffre du sous-marin",
+   "nom_en": "Headstone Island - Submarine Chest",
+   "idx": 10,
+   "tbox": 4,
+   "objet": 221,
+   "func": 1,
+   "params": "0xFF1E0201",
+   "fichier": "Abship_Room5.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ilot Septentrional des Fées - Coffre du sous-marin",
+   "nom_en": "Northern Fairy Island - Submarine Chest",
+   "idx": 10,
+   "tbox": 6,
+   "objet": 217,
+   "func": 1,
+   "params": "0xFF1E5301",
+   "fichier": "Abship_Room4.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Croissant - Coffre du sous-marin",
+   "nom_en": "Crescent Moon Island - Submarine Chest",
+   "idx": 10,
+   "tbox": 7,
+   "objet": 218,
+   "func": 0,
+   "params": "0xFF100380",
+   "fichier": "Abship_Room7.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Océan - Coffre du Vaisseau Fantôme",
+   "nom_en": "Great Sea - Ghost Ship Chest",
+   "idx": 10,
+   "tbox": 23,
+   "objet": 100,
+   "func": 0,
+   "params": "0xFF200B80",
+   "fichier": "PShip_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre du labyrinthe de la prison",
+   "nom_en": "Windfall Island - Windfall Jail Maze Chest",
+   "idx": 11,
+   "tbox": 0,
+   "objet": 35,
+   "func": 0,
+   "params": "0xFF100000",
+   "fichier": "Pnezumi_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre de gauche de la maison d'Autofocus",
+   "nom_en": "Windfall Island - Lenzo House Left Chest",
+   "idx": 11,
+   "tbox": 1,
+   "objet": 230,
+   "func": 0,
+   "params": "0xFF100080",
+   "fichier": "Ocmera_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre de droite de la maison d'Autofocus",
+   "nom_en": "Windfall Island - Lenzo House Right Chest",
+   "idx": 11,
+   "tbox": 2,
+   "objet": 5,
+   "func": 0,
+   "params": "0xFF000100",
+   "fichier": "Ocmera_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre de la Maison de la Richesse",
+   "nom_en": "Windfall Island - House of Wealth Chest",
+   "idx": 11,
+   "tbox": 3,
+   "objet": 4,
+   "func": 0,
+   "params": "0xFF000180",
+   "fichier": "Orichh_Room0.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de l'Aurore - Coffre de la Maison d'André",
+   "nom_en": "Outset Island - Mesa's House Chest",
+   "idx": 11,
+   "tbox": 4,
+   "objet": 4,
+   "func": 0,
+   "params": "0xFF000200",
+   "fichier": "Omasao_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de l'Aurore - Sous la Maison de Mémé",
+   "nom_en": "Outset Island - Under Link's House",
+   "idx": 11,
+   "tbox": 5,
+   "objet": 6,
+   "func": 0,
+   "params": "0xFF000280",
+   "fichier": "LinkUG_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Montagne de Feu - Coffre intérieur",
+   "nom_en": "Fire Mountain - Interior Chest",
+   "idx": 12,
+   "tbox": 0,
+   "objet": 40,
+   "func": 1,
+   "params": "0xFF2E3001",
+   "fichier": "MiniKaz_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile Gelée - Coffre intérieur",
+   "nom_en": "Ice Ring Isle - Interior Chest",
+   "idx": 12,
+   "tbox": 1,
+   "objet": 41,
+   "func": 0,
+   "params": "0xFF200080",
+   "fichier": "MiniHyo_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Coffre en haut du mur de la Grotte des Blobs",
+   "nom_en": "Pawprint Isle - Chu Chu Cave Chest Scale Wall",
+   "idx": 12,
+   "tbox": 2,
+   "objet": 4,
+   "func": 0,
+   "params": "0xFF000100",
+   "fichier": "TyuTyu_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Losange - Deuxième Coffre du labyrinthe",
+   "nom_en": "Diamond Steppe Island - Maze Second Chest",
+   "idx": 12,
+   "tbox": 3,
+   "objet": 219,
+   "func": 0,
+   "params": "0xFF100180",
+   "fichier": "WarpD_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Canonnière - Coffre intérieur",
+   "nom_en": "Islet of Steel - Interior Chest",
+   "idx": 12,
+   "tbox": 4,
+   "objet": 254,
+   "func": 6,
+   "params": "0xFF204206",
+   "fichier": "ShipD_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     0,
+     "I_SubAN_Room4.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Ile de la Bombe - Coffre de la grotte",
+   "nom_en": "Bomb Island - Cave Chest",
+   "idx": 12,
+   "tbox": 5,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200280",
+   "fichier": "Cave01_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile Etoilée - Coffre de la grotte",
+   "nom_en": "Star Island - Cave Chest",
+   "idx": 12,
+   "tbox": 6,
+   "objet": 7,
+   "func": 2,
+   "params": "0xFF2FF302",
+   "fichier": "Cave02_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Saut de Roc - Coffre de la grotte",
+   "nom_en": "Cliff Plateau Isles - Cave Chest",
+   "idx": 12,
+   "tbox": 7,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000380",
+   "fichier": "Cave03_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     7,
+     "I_SubAN_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Ile de la Rocaille - Coffre de la grotte",
+   "nom_en": "Rock Spire Isle - Cave Chest",
+   "idx": 12,
+   "tbox": 8,
+   "objet": 213,
+   "func": 2,
+   "params": "0xFF1FF402",
+   "fichier": "Cave04_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de la Tête de Pierre - Coffre de la grotte",
+   "nom_en": "Stone Watcher Island - Cave Chest",
+   "idx": 12,
+   "tbox": 10,
+   "objet": 103,
+   "func": 6,
+   "params": "0xFF20A506",
+   "fichier": "TF_01_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     248,
+     "SubD44_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Ile aux Trois Tours - Coffre de la grotte",
+   "nom_en": "Overlook Island - Cave Chest",
+   "idx": 12,
+   "tbox": 11,
+   "objet": 104,
+   "func": 6,
+   "params": "0xFF20B586",
+   "fichier": "TF_02_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile aux Nichoirs - Coffre intérieur",
+   "nom_en": "Birds Peak Rock - Cave Chest",
+   "idx": 12,
+   "tbox": 16,
+   "objet": 252,
+   "func": 6,
+   "params": "0xFF210806",
+   "fichier": "TF_03_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de Qui-ça - Coffre au RDC du labyrinthe",
+   "nom_en": "Private Oasis - Cabana Labyrinth Upper Floor Chest",
+   "idx": 12,
+   "tbox": 17,
+   "objet": 98,
+   "func": 6,
+   "params": "0xFF211886",
+   "fichier": "TF_04_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile Gelée - Coffre de la grotte intérieure",
+   "nom_en": "Ice Ring Isle - Inner Cave Chest",
+   "idx": 12,
+   "tbox": 21,
+   "objet": 6,
+   "func": 2,
+   "params": "0xFF0FFA82",
+   "fichier": "ITest62_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de Qui-ça - Coffre au sous-sol du labyrinthe",
+   "nom_en": "Private Oasis - Cabana Labyrinth Lower Floor Chest",
+   "idx": 12,
+   "tbox": 22,
+   "objet": 6,
+   "func": 0,
+   "params": "0xFF000B00",
+   "fichier": "TF_04_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Losange - Premier Coffre du labyrinthe",
+   "nom_en": "Diamond Steppe Island - Maze First Chest",
+   "idx": 12,
+   "tbox": 23,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000B80",
+   "fichier": "WarpD_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Coffre derrière la rocher de gauche de la Grotte des Blobs",
+   "nom_en": "Pawprint Isle - Chu Chu Cave Chest Behind Left Boulder",
+   "idx": 12,
+   "tbox": 24,
+   "objet": 5,
+   "func": 0,
+   "params": "0xFF000C00",
+   "fichier": "TyuTyu_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Coffre derrière le rocher de droite de la Grotte des Blobs",
+   "nom_en": "Pawprint Isle - Chu Chu Cave Chest Behind Right Boulder",
+   "idx": 12,
+   "tbox": 25,
+   "objet": 31,
+   "func": 0,
+   "params": "0xFF000C80",
+   "fichier": "TyuTyu_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Coffre de la Grotte des Blobs",
+   "nom_en": "Pawprint Isle - Chu Chu Cave Chest",
+   "idx": 12,
+   "tbox": 26,
+   "objet": 7,
+   "func": 0,
+   "params": "0xFF200D00",
+   "fichier": "TyuTyu_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Dragon - Coffre de la grotte",
+   "nom_en": "Dragon Roost Island - Cave Chest",
+   "idx": 13,
+   "tbox": 0,
+   "objet": 5,
+   "func": 0,
+   "params": "0xFF000000",
+   "fichier": "TF_06_Stage.szs",
+   "couches": [
+    "TRES"
+   ],
+   "conflit": [
+    [
+     1,
+     "ITest61_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Ile du Fer à Cheval - Coffre de la grotte",
+   "nom_en": "Horseshoe Island - Cave Chest",
+   "idx": 13,
+   "tbox": 1,
+   "objet": 212,
+   "func": 2,
+   "params": "0xFF1FF082",
+   "fichier": "Cave05_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Pas de Chat - Coffre de la Grotte des Sorciers",
+   "nom_en": "Pawprint Isle - Wizzrobe Cave Chest",
+   "idx": 13,
+   "tbox": 2,
+   "objet": 247,
+   "func": 2,
+   "params": "0xFF2FF102",
+   "fichier": "Cave07_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Mercantîle - Coffre du Bateau Pirate",
+   "nom_en": "Windfall Island - Pirate Ship Chest",
+   "idx": 13,
+   "tbox": 5,
+   "objet": 49,
+   "func": 0,
+   "params": "0xFF200280",
+   "fichier": "Asoko_Stage.szs",
+   "couches": [
+    "TRE2",
+    "TRE3"
+   ],
+   "conflit": [
+    [
+     6,
+     "SubD51_Stage.szs"
+    ]
+   ]
+  },
+  {
+   "nom": "Ilots Kif Kif - Coffre de la grotte",
+   "nom_en": "Angular Isles - Cave Chest",
+   "idx": 13,
+   "tbox": 6,
+   "objet": 15,
+   "func": 4,
+   "params": "0xFF004304",
+   "fichier": "SubD43_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Serrure de Pierre - Coffre de la grotte",
+   "nom_en": "Needle Rock Isle - Cave Chest",
+   "idx": 13,
+   "tbox": 9,
+   "objet": 6,
+   "func": 1,
+   "params": "0xFF006481",
+   "fichier": "SubD42_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de l'Aurore - 30e étage de la Crypte Magique",
+   "nom_en": "Outset Island - Savage Labyrinth Floor 30",
+   "idx": 13,
+   "tbox": 11,
+   "objet": 102,
+   "func": 6,
+   "params": "0xFF20B586",
+   "fichier": "Cave09_Room20.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile de l'Aurore - 50e étage de la Crypte Magique",
+   "nom_en": "Outset Island - Savage Labyrinth Floor 50",
+   "idx": 13,
+   "tbox": 12,
+   "objet": 67,
+   "func": 0,
+   "params": "0xFF200600",
+   "fichier": "Cave10_Room20.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Batodrome -Coffre de la grotte",
+   "nom_en": "Boating Course - Cave Chest",
+   "idx": 13,
+   "tbox": 15,
+   "objet": 194,
+   "func": 1,
+   "params": "0xFF147781",
+   "fichier": "SubD71_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  },
+  {
+   "nom": "Ile du Requin - Coffre de la grotte",
+   "nom_en": "Shark Island - Cave Chest",
+   "idx": 13,
+   "tbox": 22,
+   "objet": 15,
+   "func": 1,
+   "params": "0xFF0A4B01",
+   "fichier": "ITest63_Stage.szs",
+   "couches": [
+    "TRES"
+   ]
+  }
+ ],
+ "absents": [
+  {
+   "nom": "Ile Geminée - A l'intérieur de la grande île",
+   "nom_en": "Mother & Child Isles - Inside Mother Isle",
+   "objet_rando": "Fire Ice Arrows"
+  },
+  {
+   "nom": "Ile de l'Aurore - Coffre de la caverne de Jabu",
+   "nom_en": "Outset Island - Jabun's Cave Chest",
+   "objet_rando": "Nayru's Pearl"
+  },
+  {
+   "nom": "Caverne du Dragon - Mini-Boss",
+   "nom_en": "Dragon Roost Cavern - Mini Boss",
+   "objet_rando": "Grappling Hook"
+  },
+  {
+   "nom": "Château d'Hyrule - Coffre de la Chambre d'Excalibur",
+   "nom_en": "Hyrule Castle - Sword Chamber Chest",
+   "objet_rando": "Master Sword Powerless"
+  }
+ ]
+}

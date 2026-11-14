@@ -1,0 +1,116 @@
+{
+ "description": "Couche de verrous d'histoire du jeu d'ORIGINE, à nous. La logique de TWWHD-Randomizer suppose un jeu ouvert (objets de départ, cinématiques sautées, mer libre) ; notre mod ne modifie aucun fichier du jeu, donc l'histoire se déroule comme dans le jeu d'origine. Cette couche ne fait qu'AJOUTER des conditions (ET logique) et des lieux d'histoire fixes : le modèle est plus strict que le jeu, jamais plus permissif.",
+ "depart": "Root",
+ "fin": "Ganon's Tower - Defeat Ganondorf",
+ "reglages": {
+  "Remove_Swords": "false",
+  "Open_DRC": "false",
+  "Skip_Refights": "false",
+  "Progressive_Magic_Always_Double": "false",
+  "Gohma_Required": "true",
+  "Kalle_Demos_Required": "true",
+  "Gohdan_Required": "true",
+  "Helmaroc_King_Required": "true",
+  "Jalhalla_Required": "true",
+  "Molgera_Required": "true"
+ },
+ "macros": {
+  "Can Sail Away": "Boats_Sail",
+  "Rescued Aryll": "'Helmaroc_King_Defeated'"
+ },
+ "macros_raisons": {
+  "Can Sail Away": "jeu d'origine : la voile suffit pour aller de Mercantîle à l'Ile du Dragon ; tout le reste de la mer est verrouillé par 'H_Mer_Ouverte' (qui exige en plus le Requiem du vent)",
+  "Rescued Aryll": "TWWHD saute le sauvetage d'Arielle ; dans le jeu d'origine elle n'est libérée qu'après le Roi Cuirassé (second passage à la Forteresse)"
+ },
+ "evenements": [
+  {"nom": "H_Depart", "zone": "Root", "exigence": "Heros_Sword and Heros_Shield",
+   "raison": "on ne quitte l'Ile de l'Aurore sur le bateau pirate qu'avec l'épée (Orca) et le bouclier (grand-mère)"},
+  {"nom": "H_Forteresse1", "zone": "Root", "exigence": "'H_Depart' and Spoils_Bag",
+   "raison": "épreuve de Niko obligatoire sur le bateau pirate, puis premier passage à la Forteresse (aucun objet requis)"},
+  {"nom": "H_Mer_Ouverte", "zone": "Root", "exigence": "Dins_Pearl and Can_Play_WR",
+   "raison": "avant la Perle de Din, le Lion Rouge refuse de s'écarter de la route Mercantîle - Ile du Dragon"},
+  {"nom": "H_Deux_Perles", "zone": "Root", "exigence": "Dins_Pearl and Farores_Pearl",
+   "raison": "l'Ile du Poisson n'est détruite, et les pirates ne sont à Mercantîle avec les bombes, qu'après les deux premières perles"}
+ ],
+ "lieux_histoire": [
+  {"nom": "Story - Orca's Sword", "nom_fr": "Histoire - Epée du héros (Orca)", "zone": "Outset Orca's House", "objet": "Progressive Sword", "exigence": "Nothing"},
+  {"nom": "Story - Grandma's Shield", "nom_fr": "Histoire - Bouclier du héros (grand-mère)", "zone": "Outset Link's House", "objet": "Progressive Shield", "exigence": "Heros_Sword"},
+  {"nom": "Story - Niko's Spoils Bag", "nom_fr": "Histoire - Sac à butin (Niko, bateau pirate)", "zone": "Root", "objet": "Spoils Bag", "exigence": "'H_Depart'"},
+  {"nom": "Story - Zunari's Sail", "nom_fr": "Histoire - Voile (Zunari, Mercantîle)", "zone": "Root", "objet": "Progressive Sail", "exigence": "'H_Forteresse1'"},
+  {"nom": "Story - Wind Waker", "nom_fr": "Histoire - Baguette du vent (Lion Rouge, Ile du Dragon)", "zone": "Dragon Roost Island", "objet": "Wind Waker", "exigence": "Nothing"},
+  {"nom": "Story - Quill's Delivery Bag", "nom_fr": "Histoire - Sac de courrier (Scaff, Ile du Dragon)", "zone": "Dragon Roost Rito Aerie", "objet": "Delivery Bag", "exigence": "Nothing"},
+  {"nom": "Story - Medli's Bottle", "nom_fr": "Histoire - Flacon de Médolie", "zone": "Dragon Roost Rito Aerie", "objet": "Empty Bottle", "exigence": "Delivery_Bag"},
+  {"nom": "Story - Din's Pearl", "nom_fr": "Histoire - Perle de Din (Baldin)", "zone": "Dragon Roost Island", "objet": "Din's Pearl", "exigence": "'Gohma_Defeated'"},
+  {"nom": "Story - Deku Tree's Magic", "nom_fr": "Histoire - Jauge de magie (avec la Feuille Mojo)", "zone": "Forest Haven Interior Upper Baba Buds", "objet": "Progressive Magic Meter", "exigence": "Nothing"},
+  {"nom": "Story - Farore's Pearl", "nom_fr": "Histoire - Perle de Farore (Arbre Mojo)", "zone": "Forest Haven Interior", "objet": "Farore's Pearl", "exigence": "'Kalle_Demos_Defeated'"},
+  {"nom": "Story - Earth God's Lyric", "nom_fr": "Histoire - Hymne du dieu de la terre (Ile de la Stèle)", "zone": "Headstone Island Interior", "objet": "Earth God's Lyric", "exigence": "Wind_Waker"},
+  {"nom": "Story - Wind God's Aria", "nom_fr": "Histoire - Mélodie du dieu du vent (Ile du Vent)", "zone": "Gale Isle Interior", "objet": "Wind God's Aria", "exigence": "Wind_Waker"},
+  {"nom": "Story - Earth Sage's Prayer", "nom_fr": "Histoire - Excalibur ranimée par la prière de Médolie", "zone": "Root", "objet": "Progressive Sword", "exigence": "'Jalhalla_Defeated' and Master_Sword"},
+  {"nom": "Story - Wind Sage's Prayer", "nom_fr": "Histoire - Excalibur ranimée par la prière de Dumoria", "zone": "Root", "objet": "Progressive Sword", "exigence": "'Molgera_Defeated' and Master_Sword"}
+ ],
+ "lieux_deplaces": [
+  {"lieu": "Hyrule Castle - Sword Chamber Chest", "zone": "Tower of the Gods Sector", "exigence": "'Gohdan_Defeated'",
+   "raison": "dans le jeu d'origine Excalibur se prend juste après Gohdan (anneau de lumière), sans la Triforce ; TWWHD ne garde que l'accès par la Triforce"}
+ ],
+ "objets_corriges": {
+  "Outset Island - Sunken Treasure": "Nothing"
+ },
+ "objets_corriges_raisons": {
+  "Outset Island - Sunken Treasure": "TWWHD y note un second 'Triforce Shard 6' ; le relevé du jeu place le fragment 6 dans le coffre de l'étage 30 du Labyrinthe (0x66). Trésor englouti fixe, compté sans valeur de progression"
+ },
+ "sorties_corrigees": [
+  {"de": "ET Giant Statue Room", "vers": "ET Chu Chus and Switches Room", "exigence": "count(1, Earth_Temple_Small_Key)", "suppose_fixes": ["Earth Temple - Stalfos Mini Boss"],
+   "raison": "TWWHD exige 2 clés pour la 1re porte (un joueur de randomizer pourrait gaspiller une clé au sous-sol s'il a déjà le bouclier miroir). Chez nous le bouclier miroir reste FIXE derrière les portes 1 et 2 : les trois portes sont strictement dans l'ordre, la porte k demande k clés"},
+  {"de": "ET Two Moblins and Poes Room Past Stairs", "vers": "ET Mini Boss Room", "exigence": "count(2, Earth_Temple_Small_Key)", "suppose_fixes": ["Earth Temple - Stalfos Mini Boss"],
+   "raison": "2e porte du Temple de la Terre (voir la 1re)"},
+  {"de": "FW Hub Room Third Floor Upper West Platform", "vers": "FW Morth Pit Hallway", "exigence": "Nothing",
+   "raison": "parcours d'origine obligatoire : la clé du labyrinthe de lianes se prend AVANT le boomerang, la fleur de cette porte s'ouvre avec une noix Boko prise sur place (TWWHD ne compte pas les noix)"}
+ ],
+ "verrou_general": {
+  "exigence": "'H_Mer_Ouverte'",
+  "zones_libres": ["Root", "Link's Spawn", "The Great Sea", "Outset Island", "Windfall Island", "Dragon Roost Island", "Gohma Battle Arena"],
+  "prefixes_libres": ["Outset ", "Windfall ", "Dragon Roost "],
+  "donjons_libres": ["Dragon Roost Cavern"],
+  "raison": "toute sortie d'une zone libre (Ile de l'Aurore, Mercantîle, Ile du Dragon et sa caverne) vers une zone qui ne l'est pas exige la mer ouverte"
+ },
+ "verrous_zones": [
+  {"zone": "Windfall Pirate Ship", "exigence": "'H_Deux_Perles'", "raison": "bombes des pirates : seulement après les deux premières perles"},
+  {"zone": "Mother & Child Inside Mother Isle", "exigence": "'Helmaroc_King_Defeated'", "raison": "flèches de feu et de glace : la Reine des fées ne les donne qu'après le second passage à la Forteresse"},
+  {"zone": "Headstone Island Interior", "exigence": "'Helmaroc_King_Defeated'", "raison": "sage de la terre : seulement après le second passage à la Forteresse"},
+  {"zone": "Gale Isle Interior", "exigence": "'Helmaroc_King_Defeated'", "raison": "sage du vent : seulement après le second passage à la Forteresse"},
+  {"zone": "Hyrule Castle Front", "exigence": "'Helmaroc_King_Defeated'", "raison": "retour à Hyrule par la Triforce : seulement après le second passage à la Forteresse"}
+ ],
+ "verrous_donjons": [
+  {"donjon": "Forsaken Fortress", "exigence": "Master_Sword", "raison": "second passage à la Forteresse : seulement avec Excalibur (le premier passage, sans épée, ne compte pour aucun lieu)"},
+  {"donjon": "Earth Temple", "exigence": "'Helmaroc_King_Defeated' and Can_Play_EGL", "raison": "il faut Médolie (hymne de la terre) pour entrer"},
+  {"donjon": "Wind Temple", "exigence": "'Helmaroc_King_Defeated' and Can_Play_WGA", "raison": "il faut Dumoria (mélodie du vent) pour entrer"}
+ ],
+ "verrous_lieux": [
+  {"lieu": "Windfall Island - Ivan Catch Killer Bees", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Maggie Delivery Reward", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Spectacle Island - Barrel Shooting First Prize", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Spectacle Island - Barrel Shooting Second Prize", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Great Sea - Salvage Corp Gift", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Pompie & Vera Secret Meeting Photo", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Minenco Miss Windfall Picture", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Kamo Full Moon Picture", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Auction 40 Rupee", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Auction 5 Rupee", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Auction 60 Rupee", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Auction 80 Rupee", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Great Sea - Goron Trading Reward", "exigence": "'Helmaroc_King_Defeated'", "raison": "cadeau d'un personnage ou prix (stub N2) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"}
+ ],
+ "verrous_donnees": [
+  {"lieu": "Mailbox - Letter from Baito's Mother", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Mailbox - Letter from Komali's Father", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Mailbox - Letter from Orca", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Mailbox - Letter from Grandma", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Mailbox - Letter from Aryll", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Mailbox - Letter from Baito", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Rock Spire Isle - Beedle 500 Rupee Item", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Rock Spire Isle - Beedle 950 Rupee Item", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Sam Decorate Island", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Linda and Anton", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"},
+  {"lieu": "Windfall Island - Kreeb Light the Lighthouse", "exigence": "'Helmaroc_King_Defeated'", "raison": "lettre, étal de boutique ou cadeau changé par une écriture de données (portage TWWHD, lot 1) : le moment où le jeu d'origine l'ouvre n'est pas prouvé, donc la logique ne compte dessus qu'après le second passage à la Forteresse (verrou prudent : plus tard que le jeu)"}
+ ]
+}

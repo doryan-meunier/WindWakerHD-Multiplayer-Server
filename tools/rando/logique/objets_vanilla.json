@@ -1,0 +1,33 @@
+{
+ "description": "A nous : correspondance entre les objets de la logique (TWWHD) et les objets du jeu d'ORIGINE. Aucun identifiant propre à TWWHD-Randomizer (clés par donjon, objets progressifs) ne doit atteindre le jeu : la table de sortie n'est faite que d'identifiants relus dans les coffres du jeu.",
+ "equivalences": {
+  "Mirror Shield": "Progressive Shield",
+  "Master Sword Powerless": "Progressive Sword",
+  "Swift Sail": "Progressive Sail",
+  "Deluxe Picto Box": "Progressive Picto Box"
+ },
+ "familles": {
+  "Progressive Bow": ["Progressive Bow", "Fire Ice Arrows", "Light Arrow"]
+ },
+ "familles_raison": "dans le jeu d'origine l'arc, les flèches feu/glace et les flèches de lumière sont trois objets distincts qui occupent la même case : count(n, Progressive_Bow) vaut la longueur de la chaîne possédée DANS L'ORDRE (des flèches sans arc ne comptent pas)",
+ "par_id": {
+  "21": "@ Small Key",
+  "78": "@ Big Key",
+  "252": "Triforce Chart 2"
+ },
+ "par_id_raison": "l'objet relu dans le coffre fait foi : 0x15 / 0x4E sont la petite / grande clé du donjon du coffre ; 0xFC est la carte de la Triforce 2 (TWWHD note par erreur 'Triforce Chart 3' pour ce coffre)",
+ "petite_cle": 21,
+ "grande_cle": 78,
+ "carte_donjon": 76,
+ "boussole": 77,
+ "triforce": [97, 98, 99, 100, 101, 102, 103, 104, 250, 252, 254],
+ "coeurs_depart": 3,
+ "receptacle": "Heart Container",
+ "quart": "Piece of Heart",
+ "jamais_deplaces": {
+  "54": "flèches de lumière (0x36) : elles partagent la case de l'arc ; ramassées avant l'arc ou avant les flèches feu/glace, l'objet reçu ensuite pourrait rétrograder la case (non vérifié en jeu), donc ce coffre garde son objet",
+  "8": "réceptacle de coeur : jamais déplacé"
+ },
+ "ids_interdits": [64, 65, 92, 93, 96, 115, 132, 133, 136, 137],
+ "ids_interdits_raison": "clés par donjon de TWWHD-Randomizer : identifiants sans objet dans le jeu d'origine (execItemGet saute par une table)"
+}

@@ -1,0 +1,4789 @@
+{
+ "description": "Noms des objets en anglais, français et espagnol, recopiés de TWWHD-Randomizer (logic/data/item_data.yaml ; SuperDude88 et contributeurs, licence MIT, Copyright (c) 2024 SuperDude88 : LICENSE_TWWHD.txt). Sert aux textes du lot 7 (wwmp/rando_lot7.py). Produit par « python tools/wwmp/rando_lot7.py --noms <item_data.yaml> » ; ne pas éditer.",
+ "objets": {
+  "0x00": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Heart Drop|",
+    "nom": "Heart Drop",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Cœur|",
+    "nom": "Cœur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Corazón|",
+    "nom": "Corazón",
+    "pluriel": "Singular"
+   }
+  },
+  "0x01": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Green Rupee|",
+    "nom": "Green Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Vert|",
+    "nom": "Rubis Vert",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Verde|",
+    "nom": "Rupia Verde",
+    "pluriel": "Singular"
+   }
+  },
+  "0x02": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Blue Rupee|",
+    "nom": "Blue Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Bleu|",
+    "nom": "Rubis Bleu",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Azul|",
+    "nom": "Rupia Azul",
+    "pluriel": "Singular"
+   }
+  },
+  "0x03": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Yellow Rupee|",
+    "nom": "Yellow Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Jaune|",
+    "nom": "Rubis Jaune",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Amarilla|",
+    "nom": "Rupia Amarilla",
+    "pluriel": "Singular"
+   }
+  },
+  "0x04": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Red Rupee|",
+    "nom": "Red Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Rouge|",
+    "nom": "Rubis Rouge",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Roja|",
+    "nom": "Rupia Roja",
+    "pluriel": "Singular"
+   }
+  },
+  "0x05": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Purple Rupee|",
+    "nom": "Purple Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Violet|",
+    "nom": "Rubis Violet",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Púrpura|",
+    "nom": "Rupia Púrpura",
+    "pluriel": "Singular"
+   }
+  },
+  "0x06": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "an |Orange Rupee|",
+    "nom": "Orange Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Orange|",
+    "nom": "Rubis Orange",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Naranja|",
+    "nom": "Orange Rupee",
+    "pluriel": "Singular"
+   }
+  },
+  "0x07": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Piece of Heart|",
+    "nom": "Piece of Heart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Quart de Cœur|",
+    "nom": "Quart de Cœur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Pieza de Corazón|",
+    "nom": "Pieza de Corazón",
+    "pluriel": "Singular"
+   }
+  },
+  "0x08": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Heart Container|",
+    "nom": "Heart Container",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Réceptacle de Cœur|",
+    "nom": "Réceptacle de Cœur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Contenedor de Corazón|",
+    "nom": "Contenedor de Corazón",
+    "pluriel": "Singular"
+   }
+  },
+  "0x09": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Small Magic Drop|",
+    "nom": "Small Magic Drop",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Petite Jarre Magique|",
+    "nom": "Petite Jarre Magique",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Jarra Mágica Pequeña|",
+    "nom": "Jarra Mágica Pequeña",
+    "pluriel": "Singular"
+   }
+  },
+  "0x0A": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Large Magic Drop|",
+    "nom": "Large Magic Drop",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Grande Jarre Magique|",
+    "nom": "Grande Jarre Magique",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Jarra Mágica Grande|",
+    "nom": "Jarra Mágica Grande",
+    "pluriel": "Singular"
+   }
+  },
+  "0x0B": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Five Bombs|",
+    "nom": "Five Bombs",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Cinq Bombes|",
+    "nom": "Bombes (5)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Cinco Bombas|",
+    "nom": "Bombas (5)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x0C": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Ten Bombs|",
+    "nom": "Ten Bombs",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Dix Bombes|",
+    "nom": "Bombes (10)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Diez Bombas|",
+    "nom": "Bombas (10)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x0D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Twenty Bombs|",
+    "nom": "Twenty Bombs",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Vingt Bombes|",
+    "nom": "Bombes (20)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Veinte Bombas|",
+    "nom": "Bombas (20)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x0E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Thirty Bombs|",
+    "nom": "Thirty Bombs",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Trente Bombes|",
+    "nom": "Bombes (30)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Treinta Bombas|",
+    "nom": "Bombas (30)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x0F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Silver Rupee|",
+    "nom": "Silver Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Argenté|",
+    "nom": "Rubis Argenté",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Plateada|",
+    "nom": "Rupia Plateada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x10": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Ten Arrows|",
+    "nom": "Ten Arrows",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Dix Flèches|",
+    "nom": "Flèches (10)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Diez Flechas|",
+    "nom": "Flechas (10)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x11": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Twenty Arrows|",
+    "nom": "Twenty Arrows",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Vingt Flèches|",
+    "nom": "Flèches (20)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Veinte Flechas|",
+    "nom": "Flechas (20)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x12": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Thirty Arrows|",
+    "nom": "Thirty Arrows",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Trente Flèches|",
+    "nom": "Flèches (30)",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Treinta Flechas|",
+    "nom": "Flechas (30)",
+    "pluriel": "Plural"
+   }
+  },
+  "0x15": {
+   "English": {
+    "cryptique": "a |key|",
+    "genre": "None",
+    "joli": "a |Small Key|",
+    "nom": "Small Key",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |clé|",
+    "genre": "Female",
+    "joli": "une |Petite Clé|",
+    "nom": "Petite Clé",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |llave|",
+    "genre": "Female",
+    "joli": "una |Llave Pequeña|",
+    "nom": "Llave Pequeña",
+    "pluriel": "Plural"
+   }
+  },
+  "0x16": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Fairy|",
+    "nom": "Fairy",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Fée|",
+    "nom": "Fée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "un |Hada|",
+    "nom": "Hada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x17": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "Nothing",
+    "nom": "Nothing",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   }
+  },
+  "0x18": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "Game Beatable",
+    "nom": "Game Beatable",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   }
+  },
+  "0x1A": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Yellow Rupee|",
+    "nom": "Yellow Rupee 2",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Jaune|",
+    "nom": "Rubis Jaune 2",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Amarilla|",
+    "nom": "Rupia Amarilla 2",
+    "pluriel": "Singular"
+   }
+  },
+  "0x1E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Three Hearts|",
+    "nom": "Three Hearts",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Trois Cœurs|",
+    "nom": "Trois Cœurs",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Tres Corazones|",
+    "nom": "Tres Corazones",
+    "pluriel": "Plural"
+   }
+  },
+  "0x1F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Joy Pendant|",
+    "nom": "Joy Pendant",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Pendentif du Bonheur|",
+    "nom": "Pendentif du Bonheur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Collar de la Felicidad|",
+    "nom": "Collar de la Felicidad",
+    "pluriel": "Singular"
+   }
+  },
+  "0x20": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Telescope|",
+    "nom": "Telescope",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Longue-Vue|",
+    "nom": "Longue-Vue",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Catalejo|",
+    "nom": "Catalejo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x21": {
+   "English": {
+    "cryptique": "a |device that hasn't worked in 8 years|",
+    "genre": "None",
+    "joli": "a |Tingle Bottle|",
+    "nom": "Tingle Bottle",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |appareil qui ne fonctionne plus depuis 8 ans|",
+    "genre": "Female",
+    "joli": "une |Bouteille de Tingle|",
+    "nom": "Bouteille de Tingle",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |dispositivo que no ha funcionado por 8 años|",
+    "genre": "Female",
+    "joli": "una |Botella Tingle|",
+    "nom": "Botella Tingle",
+    "pluriel": "Singular"
+   }
+  },
+  "0x22": {
+   "English": {
+    "cryptique": "the |wand of the wind conductor|",
+    "genre": "None",
+    "joli": "the |Wind Waker|",
+    "nom": "Wind Waker",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |bâton conducteur du vent|",
+    "genre": "Female",
+    "joli": "la |Baguette du Vent|",
+    "nom": "Baguette du Vent",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |batuta que conduce el viento|",
+    "genre": "Female",
+    "joli": "la |Batuta de los Vientos|",
+    "nom": "Batuta de los Vientos",
+    "pluriel": "Singular"
+   }
+  },
+  "0x23": {
+   "English": {
+    "cryptique": "an |upgrade for your camera|",
+    "genre": "None",
+    "joli": "a |Progressive Picto Box|",
+    "nom": "Progressive Picto Box",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre appareil photo|",
+    "genre": "Female",
+    "joli": "une |Boîte à Image Progressive|",
+    "nom": "Boîte à Image Progressive",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora para tu cámara|",
+    "genre": "Female",
+    "joli": "una |Caja Luminográfica Progresiva|",
+    "nom": "Caja Luminográfica Progresiva",
+    "pluriel": "Singular"
+   }
+  },
+  "0x24": {
+   "English": {
+    "cryptique": "a |storage for collectibles|",
+    "genre": "None",
+    "joli": "a |Spoils Bag|",
+    "nom": "Spoils Bag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |sacoche pour vos récompenses|",
+    "genre": "Male",
+    "joli": "un |Sac à Butin|",
+    "nom": "Sac à Butin",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |saco para guardar tu coleción|",
+    "genre": "Female",
+    "joli": "una |Bolsa de Trofeos|",
+    "nom": "Bolsa de Trofeos",
+    "pluriel": "Singular"
+   }
+  },
+  "0x25": {
+   "English": {
+    "cryptique": "an |item to swing across platforms|",
+    "genre": "None",
+    "joli": "a |Grappling Hook|",
+    "nom": "Grappling Hook",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |objet pour se balancer de plateforme en plateforme|",
+    "genre": "Male",
+    "joli": "un |Grappin-Griffe|",
+    "nom": "Grappin-Griffe",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto para columpiarse entre plataformas|",
+    "genre": "Female",
+    "joli": "una |Garra|",
+    "nom": "Garra",
+    "pluriel": "Singular"
+   }
+  },
+  "0x26": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Deluxe Picto Box|",
+    "nom": "Deluxe Picto Box",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Boîte à Image DX|",
+    "nom": "Boîte à Image DX",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Caja Cromográfica|",
+    "nom": "Caja Cromográfica",
+    "pluriel": "Singular"
+   }
+  },
+  "0x27": {
+   "English": {
+    "cryptique": "an |upgrade for your bow|",
+    "genre": "None",
+    "joli": "a |Progressive Bow|",
+    "nom": "Progressive Bow",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre arc|",
+    "genre": "Male",
+    "joli": "un |Arc Progressif|",
+    "nom": "Arc Progressif",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora para tu arco|",
+    "genre": "Male",
+    "joli": "un |Arco del Héroe Progresivo|",
+    "nom": "Arco del Héroe Progresivo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x28": {
+   "English": {
+    "cryptique": "the |strength to lift heavy rocks|",
+    "genre": "None",
+    "joli": "|Power Bracelets|",
+    "nom": "Power Bracelets",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "la |force de soulever de lourds rochers|",
+    "genre": "Male",
+    "joli": "les |Bracelets de Force|",
+    "nom": "Bracelets de Force",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "la |fuerza para levantar rockas pesadas|",
+    "genre": "Male",
+    "joli": "los |Brazaletes de Fuerza|\"",
+    "nom": "Brazaletes de Fuerza",
+    "pluriel": "Plural"
+   }
+  },
+  "0x29": {
+   "English": {
+    "cryptique": "a |very heavy item|",
+    "genre": "None",
+    "joli": "|Iron Boots|",
+    "nom": "Iron Boots",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "un |objet très lourd|",
+    "genre": "Female",
+    "joli": "les |Bottes de Plomb|",
+    "nom": "Bottes de Plomb",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto muy pesado|",
+    "genre": "Female",
+    "joli": "las |Botas de Plomo|",
+    "nom": "Botas de Plomo",
+    "pluriel": "Plural"
+   }
+  },
+  "0x2A": {
+   "English": {
+    "cryptique": "|purple protection|",
+    "genre": "None",
+    "joli": "|Magic Armor|",
+    "nom": "Magic Armor",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |protection violette|",
+    "genre": "Female",
+    "joli": "une |Armure Magique|",
+    "nom": "Armure Magique",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |protección púrpura|",
+    "genre": "Male",
+    "joli": "el |Aura Mágica|",
+    "nom": "Aura Mágica",
+    "pluriel": "Singular"
+   }
+  },
+  "0x2C": {
+   "English": {
+    "cryptique": "a |storage for food|",
+    "genre": "None",
+    "joli": "a |Bait Bag|",
+    "nom": "Bait Bag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |sacoche à nourriture|",
+    "genre": "Male",
+    "joli": "un |Sac à Appâts|",
+    "nom": "Sac à Appâts",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |saco para guardar alimentos|",
+    "genre": "Male",
+    "joli": "un |Saco de Cebos|",
+    "nom": "Saco de Cebos",
+    "pluriel": "Singular"
+   }
+  },
+  "0x2D": {
+   "English": {
+    "cryptique": "an |item that always comes back to you|",
+    "genre": "None",
+    "joli": "a |Boomerang|",
+    "nom": "Boomerang",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |objet qui revient toujours|",
+    "genre": "Male",
+    "joli": "un |Boomerang|",
+    "nom": "Boomerang",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto que siempre vuelve a tí|",
+    "genre": "Male",
+    "joli": "un |Bumerán|",
+    "nom": "Bumerán",
+    "pluriel": "Singular"
+   }
+  },
+  "0x2F": {
+   "English": {
+    "cryptique": "an |item that reels|",
+    "genre": "None",
+    "joli": "a |Hookshot|",
+    "nom": "Hookshot",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |objet qui s'allonge et se rétracte|",
+    "genre": "Male",
+    "joli": "un |Grappin|",
+    "nom": "Grappin",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto que se estira y enrolla|",
+    "genre": "Male",
+    "joli": "un |Gancho|",
+    "nom": "Gancho",
+    "pluriel": "Singular"
+   }
+  },
+  "0x30": {
+   "English": {
+    "cryptique": "a |storage for letters|",
+    "genre": "None",
+    "joli": "a |Delivery Bag|",
+    "nom": "Delivery Bag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |sacoche pour vos lettres|",
+    "genre": "Male",
+    "joli": "un |Sac de Facteur|",
+    "nom": "Sac de Facteur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |saco para guardar cartas|",
+    "genre": "Female",
+    "joli": "una |Saca de Cartero|",
+    "nom": "Saca de Cartero",
+    "pluriel": "Singular"
+   }
+  },
+  "0x31": {
+   "English": {
+    "cryptique": "an |explosive item|",
+    "genre": "None",
+    "joli": "|Bombs|",
+    "nom": "Bombs",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "un |objet explosif|",
+    "genre": "Female",
+    "joli": "les |Bombes|",
+    "nom": "Bombes",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto explosivo|",
+    "genre": "Female",
+    "joli": "las |Bombas|",
+    "nom": "Bombas",
+    "pluriel": "Plural"
+   }
+  },
+  "0x32": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Heros Clothes|",
+    "nom": "Heros Clothes",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "las |Ropas del Héroe|",
+    "nom": "Ropas del Héroe",
+    "pluriel": "Plural"
+   }
+  },
+  "0x33": {
+   "English": {
+    "cryptique": "the |hammer of the dead|",
+    "genre": "None",
+    "joli": "the |Skull Hammer|",
+    "nom": "Skull Hammer",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |marteau de la mort|",
+    "genre": "Female",
+    "joli": "la |Masse|",
+    "nom": "Masse",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "el |martillo de los muertos|",
+    "genre": "Male",
+    "joli": "el |Martillo|",
+    "nom": "Martillo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x34": {
+   "English": {
+    "cryptique": "a |magic leaf|",
+    "genre": "None",
+    "joli": "a |Deku Leaf|",
+    "nom": "Deku Leaf",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |feuille magique|",
+    "genre": "Female",
+    "joli": "une |Feuille Mojo|",
+    "nom": "Feuille Mojo",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |hoja mágica|",
+    "genre": "Female",
+    "joli": "la |Hoja Deku|",
+    "nom": "Hoja Deku",
+    "pluriel": "Singular"
+   }
+  },
+  "0x35": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Fire Ice Arrows|",
+    "nom": "Fire Ice Arrows",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "les |Flèches de Glace et de Feu|",
+    "nom": "Flèches de Glace et de Feu",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "las |Flechas de Fuego y Hielo|",
+    "nom": "Flechas de Fuego y Hielo",
+    "pluriel": "Plural"
+   }
+  },
+  "0x36": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Light Arrow|",
+    "nom": "Light Arrow",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Flèche de Lumière|",
+    "nom": "Flèche de Lumière",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "las |Flechas de Luz|",
+    "nom": "Flechas de Luz",
+    "pluriel": "Plural"
+   }
+  },
+  "0x37": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Heros New Clothes|",
+    "nom": "Heros New Clothes",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "las |Ropas que solo ven los honestos|",
+    "nom": "Ropas que solo ven los honestos",
+    "pluriel": "Plural"
+   }
+  },
+  "0x38": {
+   "English": {
+    "cryptique": "an |upgrade for your blade|",
+    "genre": "None",
+    "joli": "a |Progressive Sword|",
+    "nom": "Progressive Sword",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre épée|",
+    "genre": "Female",
+    "joli": "une |Epée Progressive|",
+    "nom": "Epée Progressive",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora a tu cuchilla|",
+    "genre": "Female",
+    "joli": "una |Espada Progresiva|",
+    "nom": "Espada Progresiva",
+    "pluriel": "Singular"
+   }
+  },
+  "0x39": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Master Sword Powerless|",
+    "nom": "Master Sword Powerless",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "",
+    "nom": "Excalibur Affaibli",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Espada Maestra sin restaurar|",
+    "nom": "Espada Maestra sin restaurar",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3A": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Master Sword Half|",
+    "nom": "Master Sword Half",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "",
+    "nom": "Excalibur Mi-Réanimé",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Espada Maestra semi-restaurada|",
+    "nom": "Espada Maestra semi-restaurada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3B": {
+   "English": {
+    "cryptique": "a |defensive item|",
+    "genre": "None",
+    "joli": "a |Progressive Shield|",
+    "nom": "Progressive Shield",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |objet de défense|",
+    "genre": "Male",
+    "joli": "un |Bouclier Progressif|",
+    "nom": "Bouclier Progressif",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |objeto de defensa|",
+    "genre": "Male",
+    "joli": "un |Escudo progresivo|",
+    "nom": "Escudo progresivo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3C": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Mirror Shield|",
+    "nom": "Mirror Shield",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "le |Bouclier Miroir|",
+    "nom": "Bouclier Miroir",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Escudo Espejo|",
+    "nom": "Escudo Espejo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Recovered Heros Sword|",
+    "nom": "Recovered Heros Sword",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "",
+    "joli": "",
+    "nom": "",
+    "pluriel": ""
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "una |Espada del Héroe Recuperada|",
+    "nom": "Espada del Héroe Recuperada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Master Sword Full|",
+    "nom": "Master Sword Full",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Excalibur Réanimé|",
+    "nom": "Excalibur Réanimé",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Espada Maestra Restaurada|",
+    "nom": "Espada Maestra Restaurada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x3F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Piece of Heart|",
+    "nom": "Piece of Heart 2",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Quart de Cœur|",
+    "nom": "Quart de Cœur 2",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Pieza de Corazón|",
+    "nom": "Pieza de Corazón 2",
+    "pluriel": "Singular"
+   }
+  },
+  "0x42": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Pirates Charm|",
+    "nom": "Pirates Charm",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Amulette Pirate|",
+    "nom": "Amulette Pirate",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Amuleto Pirata|",
+    "nom": "Amuleto Pirata",
+    "pluriel": "Singular"
+   }
+  },
+  "0x43": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Hero's Charm|",
+    "nom": "Hero's Charm",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Amulette du Héros|",
+    "nom": "Amulette du Héros",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Amuleto del Héroe|",
+    "nom": "Amuleto del Héroe",
+    "pluriel": "Singular"
+   }
+  },
+  "0x45": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Skull Necklace|",
+    "nom": "Skull Necklace",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Collier Macabre|",
+    "nom": "Collier Macabre",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Colgante Macabro|",
+    "nom": "Colgante Macabro",
+    "pluriel": "Singular"
+   }
+  },
+  "0x46": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Boko Baba Seed|",
+    "nom": "Boko Baba Seed",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Graine de Bokobaba|",
+    "nom": "Graine de Bokobaba",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Semilla de Boko Baba|",
+    "nom": "Semilla de Boko Baba",
+    "pluriel": "Singular"
+   }
+  },
+  "0x47": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Golden Feather|",
+    "nom": "Golden Feather",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Plume d'Or|",
+    "nom": "Plume d'Or",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Pluma Dorada|",
+    "nom": "Pluma Dorada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x48": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Knights Crest|",
+    "nom": "Knights Crest",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Blason d'Epéiste|",
+    "nom": "Blason d'Epéiste",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Blasón de Guerrero|",
+    "nom": "Blasón de Guerrero",
+    "pluriel": "Singular"
+   }
+  },
+  "0x49": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Red Chu Jelly|",
+    "nom": "Red Chu Jelly",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Gelée Chuchu Rouge|",
+    "nom": "Gelée Chuchu Rouge",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Jugo de Chuchu Rojo|",
+    "nom": "Jugo de Chuchu Rojo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x4A": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Green Chu Jelly|",
+    "nom": "Green Chu Jelly",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Gelée Chuchu Verte|",
+    "nom": "Gelée Chuchu Verte",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Jugo de Chuchu Verde|",
+    "nom": "Jugo de Chuchu Verde",
+    "pluriel": "Singular"
+   }
+  },
+  "0x4B": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Blue Chu Jelly|",
+    "nom": "Blue Chu Jelly",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Gelée Chuchu Bleue|",
+    "nom": "Gelée Chuchu Bleue",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Jugo de Chuchu Azul|",
+    "nom": "Jugo de Chuchu Azul",
+    "pluriel": "Singular"
+   }
+  },
+  "0x4C": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Dungeon Map|",
+    "nom": "Dungeon Map",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte du Donjon|",
+    "nom": "Carte du Donjon",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de la Mazmorra|",
+    "nom": "Mapa de la Mazmorra",
+    "pluriel": "Singular"
+   }
+  },
+  "0x4D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Compass|",
+    "nom": "Compass",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Boussole|",
+    "nom": "Boussole",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Brújula|",
+    "nom": "Brújula",
+    "pluriel": "Singular"
+   }
+  },
+  "0x4E": {
+   "English": {
+    "cryptique": "an |ominous key|",
+    "genre": "None",
+    "joli": "a |Big Key|",
+    "nom": "Big Key",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |clé menaçante|",
+    "genre": "Female",
+    "joli": "une |Grande Clé|",
+    "nom": "Grande Clé",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |llave siniestra|",
+    "genre": "Female",
+    "joli": "una |Gran Llave|",
+    "nom": "Gran Llave",
+    "pluriel": "Singular"
+   }
+  },
+  "0x50": {
+   "English": {
+    "cryptique": "a |glass container|",
+    "genre": "None",
+    "joli": "an |Empty Bottle|",
+    "nom": "Empty Bottle",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |contenant en verre|",
+    "genre": "Male",
+    "joli": "un |Flacon|",
+    "nom": "Flacon",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |envase de vidrio|",
+    "genre": "Female",
+    "joli": "una |Botella|",
+    "nom": "Botella",
+    "pluriel": "Singular"
+   }
+  },
+  "0x51": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Red Potion|",
+    "nom": "Red Potion",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Potion Rouge|",
+    "nom": "Potion Rouge",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Poción Roja|",
+    "nom": "Poción Roja",
+    "pluriel": "Singular"
+   }
+  },
+  "0x52": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Green Potion|",
+    "nom": "Green Potion",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Potion Verte|",
+    "nom": "Potion Verte",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Poción Verde|",
+    "nom": "Poción Verde",
+    "pluriel": "Singular"
+   }
+  },
+  "0x53": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Blue Potion|",
+    "nom": "Blue Potion",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Potion Bleue|",
+    "nom": "Potion Bleue",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Poción Azul|",
+    "nom": "Poción Azul",
+    "pluriel": "Singular"
+   }
+  },
+  "0x54": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Elixir Soup Half|",
+    "nom": "Elixir Soup Half",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Soupe de Mémé (1/2)|",
+    "nom": "Soupe de Mémé (1/2)",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Sopa de la Abuela (1/2)|",
+    "nom": "Sopa de la Abuela (1/2)",
+    "pluriel": "Singular"
+   }
+  },
+  "0x55": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Elixir Soup|",
+    "nom": "Elixir Soup",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Soupe de Mémé|",
+    "nom": "Soupe de Mémé",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Sopa de la Abuela|",
+    "nom": "Sopa de la Abuela",
+    "pluriel": "Singular"
+   }
+  },
+  "0x56": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Bottled Water|",
+    "nom": "Bottled Water",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "de l'|Eau|",
+    "nom": "Eau",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Agua|",
+    "nom": "Agua",
+    "pluriel": "Singular"
+   }
+  },
+  "0x57": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Fairy In Bottle|",
+    "nom": "Fairy In Bottle",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Fée|",
+    "nom": "Fée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Hada|",
+    "nom": "Hada",
+    "pluriel": "Singular"
+   }
+  },
+  "0x58": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Forest Firefly|",
+    "nom": "Forest Firefly",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Luciole de la Forêt|",
+    "nom": "Luciole de la Forêt",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Luciérnaga del bosque|",
+    "nom": "Luciérnaga del bosque",
+    "pluriel": "Singular"
+   }
+  },
+  "0x59": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Forest Water|",
+    "nom": "Forest Water",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "de l'|Eau de la Forêt|",
+    "nom": "Eau de la Forêt",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Agua del bosque|",
+    "nom": "Agua del bosque",
+    "pluriel": "Singular"
+   }
+  },
+  "0x61": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 1|",
+    "nom": "Triforce Shard 1",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 1|",
+    "nom": "Fragment de la Triforce 1",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 1|",
+    "nom": "Fragmento de la Trifuerza 1",
+    "pluriel": "Singular"
+   }
+  },
+  "0x62": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 2|",
+    "nom": "Triforce Shard 2",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 2|",
+    "nom": "Fragment de la Triforce 2",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 2|",
+    "nom": "Fragmento de la Trifuerza 2",
+    "pluriel": "Singular"
+   }
+  },
+  "0x63": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 3|",
+    "nom": "Triforce Shard 3",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 3|",
+    "nom": "Fragment de la Triforce 3",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 3|",
+    "nom": "Fragmento de la Trifuerza 3",
+    "pluriel": "Singular"
+   }
+  },
+  "0x64": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 4|",
+    "nom": "Triforce Shard 4",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 4|",
+    "nom": "Fragment de la Triforce 4",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 4|",
+    "nom": "Fragmento de la Trifuerza 4",
+    "pluriel": "Singular"
+   }
+  },
+  "0x65": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 5|",
+    "nom": "Triforce Shard 5",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 5|",
+    "nom": "Fragment de la Triforce 5",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 5|",
+    "nom": "Fragmento de la Trifuerza 5",
+    "pluriel": "Singular"
+   }
+  },
+  "0x66": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 6|",
+    "nom": "Triforce Shard 6",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 6|",
+    "nom": "Fragment de la Triforce 6",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 6|",
+    "nom": "Fragmento de la Trifuerza 6",
+    "pluriel": "Singular"
+   }
+  },
+  "0x67": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 7|",
+    "nom": "Triforce Shard 7",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 7|",
+    "nom": "Fragment de la Triforce 7",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 7|",
+    "nom": "Fragmento de la Trifuerza 7",
+    "pluriel": "Singular"
+   }
+  },
+  "0x68": {
+   "English": {
+    "cryptique": "a |piece of the power of the gods|",
+    "genre": "None",
+    "joli": "|Triforce Shard 8|",
+    "nom": "Triforce Shard 8",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |fragment d'or|",
+    "genre": "Male",
+    "joli": "le |Fragment de la Triforce 8|",
+    "nom": "Fragment de la Triforce 8",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |fragmento del poder de los dioses|",
+    "genre": "Male",
+    "joli": "el |Fragmento de la Trifuerza 8|",
+    "nom": "Fragmento de la Trifuerza 8",
+    "pluriel": "Singular"
+   }
+  },
+  "0x69": {
+   "English": {
+    "cryptique": "a |blue jewel|",
+    "genre": "None",
+    "joli": "|Nayru's Pearl|",
+    "nom": "Nayru's Pearl",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |joyau bleu|",
+    "genre": "Female",
+    "joli": "la |Perle de Nayru|",
+    "nom": "Perle de Nayru",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |perla azul|",
+    "genre": "Female",
+    "joli": "el |Orbe de Nayru|",
+    "nom": "Orbe de Nayru",
+    "pluriel": "Singular"
+   }
+  },
+  "0x6A": {
+   "English": {
+    "cryptique": "a |red jewel|",
+    "genre": "None",
+    "joli": "|Din's Pearl|",
+    "nom": "Din's Pearl",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |joyau rouge|",
+    "genre": "Female",
+    "joli": "la |Perle de Din|",
+    "nom": "Perle de Din",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |perla roja|",
+    "genre": "Female",
+    "joli": "el |Orbe de Din|",
+    "nom": "Orbe de Din",
+    "pluriel": "Singular"
+   }
+  },
+  "0x6B": {
+   "English": {
+    "cryptique": "a |green jewel|",
+    "genre": "None",
+    "joli": "|Farore's Pearl|",
+    "nom": "Farore's Pearl",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |joyau vert|",
+    "genre": "Female",
+    "joli": "la |Perle de Farore|",
+    "nom": "Perle de Farore",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |perla verde|",
+    "genre": "Female",
+    "joli": "el |Orbe de Farore|",
+    "nom": "Orbe de Farore",
+    "pluriel": "Singular"
+   }
+  },
+  "0x6D": {
+   "English": {
+    "cryptique": "the |song of wind|",
+    "genre": "None",
+    "joli": "the |Wind's Requiem|",
+    "nom": "Wind's Requiem",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème du vent|",
+    "genre": "Female",
+    "joli": "la |Mélodie du Vent|",
+    "nom": "Mélodie du Vent",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del viento|",
+    "genre": "Female",
+    "joli": "la |Melodía del Viento|",
+    "nom": "Melodía del Viento",
+    "pluriel": "Singular"
+   }
+  },
+  "0x6E": {
+   "English": {
+    "cryptique": "the |song of gales|",
+    "genre": "None",
+    "joli": "the |Ballad of Gales|",
+    "nom": "Ballad of Gales",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème de la tornade|",
+    "genre": "Male",
+    "joli": "le |Requiem de la Tornade|",
+    "nom": "Requiem de la Tornade",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del tornado|",
+    "genre": "Female",
+    "joli": "la |Melodía del Tornado|",
+    "nom": "Melodía del Tornado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x6F": {
+   "English": {
+    "cryptique": "the |song of command|",
+    "genre": "None",
+    "joli": "the |Command Melody|",
+    "nom": "Command Melody",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème du marionnettiste|",
+    "genre": "Male",
+    "joli": "l'|Air du Marionnettiste|\"",
+    "nom": "Air du Marionnettiste",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del control|",
+    "genre": "Female",
+    "joli": "la |Melodía de la Voluntad|",
+    "nom": "Melodía de la Voluntad",
+    "pluriel": "Singular"
+   }
+  },
+  "0x70": {
+   "English": {
+    "cryptique": "the |song of the earth's god|",
+    "genre": "None",
+    "joli": "the |Earth God's Lyric|",
+    "nom": "Earth God's Lyric",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème du dieu de la terre|",
+    "genre": "Male",
+    "joli": "l'|Hymne du Dieu de la Terre|\"",
+    "nom": "Hymne du Dieu de la Terre",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del sabio de la tierra|",
+    "genre": "Female",
+    "joli": "la |Melodía del Espíritu de la Tierra|",
+    "nom": "Melodía del Espíritu de la Tierra",
+    "pluriel": "Singular"
+   }
+  },
+  "0x71": {
+   "English": {
+    "cryptique": "the |song of the wind's god|",
+    "genre": "None",
+    "joli": "the |Wind God's Aria|",
+    "nom": "Wind God's Aria",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème du dieu du vent|",
+    "genre": "Male",
+    "joli": "l'|Hymne du Dieu du Vent|\"",
+    "nom": "Hymne du Dieu du Vent",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del sabio del viento|",
+    "genre": "Female",
+    "joli": "la |Melodía del Espíritu del Viento|",
+    "nom": "Melodía del Espíritu del Viento",
+    "pluriel": "Singular"
+   }
+  },
+  "0x72": {
+   "English": {
+    "cryptique": "the |song of time|",
+    "genre": "None",
+    "joli": "the |Song of Passing|",
+    "nom": "Song of Passing",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "le |thème du soleil|",
+    "genre": "Male",
+    "joli": "le |Chant du Soleil|",
+    "nom": "Chant du Soleil",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |canción del Sol|",
+    "genre": "Female",
+    "joli": "la |Melodía del Transcurrir|",
+    "nom": "Melodía del Transcurrir",
+    "pluriel": "Singular"
+   }
+  },
+  "0x77": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Swift Sail|",
+    "nom": "Swift Sail",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Voile Rapide|",
+    "nom": "Voile Rapide",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Vela Veloz|",
+    "nom": "Vela Veloz",
+    "pluriel": "Singular"
+   }
+  },
+  "0x78": {
+   "English": {
+    "cryptique": "a |wind follower|",
+    "genre": "None",
+    "joli": "a |Progressive Sail|",
+    "nom": "Progressive Sail",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |toile portante|",
+    "genre": "Female",
+    "joli": "une |Voile de Bateau Progressive|",
+    "nom": "Voile de Bateau Progressive",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "|aquello que sigue el viento|",
+    "genre": "Female",
+    "joli": "una |Vela Progresiva|",
+    "nom": "Vela Progresiva",
+    "pluriel": "Singular"
+   }
+  },
+  "0x79": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 1 Deciphered|",
+    "nom": "Triforce Chart 1 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 1 Décryptée|",
+    "nom": "Carte de la Triforce 1 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 1 Decifrado|",
+    "nom": "Mapa de la Trifuerza 1 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7A": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 2 Deciphered|",
+    "nom": "Triforce Chart 2 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 2 Décryptée|",
+    "nom": "Carte de la Triforce 2 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 2 Decifrado|",
+    "nom": "Mapa de la Trifuerza 2 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7B": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 3 Deciphered|",
+    "nom": "Triforce Chart 3 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 3 Décryptée|",
+    "nom": "Carte de la Triforce 3 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 3 Decifrado|",
+    "nom": "Mapa de la Trifuerza 3 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7C": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 4 Deciphered|",
+    "nom": "Triforce Chart 4 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 4 Décryptée|",
+    "nom": "Carte de la Triforce 4 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 4 Decifrado|",
+    "nom": "Mapa de la Trifuerza 4 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 5 Deciphered|",
+    "nom": "Triforce Chart 5 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 5 Décryptée|",
+    "nom": "Carte de la Triforce 5 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 5 Decifrado|",
+    "nom": "Mapa de la Trifuerza 5 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 6 Deciphered|",
+    "nom": "Triforce Chart 6 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 6 Décryptée|",
+    "nom": "Carte de la Triforce 6 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 6 Decifrado|",
+    "nom": "Mapa de la Trifuerza 6 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x7F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 7 Deciphered|",
+    "nom": "Triforce Chart 7 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 7 Décryptée|",
+    "nom": "Carte de la Triforce 7 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 7 Decifrado|",
+    "nom": "Mapa de la Trifuerza 7 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x80": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Triforce Chart 8 Deciphered|",
+    "nom": "Triforce Chart 8 Deciphered",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 8 Décryptée|",
+    "nom": "Carte de la Triforce 8 Décryptée",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de la Trifuerza 8 Decifrado|",
+    "nom": "Mapa de la Trifuerza 8 Decifrado",
+    "pluriel": "Singular"
+   }
+  },
+  "0x82": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|All Purpose Bait|",
+    "nom": "All Purpose Bait",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Appât Universel|",
+    "nom": "Appât Universel",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Cebo Multiuso|",
+    "nom": "Cebo Multiuso",
+    "pluriel": "Singular"
+   }
+  },
+  "0x83": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Hyoi Pear|",
+    "nom": "Hyoi Pear",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Fruit Miam Miam|",
+    "nom": "Fruit Miam Miam",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Fruto de ajinjín|",
+    "nom": "Fruto de ajinjín",
+    "pluriel": "Singular"
+   }
+  },
+  "0x8C": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Town Flower|",
+    "nom": "Town Flower",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Fleur de la Ville|",
+    "nom": "Fleur de la Ville",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Flor de Pueblo|",
+    "nom": "Flor de Pueblo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x8D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Sea Flower|",
+    "nom": "Sea Flower",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Fleur Marine|",
+    "nom": "Fleur Marine",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "unas |Flores de Mar|\"",
+    "nom": "Flores de Mar",
+    "pluriel": "Plural"
+   }
+  },
+  "0x8E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "an |Exotic Flower|",
+    "nom": "Exotic Flower",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Fleur du Sud|",
+    "nom": "Fleur du Sud",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Flor del Sur|",
+    "nom": "Flor del Sur",
+    "pluriel": "Singular"
+   }
+  },
+  "0x8F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Heros Flag|",
+    "nom": "Heros Flag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Drapeau du Héros|",
+    "nom": "Drapeau du Héros",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Banderín del Héroe|",
+    "nom": "Banderín del Héroe",
+    "pluriel": "Singular"
+   }
+  },
+  "0x90": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Big Catch Flag|",
+    "nom": "Big Catch Flag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Drapeau de la Pêche Miraculeuse|",
+    "nom": "Drapeau de la Pêche Miraculeuse",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Banderín del Pescador|",
+    "nom": "Banderín del Pescador",
+    "pluriel": "Singular"
+   }
+  },
+  "0x91": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Big Sale Flag|",
+    "nom": "Big Sale Flag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Drapeau des Soldes|",
+    "nom": "Drapeau des Soldes",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Banderín de Saldo|",
+    "nom": "Banderín de Saldo",
+    "pluriel": "Singular"
+   }
+  },
+  "0x92": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Pinwheel|",
+    "nom": "Pinwheel",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Moulin à Vent|",
+    "nom": "Moulin à Vent",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Molinete|",
+    "nom": "Molinete",
+    "pluriel": "Singular"
+   }
+  },
+  "0x93": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Sickle Moon Flag|",
+    "nom": "Sickle Moon Flag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Drapeau du Croissant|",
+    "nom": "Drapeau du Croissant",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Banderín de la Luna|",
+    "nom": "Banderín de la Luna",
+    "pluriel": "Singular"
+   }
+  },
+  "0x94": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Skull Tower Idol|",
+    "nom": "Skull Tower Idol",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Statue Ricrâne|",
+    "nom": "Statue Ricrâne",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "unas |Cabezas Fósiles|\"",
+    "nom": "Cabezas Fósiles",
+    "pluriel": "Plural"
+   }
+  },
+  "0x95": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Fountain Idol|",
+    "nom": "Fountain Idol",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Statue Naïade|",
+    "nom": "Statue Naïade",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Fuente de la Doncella|",
+    "nom": "Fuente de la Doncella",
+    "pluriel": "Singular"
+   }
+  },
+  "0x96": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Postman Statue|",
+    "nom": "Postman Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Statue du Facteur|",
+    "nom": "Statue du Facteur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Efigie del Cartero|",
+    "nom": "Efigie del Cartero",
+    "pluriel": "Singular"
+   }
+  },
+  "0x97": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Shop Guru Statue|",
+    "nom": "Shop Guru Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Statue du Marchand|",
+    "nom": "Statue du Marchand",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Gran Mercader|",
+    "nom": "Gran Mercader",
+    "pluriel": "Singular"
+   }
+  },
+  "0x98": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Fathers Letter|",
+    "nom": "Fathers Letter",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Lettre de Père|",
+    "nom": "Lettre de Père",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carta del padre|",
+    "nom": "Carta del padre",
+    "pluriel": "Singular"
+   }
+  },
+  "0x99": {
+   "English": {
+    "cryptique": "the |writings of a letter sorter|",
+    "genre": "None",
+    "joli": "the |Note to Mom|",
+    "nom": "Note to Mom",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "les |écrits d'un trieur de lettres|",
+    "genre": "Female",
+    "joli": "la |Lettre à la Mère|",
+    "nom": "Lettre à la Mère",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |escritura de un repartidor de cartas|",
+    "genre": "Female",
+    "joli": "la |Carta a Mamá|",
+    "nom": "Carta a Mamá",
+    "pluriel": "Singular"
+   }
+  },
+  "0x9A": {
+   "English": {
+    "cryptique": "the |writings of a woman|",
+    "genre": "None",
+    "joli": "|Maggie's Letter|",
+    "nom": "Maggie's Letter",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "les |écrits d'une jeune femme|",
+    "genre": "Female",
+    "joli": "la |Lettre de Maggy|",
+    "nom": "Lettre de Maggy",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |escritura de una jovencita|",
+    "genre": "Female",
+    "joli": "la |Carta de Dolores|",
+    "nom": "Carta de Dolores",
+    "pluriel": "Singular"
+   }
+  },
+  "0x9B": {
+   "English": {
+    "cryptique": "the |writings of a creature|",
+    "genre": "None",
+    "joli": "the |Moblin's Letter|",
+    "nom": "Moblin's Letter",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "les |écrits d'une créature|",
+    "genre": "Female",
+    "joli": "la |Lettre du Molblin|",
+    "nom": "Lettre du Molblin",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "la |escritura de una creatura|",
+    "genre": "Female",
+    "joli": "la |Carta del Moblin|",
+    "nom": "Carta del Moblin",
+    "pluriel": "Singular"
+   }
+  },
+  "0x9C": {
+   "English": {
+    "cryptique": "a |pass for a private residence|",
+    "genre": "None",
+    "joli": "a |Cabana Deed|",
+    "nom": "Cabana Deed",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "un |laissez-passer d'une résidence privée|",
+    "genre": "Male",
+    "joli": "un |Titre de Propriété de la Villa|",
+    "nom": "Titre de Propriété de la Villa",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |pase a una propiedad privada|",
+    "genre": "Female",
+    "joli": "las |Escrituras del Chalé|",
+    "nom": "Escrituras del Chalé",
+    "pluriel": "Plural"
+   }
+  },
+  "0x9D": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Complimentary ID|",
+    "nom": "Complimentary ID",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Ticket Flatteur|",
+    "nom": "Ticket Flatteur",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Cupón de elogios|",
+    "nom": "Cupón de elogios",
+    "pluriel": "Singular"
+   }
+  },
+  "0x9E": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Fill Up Coupon|",
+    "nom": "Fill Up Coupon",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Ticket de Plein|",
+    "nom": "Ticket de Plein",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Cupón de relleno|",
+    "nom": "Cupón de relleno",
+    "pluriel": "Singular"
+   }
+  },
+  "0x9F": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Legendary Pictograph|",
+    "nom": "Legendary Pictograph",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Photo de Légende|",
+    "nom": "Photo de Légende",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Luminografía Legendaria|",
+    "nom": "Luminografía Legendaria",
+    "pluriel": "Singular"
+   }
+  },
+  "0xA3": {
+   "English": {
+    "cryptique": "a |statue of a fairy|",
+    "genre": "None",
+    "joli": "a |Dragon Tingle Statue|",
+    "nom": "Dragon Tingle Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |statue d'une fée|",
+    "genre": "Female",
+    "joli": "une |Statue Tingle du Dragon|",
+    "nom": "Statue Tingle du Dragon",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |estatua de un hada|",
+    "genre": "Male",
+    "joli": "un |Tingle Draconiano|",
+    "nom": "Tingle Draconiano",
+    "pluriel": "Singular"
+   }
+  },
+  "0xA4": {
+   "English": {
+    "cryptique": "a |statue of a fairy|",
+    "genre": "None",
+    "joli": "a |Forbidden Tingle Statue|",
+    "nom": "Forbidden Tingle Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |statue d'une fée|",
+    "genre": "Female",
+    "joli": "une |Statue Tingle Défendue|",
+    "nom": "Statue Tingle Défendue",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |estatua de un hada|",
+    "genre": "Male",
+    "joli": "un |Tingle Prohibido|",
+    "nom": "Tingle Prohibido",
+    "pluriel": "Singular"
+   }
+  },
+  "0xA5": {
+   "English": {
+    "cryptique": "a |statue of a fairy|",
+    "genre": "None",
+    "joli": "a |Goddess Tingle Statue|",
+    "nom": "Goddess Tingle Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |statue d'une fée|",
+    "genre": "Female",
+    "joli": "une |Statue Tingle Divine|",
+    "nom": "Statue Tingle Divine",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |estatua de un hada|",
+    "genre": "Male",
+    "joli": "un |Tingle Divino|",
+    "nom": "Tingle Divino",
+    "pluriel": "Singular"
+   }
+  },
+  "0xA6": {
+   "English": {
+    "cryptique": "a |statue of a fairy|",
+    "genre": "None",
+    "joli": "an |Earth Tingle Statue|",
+    "nom": "Earth Tingle Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |statue d'une fée|",
+    "genre": "Female",
+    "joli": "une |Statue Tingle Terrestre|",
+    "nom": "Statue Tingle Terrestre",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |estatua de un hada|",
+    "genre": "Male",
+    "joli": "un |Tingle Terrestre|",
+    "nom": "Tingle Terrestre",
+    "pluriel": "Singular"
+   }
+  },
+  "0xA7": {
+   "English": {
+    "cryptique": "a |statue of a fairy|",
+    "genre": "None",
+    "joli": "a |Wind Tingle Statue|",
+    "nom": "Wind Tingle Statue",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |statue d'une fée|",
+    "genre": "Female",
+    "joli": "une |Statue Tingle du Vent|",
+    "nom": "Statue Tingle du Vent",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |estatua de un hada|",
+    "genre": "Male",
+    "joli": "un |Tingle Eólico|",
+    "nom": "Tingle Eólico",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAA": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Hurricane Spin|",
+    "nom": "Hurricane Spin",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "l'|Attaque Tourbillon|\"",
+    "nom": "Attaque Tourbillon",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Ataque Huracán|",
+    "nom": "Ataque Huracán",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAB": {
+   "English": {
+    "cryptique": "an |upgrade for your Rupee bag|",
+    "genre": "None",
+    "joli": "a |Progressive Wallet|",
+    "nom": "Progressive Wallet",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre bourse|",
+    "genre": "Female",
+    "joli": "une |Bourse Progressive|",
+    "nom": "Bourse Progressive",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora para tu saco de rupias|",
+    "genre": "Male",
+    "joli": "un |Zurrón Progresivo|",
+    "nom": "Zurrón Progresivo",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAC": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Five Thousand Wallet|",
+    "nom": "Five Thousand Wallet",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Bourse (5000)|",
+    "nom": "Bourse (5000)",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Zurrón Gigante (5000)|",
+    "nom": "Zurrón Gigante (5000)",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAD": {
+   "English": {
+    "cryptique": "an |upgrade for your bomb bag|",
+    "genre": "None",
+    "joli": "a |Progressive Bomb Bag|",
+    "nom": "Progressive Bomb Bag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre sac de bombes|",
+    "genre": "Male",
+    "joli": "un |Sac de Bombes Progressif|",
+    "nom": "Sac de Bombes Progressif",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora para tu saco de bombas|",
+    "genre": "Male",
+    "joli": "un |Saco de Bombas Progresivo|",
+    "nom": "Saco de Bombas Progresivo",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAE": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Ninety Nine Bomb Bag|",
+    "nom": "Ninety Nine Bomb Bag",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "le |Sac de Bombes (99)|",
+    "nom": "Sac de Bombes (99)",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Saco Gigante de Bombas (99)|",
+    "nom": "Saco Gigante de Bombas (99)",
+    "pluriel": "Singular"
+   }
+  },
+  "0xAF": {
+   "English": {
+    "cryptique": "an |upgrade for your quiver|",
+    "genre": "None",
+    "joli": "a |Progressive Quiver|",
+    "nom": "Progressive Quiver",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration pour votre carquois|",
+    "genre": "Male",
+    "joli": "un |Carquois Progressif|",
+    "nom": "Carquois Progressif",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora para tu estuche de flechas|",
+    "genre": "Male",
+    "joli": "un |Carcaj Progresivo|",
+    "nom": "Carcaj Progresivo",
+    "pluriel": "Singular"
+   }
+  },
+  "0xB0": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "the |Ninety Nine Quiver|",
+    "nom": "Ninety Nine Quiver",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "le |Carquois (99)|",
+    "nom": "Carquois (99)",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Carcaj Gigante (99)|",
+    "nom": "Carcaj Gigante (99)",
+    "pluriel": "Singular"
+   }
+  },
+  "0xB1": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Magic Meter|",
+    "nom": "Magic Meter",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "de l'|Energie Magique|",
+    "nom": "Energie Magique",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Barra de Magia|",
+    "nom": "Barra de Magia",
+    "pluriel": "Singular"
+   }
+  },
+  "0xB2": {
+   "English": {
+    "cryptique": "an |upgrade for your magic meter|",
+    "genre": "None",
+    "joli": "a |Progressive Magic Meter|",
+    "nom": "Progressive Magic Meter",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |amélioration de votre énergie magique|",
+    "genre": "Female",
+    "joli": "de l'|Energie Magique Progressive|",
+    "nom": "Energie Magique Progressive",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "una |mejora a tu poder mágico|",
+    "genre": "Female",
+    "joli": "una |Barra de Magia Progresiva|",
+    "nom": "Barra de Magia Progresiva",
+    "pluriel": "Singular"
+   }
+  },
+  "0xB3": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Fifty Rupees|",
+    "nom": "Fifty Rupees",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Cinquante Rubis|",
+    "nom": "Cinquante Rubis",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Cincuenta Rupias|",
+    "nom": "Cincuenta Rupias",
+    "pluriel": "Plural"
+   }
+  },
+  "0xB4": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Hundred Rupees|",
+    "nom": "Hundred Rupees",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Cent Rubis|",
+    "nom": "Cent Rubis",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Cien Rupias|",
+    "nom": "Cien Rupias",
+    "pluriel": "Plural"
+   }
+  },
+  "0xB5": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Hundred Fifty Rupees|",
+    "nom": "Hundred Fifty Rupees",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Cent-Cinquante Rubis|",
+    "nom": "Cent-Cinquante Rubis",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Ciento cincuenta Rupias|",
+    "nom": "Ciento cincuenta Rupias",
+    "pluriel": "Plural"
+   }
+  },
+  "0xB6": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Two Hundred Rupees|",
+    "nom": "Two Hundred Rupees",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Deux-Cents Rubis|",
+    "nom": "Deux-Cents Rubis",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Doscientas Rupias|",
+    "nom": "Doscientas Rupias",
+    "pluriel": "Plural"
+   }
+  },
+  "0xB7": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Two Hundred Fifty Rupees|",
+    "nom": "Two Hundred Fifty Rupees",
+    "pluriel": "Plural"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "|Deux-Cent-Cinquante Rubis|",
+    "nom": "Deux-Cent-Cinquante Rubis",
+    "pluriel": "Plural"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "|Doscientas cincuenta Rupias|",
+    "nom": "Doscientas cincuenta Rupias",
+    "pluriel": "Plural"
+   }
+  },
+  "0xB8": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Rainbow Rupee|",
+    "nom": "Rainbow Rupee",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Rubis Arc-en-Ciel|",
+    "nom": "Rubis Arc-en-Ciel",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "una |Rupia Arcoíris|",
+    "nom": "Rupia Arcoíris",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC2": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Submarine Chart|",
+    "nom": "Submarine Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte des Sous-marins|",
+    "nom": "Carte des Sous-marins",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de Submarinos|",
+    "nom": "Mapa de Submarinos",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC3": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Beedle's Chart|",
+    "nom": "Beedle's Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte de Terry|",
+    "nom": "Carte de Terry",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de Terry|",
+    "nom": "Mapa de Terry",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC4": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Platform Chart|",
+    "nom": "Platform Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte des Tours de Guet|",
+    "nom": "Carte des Tours de Guet",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de Atalayas|",
+    "nom": "Mapa de Atalayas",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC5": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Light Ring Chart|",
+    "nom": "Light Ring Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte des Cercles de Lumière|",
+    "nom": "Carte des Cercles de Lumière",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de círculos de Luz|",
+    "nom": "Mapa de círculos de Luz",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC6": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Secret Cave Chart|",
+    "nom": "Secret Cave Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte Secrète|",
+    "nom": "Carte Secrète",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de Cuevas Secretas|",
+    "nom": "Mapa de Cuevas Secretas",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC7": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Sea Hearts Chart|",
+    "nom": "Sea Hearts Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte Marine des Cœurs|",
+    "nom": "Carte Marine des Cœurs",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa Marino de Corazones|",
+    "nom": "Mapa Marino de Corazones",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC8": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "an |Island Hearts Chart|",
+    "nom": "Island Hearts Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte Insulaire des Cœurs|",
+    "nom": "Carte Insulaire des Cœurs",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa Isleño de Corazones|",
+    "nom": "Mapa Isleño de Corazones",
+    "pluriel": "Singular"
+   }
+  },
+  "0xC9": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "a |Great Fairy Chart|",
+    "nom": "Great Fairy Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte des Grandes Fées|",
+    "nom": "Carte des Grandes Fées",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de las Grandes Hadas|",
+    "nom": "Mapa de las Grandes Hadas",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCA": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "an |Octo Chart|",
+    "nom": "Octo Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Carte des Kalamars|",
+    "nom": "Carte des Kalamars",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa de Calamares|",
+    "nom": "Mapa de Calamares",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCB": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "an |INcredible Chart|",
+    "nom": "INcredible Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "une |Super Carte|",
+    "nom": "Super Carte",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "un |Mapa A-lu-ci-nante|",
+    "nom": "Mapa A-lu-ci-nante",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCC": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 7|",
+    "nom": "Treasure Chart 7",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 7|",
+    "nom": "Carte au Trésor 7",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 7|",
+    "nom": "Mapa del Tesoro 7",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCD": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 27|",
+    "nom": "Treasure Chart 27",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 27|",
+    "nom": "Carte au Trésor 27",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 27|",
+    "nom": "Mapa del Tesoro 27",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCE": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 21|",
+    "nom": "Treasure Chart 21",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 21|",
+    "nom": "Carte au Trésor 21",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 21|",
+    "nom": "Mapa del Tesoro 21",
+    "pluriel": "Singular"
+   }
+  },
+  "0xCF": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 13|",
+    "nom": "Treasure Chart 13",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 13|",
+    "nom": "Carte au Trésor 13",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 13|",
+    "nom": "Mapa del Tesoro 13",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD0": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 32|",
+    "nom": "Treasure Chart 32",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 32|",
+    "nom": "Carte au Trésor 32",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 32|",
+    "nom": "Mapa del Tesoro 32",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD1": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 19|",
+    "nom": "Treasure Chart 19",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 19|",
+    "nom": "Carte au Trésor 19",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 19|",
+    "nom": "Mapa del Tesoro 19",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD2": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 41|",
+    "nom": "Treasure Chart 41",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 41|",
+    "nom": "Carte au Trésor 41",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 41|",
+    "nom": "Mapa del Tesoro 41",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD3": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 26|",
+    "nom": "Treasure Chart 26",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 26|",
+    "nom": "Carte au Trésor 26",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 26|",
+    "nom": "Mapa del Tesoro 26",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD4": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 8|",
+    "nom": "Treasure Chart 8",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 8|",
+    "nom": "Carte au Trésor 8",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 8|",
+    "nom": "Mapa del Tesoro 8",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD5": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 37|",
+    "nom": "Treasure Chart 37",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 37|",
+    "nom": "Carte au Trésor 37",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 37|",
+    "nom": "Mapa del Tesoro 37",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD6": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 25|",
+    "nom": "Treasure Chart 25",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 25|",
+    "nom": "Carte au Trésor 25",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 25|",
+    "nom": "Mapa del Tesoro 25",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD7": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 17|",
+    "nom": "Treasure Chart 17",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 17|",
+    "nom": "Carte au Trésor 17",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 17|",
+    "nom": "Mapa del Tesoro 17",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD8": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 36|",
+    "nom": "Treasure Chart 36",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 36|",
+    "nom": "Carte au Trésor 36",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 36|",
+    "nom": "Mapa del Tesoro 36",
+    "pluriel": "Singular"
+   }
+  },
+  "0xD9": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 22|",
+    "nom": "Treasure Chart 22",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 22|",
+    "nom": "Carte au Trésor 22",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 22|",
+    "nom": "Mapa del Tesoro 22",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDA": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 9|",
+    "nom": "Treasure Chart 9",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 9|",
+    "nom": "Carte au Trésor 9",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 9|",
+    "nom": "Mapa del Tesoro 9",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDB": {
+   "English": {
+    "cryptique": "a |map of fear|",
+    "genre": "None",
+    "joli": "the |Ghost Ship Chart|",
+    "nom": "Ghost Ship Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte de la peur|",
+    "genre": "Female",
+    "joli": "la |Carte du Vaisseau Fantôme|",
+    "nom": "Carte du Vaisseau Fantôme",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa terrorífico|",
+    "genre": "Male",
+    "joli": "el |Mapa del Barco Fantasma|",
+    "nom": "Mapa del Barco Fantasma",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDC": {
+   "English": {
+    "cryptique": "",
+    "genre": "None",
+    "joli": "|Tingle's Chart|",
+    "nom": "Tingle's Chart",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "",
+    "genre": "Female",
+    "joli": "la |Carte de Tingle|",
+    "nom": "Carte de Tingle",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "",
+    "genre": "Male",
+    "joli": "el |Mapa de Tingle|",
+    "nom": "Mapa de Tingle",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDD": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 14|",
+    "nom": "Treasure Chart 14",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 14|",
+    "nom": "Carte au Trésor 14",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 14|",
+    "nom": "Mapa del Tesoro 14",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDE": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 10|",
+    "nom": "Treasure Chart 10",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 10|",
+    "nom": "Carte au Trésor 10",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 10|",
+    "nom": "Mapa del Tesoro 10",
+    "pluriel": "Singular"
+   }
+  },
+  "0xDF": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 40|",
+    "nom": "Treasure Chart 40",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 40|",
+    "nom": "Carte au Trésor 40",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 40|",
+    "nom": "Mapa del Tesoro 40",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE0": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 3|",
+    "nom": "Treasure Chart 3",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 3|",
+    "nom": "Carte au Trésor 3",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 3|",
+    "nom": "Mapa del Tesoro 3",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE1": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 4|",
+    "nom": "Treasure Chart 4",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 4|",
+    "nom": "Carte au Trésor 4",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 4|",
+    "nom": "Mapa del Tesoro 4",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE2": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 28|",
+    "nom": "Treasure Chart 28",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 28|",
+    "nom": "Carte au Trésor 28",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 28|",
+    "nom": "Mapa del Tesoro 28",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE3": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 16|",
+    "nom": "Treasure Chart 16",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 16|",
+    "nom": "Carte au Trésor 16",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 16|",
+    "nom": "Mapa del Tesoro 16",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE4": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 18|",
+    "nom": "Treasure Chart 18",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 18|",
+    "nom": "Carte au Trésor 18",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 18|",
+    "nom": "Mapa del Tesoro 18",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE5": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 34|",
+    "nom": "Treasure Chart 34",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 34|",
+    "nom": "Carte au Trésor 34",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 34|",
+    "nom": "Mapa del Tesoro 34",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE6": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 29|",
+    "nom": "Treasure Chart 29",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 29|",
+    "nom": "Carte au Trésor 29",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 29|",
+    "nom": "Mapa del Tesoro 29",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE7": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 1|",
+    "nom": "Treasure Chart 1",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 1|",
+    "nom": "Carte au Trésor 1",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 1|",
+    "nom": "Mapa del Tesoro 1",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE8": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 35|",
+    "nom": "Treasure Chart 35",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 35|",
+    "nom": "Carte au Trésor 35",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 35|",
+    "nom": "Mapa del Tesoro 35",
+    "pluriel": "Singular"
+   }
+  },
+  "0xE9": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 12|",
+    "nom": "Treasure Chart 12",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 12|",
+    "nom": "Carte au Trésor 12",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 12|",
+    "nom": "Mapa del Tesoro 12",
+    "pluriel": "Singular"
+   }
+  },
+  "0xEA": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 6|",
+    "nom": "Treasure Chart 6",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 6|",
+    "nom": "Carte au Trésor 6",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 6|",
+    "nom": "Mapa del Tesoro 6",
+    "pluriel": "Singular"
+   }
+  },
+  "0xEB": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 24|",
+    "nom": "Treasure Chart 24",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 24|",
+    "nom": "Carte au Trésor 24",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 24|",
+    "nom": "Mapa del Tesoro 24",
+    "pluriel": "Singular"
+   }
+  },
+  "0xEC": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 39|",
+    "nom": "Treasure Chart 39",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 39|",
+    "nom": "Carte au Trésor 39",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 39|",
+    "nom": "Mapa del Tesoro 39",
+    "pluriel": "Singular"
+   }
+  },
+  "0xED": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 38|",
+    "nom": "Treasure Chart 38",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 38|",
+    "nom": "Carte au Trésor 38",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 38|",
+    "nom": "Mapa del Tesoro 38",
+    "pluriel": "Singular"
+   }
+  },
+  "0xEE": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 2|",
+    "nom": "Treasure Chart 2",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 2|",
+    "nom": "Carte au Trésor 2",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 2|",
+    "nom": "Mapa del Tesoro 2",
+    "pluriel": "Singular"
+   }
+  },
+  "0xEF": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 33|",
+    "nom": "Treasure Chart 33",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 33|",
+    "nom": "Carte au Trésor 33",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 33|",
+    "nom": "Mapa del Tesoro 33",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF0": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 31|",
+    "nom": "Treasure Chart 31",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 31|",
+    "nom": "Carte au Trésor 31",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 31|",
+    "nom": "Mapa del Tesoro 31",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF1": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 23|",
+    "nom": "Treasure Chart 23",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 23|",
+    "nom": "Carte au Trésor 23",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 23|",
+    "nom": "Mapa del Tesoro 23",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF2": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 5|",
+    "nom": "Treasure Chart 5",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 5|",
+    "nom": "Carte au Trésor 5",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 5|",
+    "nom": "Mapa del Tesoro 5",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF3": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 20|",
+    "nom": "Treasure Chart 20",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 20|",
+    "nom": "Carte au Trésor 20",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 20|",
+    "nom": "Mapa del Tesoro 20",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF4": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 30|",
+    "nom": "Treasure Chart 30",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 30|",
+    "nom": "Carte au Trésor 30",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 30|",
+    "nom": "Mapa del Tesoro 30",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF5": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 15|",
+    "nom": "Treasure Chart 15",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 15|",
+    "nom": "Carte au Trésor 15",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 15|",
+    "nom": "Mapa del Tesoro 15",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF6": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 11|",
+    "nom": "Treasure Chart 11",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 11|",
+    "nom": "Carte au Trésor 11",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 11|",
+    "nom": "Mapa del Tesoro 11",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF7": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 46|",
+    "nom": "Treasure Chart 46",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 46|",
+    "nom": "Carte au Trésor 46",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 46|",
+    "nom": "Mapa del Tesoro 46",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF8": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 45|",
+    "nom": "Treasure Chart 45",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 45|",
+    "nom": "Carte au Trésor 45",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 45|",
+    "nom": "Mapa del Tesoro 45",
+    "pluriel": "Singular"
+   }
+  },
+  "0xF9": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 44|",
+    "nom": "Treasure Chart 44",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 44|",
+    "nom": "Carte au Trésor 44",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 44|",
+    "nom": "Mapa del Tesoro 44",
+    "pluriel": "Singular"
+   }
+  },
+  "0xFA": {
+   "English": {
+    "cryptique": "a |purple map|",
+    "genre": "None",
+    "joli": "|Triforce Chart 3|",
+    "nom": "Triforce Chart 3",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte violette|",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 3|",
+    "nom": "Carte de la Triforce 3",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa púrpura|",
+    "genre": "Male",
+    "joli": "|Mapa de la Trifuerza 3|",
+    "nom": "Mapa de la Trifuerza 3",
+    "pluriel": "Singular"
+   }
+  },
+  "0xFB": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 43|",
+    "nom": "Treasure Chart 43",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 43|",
+    "nom": "Carte au Trésor 43",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 43|",
+    "nom": "Mapa del Tesoro 43",
+    "pluriel": "Singular"
+   }
+  },
+  "0xFC": {
+   "English": {
+    "cryptique": "a |purple map|",
+    "genre": "None",
+    "joli": "|Triforce Chart 2|",
+    "nom": "Triforce Chart 2",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte violette|",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 2|",
+    "nom": "Carte de la Triforce 2",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa púrpura|",
+    "genre": "Male",
+    "joli": "|Mapa de la Trifuerza 2|",
+    "nom": "Mapa de la Trifuerza 2",
+    "pluriel": "Singular"
+   }
+  },
+  "0xFD": {
+   "English": {
+    "cryptique": "a |blue map|",
+    "genre": "None",
+    "joli": "|Treasure Chart 42|",
+    "nom": "Treasure Chart 42",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte bleue|",
+    "genre": "Female",
+    "joli": "la |Carte au Trésor 42|",
+    "nom": "Carte au Trésor 42",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa azul|",
+    "genre": "Male",
+    "joli": "|Mapa del Tesoro 42|",
+    "nom": "Mapa del Tesoro 42",
+    "pluriel": "Singular"
+   }
+  },
+  "0xFE": {
+   "English": {
+    "cryptique": "a |purple map|",
+    "genre": "None",
+    "joli": "|Triforce Chart 1|",
+    "nom": "Triforce Chart 1",
+    "pluriel": "Singular"
+   },
+   "French": {
+    "cryptique": "une |carte violette|",
+    "genre": "Female",
+    "joli": "la |Carte de la Triforce 1|",
+    "nom": "Carte de la Triforce 1",
+    "pluriel": "Singular"
+   },
+   "Spanish": {
+    "cryptique": "un |mapa púrpura|",
+    "genre": "Male",
+    "joli": "|Mapa de la Trifuerza 1|",
+    "nom": "Mapa de la Trifuerza 1",
+    "pluriel": "Singular"
+   }
+  }
+ }
+}
