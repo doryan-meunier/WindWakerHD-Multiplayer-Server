@@ -17,8 +17,12 @@ Correspondance avec la carte Windows (VirtualQueryEx) utilisée par ``wwlib.cemu
   ``wwlib.cemu`` d'essayer aussi la base « fin - 4 Gio ».
 
 Permissions (jamais contournées par le code, jamais de sudo) : lire /proc/<pid>/mem demande le droit « ptrace »
-sur Cemu : même utilisateur, et ``/proc/sys/kernel/yama/ptrace_scope`` à 0 (à 1, seul un processus PARENT de
-Cemu peut le lire). ``diagnostiquer(pid)`` explique ce qui bloque et comment le régler soi-même.
+sur le jeu (Cemu ou le portage natif) : même utilisateur, et ``/proc/sys/kernel/yama/ptrace_scope`` à 0 (à 1, seul
+un processus ANCÊTRE du jeu peut l'ouvrir). Le droit n'est vérifié qu'à l'OUVERTURE de /proc/<pid>/mem (et à chaque
+process_vm_readv) : un descripteur ouvert par un ancêtre (le lanceur WWMP, qui a démarré le portage natif) et hérité
+par le client reste utilisable par lui (``Process(pid, fd=…)`` ; lectures par pread, process_vm_readv refusé à
+l'enfant -> repli automatique). /proc/<pid>/maps ne demande que le droit de LECTURE (Yama ne le restreint pas).
+``diagnostiquer(pid)`` explique ce qui bloque et comment le régler soi-même.
 
 Mode léger (``LEGER_DEFAUT``, réglage --linux-leger du client, actif par défaut) : process_vm_readv / writev
 (un appel système par lot, lectures et écritures regroupées), repli pread / pwrite sur le fichier mem gardé
@@ -266,18 +270,33 @@ def mon_uid() -> int | None:
     return os.getuid() if hasattr(os, "getuid") else None
 
 
+NOMS_PORTAGE = ("wwhd", "wind-waker-hd")       # processus du portage natif sous Linux (jeu/natif.py NOMS_NATIF)
+
+
+def est_portage(pid: int, racine: str = "/proc") -> bool:
+    """Le processus ``pid`` est-il le portage natif (``wwhd``, ou son lanceur ``wind-waker-hd``) plutôt que Cemu ?"""
+    noms = {_sans_exe(nom_processus(pid, racine))}
+    a = arguments(pid, racine)
+    if a:
+        noms.add(_sans_exe(os.path.basename(a[0])))
+    return any(n in noms for n in NOMS_PORTAGE)
+
+
 def diagnostiquer(pid: int, racine: str = "/proc", scope_chemin: str = PTRACE_SCOPE,
                   uid: int | None = None, dans_flatpak: bool | None = None) -> list[str]:
     """Raisons possibles d'un refus d'accès à la mémoire de ``pid``, avec ce que l'utilisateur peut faire
     LUI-MÊME. Liste vide : rien de suspect trouvé."""
     out = []
     uid = mon_uid() if uid is None else uid
+    natif = est_portage(pid, racine)
+    jeu = "le jeu (portage natif)" if natif else "Cemu"
+    Jeu = "Le jeu (portage natif)" if natif else "Cemu"
     if dans_flatpak is None:
         dans_flatpak = os.path.exists("/.flatpak-info")
     proprio = proprietaire(pid, racine)
     if uid is not None and proprio is not None and proprio != uid:
-        out.append(f"Cemu (pid {pid}) appartient à un autre utilisateur (uid {proprio}, toi {uid}) : lance Cemu et "
-                   "le lanceur avec le MÊME compte (sans sudo).")
+        out.append(f"{Jeu} (pid {pid}) appartient à un autre utilisateur (uid {proprio}, toi {uid}) : lance "
+                   f"{jeu} et le lanceur avec le MÊME compte (sans sudo).")
     if uid == 0:
         out.append("Tu lances le mod en root : inutile et déconseillé ; lance-le avec ton compte habituel.")
     if est_flatpak(pid, racine):
@@ -288,7 +307,14 @@ def diagnostiquer(pid: int, racine: str = "/proc", scope_chemin: str = PTRACE_SC
         out.append("Le mod lui-même tourne dans un bac à sable Flatpak : il ne voit pas les processus du système. "
                    "Lance-le hors du Flatpak (python3 depuis un terminal).")
     s = ptrace_scope(scope_chemin)
-    if s == 1:
+    if s == 1 and natif:
+        out.append("kernel.yama.ptrace_scope vaut 1 : seul un processus PARENT du jeu peut lire sa mémoire. Le "
+                   "plus simple : ferme le jeu et lance-le PAR le lanceur Wind Waker Coop (Jouer, Héberger ou "
+                   "Rejoindre) : le lanceur est alors son parent et donne l'accès au client. Sinon, pour cette "
+                   "session (jusqu'au redémarrage), tape TOI-MÊME : "
+                   "sudo sysctl -w kernel.yama.ptrace_scope=0   (docs/joueurs/JOUER_SOUS_LINUX.md explique le réglage "
+                   "et comment le remettre : sudo sysctl -w kernel.yama.ptrace_scope=1).")
+    elif s == 1:
         out.append("kernel.yama.ptrace_scope vaut 1 : seul un processus parent de Cemu peut lire sa mémoire. "
                    "Pour cette session (jusqu'au redémarrage), tape TOI-MÊME : "
                    "sudo sysctl -w kernel.yama.ptrace_scope=0   (docs/joueurs/JOUER_SOUS_LINUX.md explique le réglage "
@@ -307,11 +333,12 @@ def diagnostiquer(pid: int, racine: str = "/proc", scope_chemin: str = PTRACE_SC
 def message_refus(pid: int, erreur: Exception | None = None, racine: str = "/proc",
                   scope_chemin: str = PTRACE_SCOPE) -> str:
     raisons = diagnostiquer(pid, racine, scope_chemin)
-    tete = f"Accès à la mémoire de Cemu (pid {pid}) refusé"
+    jeu = "du jeu (portage natif)" if est_portage(pid, racine) else "de Cemu"
+    tete = f"Accès à la mémoire {jeu} (pid {pid}) refusé"
     if erreur is not None:
         tete += f" ({erreur.__class__.__name__}: {getattr(erreur, 'strerror', None) or erreur})"
     if not raisons:
-        raisons = ["Vérifie que Cemu et le mod tournent avec le même compte, et kernel.yama.ptrace_scope "
+        raisons = ["Vérifie que le jeu et le mod tournent avec le même compte, et kernel.yama.ptrace_scope "
                    "(cat /proc/sys/kernel/yama/ptrace_scope ; voir docs/joueurs/JOUER_SOUS_LINUX.md)."]
     return tete + ". " + " ".join(raisons)
 
@@ -461,7 +488,10 @@ class Process:
     alloc_approx = True        # bases d'allocation reconstituées (voir l'en-tête) : wwlib.cemu essaie aussi fin - 4 Gio
 
     def __init__(self, pid: int, write: bool = False, racine: str = "/proc", mem=None,
-                 scope_chemin: str = PTRACE_SCOPE, horloge=None, leger: bool | None = None, vm=None):
+                 scope_chemin: str = PTRACE_SCOPE, horloge=None, leger: bool | None = None, vm=None,
+                 fd: int | None = None):
+        """``fd`` : descripteur DÉJÀ OUVERT de /proc/<pid>/mem (lecture-écriture), hérité d'un ancêtre du jeu (le
+        lanceur, quand ptrace_scope vaut 1) ; il appartient alors à ce Process (fermé par ``close``)."""
         import time
         self.pid = pid
         self.writable = write
@@ -476,8 +506,17 @@ class Process:
         self._stats = {"lectures": 0, "ecritures": 0, "appels": 0, "octets": 0, "temps": 0.0, "maps": 0,
                        "lots": 0}
         if not os.path.isdir(os.path.join(racine, str(pid))):
-            raise ProcessLookupError(f"processus {pid} introuvable (Cemu fermé ?)")
-        if mem is None:
+            if mem is None and fd is not None:
+                os.close(fd)                       # il nous appartient, même sur échec
+            raise ProcessLookupError(f"processus {pid} introuvable (jeu fermé ?)")
+        if mem is None and fd is not None:
+            try:
+                mem = os.fdopen(fd, "r+b" if write else "rb", buffering=0)
+            except (OSError, ValueError):
+                os.close(fd)
+                raise
+            self._propre = True                    # à nous de le fermer ; process_vm_readv essayé (repli pread)
+        elif mem is None:
             try:
                 mem = open(os.path.join(racine, str(pid), "mem"), "r+b" if write else "rb", buffering=0)
             except PermissionError as e:
@@ -499,6 +538,9 @@ class Process:
         except PermissionError as e:
             self.close()
             raise PermissionError(message_refus(pid, e, racine, scope_chemin)) from None
+        except OSError:
+            self.close()                          # jeu fermé entre-temps (maps disparue) : rien ne fuit
+            raise
 
     @property
     def mode(self) -> str:

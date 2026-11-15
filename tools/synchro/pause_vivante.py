@@ -48,8 +48,17 @@ SEARCH_LO, SEARCH_HI = 0x0000_0000, 0x1000_0000
 
 
 def trouver(mem) -> int | None:
-    """Adresse de la zone (magie alignée sur 4, format connu), None sans le pack. Lecture seule."""
-    for h in mem.find_bytes(MAGIE, SEARCH_LO, SEARCH_HI, limit=8):
+    """Adresse de la zone (magie alignée sur 4, format connu), None sans le pack. Lecture seule. Portage natif
+    (``mem.zone_boite``) : la même zone est dans la boîte du mod C (natif/mod_wwmp, lot 3), cherchée dans ses 0x8000
+    octets (jeu/natif.py, plage_zones)."""
+    lo, hi = SEARCH_LO, SEARCH_HI
+    if isinstance(getattr(mem, "zone_boite", None), tuple):
+        from jeu import natif
+        plage = natif.plage_zones(mem)
+        if plage is None:
+            return None
+        lo, hi = plage
+    for h in mem.find_bytes(MAGIE, lo, hi, limit=8):
         if h % 4 == 0:
             try:
                 if struct.unpack(">I", bytes(mem.read(h + OFF_FORMAT, 4)))[0] in FORMATS:

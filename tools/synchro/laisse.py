@@ -337,6 +337,12 @@ class LaisseHote:
         self.out: list[dict] = []                  # ``hpilote`` à envoyer au serveur (retour au Hanteur)
         self._retours: dict[str, tuple] = {}       # clé -> (heure, état) du dernier ``hpilote``
         self.n_pilotes = self.n_carottes = self.n_replis = 0
+        self.delais_ordre: list[float] = []        # lot L1 (A1) : réception du hlaisse -> CALL 10 joué (s), mesure
+
+    def prendre_delais(self) -> list[float]:
+        """Lot L1 (A1, mesure) : délais « ordre reçu -> joué par CALL 10 » depuis le dernier appel."""
+        out, self.delais_ordre = self.delais_ordre, []
+        return out
 
     def take_out(self) -> list[dict]:
         """Messages à envoyer au serveur (boucle réseau) : retours ``hpilote`` au Hanteur qui pilote."""
@@ -508,7 +514,9 @@ class LaisseHote:
         od = _ord(m)
         if od is not None and od[0] != e.get("ord_seq"):
             e["ord_seq"] = od[0]
-            e["ordre"] = {"geste": od[1], "t": now, "essai": float("-inf")}
+            t_recu = m.get("_t")
+            e["ordre"] = {"geste": od[1], "t": now, "essai": float("-inf"),
+                          "recu": t_recu if isinstance(t_recu, (int, float)) else now}
         hpos = _pos3(m["pos"])
         a3 = esp.get("a3", True)
         voulu = m.get("cible")
@@ -745,6 +753,9 @@ class LaisseHote:
         if r == 1:
             e["ordre"] = None
             self.n_ordres_faits += 1
+            d = now - od.get("recu", now)
+            if 0.0 <= d < 5.0 and len(self.delais_ordre) < 64:
+                self.delais_ordre.append(d)       # lot L1 (A1) : mesure, lecture seule
             lib = ordres_mod.TOUS[idx].libre
             if lib > 0:
                 e["libre_fin"] = now + lib

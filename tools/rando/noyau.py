@@ -1312,6 +1312,10 @@ class RandoClient:
         try:
             from rando import fichiers as rando_fichiers
             z = rando_fichiers.lire_pack_memoire(mem)
+            # portage natif : une partie qui demande du code greffé (rando/greffe.py) n'est jouée que si CETTE greffe
+            # est chargée (sinon : comme un pack absent, le serveur refuse avec le message à suivre)
+            if z and z.get("genere") and rando_fichiers.greffe_chargee(mem, z["plan"]) is False:
+                z = None
         except Exception:
             z = None
         self.rpack = int(z["format"]) if z else 0

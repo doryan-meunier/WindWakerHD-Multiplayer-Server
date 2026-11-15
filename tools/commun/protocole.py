@@ -52,6 +52,14 @@ Client -> serveur
            (seules les poses « m » sont filtrées) ; un joueur non autoritaire peut alors
            supprimer chez lui les ennemis qui n'y sont pas (ennemis orphelins). Absent chez un
            ancien client : rien n'est supprimé.
+           fr, ts, rtt (optionnels, lot L2 de la latence) : image du jeu de l'autorité au relevé, heure
+           du relevé (ms), son aller-retour avec le serveur ; le receveur interpole et prédit ses
+           marionnettes avec (client/lissage.py). Un ancien serveur ne les relaie pas : le receveur
+           date alors par l'heure de réception.
+  epos     {zone, epoch, list: [[key, x, y, z, rotY], …], fr?, ts?, rtt?}   (lot L2, autorité seulement :
+           positions des ennemis vivants proches d'un joueur, entre deux instantanés, soit 20 Hz avec
+           eux ; jamais une liste « complète » : rien n'est libéré ni supprimé sur un epos. Un ancien
+           serveur et un ancien client l'ignorent)
   ping     {t}
   keys     {group, hello: 1, hid, slots: {"3": 1, …}}   (synchro v2, petites clés partagées, voir
            synchro/cles.py : à chaque connexion, après un rechargement ou un « keys reset » : valeur
@@ -74,7 +82,9 @@ Client -> serveur
   cnt      {group, sync: 1}                     (total redemandé : sortie de pause, toutes les 5 s)
   pickup   {zone, src, nid, no, g}              (A4 premier arrivé : NOTRE Link a ramassé le drop (src =
            id du joueur chez qui il est né, nid = son pid là-bas) ; g = gain local constaté, 0..valeur)
-  hit      {zone, key, dmg}                     (étape 6 : coup porté à une marionnette)
+  hit      {zone, key, dmg, inj?, injp?}        (étape 6 : coup porté à une marionnette ; inj : lot L4, coup d'épée
+           rejoué chez l'autorité, synchro/coups_monstres.py ; injp : coup d'un projectile (inj + arme + src), mod
+           natif bit 26, envoyé seulement si authority.cp, synchro/coups_projectiles.py)
   pnj      {zone, list: [{k, p[3], a, v, m?, i?, d?, n?, c?, t?}]}   (synchro v4, synchro/pnj.py : place des PNJ
            qui se déplacent, par l'autorité de la zone ; c = « je le porte », t = « je lui parle » : par tout
            joueur de la zone ; state.mgs = compteur du mini-jeu en cours, à côté de state.mg)
@@ -122,6 +132,9 @@ Client -> serveur
             cause pose/lance ; cause aligne : autorité de la zone, position d'un bâton libre),
             gone (bâton tenu / en vol disparu : magma, abîme), flame (front d'allumage ou
             d'extinction d'un bâton libre), taken (autorité : un Bokoblin a ramassé un bâton libre))
+  state.rtt (optionnel, lot L1 de la latence) : aller-retour de l'émetteur avec le serveur (ms, entier, dernier ping
+            mesuré) ; le receveur en tire l'aller simple émetteur -> serveur -> lui (retard affiché, prédiction).
+            Le serveur le relaie sans le lire ; un ancien client l'ignore.
   state.stk (optionnel, A3) : {k: clé, h: 1, m: matrice relative R = B⁻¹·S (12 float16 base64),
             f: flamme} quand on tient un bâton, {k, h: 0, w: [12 flottants, matrice monde], f}
             quand il est en vol ; absent sinon
@@ -137,11 +150,15 @@ Serveur -> client
   join     {id, name, pack}
   leave    {id}
   state    {id, ...state}
-  authority {zone, holder, epoch}          (à tous ; holder = id ou null si zone vide)
-  enemies  {from, zone, epoch, list, full?} (aux autres joueurs de la zone ; le dernier
+  authority {zone, holder, epoch, cp?}     (à tous ; holder = id ou null si zone vide ; cp = 1 : l'autorité rejoue les
+                                            coups de projectiles, « coups_proj » dans son hello, mod natif bit 26)
+  enemies  {from, zone, epoch, list, full?, fr?, ts?, rtt?} (aux autres joueurs de la zone ; le dernier
                                             est renvoyé tout de suite à qui entre dans la zone)
+  epos     {from, zone, epoch, list, fr?, ts?, rtt?}   (lot L2 : aux autres joueurs de la zone, de l'autorité
+                                            actuelle à son époque seulement ; rien n'est gardé)
   pong     {t}
-  hit      {from, zone, key, dmg}           (à l'autorité de la zone seulement)
+  hit      {from, zone, key, dmg, inj?, injp?}   (à l'autorité de la zone seulement ; inj et injp validés, injp
+                                            seulement si l'autorité a annoncé « coups_proj »)
   pnj      {from, zone, list}               (synchro v4 : aux autres joueurs de la zone ; d'un joueur qui
                                             n'a pas l'autorité, ses seules entrées c / t ; rien n'est gardé)
   progress {from, group, bits, full}        (bits nouveaux pour l'union du groupe, aux autres
@@ -266,10 +283,11 @@ serveur ancien et un client ancien les ignorent (chacun son horloge et ses pilie
 from __future__ import annotations
 
 import json
+import math
 import re
 
 VERSION = 2
-CLIENT_VERSION = "2026-11-10b"   # outils (client/serveur) : affiché dans les journaux du serveur
+CLIENT_VERSION = "2026-11-15a"   # outils (client/serveur) : affiché dans les journaux du serveur
 DEFAULT_PORT = 7777
 MAX_PLAYERS = 8        # joueurs au plus par partie (serveur, annonce de découverte, lanceurs)
 KEEPALIVE = 1.0        # s entre deux pings du client
@@ -482,6 +500,56 @@ def limit_enemy_poses(enemies: list[dict], centers, dist: float, with_pose: bool
         else:
             out.append({k: v for k, v in e.items() if k != "m"})
     return out, n
+
+
+EPOS_MAX = 32          # lot L2 de la latence : ennemis au plus par message « epos »
+
+
+def enemy_positions(enemies: list[dict], centers, dist: float) -> list[list]:
+    """Lot L2 (A3) : positions des ennemis VIVANTS proches d'un joueur (`centers`, `dist` : même filtre que les poses),
+    pour le message « epos » envoyé entre deux instantanés : [[clé, x, y, z, rotY], …], au plus EPOS_MAX."""
+    out = []
+    for e in enemies:
+        if not isinstance(e, dict) or e.get("dead") or (e.get("max_hp", 0) > 0 and e.get("hp", 1) <= 0):
+            continue
+        p, k, r = e.get("pos"), e.get("key"), e.get("rotY", 0)
+        if not (isinstance(k, str) and isinstance(p, (list, tuple)) and len(p) == 3
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in p)
+                and isinstance(r, int) and not isinstance(r, bool)):
+            continue
+        if near_any(p, centers, dist):
+            out.append([k, round(float(p[0]), 1), round(float(p[1]), 1), round(float(p[2]), 1), int(r)])
+            if len(out) >= EPOS_MAX:
+                break
+    return out
+
+
+def valid_epos(lst) -> list[dict] | None:
+    """Liste d'un « epos » validée -> [{key, pos, rotY}] ; None si ce n'est pas une liste. Entrées mal formées sautées."""
+    if not isinstance(lst, list):
+        return None
+    out = []
+    for e in lst[:EPOS_MAX]:
+        if (isinstance(e, list) and len(e) == 5 and isinstance(e[0], str) and 0 < len(e[0]) <= 64
+                and all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+                        and abs(v) < 1e7 for v in e[1:4])
+                and isinstance(e[4], int) and not isinstance(e[4], bool) and -65536 <= e[4] <= 65535):
+            out.append({"key": e[0], "pos": [float(e[1]), float(e[2]), float(e[3])], "rotY": int(e[4])})
+    return out
+
+
+def horodatage(msg: dict) -> dict:
+    """Lot L2 : champs d'heure optionnels d'un instantané d'ennemis (fr : image du jeu de l'autorité, ts : ms, rtt :
+    son aller-retour), validés, à relayer tels quels ; {} s'il n'y en a pas."""
+    out = {}
+    fr, ts, rtt = msg.get("fr"), msg.get("ts"), msg.get("rtt")
+    if isinstance(fr, int) and not isinstance(fr, bool) and 0 <= fr < 1 << 32:
+        out["fr"] = fr
+    if isinstance(ts, int) and not isinstance(ts, bool) and 0 <= ts < 1 << 53:
+        out["ts"] = ts
+    if isinstance(rtt, int) and not isinstance(rtt, bool) and 0 <= rtt < 60000:
+        out["rtt"] = rtt
+    return out
 
 
 class RateMeter:

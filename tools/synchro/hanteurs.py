@@ -1365,6 +1365,11 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
             ps["atk"] = (ps["atk"] + 1) & 0xFFFF
         seq = ((ps["ord"][0] if ps.get("ord") else 0) + 1) & 0xFFFF
         ps["ord"] = [seq, g]
+        # lot L3 (A6, docs/etudes/rollback_netcode.md §4) : l'ordre part tout de suite à l'autorité, dans un
+        # ``hlaisse`` refait depuis le dernier état du Hanteur (avant : au prochain ``state``, 0 à 50 ms plus tard)
+        e = ps.get("e_laisse")
+        if e is not None and pid in self.possessions:
+            self._laisse(pid, e, now)
 
     def viser(self, pid: int, msg: dict, now: float | None = None) -> None:
         """Phase 2, ``hviser {cible}`` : le Link que vise le monstre possédé (id d'un Link de la salle, ou None :
@@ -1444,6 +1449,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         """State d'un Hanteur qui possède : sa position et son orientation partent à l'autorité de la zone. Il a
         quitté la salle (ou est en bateau) : fin ; en cinématique : rien (l'autorité relâche faute d'ordres)."""
         ps = self.possessions[pid]
+        ps["e_laisse"] = e                         # lot L3 (A6) : un ordre reçu entre deux états repart d'ici
         if e.get("zone") != ps["zone"]:
             self.lacher(pid, "tu as quitté la salle", now)
             return
@@ -1753,6 +1759,12 @@ class HanteurSync:
         self.coup_avant: tuple[int, int] | None = None   # (mCutType, mCutCount) au tick précédent
         self.t_ordre = float("-inf")
         self.n_ordres = 0
+        # lot L3 (A6, docs/etudes/rollback_netcode.md §4) : coup d'épée du Link caché lu aussi à CHAQUE IMAGE par le
+        # fil des images (``ordres_image``) ; l'ordre part tout de suite. Tour et fil des images : sous ce verrou
+        self._ordres_lock = threading.Lock()
+        self.ctx_ordres: tuple | None = None   # (mem, base, pid, stage, heure) posé par le tour, None = rien à lire
+        self.n_ordres_image = 0                # ordres détectés par le fil des images (avant le tour)
+        self.ordres_image_on = True            # --latence-prudente : non
         # possession complète (synchro/pilotage.py) : le Hanteur pilote le monstre possédé
         self.pilote_on = False              # --share-pilotage (posé par le client)
         self.prediction = True              # --no-pilotage-local : pas de prédiction locale de la marionnette
@@ -2687,9 +2699,13 @@ class HanteurSync:
                     self.commande(action, me=c.me, stage=st["stage"] if st else None)
         if role == ROLE_HANTEUR:
             if clone is not None:
+                self.ctx_ordres = None
                 self._placer_clone(clone, st, mem, base, pid, can, busy)
             else:
                 self._ordres(mem, base, pid, busy, now, st["stage"] if st else None)
+                # lot L3 (A6) : le fil des images relit le coup entre deux tours (rien en cinématique, sans jeu)
+                self.ctx_ordres = ((mem, base, pid, st["stage"] if st else None, now)
+                                   if mem is not None and not busy and st is not None else None)
                 if not self.manifeste:
                     if gele and self.gel_voulu:
                         self._coller(self.cible, st, others, mem, base, pid, can, busy)
@@ -2857,19 +2873,59 @@ class HanteurSync:
         cut = lire_coup(mem, base)
         if cut is None:
             return
-        avant, self.coup_avant = self.coup_avant, cut
-        if cut[0] == 0 or avant is None or cut == avant or now - self.t_ordre < ORDRE_PERIODE:
-            return
+        with self._ordres_lock:
+            avant, self.coup_avant = self.coup_avant, cut
+            if cut[0] == 0 or avant is None or cut == avant or now - self.t_ordre < ORDRE_PERIODE:
+                return
+            self.t_ordre = now if not boss_ici else self.t_ordre
+        self._ordre_detecte(cut, boss_ici, stage, now)
+
+    def _ordre_detecte(self, cut, boss_ici: bool, stage, now: float) -> None:
+        """Nouveau coup d'épée du Link caché (tour ou fil des images) -> ordre ``hordre`` (ou attaque du boss)."""
         g = ordres.geste(cut[0]) or "attaque"       # phase 3 : tournoyante, coup sauté -> « lourde »
         if boss_ici:
             with self._lock:
                 self._bouton_boss(g, stage, now)
             return
-        self.t_ordre = now
         self.n_ordres += 1
         self.n_gestes[g] += 1
         with self._lock:
             self._sortir({"type": "hordre", "ordre": g})
+
+    def ordres_image(self, now: float | None = None) -> bool:
+        """Lot L3 (A6), fil des images : relit (mCutType, mCutCount) du Link caché (2 octets, une lecture) à chaque
+        image ; si le coup a changé, joue ``_ordres`` (Link relu, mêmes gardes que le tour) tout de suite. Contexte du
+        dernier tour seulement (plus de 0,5 s, cinématique, potion, sans possession ni boss : rien). True si un
+        message est parti dans la file (à envoyer sans attendre le tour : ``take_ordres``)."""
+        ctx = self.ctx_ordres
+        if ctx is None or not self.ordres_image_on:
+            return False
+        mem, base, pid, stage, t = ctx
+        now = self.clock() if now is None else now
+        if now - t > 0.5:
+            return False
+        from synchro.laisse import lire_coup
+        cut = lire_coup(mem, base)
+        if cut is None or cut == self.coup_avant:
+            return False
+        n = len(self.out)
+        self._ordres(mem, base, pid, False, now, stage)
+        if len(self.out) != n:
+            self.n_ordres_image += 1
+            return True
+        return False
+
+    def ordres_image_actif(self) -> bool:
+        ctx = self.ctx_ordres
+        return ctx is not None and self.ordres_image_on and self.clock() - ctx[4] <= 0.5
+
+    def take_ordres(self) -> list[dict]:
+        """Lot L3 (A6), boucle réseau : seulement les ordres (``hordre``, ``hinfluence``) de la file, envoyés sans
+        attendre le tour ; le reste attend le tour, dans son ordre."""
+        with self._lock:
+            out = [m for m in self.out if m.get("type") in ("hordre", "hinfluence")]
+            self.out = [m for m in self.out if m.get("type") not in ("hordre", "hinfluence")]
+        return out
 
     def _transition(self, c, dev, role, now) -> None:
         """Partie réseau du changement de rôle, tout de suite (même pendant un événement : la quarantaine ne doit

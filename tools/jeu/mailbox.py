@@ -326,6 +326,69 @@ CACHE_CFG_ON = 1
 CAP_CANON = 0x1000000            # bit 24 (le bit 22 est pris ailleurs)
 CALL_CANON = 13
 R_CANON_EFFETS = -5              # CALL 13 : gestionnaire de particules absent (rien n'est fait)
+# coup d'un joueur distant INJECTÉ chez l'autorité (bit 25 ; synchro/coups_monstres.py, docs/etudes/COMBAT.md 6b, lot L4
+# de la latence) : CALL 14 COUP_MONSTRE, paramètres dans la zone wwmp_cpe (magie « WWMPCPE1 », avant wwmp_prg). Pendant
+# une image, un AT (copie du mCyl de Link, Set | VsEnemy) est posé sur le corps de l'ennemi, la copie du joueur du
+# fantôme de l'attaquant pour propriétaire ; le jeu fait recul, garde, gel, son, mort. Accroches sur la 1re instruction
+# d'at_power_check et de cc_at_check (sans effet hors de notre objet). Avec ce bit, la recette 7 de CALL 11 existe.
+CAP_COUP_MONSTRE = 0x2000000     # bit 25
+CALL_COUP_MONSTRE = 14
+MAGIC_CPE = b"WWMPCPE1"
+CPE_FORMAT = 1
+OFFC_INJ, OFFC_APC, OFFC_CAC, OFFC_IMAGE, OFFC_SANS, OFFC_PRM = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFC_EN_COURS, OFFC_STTS, OFFC_CYL = 0x58, 0x60, 0xA0
+CPE_TAILLE = 0x1D0
+CPE_RAYON = (5.0, 100.0)
+CPE_HAUTEUR = (10.0, 300.0)
+CPE_REL_MAX = 200.0
+R_CPE_TOT = -5                   # CALL 14 : moins de 2 images après la précédente (rien n'est fait, à réessayer)
+# coups des PROJECTILES (bit 26, MOD NATIF SEULEMENT : aucun pack Cemu ne l'annonce ; synchro/coups_projectiles.py,
+# natif/mod_wwmp/projectiles.c). Chez l'attaquant : chaque marionnette à IA suspendue reçoit un TG (flèches, bombes,
+# boomerang, grappins ; jamais l'épée ni le marteau), ses coups vont dans une file. Chez l'autorité : CALL 14 avec l'arme
+# (bits 4 à 7 de l'octet des drapeaux) prend un FAUX ACTEUR typé pour propriétaire (Arrow, Bomb2, Boom, Himo2, neutre),
+# placé à l'ennemi + la source écrite en +0x20 de la zone wwmp_prj (magie « WWMPPRJ1 »).
+CAP_COUPS_PROJ = 0x4000000       # bit 26
+MAGIC_PRJ = b"WWMPPRJ1"
+PRJ_FORMAT = 1
+OFFJ_CFG, OFFJ_MASQUE, OFFJ_SEQ, OFFJ_INSCR, OFFJ_IGNORES = 0x0C, 0x10, 0x14, 0x18, 0x1C
+OFFJ_SRC, OFFJ_TYPEES, OFFJ_SONS, OFFJ_TG, OFFJ_FILE, OFFJ_FAUX = 0x20, 0x2C, 0x30, 0x40, 0x140, 0x3C0
+PRJ_CFG_TG, PRJ_CFG_SON = 0x1, 0x2
+PRJ_N_FILE, PRJ_ENTREE, PRJ_TAILLE = 8, 0x50, 0x2AC0
+PRJ_RAYON = (5.0, 200.0)
+PRJ_HAUTEUR = (10.0, 400.0)
+PRJ_DY_MAX = 200.0
+PRJ_SRC_MAX = 400.0
+PRJ_TYPES_INTERDITS = 0x00010002  # épée, marteau : retirés du masque par le mod (chemin du lot L4)
+ARMES_PRJ = {"fleche": 1, "bombe": 2, "boomerang": 3, "grappin": 4, "crochet": 5}   # arme -> code de CALL 14
+# joueur ROBOT (bit 27, MOD NATIF SEULEMENT ; natif/mod_wwmp/robot.c, client/robot.py, docs/etudes/joueur_robot.md) :
+# zone wwmp_rob (magie « WWMPROB1 ») ; CALL 15 ROBOT, arg1 = sous-commande 0 ÉTAT, 1 ALLER (étape, salle, point ou
+# position écrits dans la zone), 2 PLACER (position du Link caché) ; cfg bit 0 = mode robot (Link caché, invulnérable).
+CAP_ROBOT = 0x8000000            # bit 27
+CALL_ROBOT = 15
+MAGIC_ROB = b"WWMPROB1"
+ROB_FORMAT = 1
+OFFR_CFG, OFFR_ETAPE, OFFR_SALLE, OFFR_POINT, OFFR_POS, OFFR_ANGLE, OFFR_DRAP = 0x0C, 0x10, 0x18, 0x1C, 0x20, 0x2C, 0x30
+OFFR_IMAGES = 0x34
+ROB_TAILLE = 0x60
+ROB_CFG_MODE, ROB_A_POSITION = 0x1, 0x1
+ROB_ETAT_LINK, ROB_ETAT_LIBRE, ROB_ETAT_CHANGEMENT, ROB_ETAT_MODE, ROB_ETAT_EVENEMENT = 0x1, 0x2, 0x4, 0x8, 0x10
+R_ROBOT_CHANGEMENT, R_ROBOT_LINK, R_ROBOT_MENU = -7, -8, -9
+ROB_POS_MAX = 1e6
+
+
+def lire_entree_prj(e: bytes) -> dict:
+    """Une entrée (0x50 octets) de la file des coups portés de ``wwmp_prj`` (natif/mod_wwmp/projectiles.c)."""
+    seq, pid, slot, typ = struct.unpack_from(">4I", e, 0)
+    atp, spl, se, mark, gat, dmg, mtrl = struct.unpack_from(">BBBBIBB", e, 0x10)
+    proc, = struct.unpack_from(">h", e, 0x1A)
+    rvec = list(struct.unpack_from(">3f", e, 0x1C))
+    pos = list(struct.unpack_from(">3f", e, 0x28))
+    image, apid, objet = struct.unpack_from(">3I", e, 0x34)
+    src = list(struct.unpack_from(">3f", e, 0x40))
+    prop, = struct.unpack_from(">I", e, 0x4C)
+    return {"seq": seq, "pid": pid, "slot": slot, "type": typ, "atp": atp, "spl": spl, "se": se, "mark": mark,
+            "gat": gat, "dmg": dmg, "mtrl": mtrl, "proc": proc, "rvec": rvec, "pos": pos, "image": image,
+            "apid": apid, "objet": objet, "src": src if prop else None, "proprio": prop}
 # houle locale (synchro/houle.py) : zone wwmp_houle (magie « WWMPHOUL », avant wwmp_prg, AUCUN bit de capacité). Chaque
 # image, le pack calcule la hauteur de la mer (daSea_calcWave 0x0246BA0C, si daSea_ChkArea 0x0246B6A4) sous Link
 # (entrée 0) et sous le bateau (entrée 1), avec leur y de la même image, puis aux n points écrits par le PC (entrées 2+)
@@ -407,6 +470,12 @@ class MailboxCancelled(MailboxError):
 
 
 def find(mem: GuestMemory) -> int | None:
+    """Adresse de la boîte. Cemu : codecave (0x00000000-0x10000000). Portage natif (``mem.zone_boite``, jeu/natif.py) :
+    globale du mod C dans la zone des mods, même disposition, validée par sa zone WWMPNATF."""
+    if isinstance(getattr(mem, "zone_boite", None), tuple):
+        from jeu import natif
+        lo, hi = mem.zone_boite
+        return natif.trouver_boite(mem, lo, hi)
     hits = [h for h in mem.find_bytes(MAGIC, SEARCH_LO, SEARCH_HI, limit=8) if h % 4 == 0]
     return hits[0] if hits else None
 
@@ -421,6 +490,10 @@ class Mailbox:
         self.mem = mem
         self.addr = addr if addr is not None else find(mem)
         if self.addr is None:
+            if getattr(mem, "hote", None) == "natif":
+                raise MailboxError(
+                    "boîte aux lettres introuvable : le mod « wwmp-natif » est-il activé dans le portage natif (F1 > "
+                    "Mods, support des mods de code actif) et le jeu redémarré depuis ? (natif/README.md)")
             raise MailboxError(
                 "boîte aux lettres introuvable : le graphic pack « WWMP Mailbox » est-il activé "
                 "dans Cemu (Options → Graphic packs) et le jeu relancé depuis ?")
@@ -1024,6 +1097,249 @@ class Mailbox:
         if isinstance(proc_id, bool) or not isinstance(proc_id, int) or not 0 < proc_id < 0xFFFFFFFF:
             raise ValueError("canon : id de process hors bornes")
         return self._v19(CMD_CALL, CALL_CANON, proc_id, timeout=timeout)
+
+    @property
+    def coup_monstre_ok(self) -> bool:
+        """Pack v19 avec le coup injecté (bit 25) et sa zone trouvée."""
+        return self.cpe_addr() is not None
+
+    def cpe_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_cpe`` (magie cherchée une fois, unique, alignée). None sans le bit 25."""
+        if not (self.pack >= V19 and self.caps & CAP_COUP_MONSTRE):
+            return None
+        a = getattr(self, "_cpe", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_CPE, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != CPE_FORMAT:
+                return None
+            a = self._cpe = hits[0]
+        return a
+
+    def coup_monstre(self, ennemi_pid: int, fantome_pid: int, at_type: int, atp: int, spl: int = 0, se: int = 0,
+                     mark: int = 0, gat: int = 0, mtrl: int = 0, cut=None, vec=(0.0, 0.0, 0.0), rel=(0.0, 0.0, 0.0),
+                     rayon: float = 40.0, hauteur: float = 120.0, timeout: float = TIMEOUT_V19, arme: int = 0,
+                     src=None) -> int:
+        """CALL 14 (bit 25) : coup d'un joueur distant injecté sur l'ennemi ``ennemi_pid`` chez nous (l'autorité), avec
+        la copie du joueur du fantôme ``fantome_pid`` (WwmpLink de l'attaquant) pour propriétaire. ``cut`` : (mCutType,
+        mCutCount) de l'attaquant ou None ; ``rel`` : base du cylindre relative à la position de l'ennemi (lue par le
+        jeu à l'image de l'injection). ``arme`` (1 à 5, ``ARMES_PRJ`` ; bit 26, mod natif seulement) : coup d'un
+        projectile, un faux acteur typé pour propriétaire, placé à l'ennemi + ``src`` (|c| <= 400) ; sans le bit 26 :
+        MailboxError (un pack Cemu le jouerait comme un coup d'épée). Résultat : 1 inscrit, -1 refusé, -2 Link absent,
+        -3 événement en cours, -4 ennemi ou fantôme introuvable, -5 trop tôt (à réessayer) ; MailboxCancelled sans
+        réponse (rien n'est fait). MailboxError sans la capacité, ValueError hors bornes (rien n'est envoyé)."""
+        a = self.cpe_addr()
+        if a is None:
+            raise MailboxError(f"graphic pack v{self.pack} sans le coup injecté (CALL 14, bit 25) : réinstalle la v19 "
+                               "du dépôt (tools/install_graphicpack.py), puis relance le jeu")
+        if isinstance(arme, bool) or not isinstance(arme, int) or not 0 <= arme <= max(ARMES_PRJ.values()):
+            raise ValueError("coup_monstre : arme hors bornes")
+        zp = None
+        if arme:
+            zp = self.prj_addr()
+            if zp is None:
+                raise MailboxError("coup d'un projectile (bit 26) : seulement le mod natif du portage à jour")
+            src = [float(v) for v in (src if src is not None else (0.0, 0.0, 0.0))]
+            if len(src) != 3 or not all(abs(v) <= PRJ_SRC_MAX for v in src):     # NaN : comparaison fausse, refusé
+                raise ValueError("coup_monstre : source hors bornes")
+        vals = [ennemi_pid, fantome_pid, at_type, atp, spl, se, mark, gat, mtrl]
+        if any(isinstance(v, bool) or not isinstance(v, int) for v in vals):
+            raise ValueError("coup_monstre : entiers attendus")
+        vec, rel = [float(v) for v in vec], [float(v) for v in rel]
+        rayon, hauteur = float(rayon), float(hauteur)
+        coupe = None
+        if cut is not None:
+            coupe = (int(cut[0]), int(cut[1]))
+        if not (0 < ennemi_pid < 0xFFFFFFFF and 0 < fantome_pid < 0xFFFFFFFF and 0 < at_type <= 0xFFFFFFFF
+                and 0 <= atp <= COUP_ATP_MAX and 0 <= spl <= COUP_SPL_MAX and 0 <= se <= 0xFF and 0 <= mark <= 0xFF
+                and 0 <= mtrl <= 0xFF and 0 <= gat <= 0xFFFFFFFF and len(vec) == 3 and len(rel) == 3
+                and all(abs(v) < 1e6 for v in vec) and all(abs(v) <= CPE_REL_MAX for v in rel)
+                and CPE_RAYON[0] <= rayon <= CPE_RAYON[1] and CPE_HAUTEUR[0] <= hauteur <= CPE_HAUTEUR[1]
+                and (coupe is None or all(0 <= v <= 0xFF for v in coupe))):
+            raise ValueError("coup_monstre : arguments hors bornes")
+        ct, cc, drap = (coupe[0], coupe[1], 1) if coupe is not None else (0, 0, 0)
+        drap |= arme << 4
+        buf = struct.pack(">IIIBBBBIBBBB3f3fff", ennemi_pid, fantome_pid, at_type, atp, spl, se, mark, gat, mtrl, ct,
+                          cc, drap, *vec, *rel, rayon, hauteur)
+        with Mailbox._lock:
+            self._check_idle()
+            if zp is not None:
+                self.mem.write(zp + OFFJ_SRC, struct.pack(">3f", *src))
+            self.mem.write(a + OFFC_PRM, buf)
+            return self._call(CMD_CALL, CALL_COUP_MONSTRE, timeout=timeout, cancel=True)
+
+    # --- coups des projectiles (bit 26, mod natif seulement) -------------------------------------------------
+    @property
+    def coups_proj_ok(self) -> bool:
+        """Mod natif avec les coups des projectiles (bit 26) et sa zone ``wwmp_prj`` trouvée (jamais un pack Cemu)."""
+        return self.prj_addr() is not None
+
+    def prj_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_prj`` (magie cherchée une fois, unique, alignée, format attendu). None sans le bit
+        26 ou sans le coup injecté (bit 25, dont il se sert)."""
+        if not (self.pack >= V19 and self.caps & CAP_COUPS_PROJ and self.caps & CAP_COUP_MONSTRE):
+            return None
+        a = getattr(self, "_prj", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_PRJ, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != PRJ_FORMAT:
+                return None
+            a = self._prj = hits[0]
+        return a
+
+    def prj_regler(self, cfg: int, masque: int) -> None:
+        """Chez l'attaquant : bit 0 de ``cfg`` = TG des marionnettes inscrits, bit 1 = son du coup joué tout de suite ;
+        ``masque`` : types d'attaque acceptés (le mod retire toujours l'épée et le marteau). Sans la zone : rien."""
+        a = self.prj_addr()
+        if a is None:
+            return
+        if isinstance(cfg, bool) or not isinstance(cfg, int) or not 0 <= cfg <= 3 \
+                or isinstance(masque, bool) or not isinstance(masque, int) or not 0 <= masque <= 0xFFFFFFFF:
+            raise ValueError("prj_regler : hors bornes")
+        self.mem.write(a + OFFJ_MASQUE, struct.pack(">I", masque))
+        self.mem.write(a + OFFJ_CFG, struct.pack(">I", cfg))
+
+    def prj_tg(self, i: int, rayon: float, hauteur: float, dy: float = 0.0) -> None:
+        """Cylindre du TG de la marionnette de l'emplacement ``i`` (0 à 15). Sans la zone : rien."""
+        a = self.prj_addr()
+        if a is None:
+            return
+        rayon, hauteur, dy = float(rayon), float(hauteur), float(dy)
+        if not (0 <= i < 16 and PRJ_RAYON[0] <= rayon <= PRJ_RAYON[1] and PRJ_HAUTEUR[0] <= hauteur <= PRJ_HAUTEUR[1]
+                and abs(dy) <= PRJ_DY_MAX):
+            raise ValueError("prj_tg : hors bornes")
+        self.mem.write(a + OFFJ_TG + 0x10 * i, struct.pack(">3f", rayon, hauteur, dy))
+
+    def prj_seq(self) -> int:
+        a = self.prj_addr()
+        return 0 if a is None else struct.unpack(">I", bytes(self.mem.read(a + OFFJ_SEQ, 4)))[0]
+
+    def prj_file(self, depuis: int) -> tuple[int, list[dict], int]:
+        """Coups portés poussés depuis le compteur ``depuis`` : (nouveau compteur, entrées dans l'ordre, perdus). Une
+        entrée n'est rendue que si son numéro est le bon (pas réécrite pendant la lecture) ; au plus 8."""
+        a = self.prj_addr()
+        if a is None:
+            return depuis, [], 0
+        seq = self.prj_seq()
+        n = (seq - depuis) & 0xFFFFFFFF
+        if n == 0 or n > 0x7FFFFFFF:
+            return seq, [], 0
+        k = min(n, PRJ_N_FILE)
+        perdus = n - k
+        out = []
+        for j in range(k):
+            s = (seq - k + 1 + j) & 0xFFFFFFFF
+            e = bytes(self.mem.read(a + OFFJ_FILE + (s & (PRJ_N_FILE - 1)) * PRJ_ENTREE, PRJ_ENTREE))
+            d = lire_entree_prj(e)
+            if d["seq"] != s:
+                perdus += 1
+                continue
+            out.append(d)
+        return seq, out, perdus
+
+    def prj_counters(self) -> dict:
+        """Mise au point : {"seq", "inscriptions", "ignores", "typees", "sons"} ; zéros sans la zone."""
+        a = self.prj_addr()
+        if a is None:
+            return {"seq": 0, "inscriptions": 0, "ignores": 0, "typees": 0, "sons": 0}
+        s, i, g = struct.unpack(">3I", bytes(self.mem.read(a + OFFJ_SEQ, 12)))
+        t, so = struct.unpack(">2I", bytes(self.mem.read(a + OFFJ_TYPEES, 8)))
+        return {"seq": s, "inscriptions": i, "ignores": g, "typees": t, "sons": so}
+
+    # --- joueur robot (bit 27, mod natif seulement) ---------------------------------------------------------
+    @property
+    def robot_ok(self) -> bool:
+        """Mod natif avec le joueur robot (bit 27) et sa zone ``wwmp_rob`` trouvée (jamais un pack Cemu)."""
+        return self.rob_addr() is not None
+
+    def rob_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_rob`` (magie cherchée une fois, unique, alignée, format attendu)."""
+        if not (self.pack >= V19 and self.caps & CAP_ROBOT):
+            return None
+        a = getattr(self, "_rob", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_ROB, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != ROB_FORMAT:
+                return None
+            a = self._rob = hits[0]
+        return a
+
+    def _rob_ou_erreur(self) -> int:
+        a = self.rob_addr()
+        if a is None:
+            raise MailboxError("joueur robot (bit 27) : seulement le mod natif du portage à jour (0.12.0 ou plus)")
+        return a
+
+    def robot_mode(self, on: bool) -> None:
+        """Mode robot : Link caché (NO_DRAW) et ses pertes de vie annulées à chaque pas, tant qu'il est allumé."""
+        self.mem.write(self._rob_ou_erreur() + OFFR_CFG, struct.pack(">I", ROB_CFG_MODE if on else 0))
+
+    def robot_etat(self, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 15, ÉTAT : bits ROB_ETAT_* (Link présent, libre, changement d'étape en cours, mode, événement)."""
+        self._rob_ou_erreur()
+        return self._v19(CMD_CALL, CALL_ROBOT, 0, timeout=timeout) & 0xFFFFFFFF
+
+    @staticmethod
+    def _pos_robot(pos) -> list[float]:
+        p = [float(v) for v in pos]
+        if len(p) != 3 or not all(abs(v) <= ROB_POS_MAX for v in p):          # NaN : comparaison fausse, refusé
+            raise ValueError("robot : position hors bornes")
+        return p
+
+    def robot_aller(self, etape: str, salle: int, point: int = 0, pos=None, angle: int = 0,
+                    timeout: float = TIMEOUT_V19) -> int:
+        """CALL 15, ALLER : changement d'étape écrit par le jeu (comme le warp du portage) vers ``etape`` (1 à 7
+        caractères), ``salle`` (0..63), par le point d'entrée ``point`` ou, avec ``pos`` (et ``angle``), à cette
+        position. Résultat : 1 écrit (l'étape change au pas suivant), -1 refusé, -2 pas de partie, -3 événement,
+        -7 changement déjà en cours, -8 Link absent ou pas contrôlé, -9 message ou menu ; ValueError hors bornes."""
+        a = self._rob_ou_erreur()
+        nom = etape.encode("ascii") if isinstance(etape, str) else b""
+        if not (1 <= len(nom) <= 7 and all(0x21 <= c <= 0x7E and c not in b":/" for c in nom)):
+            raise ValueError("robot_aller : nom d'étape invalide")
+        if isinstance(salle, bool) or not isinstance(salle, int) or not 0 <= salle <= 63:
+            raise ValueError("robot_aller : salle hors bornes")
+        if isinstance(point, bool) or not isinstance(point, int) or not 0 <= point <= 0x7FFF:
+            raise ValueError("robot_aller : point hors bornes")
+        if isinstance(angle, bool) or not isinstance(angle, int) or not -0x8000 <= angle <= 0x7FFF:
+            raise ValueError("robot_aller : angle hors bornes")
+        p = self._pos_robot(pos) if pos is not None else [0.0, 0.0, 0.0]
+        buf = (nom.ljust(8, b"\0") + struct.pack(">ii3fiI", salle, point, *p, angle,
+                                                  ROB_A_POSITION if pos is not None else 0))
+        with Mailbox._lock:
+            self._check_idle()
+            self.mem.write(a + OFFR_ETAPE, buf)
+            return self._call(CMD_CALL, CALL_ROBOT, 1, timeout=timeout, cancel=True)
+
+    def robot_placer(self, pos, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 15, PLACER : le Link caché est posé à ``pos`` dans sa salle (vitesses à 0). Mêmes résultats."""
+        a = self._rob_ou_erreur()
+        p = self._pos_robot(pos)
+        with Mailbox._lock:
+            self._check_idle()
+            self.mem.write(a + OFFR_POS, struct.pack(">3f", *p))
+            return self._call(CMD_CALL, CALL_ROBOT, 2, timeout=timeout, cancel=True)
+
+    def robot_counters(self) -> dict:
+        """Mise au point : {"cfg", "images", "allers", "refus", "annules", "places", "cache"} ; zéros sans la zone."""
+        a = self.rob_addr()
+        if a is None:
+            return {k: 0 for k in ("cfg", "images", "allers", "refus", "annules", "places", "cache")}
+        cfg, = struct.unpack(">I", bytes(self.mem.read(a + OFFR_CFG, 4)))
+        im, al, re, an, pl, ca = struct.unpack(">6I", bytes(self.mem.read(a + OFFR_IMAGES, 24)))
+        return {"cfg": cfg, "images": im, "allers": al, "refus": re, "annules": an, "places": pl, "cache": ca}
+
+    def cpe_counters(self) -> dict:
+        """Mise au point : {"injections", "lus", "hitstops", "image", "sans_fantome"} ; zéros sans la zone."""
+        a = self.cpe_addr()
+        if a is None:
+            return {"injections": 0, "lus": 0, "hitstops": 0, "image": 0, "sans_fantome": 0}
+        i, l, h, im, s = struct.unpack(">5I", bytes(self.mem.read(a + OFFC_INJ, 20)))
+        return {"injections": i, "lus": l, "hitstops": h, "image": im, "sans_fantome": s}
 
     @property
     def cache(self) -> bool:
@@ -1810,6 +2126,12 @@ class Mailbox:
         sb, eb = self.parse_ghost_hits(b)
         same = {e["seq"]: e for e in eb}
         return min(sa, sb), [e for e in ea if same.get(e["seq"]) == e]
+
+    def ghost_hit_seq(self) -> int:
+        """A1 (lot L1 de la latence) : séquence de la file des coups seule (+0x16A4, un mot, écrit en dernier par le
+        jeu), lue à chaque image par le fil des fantômes ; la file entière n'est relue que si elle a bougé."""
+        self.require_ghost_hits()
+        return self.u32(OFF_HITS + 4)
 
     def hit_counters(self) -> dict:
         """Compteurs de mise au point de la zone A1 (cfg, coups poussés, inscriptions du TG, ignorés)."""

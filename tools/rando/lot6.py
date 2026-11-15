@@ -311,13 +311,16 @@ class Rpx:
             raise ErreurLot6("cking.rpx illisible")
         shoff, = struct.unpack_from(">I", data, 0x20)
         shentsize, shnum = struct.unpack_from(">HH", data, 0x2E)
+        self.entree = struct.unpack_from(">I", data, 0x18)[0]     # point d'entrée de l'ELF (rando/greffe.py)
         self.secs = []
+        self.sections = []                  # mêmes sections, avec type et lien (relocations : rando/greffe.py)
         for i in range(shnum):
-            _nm, typ, flg, addr, off, size = struct.unpack_from(">6I", data, shoff + i * shentsize)
+            _nm, typ, flg, addr, off, size, link = struct.unpack_from(">7I", data, shoff + i * shentsize)
             raw = data[off:off + size] if typ != 8 else b""
             if flg & 0x08000000 and raw:
                 raw = zlib.decompress(raw[4:])
             self.secs.append((addr, raw))
+            self.sections.append({"typ": typ, "addr": addr, "link": link, "data": raw})
 
     @classmethod
     def depuis_dump(cls, jeu: str) -> "Rpx":

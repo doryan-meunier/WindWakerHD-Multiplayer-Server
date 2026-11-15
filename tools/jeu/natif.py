@@ -1,0 +1,220 @@
+"""Le jeu sur le portage natif ZeldaWWHDRecomp (au lieu de Cemu) : mémoire du jeu et boîte aux lettres du mod C.
+
+Le portage met la mémoire de la Wii U à une adresse hôte FIXE (``runtime/include/ppc.h`` du portage :
+``PPC_MEM_BASE`` = 0x200000000000 sous Windows, Linux x86-64 et macOS ; 0x1000000000 sous Android et Linux arm64),
+réservée et engagée d'un bloc de 4 Gio (``runtime/src/core.cpp``) ; le code et les données du RPX y sont chargés aux
+mêmes adresses que sous Cemu (même jeu USA v0). Une adresse invitée ``ea`` est donc à ``base + ea`` dans le processus
+du jeu (« Wind Waker HD.exe ») : pas de recherche de base comme avec Cemu. On réutilise ``jeu.cemu.GuestMemory``
+(lecture et écriture big-endian par-dessus winmem / linmem) avec cette base : tout le client marche tel quel.
+
+Le mod C (``natif/mod_wwmp``, Mod SDK v2 du portage) expose la MÊME boîte aux lettres que le pack Cemu WWMP_Mailbox
+(magie WWMPMBX1, version 19, mêmes offsets), en globale du mod, dans la zone des mods (0x7F000000-0x80000000, une
+part alignée à 64 Kio par mod). On la trouve par sa magie dans cette zone, et on ne l'accepte que si la zone propre
+au portage qui la suit (« WWMPNATF », +0x1AE0) porte son adresse (écrite par le mod au démarrage du jeu) : une copie
+de la magie ailleurs, ou une boîte d'avant le démarrage, est ignorée.
+
+Linux (lu dans les sources v0.5.1 : ``tools/installer/gui/setup_gui.cpp`` ``launch_game``, ``runtime/src/platform/
+host.h``) : ``wind-waker-hd`` (zip) ou l'AppImage (runtime de type 2 -> ``AppRun`` -> ``wind-waker-hd``) REMPLACE
+son processus par le jeu (``execv`` de ``<données>/bin/wwhd`` ou ``<données>/code-builds/<id>/bin/wwhd``) : le pid
+lancé devient ``wwhd`` (``comm``) ; avec ``APPIMAGE_EXTRACT_AND_RUN`` (sans FUSE), le jeu est un ENFANT du pid
+lancé. Le processus du jeu s'appelle donc ``wwhd`` ; ``wind-waker-hd`` n'est que la fenêtre de préparation (pas de
+mémoire du jeu) : ``wwhd`` est cherché d'abord.
+
+``kernel.yama.ptrace_scope`` = 1 (Arch, Ubuntu… par défaut) : seul un ANCÊTRE du jeu peut ouvrir sa mémoire. Le
+lanceur WWMP qui a lancé le jeu l'est ; le client (son autre enfant) ne l'est pas. Le lanceur ouvre donc
+``/proc/<pid>/mem`` lui-même et le client en hérite (``ENV_FD`` / ``ENV_PID``, ``pass_fds``) : le droit n'est
+vérifié qu'à l'ouverture. Aucun réglage du système n'est touché.
+"""
+from __future__ import annotations
+
+import os
+import platform
+import struct
+import sys
+
+from jeu import procmem
+from jeu.cemu import GuestMemory
+
+BASE_HOTE = 0x2000_0000_0000            # PPC_MEM_BASE : Windows, Linux x86-64, macOS
+BASE_HOTE_ARM64 = 0x10_0000_0000        # Android, Linux arm64
+ZONE_MODS = (0x7F00_0000, 0x8000_0000)
+if sys.platform == "win32":
+    NOMS_NATIF = ("Wind Waker HD.exe", "wwhd.exe")
+else:                                   # le jeu (« wwhd », après l'execv du lanceur du portage), puis ce lanceur
+    NOMS_NATIF = ("wwhd", "wind-waker-hd")  # (zip : « wind-waker-hd » ; AppImage : AppRun -> wind-waker-hd -> wwhd)
+ENV_FD = "WWMP_NATIF_MEM_FD"            # Linux : descripteur de /proc/<pid>/mem ouvert par le lanceur (ancêtre du jeu)
+ENV_PID = "WWMP_NATIF_PID"              # … et le pid du jeu qu'il désigne
+
+MAGIE_BOITE = b"WWMPMBX1"
+VERSION_MIN = 19
+# zone propre au portage (natif/mod_wwmp/boite.h : NATIF_*, ZoneNatif ; tests/test_natif_boite.py le vérifie)
+NATIF_OFF = 0x1AE0
+MAGIE_NATIF = b"WWMPNATF"
+NATIF_FORMAT = 1
+NATIF_TAILLE = 0x40
+OFFN_FORMAT, OFFN_BOITE, OFFN_SOCLE, OFFN_PROFIL_FANTOME, OFFN_PROFIL_MODELE = 0x08, 0x0C, 0x10, 0x14, 0x18
+OFFN_PAS, OFFN_VERSION_MOD, OFFN_REQUETES, OFFN_FILTREES = 0x1C, 0x20, 0x24, 0x28
+SOCLE = {0x01: "commandes", 0x02: "fantômes", 0x04: "WwmpModel", 0x08: "marionnettes", 0x10: "IA suspendue",
+         0x20: "yeux (ZOn)", 0x40: "passe des yeux", 0x80: "pause vivante", 0x100: "randomizer", 0x200: "confort",
+         0x400: "code du randomizer par fichiers"}
+PROC_FANTOME, PROC_MODELE = 0x1F0, 0x1F1
+REFUS_PROFIL = {-1: "profil refusé (descripteur invalide)", -2: "numéro ou nom déjà pris (un autre mod WWMP actif ?)",
+                -3: "enregistrement fermé (pas dans l'accroche de GameMain)",
+                -4: "profils natifs indisponibles (support des mods de code ?)", -5: "64 profils déjà pris"}
+
+
+def base_hote(machine: str | None = None, systeme: str | None = None) -> int:
+    """Base hôte de la mémoire invitée du portage pour ce système."""
+    machine = (machine if machine is not None else platform.machine()).lower()
+    systeme = systeme if systeme is not None else sys.platform
+    if systeme != "win32" and machine in ("aarch64", "arm64") and systeme != "darwin":
+        return BASE_HOTE_ARM64
+    return BASE_HOTE
+
+
+def find_natif_pids() -> list[int]:
+    """PID du jeu natif, sans doublon."""
+    out: list[int] = []
+    for nom in NOMS_NATIF:
+        for p in procmem.find_pids(nom):
+            if p not in out:
+                out.append(p)
+    return out
+
+
+def ouvrir_fd(pid: int, racine: str = "/proc") -> int:
+    """Linux : ``/proc/<pid>/mem`` ouvert en lecture-écriture (non héritable : ``pass_fds`` le transmet au client).
+    Lève OSError (PermissionError : pas ancêtre du jeu et ptrace_scope > 0, autre compte…)."""
+    return os.open(os.path.join(racine, str(int(pid)), "mem"), os.O_RDWR | getattr(os, "O_CLOEXEC", 0))
+
+
+def fd_herite(pid: int | None = None, env=None) -> tuple[int, int] | None:
+    """(pid, fd) transmis par le lanceur (``ENV_PID`` / ``ENV_FD``), ou None (rien transmis, valeurs illisibles, ou
+    ``pid`` demandé différent)."""
+    e = os.environ if env is None else env
+    try:
+        p, fd = int(e.get(ENV_PID) or ""), int(e.get(ENV_FD) or "")
+    except ValueError:
+        return None
+    if p <= 0 or fd < 0 or (pid is not None and pid != p):
+        return None
+    return p, fd
+
+
+def _process_herite(pid: int | None, write: bool, env=None):
+    """Process sur le descripteur hérité du lanceur (une COPIE : chaque ouverture a la sienne), ou None."""
+    h = fd_herite(pid, env) if procmem.SYSTEME == "linux" else None
+    if h is None:
+        return None
+    try:
+        copie = os.dup(h[1])
+    except OSError:                             # descripteur pas (ou plus) là
+        return None
+    try:
+        return procmem.Process(h[0], write=write, fd=copie)     # la copie est à lui : fermée par lui, même sur échec
+    except (OSError, TypeError, ValueError):    # jeu fermé depuis (ProcessLookupError)…
+        return None
+
+
+def natif_tourne() -> bool:
+    try:
+        return bool(find_natif_pids())
+    except Exception:                           # noqa: BLE001
+        return False
+
+
+class MemoireNatif(GuestMemory):
+    """Mémoire du jeu natif : base fixe ; la boîte aux lettres se cherche dans la zone des mods."""
+    hote = "natif"
+    zone_boite = ZONE_MODS
+
+
+def lire_zone(mem, boite: int) -> dict | None:
+    """Zone WWMPNATF qui suit la boîte (dict), ou None si elle n'y est pas (ou pas au bon format)."""
+    raw = mem.try_read(boite + NATIF_OFF, NATIF_TAILLE)
+    if raw is None or raw[:8] != MAGIE_NATIF:
+        return None
+    fmt, adr, socle, pf, pm, pas, vmod, req, filt, confort, code = struct.unpack_from(">IIIiiIIIIII", raw, 8)
+    if fmt != NATIF_FORMAT:
+        return None
+    return {"boite": adr, "socle": socle, "profil_fantome": pf, "profil_modele": pm, "pas": pas,
+            "version_mod": vmod, "requetes": req, "filtrees": filt, "confort": confort, "rando_code": code}
+
+
+def boite_valide(mem, h: int) -> bool:
+    if h % 16:
+        return False
+    raw = mem.try_read(h, 12)
+    if raw is None or raw[:8] != MAGIE_BOITE or struct.unpack_from(">I", raw, 8)[0] < VERSION_MIN:
+        return False
+    z = lire_zone(mem, h)
+    return z is not None and z["boite"] == h
+
+
+def trouver_boite(mem, lo: int = ZONE_MODS[0], hi: int = ZONE_MODS[1]) -> int | None:
+    """Adresse invitée de la boîte aux lettres du mod natif, ou None (mod absent, jeu pas encore démarré)."""
+    for h in mem.find_bytes(MAGIE_BOITE, lo, hi, limit=32):
+        if boite_valide(mem, h):
+            return h
+    return None
+
+
+def plage_zones(mem) -> tuple[int, int] | None:
+    """Portage natif : plage où chercher par leur magie les zones d'autres packs Cemu que le mod porte (WWMPPAU1 de
+    WWMP_Pause…) : les 0x8000 octets de la boîte du mod, comme les zones ajoutées en fin de pack ; None sans boîte.
+    Mémoire Cemu (sans ``zone_boite``) : None aussi (chaque module garde sa plage du codecave)."""
+    zone = getattr(mem, "zone_boite", None)
+    if not isinstance(zone, tuple):
+        return None
+    b = trouver_boite(mem, *zone)
+    return None if b is None else (b, b + 0x8000)
+
+
+def diagnostic(mem, boite: int) -> str:
+    """Une ligne : ce que le mod natif sait faire, et ce qui coince (profils refusés…)."""
+    z = lire_zone(mem, boite)
+    if z is None:
+        return "zone WWMPNATF absente : ce n'est pas la boîte du mod natif"
+    parts = [f"mod natif v{z['version_mod']}", "socle : " + (", ".join(n for b, n in SOCLE.items() if z["socle"] & b)
+                                                            or "rien")]
+    for nom, cle, proc in (("WwmpLink", "profil_fantome", PROC_FANTOME), ("WwmpModl", "profil_modele", PROC_MODELE)):
+        v = z[cle]
+        if v != proc:
+            parts.append(f"profil {nom} " + ("pas encore enregistré" if v == 0 else
+                                             f"refusé ({v}) : {REFUS_PROFIL.get(v, 'erreur inconnue')}"))
+    if z.get("rando_code"):
+        from rando import natif_code as nc
+        parts.append("code du randomizer : " + ", ".join(n for n in nc.FRAGMENTS if z["rando_code"] & nc.BIT[n]))
+    parts.append(f"pas de Link {z['pas']}")
+    return " | ".join(parts)
+
+
+def open_natif(pid: int | None = None, write: bool = False, verbose: bool = True,
+               base: int | None = None) -> MemoireNatif:
+    """Mémoire du jeu natif (processus du portage), à sa base fixe ; vérifie que c'est bien Wind Waker HD USA v0."""
+    from jeu import game
+    b = base if base is not None else base_hote()
+    herite = _process_herite(pid, write)
+    if herite is not None:                      # Linux : mémoire ouverte par le lanceur (ancêtre du jeu)
+        mem = MemoireNatif(herite, b)
+        if game.version_check(mem)[0]:
+            if verbose:
+                print(f"portage natif : mémoire du jeu à 0x{b:X} (base fixe, accès donné par le lanceur)")
+            return mem
+        herite.close()
+    if pid is None:
+        pids = find_natif_pids()
+        if not pids:
+            raise RuntimeError(f"{NOMS_NATIF[0]} introuvable : lance d'abord Wind Waker HD (le portage natif).")
+        if len(pids) > 1 and verbose:
+            print(f"[!] plusieurs {NOMS_NATIF[0]} ({pids}), j'utilise {pids[0]} (option --pid pour choisir)")
+        pid = pids[0]
+    proc = procmem.Process(pid, write=write)
+    mem = MemoireNatif(proc, b)
+    ok, mot = game.version_check(mem)
+    if not ok:
+        raise RuntimeError(f"mémoire du jeu illisible ou inattendue à 0x{b:X} (code 0x{mot or 0:08X}) : est-ce bien "
+                           "le portage natif ZeldaWWHDRecomp avec Wind Waker HD USA v0 ?")
+    if verbose:
+        print(f"portage natif : mémoire du jeu à 0x{b:X} (base fixe)")
+    return mem

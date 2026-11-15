@@ -21,6 +21,13 @@ Refusés (INTERDITS, vérifié par les tests) : les étincelles de coup (0x0C, 0
 monstre frappé), les effets de mort de daDisappear (0x13, 0x14, 0x16 : c'est ce qu'on veut éviter), 0x1F5 (gardé et
 piloté par le coffre, peut-être sans fin) et tout effet >= 0x4000 (rappel par défaut, ou banque de la scène).
 
+Une exception, la recette 7 (lot L4 de la latence, docs/etudes/rollback_netcode.md A4 ; bit 25 des capacités) : le
+RETOUR LOCAL d'un coup d'épée porté sur une marionnette, chez l'attaquant. Là, faire croire que le monstre est frappé est
+le but (il l'est, chez l'autorité). Étincelle 0x0D : celle du Bokoblin frappé sans mourir (0x020AAA48 ``li r5, 0xd`` /
+0x020AAA50 ``bl dPa_control_c::set``, branche « PV > 0 » ; 0x10 et 0x0F sont celles du coup fatal) ; son 0x2803 : celui
+que cc_at_check (0x025192A8) fait jouer pour un coup d'épée (0x02518BE8 rend 0x2803 pour mSe 1, appel 0x02519730).
+Recettes de coup : ``RECETTES_COUP`` (seules à pouvoir porter une étincelle de ``INTERDITS``, et seulement elle).
+
 Tous les sites d'origine jettent le pointeur rendu par le jeu : ce sont des effets finis. Leur durée exacte et leur
 aspect n'ont PAS été vus en jeu (docs/dev/tests/PLAN_TEST_SYNCHRO.md, EP1 à EP8).
 """
@@ -38,10 +45,14 @@ RECETTES = (
     (0x01F1, 0x01F4, 0x692F, 0),          # 4 libération
     (0x03EB, 0x0015, 0x5933, STRIPES),    # 5 échange Crawl (chute)
     (0x03EB, 0x03EC, 0x0000, 0),          # 6 apparition du nouveau Link
+    (0x000D, 0x0000, 0x2803, 0),          # 7 coup porté (retour local chez l'attaquant ; bit 25)
 )
 N_RECETTES = len(RECETTES)
 # ce qui arrive (synchro/hanteurs.py EFFETS_FUMEE) -> recette
 RECETTE = {"invoque": 0, "possede": 1, "lache": 2, "potion": 3, "libere": 4, "echange": 5, "apparition": 6}
+RECETTE_COUP = 7                          # retour local d'un coup (synchro/coups_monstres.py), pack avec le bit 25
+RECETTES_COUP = frozenset({RECETTE_COUP})
+ETINCELLE_COUP, SON_COUP = 0x000D, 0x2803 # seules permises dans une recette de coup
 # jamais dans une recette (voir l'en-tête)
 INTERDITS = frozenset({0x0C, 0x0D, 0x0F, 0x10, 0x27B, 0x13, 0x14, 0x16, 0x1F5})
 EFFET_MAX = 0x4000                        # effets < 0x4000 seulement (banque commune, sans rappel par défaut)
@@ -53,11 +64,14 @@ SANS_SON = 0x1                            # arg2 de CALL 11
 def table_pack(recettes=RECETTES) -> bytes:
     """Octets de ``wwmp_effet_recettes`` : 8 octets par recette {u16, u16, u16, u8 drapeaux, u8 0}."""
     out = bytearray()
-    for fx1, fx2, son, dr in recettes:
+    for i, (fx1, fx2, son, dr) in enumerate(recettes):
+        coup = i in RECETTES_COUP
         for fx in (fx1, fx2):
-            if fx and (fx in INTERDITS or not 0 < fx < EFFET_MAX):
+            if coup and fx and fx != ETINCELLE_COUP:
+                raise ValueError(f"recette de coup : effet 0x{fx:X} refusé")
+            if fx and ((fx in INTERDITS and not coup) or not 0 < fx < EFFET_MAX):
                 raise ValueError(f"effet 0x{fx:X} refusé")
-        if son and son not in SONS:
+        if son and son not in (SONS | {SON_COUP} if coup else SONS):
             raise ValueError(f"son 0x{son:X} hors liste")
         if dr & ~STRIPES or (dr & STRIPES and not fx2):
             raise ValueError("drapeaux invalides")

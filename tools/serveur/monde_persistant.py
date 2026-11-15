@@ -944,7 +944,7 @@ class Monde:
             self.log(f"monde « {self.nom} » : QUARANTAINE pour {p.name} : sa partie a {nouveaux} bit(s) inconnus du "
                      f"monde et il lui manque environ {absents} bit(s) du monde (partie solo ou d'un autre monde "
                      "chargée ?). Il reçoit le monde, mais rien de lui n'y entre pendant cette connexion. "
-                     "L'administrateur peut le libérer (lanceur, onglet Mon monde)")
+                     "L'administrateur peut le libérer (lanceur, Mes parties → Mon monde)")
             self.quarantaines = (self.quarantaines + [{"nom": p.name, "quand": maintenant_iso(),
                                                        "nouveaux": nouveaux, "absents": absents}])[-HISTO_MAX:]
             self.marquer()

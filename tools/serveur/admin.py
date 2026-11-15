@@ -34,8 +34,12 @@ BLOCAGE s pour l'administration (hors adresse de ce PC). Aucune commande arbitra
 
 Ce qui l'emporte : config.json (le lanceur l'écrit). Les options de ligne de commande correspondantes (--monde,
 --rando-graine, --rando-reglages, --mode-hanteurs, --hanteurs-config, --max-joueurs, --deathlink, --degats,
---pv-monstres) ne servent qu'à CRÉER config.json au premier démarrage (migration d'un docker-compose.override.yml) ;
-ensuite elles sont ignorées, avec une ligne dans le journal.
+--pv-monstres, --autorite-preferee, --validation, --robot) ne servent qu'à CRÉER config.json au premier démarrage (migration d'un
+docker-compose.override.yml ; une clé absente d'un ancien config.json est ajoutée depuis l'option) ; ensuite elles
+sont ignorées, avec une ligne dans le journal. « lire » renvoie aussi « autorites » (autorité de chaque zone occupée,
+lot S1), « anomalies » (journal de la validation côté serveur, lot S2) et « robot » (état du joueur robot,
+serveur/robot.py ; None sans --robot auto) ; « ecrire » accepte « effacer_anomalies »
+(vide ce journal). Un ancien lanceur les ignore.
 """
 from __future__ import annotations
 
@@ -67,12 +71,13 @@ FORMAT = "wwmp-config"
 
 # clés de config.json ; les autres options du serveur restent celles de la ligne de commande
 CLES = ("monde", "rando_graine", "rando_reglages", "mode_hanteurs", "hanteurs", "max_joueurs", "deathlink",
-        "degats", "pv_monstres")
-A_CHAUD = ("deathlink", "degats", "pv_monstres", "max_joueurs", "hanteurs")
+        "degats", "pv_monstres", "autorite_preferee", "validation", "robot")
+A_CHAUD = ("deathlink", "degats", "pv_monstres", "max_joueurs", "hanteurs", "autorite_preferee", "validation", "robot")
 AU_REDEMARRAGE = ("monde", "rando_graine", "rando_reglages", "mode_hanteurs")
 OPTIONS = {"monde": "--monde", "rando_graine": "--rando-graine", "rando_reglages": "--rando-reglages",
            "mode_hanteurs": "--mode-hanteurs", "hanteurs": "--hanteurs-config", "max_joueurs": "--max-joueurs",
-           "deathlink": "--deathlink", "degats": "--degats", "pv_monstres": "--pv-monstres"}
+           "deathlink": "--deathlink", "degats": "--degats", "pv_monstres": "--pv-monstres",
+           "autorite_preferee": "--autorite-preferee", "validation": "--validation", "robot": "--robot"}
 
 
 class ConfigIllisible(Exception):
@@ -198,7 +203,8 @@ def compte(dossier: str, env=None, log=print) -> tuple[str, str, str]:
 # ---------------------------------------------------------------------------------------------------------
 def _defauts(max_players: int) -> dict:
     return {"monde": None, "rando_graine": None, "rando_reglages": None, "mode_hanteurs": False, "hanteurs": None,
-            "max_joueurs": max_players, "deathlink": False, "degats": 1, "pv_monstres": "off"}
+            "max_joueurs": max_players, "deathlink": False, "degats": 1, "pv_monstres": "off",
+            "autorite_preferee": None, "validation": "journal", "robot": "off"}
 
 
 def valider(d, max_players: int) -> tuple[dict, list[str]]:
@@ -254,6 +260,26 @@ def valider(d, max_players: int) -> tuple[dict, list[str]]:
                 err.append("vie des monstres : off, demi ou link")
                 continue
             out[k] = v
+        elif k == "autorite_preferee":
+            # lot S1 (serveur/autorite.py) : pseudos séparés par des virgules, ou « @hote » ; vide = aucun
+            if v is not None and not isinstance(v, (str, list)):
+                err.append("PC d'autorité préféré : pseudo(s) ou @hote attendu(s)")
+                continue
+            from serveur import autorite
+            out[k] = autorite.normaliser(v)
+        elif k == "validation":
+            # lot S2 (serveur/validation.py) : journal (défaut), refus ou off
+            from serveur import validation as valid_mod
+            if v not in valid_mod.MODES:
+                err.append("validation : journal, refus ou off")
+                continue
+            out[k] = v
+        elif k == "robot":
+            # joueur robot (serveur/robot.py) : off (défaut) ou auto
+            if v not in ("off", "auto"):
+                err.append("robot : off ou auto")
+                continue
+            out[k] = v
     return out, err
 
 
@@ -290,7 +316,9 @@ def options_lignes(args, hcfg) -> dict:
             "rando_reglages": args.rando_reglages, "mode_hanteurs": bool(args.mode_hanteurs),
             "hanteurs": hcfg if isinstance(hcfg, dict) else None, "max_joueurs": args.max_joueurs,
             "deathlink": bool(args.deathlink and not args.no_deathlink), "degats": args.degats,
-            "pv_monstres": args.pv_monstres}
+            "pv_monstres": args.pv_monstres, "autorite_preferee": getattr(args, "autorite_preferee", None) or None,
+            "validation": getattr(args, "validation", None) or "journal",
+            "robot": getattr(args, "robot", None) or "off"}
 
 
 def preparer(chemin: str, args, defauts_args, hcfg, max_players: int, log=print) -> tuple[dict, dict | None]:
@@ -335,6 +363,9 @@ def preparer(chemin: str, args, defauts_args, hcfg, max_players: int, log=print)
     args.max_joueurs = cfg["max_joueurs"]
     args.deathlink, args.no_deathlink = cfg["deathlink"], False
     args.degats, args.pv_monstres = cfg["degats"], cfg["pv_monstres"]
+    args.autorite_preferee = cfg["autorite_preferee"]
+    args.validation = cfg["validation"]
+    args.robot = cfg["robot"]
     if cfg["rando_graine"]:
         args.no_rando = False
     return cfg, cfg["hanteurs"]
@@ -478,9 +509,13 @@ def _vue_mondes(a: Admin, srv) -> list[dict]:
 def _actuel(srv) -> dict:
     h = getattr(srv, "hanteurs", None)
     dif = getattr(srv, "difficulte", None) or {"degats": 1, "pv_monstres": "off"}
+    pref = getattr(srv, "pref", None)
     return {"deathlink": bool(srv.morts.on), "degats": dif.get("degats", 1),
             "pv_monstres": dif.get("pv_monstres", "off"), "max_joueurs": srv.max_players,
-            "mode_hanteurs": h is not None, "hanteurs": dict(h.cfg) if h is not None else None}
+            "mode_hanteurs": h is not None, "hanteurs": dict(h.cfg) if h is not None else None,
+            "autorite_preferee": pref.valeur if pref is not None else None,
+            "validation": srv.valid.mode if getattr(srv, "valid", None) is not None else None,
+            "robot": srv.robot.mode if getattr(srv, "robot", None) is not None else None}
 
 
 def _monde_vue(srv) -> dict | None:
@@ -503,7 +538,13 @@ def lire(srv, a: Admin, nonce: str) -> dict:
             "monde": _monde_vue(srv), "mondes": _vue_mondes(a, srv),
             "joueurs": sorted(o.name for o in srv.players.values() if getattr(o, "joueur", False))[:64],
             "version": VERSION, "max_possible": MAX_PLAYERS, "difficulte_on": bool(srv.difficulte_on),
-            "mdp_partie": mdp, "mdp_modifiable": bool(a.mdp_fichier), "utilisateur": a.utilisateur}
+            "mdp_partie": mdp, "mdp_modifiable": bool(a.mdp_fichier), "utilisateur": a.utilisateur,
+            # lot S1 : autorité de chaque zone occupée (lecture seule ; absent d'un ancien serveur)
+            "autorites": srv.autorites_vue() if hasattr(srv, "autorites_vue") else [],
+            # lot S2 : journal d'anomalies (absent d'un ancien serveur)
+            "anomalies": srv.valid.vue() if getattr(srv, "valid", None) is not None else None,
+            # joueur robot (serveur/robot.py) : None si --robot off (absent d'un ancien serveur)
+            "robot": srv.robot_vue() if hasattr(srv, "robot_vue") else None}
 
 
 def _meme_monde(srv, a: Admin, voulu) -> bool:
@@ -559,6 +600,21 @@ def ecrire(srv, p, a: Admin, req: dict, nonce: str, log) -> dict:
         log(f"administration : {srv.max_players} joueurs au plus")
         appliques.append("max_joueurs")
     mode_change = "mode_hanteurs" in vals and vals["mode_hanteurs"] != act["mode_hanteurs"]
+    if "autorite_preferee" in vals and hasattr(srv, "admin_autorite") \
+            and srv.admin_autorite(vals["autorite_preferee"]):
+        appliques.append("autorite_preferee")
+    if "validation" in vals and hasattr(srv, "admin_validation") and srv.admin_validation(vals["validation"]):
+        appliques.append("validation")
+    if "robot" in vals and hasattr(srv, "admin_robot"):
+        ok_r = srv.admin_robot(vals["robot"])
+        if ok_r is True:
+            appliques.append("robot")
+        elif isinstance(ok_r, str):
+            avert.append(ok_r)
+    if req.get("effacer_anomalies") in (1, True) and getattr(srv, "valid", None) is not None:
+        srv.valid.effacer()
+        log("administration : journal d'anomalies effacé")
+        appliques.append("anomalies_effacees")
     if "hanteurs" in vals and vals["hanteurs"] is not None and srv.hanteurs is not None and not mode_change \
             and vals["hanteurs"] != srv.hanteurs.cfg:
         srv.hanteurs_config(vals["hanteurs"], "l'administrateur")

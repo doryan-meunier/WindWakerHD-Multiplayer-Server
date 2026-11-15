@@ -54,10 +54,10 @@ dans la page du réseau.
 
 ### A2. Jouer
 
-1. **L'hôte** : lanceur → **Héberger** → « Sur ce PC » → choisis la partie → **Lancer**. Pas
+1. **L'hôte** : lanceur → **Jouer en ligne → Héberger** → « Sur ce PC » → choisis la partie → **Lancer**. Pas
    besoin de mot de passe (le réseau Tailscale est privé). Le lanceur affiche l'adresse : prends
    celle qui commence par **100.** (ou 26. pour Radmin VPN, 25. pour Hamachi).
-2. **Les amis** : lanceur → **Rejoindre** → tape cette adresse (ex. `100.101.102.103`) → `Tester`
+2. **Les amis** : lanceur → **Jouer en ligne → Rejoindre** → tape cette adresse (ex. `100.101.102.103`) → `Tester`
    → **Lancer**. « Chercher sur le réseau » ne marche pas à travers Tailscale : tape l'adresse.
 3. **Pare-feu Windows de l'hôte** : à la première partie, Windows demande d'autoriser Python :
    accepte. Si un ami n'arrive pas à se connecter, autorise le port dans une invite de commandes
@@ -127,7 +127,7 @@ Après un changement de `.env` : `docker compose up -d`. Journal : `docker compo
 
 ### B1b. Régler le serveur depuis le lanceur (« Administrer le serveur »)
 
-Lanceur → **Héberger** → « **Sur mon serveur dédié** » → écris l'adresse du serveur → panneau
+Lanceur → **Jouer en ligne → Héberger** → « **Sur mon serveur dédié** » → écris l'adresse du serveur → panneau
 **« Administrer le serveur »** en bas de la page → **utilisateur** et **mot de passe admin** (ceux de
 `admin.txt` ou de `.env` : ce n'est **pas** le mot de passe de partie) → **Se connecter**. Le
 lanceur les retient pour cette adresse. Tu règles alors :
@@ -138,11 +138,27 @@ lanceur les retient pour cette adresse. Tu règles alors :
   graine, crée un nouveau monde ;
 * le **mode Hanteurs** (on/off) et ses réglages (bouton « Prendre mes réglages Hanteurs ») ;
 * le **nombre de joueurs** max, le **mot de passe de partie** (« Générer » en propose un), le
-  **deathlink**, la **difficulté** (dégâts reçus, vie des monstres).
+  **deathlink**, la **difficulté** (dégâts reçus, vie des monstres) ;
+* le **PC d'autorité préféré** : le pseudo du joueur dont le PC fait tourner les monstres des zones où
+  il est (le plus puissant, ou le plus près du serveur), ou `@hote` pour celui qui a coché « Je suis
+  l'hôte » ; plusieurs pseudos séparés par des virgules, dans l'ordre. Vide (défaut) : comme avant, le
+  premier arrivé dans la zone. Il ne prend la main que dans une zone **calme** (jamais en plein combat
+  ni pendant une cinématique, et pas plus d'une fois toutes les 10 s par zone) et la rend tout seul s'il
+  quitte la zone, se déconnecte ou ne répond plus. La liste « Autorité des zones occupées » montre qui
+  tient chaque zone ;
+* les **contrôles du serveur** et le **journal d'anomalies** : le serveur vérifie la vitesse des Link,
+  la distance des coups (sur un monstre, sur le fantôme d'un joueur) et le nombre de messages de
+  chacun. Les téléportations normales ne comptent pas (porte, chargement, cinématique, Ballade des
+  vents, cyclone, chute dans le vide, Game Over, bateau et voile rapide, grappin, mode Hanteurs).
+  « **Journal seulement** » (défaut, conseillé) : rien n'est refusé, les anomalies s'affichent dans le
+  panneau (heure, joueur, quoi, ×N) et dans le journal du serveur (`ANOMALIE …`) ; « Effacer le
+  journal » le vide (il repart de zéro à chaque redémarrage). « **Refuser** » : les coups impossibles
+  et les messages en trop ne sont plus traités (la vitesse et les sauts restent seulement notés) ;
+  ne l'allume qu'après une partie d'essai sans anomalie injustifiée. « Coupés » : rien n'est vérifié.
 
 **Enregistrer et appliquer** écrit `config.json`. Joueurs max, mot de passe de partie (les joueurs
-déjà connectés restent), deathlink, difficulté, nom du monde et réglages Hanteurs s'appliquent
-**tout de suite**. Changer de monde, de graine ou allumer/couper le mode Hanteurs demande un
+déjà connectés restent), deathlink, difficulté, nom du monde, réglages Hanteurs, PC d'autorité
+préféré et contrôles du serveur s'appliquent **tout de suite**. Changer de monde, de graine ou allumer/couper le mode Hanteurs demande un
 **redémarrage** : le serveur écrit le monde, prévient les joueurs (leurs clients se reconnectent
 seuls), s'arrête, et Docker le relance (`restart: unless-stopped`) avec la nouvelle
 configuration ; le lanceur relit la configuration une fois le serveur revenu. Bouton
@@ -157,7 +173,8 @@ connaît que « lire », « écrire la configuration » (valeurs vérifiées une
 
 **Qui l'emporte ?** `config.json`. Les options de ligne de commande (`--monde`, `--rando-graine`,
 `--rando-reglages`, `--mode-hanteurs`, `--hanteurs-config`, `--max-joueurs`, `--deathlink`,
-`--degats`, `--pv-monstres`) ne servent qu'à **créer** `config.json` au premier démarrage ;
+`--degats`, `--pv-monstres`, `--autorite-preferee`, `--validation`) ne servent qu'à **créer** `config.json` au premier
+démarrage (une clé absente d'un ancien `config.json` est ajoutée depuis l'option, sinon vide) ;
 ensuite elles sont ignorées (le journal le dit). Pour repartir des options : supprime
 `config.json` du volume (`docker compose exec wwmp rm /donnees/config.json`) et redémarre.
 
@@ -234,7 +251,7 @@ ton adresse IP publique, visible dans l'interface de ta box.)
 
 ### B6. Jouer
 
-* **Toi (l'hôte de la partie)** : lanceur → **Héberger** → « **Sur mon serveur dédié** » →
+* **Toi (l'hôte de la partie)** : lanceur → **Jouer en ligne → Héberger** → « **Sur mon serveur dédié** » →
   adresse (`monserveur.duckdns.org:7777` ; sans « :port », le lanceur prend 7777 ou le port déjà
   connu pour ce serveur) et **mot de passe** (rempli tout seul après « Administrer le serveur ») → laisse cochée « **Je suis l'hôte
   de la partie** » → choisis la partie coop → **Lancer**. Le lanceur vérifie d'abord l'adresse et
@@ -243,7 +260,7 @@ ton adresse IP publique, visible dans l'interface de ta box.)
   Mailbox » et « WWMP Pause » (« Vivant »), décoche « WWMP Coop », et coche « WWMP Rando » seulement si la
   partie du serveur l'exige (il le demande au serveur ; décoché si elle n'en veut pas). La Console dit ce
   qui a changé (réglage « Cocher les packs WWMP tout seul avant de lancer », onglet Réglages).
-* **Tes amis** : lanceur → **Rejoindre** → même adresse et même mot de passe → `Tester` →
+* **Tes amis** : lanceur → **Jouer en ligne → Rejoindre** → même adresse et même mot de passe → `Tester` →
   **Lancer**. Un nouveau joueur coche « Copier la partie de l'hôte » avec une **partie coop neuve** :
   il reçoit le **monde** (B7), même si personne d'autre n'est en jeu.
 * **Plus simple** : l'**assistant** du lanceur (premier lancement, ou Réglages › « Refaire la configuration »),
@@ -252,13 +269,13 @@ ton adresse IP publique, visible dans l'interface de ta box.)
   **« Jouer »** : il vérifie l'adresse et le mot de passe (un mot de passe refusé se corrige sur place), retrouve la
   partie coop de ce serveur (ou en crée une et y copie le monde pour un nouveau joueur), prépare le randomizer et les
   packs, puis démarre Cemu.
-* Le **Lobby** marche à distance (adresse + mot de passe, bouton Observer).
+* Le **Lobby** (onglet Jouer en ligne) marche à distance (adresse + mot de passe, bouton Observer).
 * Le lanceur **retient** l'adresse et le mot de passe (fichier
   `%LOCALAPPDATA%\WWMP\compagnon.json`, sur ton PC seulement).
 
 « Je suis l'hôte » : avec un monde persistant (le cas normal d'un serveur à la maison), il n'y a
 plus d'hôte pour la progression, c'est le **monde** qui fait foi ; la case sert seulement à
-**administrer** depuis ton lanceur (deathlink, onglet « Mon monde » : libérer un joueur en
+**administrer** depuis ton lanceur (deathlink, onglet « Mes parties → Mon monde » : libérer un joueur en
 quarantaine, reprendre une image, renommer). Sur un serveur lancé avec `--sans-monde` (ancien
 fonctionnement), elle désigne la progression copiée quand un ami « copie la partie de l'hôte » :
 une seule personne la coche (deux hôtes = refus « hôte ambigu »), ou l'option `--hote PSEUDO`.
@@ -286,12 +303,12 @@ redémarre ou quand l'hôte d'origine ne joue pas.
   monde en jeu. Monde tout neuf (personne n'a encore joué) : il commence une partie neuve dans le jeu,
   et sa partie devient celle du monde.
 * **Joueur qui revient** : il lance **sa** partie du monde, les synchros le rattrapent. S'il est très
-  en retard, le lanceur (onglet **Mon monde**) propose « Mettre ma partie au niveau du monde »
+  en retard, le lanceur (onglet **Mes parties → Mon monde**) propose « Mettre ma partie au niveau du monde »
   (Cemu fermé ; jamais automatique).
 * **Protection** : la partie coop est liée à son monde au premier lancement ; le serveur refuse le
   client d'une partie liée à un autre monde. Une partie qui ne ressemble pas du tout au monde (partie
   solo chargée par erreur) est mise **en quarantaine** : le joueur voit le monde, mais rien de sa
-  partie n'y entre (l'administrateur peut le libérer, onglet Mon monde).
+  partie n'y entre (l'administrateur peut le libérer, onglet Mes parties → Mon monde).
 * **Écriture** : au plus toutes les 30 s, en 5 s après un boss, une grande clé ou un objet, et à
   l'arrêt (`docker compose stop`, redémarrage demandé depuis le lanceur, Ctrl+C). La version précédente
   est gardée (`monde.json.1`), plus une copie par heure (24) et par jour (14) dans `sauvegardes/`.
@@ -300,7 +317,7 @@ redémarre ou quand l'hôte d'origine ne joue pas.
   de `sauvegardes/` sur `monde.json`, redémarre.
 * **Voir les mondes** : la liste « Monde » de « Administrer le serveur »,
   `docker compose exec wwmp python /app/wwmp_server.py --donnees /donnees --lister-mondes`, ou l'onglet
-  **Mon monde** du lanceur (nom, joueurs, dernière connexion, cœurs, objets, perles, donjons finis).
+  **Mes parties → Mon monde** du lanceur (nom, joueurs, dernière connexion, cœurs, objets, perles, donjons finis).
 * **Ancien fonctionnement** (tout en mémoire, perdu au redémarrage) : `--sans-monde`.
 * **Mode Hanteurs sur le monde** : permis (interrupteur « Mode Hanteurs » de « Administrer le serveur »). C'est une session
   temporaire au-dessus du monde : ce que les Link gagnent entre dans le monde, rien de ce que fait un
@@ -337,10 +354,15 @@ héberge.
    PC**) et, si possible, **B5**.
 2. Pare-feu Windows de son PC : la commande `netsh` de l'étape A2 (ou accepter la question de
    Windows pour Python, réseaux privés **et** publics).
-3. Lanceur → **Héberger** → « Sur ce PC » → **Mot de passe** : clique « Générer » (ou tape le
+3. Lanceur → **Jouer en ligne → Héberger** → « Sur ce PC » → **Mot de passe** : clique « Générer » (ou tape le
    tien) → **Lancer**. Donne aux amis l'adresse publique (ou le nom DuckDNS) **et** le mot de
    passe.
-4. Les amis : **Rejoindre**, adresse et mot de passe.
+4. Les amis : **Jouer en ligne → Rejoindre**, adresse et mot de passe.
+
+Si le PC de l'hôte est le plus puissant de la partie, coche aussi « **Mon PC fait tourner les monstres
+des zones où je suis** » : il prend l'autorité des monstres des zones calmes où l'hôte est présent, et
+la rend s'il part ou si son jeu ne répond plus (décoché : le premier arrivé dans la zone, comme avant ;
+pris en compte au prochain lancement).
 
 Sans mot de passe, un serveur joignable depuis Internet accepte n'importe qui : le journal du
 serveur l'écrit en « ATTENTION » à la première connexion venue d'Internet, et une adresse
@@ -364,11 +386,41 @@ publique ne peut alors pas se déclarer « hôte ».
   fois par minute) : corrige le mot de passe et relance.
 * **Limites** : 16 connexions simultanées par adresse, 64 en tout ; messages de 256 Ko au plus ;
   débit limité par type de message ; client trop lent coupé ; 5 s sans message = coupure.
+* **Contrôles** (`--validation journal|refus|off`, « Administrer le serveur ») : vitesse plausible des
+  Link, distance des coups, débits par message et par joueur ; journal d'anomalies pour
+  l'administrateur. Par défaut ils ne refusent rien (« journal seulement »).
 * **Rôle d'hôte** : accepté seulement d'un joueur qui a donné le mot de passe (ou, sans mot de
   passe, d'une adresse locale ou de VPN).
 * Le serveur ne lit ni n'écrit aucun fichier du jeu ; il ne garde que le monde persistant
   (`mondes/`), sa configuration (`config.json`), le compte admin et le mot de passe dans son volume. L'image du monde vient des clients
   (lecture seule de leur sauvegarde, jamais pendant un événement).
+
+## Rapport d'essai du serveur
+
+Après un essai, pour envoyer au développeur tout ce qui sert au diagnostic côté serveur (le pendant du bouton
+« Rapport d'essai » du lanceur, Réglages › Console) :
+
+```bash
+cd serveur_dedie/docker
+docker compose exec wwmp python -m serveur.rapport            # écrit /donnees/rapports/WWMP_rapport_serveur_<date>.zip
+docker compose cp wwmp:/donnees/rapports/WWMP_rapport_serveur_<date>.zip .   # le nom exact est affiché juste avant
+```
+
+Avec le journal de Docker en plus (serveur Linux ou macOS ; le zip sort directement sur la sortie standard) :
+
+```bash
+docker compose logs --no-color --tail 20000 wwmp | docker compose exec -T wwmp python -m serveur.rapport --journal-stdin --stdout > rapport_serveur.zip
+```
+
+(Sous Windows PowerShell, n'utilise pas `--stdout` : `>` y abîme un fichier binaire ; garde la première forme.)
+
+Le zip contient `rapport.txt` (versions, joueurs, réglages appliqués, anomalies, erreurs trouvées), la configuration
+du volume, l'état du serveur et son **journal d'anomalies** (lot S2, lu par l'administration du serveur sur 127.0.0.1
+dans le conteneur, avec le compte admin du volume ou de `.env`, jamais créé par cette commande), la liste des mondes
+(jamais leur contenu), la fin des journaux. **Jamais** dedans : `admin.txt`, `mot_de_passe.txt`, `cles.json`, les
+spoilers, le contenu des mondes ; mots de passe, adresses e-mail et adresses IP publiques des joueurs sont masqués
+(192.168.1.x garde son début). `--sans-connexion` : rien que les fichiers. Les 10 derniers rapports sont gardés dans
+le volume.
 
 ## Dépannage
 

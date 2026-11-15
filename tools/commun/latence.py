@@ -11,6 +11,15 @@ Voir docs/etudes/latence.md. Ce module ne lit ni n'écrit rien dans le jeu : il 
 Le délai de bout en bout d'un effet est : détection chez l'émetteur (un tour de boucle au plus)
 + confirmation (« envoi ») + réseau (ping / 2 par sens) + application chez le receveur
 (« application ») + une image du jeu. Chaque client n'affiche que ses deux moitiés.
+
+Lot L1 (docs/etudes/rollback_netcode.md §4, A1 et A2) :
+
+  - les coups (``player_hit``, ``saisie``, ``pvp_coup``) et un ORDRE nouveau d'un Hanteur (``hlaisse`` dont l'élan ou
+    l'ordre a changé ; pas ses positions, qui arrivent 20 fois par seconde) réveillent aussi la boucle, avec leur propre
+    budget (``REVEILS_COUPS_MAX`` par seconde) : une rafale de jarres ne retarde jamais un coup, et inversement ;
+  - mesures en lecture seule, dans la ligne « Latence » et le fichier d'état (lanceur) : âge du fantôme affiché et des
+    marionnettes (``ages``), délai d'un ``player_hit`` (file -> envoi chez l'autorité, réception -> CALL 9 chez la
+    victime), délai d'un ordre (réception -> CALL 10 chez l'autorité), aller-retour.
 """
 from __future__ import annotations
 
@@ -26,12 +35,27 @@ REVEILS_MAX = 6        # réveils anticipés au plus par seconde (au pire : hz +
 MIN_CONFIRM = 0.05     # s : écart minimal entre deux lectures de la sauvegarde (un bit local est confirmé par deux)
 IMAGE = 0.033          # s : une image du jeu (30 images/s), comptée dans l'estimation
 # messages dont l'application attend le prochain tick de la boucle : leur arrivée la réveille
-REVEIL_TYPES = frozenset({"break", "drop", "herbe", "tsw", "progress", "magma", "hit"})
+REVEIL_TYPES = frozenset({"break", "drop", "herbe", "tsw", "progress", "magma", "hit",
+                          "player_hit", "saisie", "pvp_coup", "hlaisse"})
+# … parmi eux, les coups et les ordres (lot L1, A2) : budget de réveils à part, ``hlaisse`` filtré (ordre nouveau)
+COUPS_TYPES = frozenset({"player_hit", "saisie", "pvp_coup", "hlaisse"})
+REVEILS_COUPS_MAX = 4  # réveils « coup » au plus par seconde (au pire : hz + REVEILS_MAX + REVEILS_COUPS_MAX ticks/s)
+HLAISSE_MEMO = 16      # monstres possédés retenus pour reconnaître un ordre nouveau
 HERBE_SCAN = 0.1       # s entre deux relevés de l'herbe (prudent : HerbeSync.SCAN, 0,25 s)
 SWITCH_HZ = 10         # relevés par seconde des interrupteurs et de la progression (prudent : 5)
 SWITCH_HZ_PRUDENT = 5
 NOMS = {"jarres": "jarres", "herbe": "herbe", "tsw": "interrupteurs", "progress": "progression",
         "portes": "portes et obstacles"}
+
+
+def ordre_hlaisse(msg) -> tuple | None:
+    """(élan, séquence de l'ordre) d'un ``hlaisse`` : ce qui fait d'un ``hlaisse`` un ORDRE nouveau. None : illisible."""
+    if not isinstance(msg, dict):
+        return None
+    atk = msg.get("atk")
+    o = msg.get("ord")
+    seq = o[0] if isinstance(o, (list, tuple)) and len(o) == 2 and isinstance(o[0], int) else None
+    return (atk if isinstance(atk, int) and not isinstance(atk, bool) else None, seq)
 
 
 def sans_delai(writer) -> bool:
@@ -69,6 +93,11 @@ class Latence:
         self.marques: dict[str, float] = {}         # sorte -> heure de la plus vieille réception non appliquée
         self.urgent: set[str] = set()               # étapes à faire au prochain tick, hors cadence
         self.horloge = False
+        self.reveils_coups: list[float] = []  # heures des derniers réveils « coup » (budget à part)
+        self.n_reveils_coups = 0
+        self.attente_coup = False             # le réveil en attente vient d'un coup (budget à part)
+        self.hlaisse_vus: dict = {}           # clé du monstre possédé -> (élan, séquence) du dernier hlaisse
+        self.ages: dict[str, list[float]] = {}  # sorte -> âges mesurés (s) : fantôme affiché, marionnettes
 
     # --- cadences ---------------------------------------------------------------
     def diviseur(self, hz: int) -> int:
@@ -79,9 +108,10 @@ class Latence:
         return min(defaut, HERBE_SCAN) if self.rapide else defaut
 
     # --- réveil anticipé --------------------------------------------------------
-    def recu(self, typ, now: float | None = None) -> bool:
+    def recu(self, typ, now: float | None = None, msg: dict | None = None) -> bool:
         """Message reçu du serveur : faut-il réveiller la boucle ? Note aussi l'heure (mesure) et
-        l'étape à faire hors cadence. Jamais en mode prudent."""
+        l'étape à faire hors cadence. Jamais en mode prudent. ``hlaisse`` : seulement un ordre nouveau (élan ou
+        séquence d'ordre changés pour ce monstre, ou fin de possession), pas une simple position."""
         if typ not in REVEIL_TYPES:
             return False
         now = self.clock() if now is None else now
@@ -89,7 +119,25 @@ class Latence:
             self.marques.setdefault(typ, now)
             if self.rapide:
                 self.urgent.add(typ)
+        if typ == "hlaisse" and not self._ordre_nouveau(msg):
+            return False
+        if typ in COUPS_TYPES and self.rapide:
+            self.attente_coup = True
         return self.rapide
+
+    def _ordre_nouveau(self, msg) -> bool:
+        if not isinstance(msg, dict) or not isinstance(msg.get("key"), str):
+            return False
+        key = msg["key"]
+        if msg.get("fin") in (1, True):
+            return self.hlaisse_vus.pop(key, None) is not None
+        o = ordre_hlaisse(msg)
+        avant = self.hlaisse_vus.get(key)
+        if key not in self.hlaisse_vus and len(self.hlaisse_vus) >= HLAISSE_MEMO:
+            self.hlaisse_vus.pop(next(iter(self.hlaisse_vus)))
+        self.hlaisse_vus[key] = o
+        # première vue : la laisse commence (pas un ordre) ; ensuite, un élan ou un ordre qui change
+        return avant is not None and o != avant
 
     def prendre(self, etape: str) -> bool:
         """L'étape doit-elle tourner ce tick-ci hors cadence (un message pour elle vient d'arriver) ?"""
@@ -103,6 +151,15 @@ class Latence:
         if not self.rapide:
             return False
         now = self.clock() if now is None else now
+        if self.attente_coup:
+            # coup ou ordre : son propre budget (une rafale de jarres ne le retarde pas) ; épuisé : budget commun
+            self.attente_coup = False
+            self.reveils_coups = [t for t in self.reveils_coups if now - t < 1.0]
+            if len(self.reveils_coups) < REVEILS_COUPS_MAX:
+                self.reveils_coups.append(now)
+                self.n_reveils_coups += 1
+                self.n_reveils += 1
+                return True
         self.reveils = [t for t in self.reveils if now - t < 1.0]
         if len(self.reveils) >= REVEILS_MAX:
             return False
@@ -125,6 +182,12 @@ class Latence:
     def note_appli(self, sorte: str, delais) -> None:
         if delais:
             self.appli[sorte] = (self.appli.get(sorte, []) + [float(d) for d in delais])[-32:]
+
+    def note_age(self, sorte: str, ages) -> None:
+        """Âges mesurés (s) : retard entre ce qu'on affiche et le présent estimé de l'autre PC (lecture seule)."""
+        v = [float(a) for a in ages if a is not None and 0.0 <= a < 30.0]
+        if v:
+            self.ages[sorte] = (self.ages.get(sorte, []) + v)[-64:]
 
     def applique(self, sorte: str, now: float | None = None) -> None:
         """Des effets de cette sorte viennent d'être posés : délai depuis la plus vieille réception."""
@@ -149,7 +212,16 @@ class Latence:
                "periode_ms": ms(_med(self.periodes)), "travail_ms": ms(_med(self.travail)),
                "travail_max_ms": ms(max(self.travail)) if self.travail else None,
                "reveils": self.n_reveils, "envoi_ms": {k: ms(_med(v)) for k, v in self.envoi.items()},
-               "appli_ms": {k: ms(_med(v)) for k, v in self.appli.items()}}
+               "appli_ms": {k: ms(_med(v)) for k, v in self.appli.items()},
+               # lot L1 (A1) : âges et délais des chaînes de combat, aller-retour avec le serveur
+               "rtt_ms": None if rtt_ms is None else round(float(rtt_ms), 1),
+               "reveils_coups": self.n_reveils_coups,
+               "fantome_ms": ms(_med(self.ages.get("fantome"))),
+               "fantome_max_ms": ms(max(self.ages["fantome"])) if self.ages.get("fantome") else None,
+               "marionnettes_ms": ms(_med(self.ages.get("marionnettes"))),
+               "player_hit_envoi_ms": ms(_med(self.envoi.get("player_hit"))),
+               "player_hit_ms": ms(_med(self.appli.get("player_hit"))),
+               "ordre_ms": ms(_med(self.appli.get("ordre")))}
         e, a = _med(self.envoi.get("jarres")), _med(self.appli.get("jarres"))
         if e is not None and a is not None:
             # notre moitié d'émetteur + notre moitié de receveur (l'autre PC a la sienne, proche en LAN)
@@ -178,8 +250,23 @@ class Latence:
             s += f" ; {NOMS[k]} : " + ", ".join(part)
         if "jarres_estime_ms" in st:
             s += f" ; jarre cassée -> vue chez l'autre en ~{f(st['jarres_estime_ms'])}"
+        # lot L1 (A1) : chaînes de combat
+        if st["fantome_ms"] is not None:
+            s += f" ; fantôme affiché : retard {f(st['fantome_ms'])} (max {f(st['fantome_max_ms'])})"
+        if st["marionnettes_ms"] is not None:
+            s += f" ; marionnettes : retard {f(st['marionnettes_ms'])}"
+        if st["player_hit_envoi_ms"] is not None:
+            s += f" ; coups sur un fantôme : envoyés {f(st['player_hit_envoi_ms'])} après la file"
+        if st["player_hit_ms"] is not None:
+            s += f" ; coups reçus : rejoués {f(st['player_hit_ms'])} après réception"
+        if st["ordre_ms"] is not None:
+            s += f" ; ordres de Hanteur : joués {f(st['ordre_ms'])} après réception"
+        if st["rtt_ms"] is not None:
+            s += f" ; aller-retour {f(st['rtt_ms'])}"
         if st["reveils"]:
             s += f" ; {st['reveils']} réveil(s) anticipé(s)"
+            if st["reveils_coups"]:
+                s += f" dont {st['reveils_coups']} pour des coups"
         return s
 
     # --- horloge de Windows -----------------------------------------------------

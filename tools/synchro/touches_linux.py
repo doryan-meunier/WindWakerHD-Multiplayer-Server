@@ -2,7 +2,8 @@
 
 - X11 (ou XWayland) avec python-xlib installé : état du clavier par ``XQueryKeymap`` et fenêtre au premier plan
   par ``_NET_ACTIVE_WINDOW`` -> ``_NET_WM_PID`` (même règle que sous Windows : les touches ne comptent que si la
-  fenêtre de Cemu est devant). Rien n'est envoyé au jeu, rien n'est intercepté.
+  fenêtre du jeu est devant : Cemu, ou ``wwhd`` du portage natif, dont SDL3 pose ``_NET_WM_PID`` = son pid, celui
+  que lit le client). Rien n'est envoyé au jeu, rien n'est intercepté.
 - Wayland pur : un programme ne peut pas lire le clavier global (choix de sécurité de Wayland) ; XWayland ne voit
   les touches que si la fenêtre devant est elle-même une fenêtre X11. Repli : les MÊMES actions sont des boutons
   du lanceur (onglet Lobby, panneau Mode Hanteurs, y compris « Monter » / « Descendre » sous Linux).
@@ -20,9 +21,15 @@ KEYSYMS = {0x72: 0xFFC0, 0x73: 0xFFC1, 0x74: 0xFFC2, 0x75: 0xFFC3, 0x76: 0xFFC4,
            0x21: 0xFF55, 0x22: 0xFF56}      # F3…F9, Page_Up (Prior), Page_Down (Next)
 
 RAISON_WAYLAND = ("session Wayland sans affichage X11 : les touches F3-F9 ne peuvent pas être lues ; utilise les "
-                  "boutons du lanceur (onglet Lobby, Mode Hanteurs)")
+                  "boutons du lanceur (Jouer en ligne → Lobby, Mode Hanteurs)")
+# Le portage natif (SDL3) ouvre une fenêtre WAYLAND dans une session Wayland : XWayland ne voit alors pas le clavier
+# quand le jeu est devant. ``SDL_VIDEO_DRIVER=x11`` (variable du lanceur, transmise au jeu) en fait une fenêtre X11
+# (README du portage : aussi le remède des fenêtres fermées avec NVIDIA). Cemu (GTK) : ``GDK_BACKEND=x11``.
+RAISON_XWAYLAND = ("XWayland : les touches ne comptent que si le jeu est une fenêtre X11 (portage natif : lance le "
+                   "lanceur avec SDL_VIDEO_DRIVER=x11 ; Cemu : GDK_BACKEND=x11) ; sinon la barre dans le jeu ou les "
+                   "boutons du lanceur")
 RAISON_XLIB = ("python-xlib absent : touches F3-F9 inactives (pip install python-xlib, ou le paquet python3-xlib) ; "
-               "les boutons du lanceur (onglet Lobby, Mode Hanteurs) font les mêmes actions")
+               "les boutons du lanceur (Jouer en ligne → Lobby, Mode Hanteurs) font les mêmes actions")
 
 
 def _rien(_vk=None):
@@ -75,6 +82,5 @@ def creer(env=None, xlib=None):
         q = f.get_full_property(a_pid, X.AnyPropertyType)
         return int(q.value[0]) if q and q.value else None
 
-    raison = "" if s == "x11" else ("XWayland : les touches ne comptent que si Cemu est une fenêtre X11 "
-                                    "(GDK_BACKEND=x11) ; sinon utilise les boutons du lanceur")
+    raison = "" if s == "x11" else RAISON_XWAYLAND
     return lire, premier_plan, raison

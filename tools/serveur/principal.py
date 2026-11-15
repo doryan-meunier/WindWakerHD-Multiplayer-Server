@@ -259,6 +259,27 @@ derniers, désactivé par défaut) ; image demandée (« image_req ») au joueur
 le plus avancé, jamais en recul. Le welcome porte l'époque du serveur (un client resté lancé renvoie toute sa
 progression à un serveur redémarré).
 
+Hôte d'autorité préféré (lot S1, serveur/autorite.py, docs/etudes/serveur_dedie_jeu.md §9) : --autorite-preferee NOMS
+(pseudos dans l'ordre, ou « @hote ») ; config.json « autorite_preferee » sur le serveur dédié, changé à chaud. Le PC
+préféré est choisi d'abord à une passation obligée, reprend l'autorité d'une zone calme où il est installé
+(hystérésis, jamais en combat ni en cinématique, jamais un Hanteur) et la rend s'il ne répond plus (repli). Sans
+réglage : rien ne change.
+
+Validation côté serveur (lot S2, serveur/validation.py) : --validation journal (défaut) | refus | off ; config.json
+« validation » sur le serveur dédié, changé à chaud. Vitesse plausible des Link (sauts et vitesses expliqués par les
+téléportations légitimes : scène, salle, cinématique, salle rechargée, vie, point de reprise, Hanteurs), distance des
+« hit » au monstre et des « player_hit » à la victime, débits par message ; journal d'anomalies lu dans « Administrer le
+serveur » (« anomalies » de lire). « refus » : coups impossibles et messages en trop non traités.
+
+Joueur robot (serveur/robot.py, docs/etudes/joueur_robot.md) : --robot off (défaut) | auto. Une instance du jeu sans
+joueur, lancée par le serveur (--robot-commande, relancée après un plantage, au plus 3 fois en 10 min ; arrêtée après
+--robot-repos s de repos), se présente avec role « robot » et la clé du serveur (--robot-cle ou WWMP_ROBOT_CLE, sinon
+tirée au hasard et passée à la commande). Elle prend l'autorité de la zone qui a le plus de joueurs (2 au moins ;
+hystérésis), après y être entrée comme non-autorité (marionnettes à jour : pas de doublon), et la rend aux joueurs avant
+de partir ; aucune zone à 2 : « dors ». Jamais un joueur : ni liste, ni lobby, ni place, ni fantôme, ni monde ; seuls
+les messages d'une autorité de zone sont acceptés d'elle. État dans « Administrer le serveur » (« robot » de lire) et le
+lobby. Désactivé avec le mode Hanteurs.
+
 Mises à jour du mod (serveur/maj.py, docs/joueurs/MISES_A_JOUR.md) : --mises-a-jour DOSSIER (ou, serveur
 dédié, DONNEES/mises_a_jour) : le serveur propose le paquet signé de ce dossier aux
 lanceurs (messages maj_info / maj_part sur la même connexion, après le mot de passe), après avoir
@@ -284,6 +305,8 @@ from synchro.cachecache import CacheCacheServeur  # noqa: E402
 from commun import latence  # noqa: E402
 from synchro.boss_pv import BossPvTable, valid_boss  # noqa: E402
 from synchro.coups_fantome import valid_player_hit  # noqa: E402
+from synchro import coups_monstres  # noqa: E402
+from synchro import coups_projectiles  # noqa: E402
 from synchro.saisie import valid_saisie  # noqa: E402
 from synchro.mobiles import MobTable, valid_boom, valid_lift, valid_mob  # noqa: E402
 from synchro.rares import CycleOwners, valid_cycle, valid_rare  # noqa: E402
@@ -300,10 +323,14 @@ from commun import arret  # noqa: E402
 from commun import acces  # noqa: E402
 from serveur import dedie as serveur_dedie  # noqa: E402
 from serveur import admin as adm  # noqa: E402  (serveur dédié Docker : compte admin, config.json du volume)
+from serveur import autorite  # noqa: E402  (lot S1 : hôte d'autorité préféré)
+from serveur import validation as valid_mod  # noqa: E402  (lot S2 : validation côté serveur, journal d'anomalies)
+from serveur import robot as robot_mod  # noqa: E402  (joueur robot : docs/etudes/joueur_robot.md)
 from serveur import maj as maj_serveur  # noqa: E402
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
+from commun.protocole import horodatage, valid_epos  # noqa: E402  (lot L2 de la latence)
 from synchro import hanteurs as hmod  # noqa: E402
 from synchro import potion as potion_mod  # noqa: E402
 from serveur import monde_persistant as mpm  # noqa: E402
@@ -321,7 +348,7 @@ SNAPSHOT_KEEP = 2.0  # s : âge max du dernier snapshot renvoyé à qui entre da
 # puis on coupe. Les messages d'événements (autorité, hit, join/leave…) passent toujours.
 SLOW_SKIP = 1 << 20
 SLOW_DROP = 16 << 20
-DROPPABLE = {"state", "enemies"}
+DROPPABLE = {"state", "enemies", "epos"}   # epos : lot L2 de la latence (positions remplaçables)
 TSW_MAX = 256          # A7 : changements au plus par message tsw
 DROP_KEEP = 8.0        # s : A4, âge max d'un objet apparu renvoyé à qui entre dans la zone
 BREAK_MAX = 64         # A6 : jarres cassées gardées au plus par zone
@@ -418,6 +445,9 @@ class Player:
         self.mp_t0 = 0.0
         self.mp_tot: int | None = None
         self.mp_actif = 0.0
+        # lot S1 (serveur/autorite.py) : heure du dernier « state », début de la suite de « state » sans trou
+        self.state_t: float | None = None
+        self.frais_depuis = 0.0
 
     @property
     def joueur(self) -> bool:
@@ -464,8 +494,31 @@ class Server:
                  monde_persistant: "mpm.Monde | None" = None, rando_graine: str | None = None,
                  difficulte: dict | None = None, difficulte_on: bool = True,
                  rando_mode: str = "sur", rando_options: dict | None = None,
-                 trackeur: bool = True, trackeur_deduire: bool = False, pnj: bool = True):
+                 trackeur: bool = True, trackeur_deduire: bool = False, pnj: bool = True,
+                 autorite_preferee: str | None = None, validation: str = valid_mod.DEFAUT,
+                 robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
+                 robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None):
         self.players: dict[int, Player] = {}
+        # joueur robot (serveur/robot.py) : autorité d'UNE zone partagée tenue par une instance sans joueur ; « off » :
+        # rien ne change. Jamais avec le mode Hanteurs (le Link caché du robot serait visé comme celui d'un Hanteur).
+        if robot_mod.normaliser(robot) == "auto" and mode_hanteurs:
+            log("robot : désactivé avec le mode Hanteurs (ses monstres viseraient son Link caché)")
+            robot = "off"
+        self.robot = robot_mod.Robot(robot, cle=robot_cle, commande=robot_commande, repos_arret=robot_repos,
+                                     log=lambda m: log(m), horloge=lambda: time.monotonic())
+        if self.robot.gest is not None:
+            self.robot.gest.journal = robot_journal
+        self.robot_bascules: dict[str, list[float]] = {}   # zone -> heures des changements d'autorité entre joueurs
+        # lot S2 : validation côté serveur (vitesse des Link, distance des coups, débits), journal d'anomalies lu par
+        # l'administrateur ; « journal » par défaut (rien n'est refusé), « refus » à n'allumer qu'après un essai
+        self.valid = valid_mod.Validation(validation, log=lambda m: log(m))
+        # lot S1 : PC d'autorité préféré (serveur/autorite.py) ; zone -> heure de la dernière passation entre deux
+        # joueurs, du dernier signe de combat, de la dernière revue ; PV vus dans les instantanés de l'autorité
+        self.pref = autorite.Preference(autorite_preferee)
+        self.auth_t: dict[str, float] = {}
+        self.combat_t: dict[str, float] = {}
+        self.pref_vu: dict[str, float] = {}
+        self.ennemis_pv: dict[str, dict] = {}
         # époque du processus (welcome) : un client resté lancé voit qu'il parle à un serveur redémarré et renvoie
         # toute sa progression (sinon il ne renvoyait que ses bits nouveaux, étude monde_persistant §2)
         self.epoque = os.urandom(4).hex()
@@ -1425,22 +1478,49 @@ class Server:
             if p.id != exclude and p.role == "jeu" and p.auth:  # A15 : l'outil rejoindre ne reçoit rien ;
                 # Internet : ni une connexion qui n'a pas encore donné le mot de passe
                 p.send(msg)
+        if msg.get("type") in robot_mod.DIFFUSION:
+            rp = self.robot_joueur()          # le robot : autorités, arrivées et départs, règles de la partie
+            if rp is not None and rp.id != exclude:
+                rp.send(msg)
 
     # --- autorité ----------------------------------------------------------
     def members(self, zone: str) -> list[Player]:
         return [p for p in self.players.values() if p.zone == zone]
 
     def reassign(self, zone: str) -> None:
-        """Si la zone n'a pas d'autorité présente, la donner au joueur présent
-        depuis le plus longtemps. Chaque changement incrémente l'époque."""
         holder, epoch = self.authority.get(zone, (None, 0))
-        present = self.members(zone)
+        rp = self.robot_joueur()
+        if rp is not None and self.robot.zone_autorite == zone and rp.zone == zone:
+            # joueur robot (serveur/robot.py) : la zone lui est donnée par robot_tick, une fois la passation sûre
+            self.deferred.pop(zone, None)
+            if holder != rp.id:
+                self.pref_changer(zone, holder, epoch, rp.id, time.monotonic(), "robot du serveur")
+            return
+        self._reassign(zone, None if rp is None else rp.id)
+
+    def _reassign(self, zone: str, robot_id: int | None = None) -> None:
+        """Si la zone n'a pas d'autorité présente, la donner au joueur présent
+        depuis le plus longtemps. Chaque changement incrémente l'époque.
+        Lot S1 (serveur/autorite.py) : avec un PC d'autorité préféré, il est choisi d'abord à une passation obligée,
+        reprend l'autorité d'une zone calme où il est présent (hystérésis) et la rend s'il ne répond plus."""
+        holder, epoch = self.authority.get(zone, (None, 0))
+        # le robot n'est jamais un candidat ordinaire : sans la zone du robot, il rend l'autorité (passation obligée)
+        present = [p for p in self.members(zone) if p.id != robot_id]
         if self.hanteurs is not None:
             # mode Hanteurs : un Hanteur n'a jamais l'autorité (ses monstres viseraient un Link caché) ; une zone
             # sans Link n'a pas d'autorité (« personne »)
             present = [p for p in present if not self.hanteurs.hors_jeu(p.id)]   # phase 2 : ni un Link possédé
+        now = time.monotonic()
+        if not present:
+            for d in (self.auth_t, self.combat_t, self.pref_vu, self.ennemis_pv):
+                d.pop(zone, None)       # zone vide : rien à retenir (la première attribution n'est pas une passation)
+        raison = ""
         if holder is not None and any(p.id == holder for p in present):
             self.deferred.pop(zone, None)
+            new, raison = self.pref_reprise(zone, holder, present, now) if self.pref.actif else (None, "")
+            if new is None:
+                return
+            self.pref_changer(zone, holder, epoch, new, now, raison)
             return
         candidates = present
         if self.busy_defer and present:
@@ -1458,14 +1538,551 @@ class Server:
                 log(f"autorité {zone} : joueurs toujours en cinématique après {self.busy_defer_max:.0f} s, "
                     "passation quand même")
         self.deferred.pop(zone, None)
-        new = min(candidates, key=lambda p: (p.zone_since, p.id)).id if candidates else None
+        new = None
+        if candidates and self.pref.actif:
+            new = self.pref_meilleur(candidates, now)
+            if new is not None:
+                raison = "PC d'autorité préféré"
+        if new is None and candidates and self.pref.actif:
+            # S1 : un joueur qui ne répond plus (préféré en repli) n'est pas repris d'office s'il y a mieux
+            candidates = [p for p in candidates if self.pref_repond(p, now)] or candidates
+        if new is None:
+            new = min(candidates, key=lambda p: (p.zone_since, p.id)).id if candidates else None
         if new == holder:
             return
+        self.pref_changer(zone, holder, epoch, new, now, raison)
+
+    def coups_proj_ok(self, holder) -> bool:
+        """Bit 26 (mod natif) : l'autorité ``holder`` sait rejouer un coup de projectile (« coups_proj » dans hello)."""
+        o = self.players.get(holder) if holder is not None else None
+        return o is not None and coups_projectiles.FEAT in o.feat
+
+    def msg_autorite(self, zone: str, holder, epoch: int) -> dict:
+        """Message ``authority`` ; ``cp`` = 1 (optionnel, ignoré d'un ancien client) si l'autorité rejoue les coups de
+        projectiles (synchro/coups_projectiles.py) : les attaquants n'envoient ``injp`` qu'alors."""
+        m = {"type": "authority", "zone": zone, "holder": holder, "epoch": epoch}
+        if self.coups_proj_ok(holder):
+            m["cp"] = 1
+        if holder is not None and holder == self.robot.pid:
+            m["robot"] = 1          # joueur robot : affiché « le robot du serveur » (ignoré d'un ancien client)
+        return m
+
+    def pref_changer(self, zone: str, holder: int | None, epoch: int, new: int | None, now: float,
+                     raison: str = "") -> None:
         epoch += 1
         self.authority[zone] = (new, epoch)
+        if holder is not None and new is not None:
+            self.auth_t[zone] = now             # S1 : passation entre deux joueurs (hystérésis des reprises)
+            if self.robot.actif and self.robot.pid not in (holder, new):
+                # joueur robot : une autorité qui bascule souvent entre joueurs est une raison de la prendre
+                b = [t for t in self.robot_bascules.get(zone, []) if now - t < robot_mod.BASCULES_FENETRE]
+                self.robot_bascules[zone] = b + [now]
+                self.robot.mesures.bascules_vues += 1
+        self.ennemis_pv.pop(zone, None)         # S1 : les PV de la nouvelle autorité ne se comparent pas aux anciens
         who = self.players[new].name if new is not None else "personne"
-        log(f"autorité {zone} -> {who} (époque {epoch})")
-        self.broadcast({"type": "authority", "zone": zone, "holder": new, "epoch": epoch})
+        log(f"autorité {zone} -> {who} (époque {epoch})" + (f" : {raison}" if raison else ""))
+        self.broadcast(self.msg_autorite(zone, new, epoch))
+
+    def autorite_msg(self, zone: str, holder: int | None, epoch: int) -> dict:
+        return self.msg_autorite(zone, holder, epoch)
+
+    # --- lot S1 : hôte d'autorité préféré (serveur/autorite.py) ----------------------------------------------
+    def pref_rang(self, p: Player) -> int | None:
+        hote = p.hote or (self.admin is None and p.ip in self._addrs_locales())
+        return self.pref.rang(p.name, hote)
+
+    @staticmethod
+    def pref_repond(p: Player, now: float) -> bool:
+        """Un « state » est arrivé de lui depuis moins de PREF_SILENCE s."""
+        return p.state_t is not None and now - p.state_t <= autorite.PREF_SILENCE
+
+    def pref_meilleur(self, candidates: list[Player], now: float, installe: bool = False) -> int | None:
+        """Le meilleur PC préféré parmi ``candidates`` (rang, puis le plus ancien présent), libre et qui répond ;
+        ``installe`` : en plus, dans la zone et répondant depuis PREF_ENTREE s (reprise). None s'il n'y en a pas."""
+        best = None
+        for p in candidates:
+            r = self.pref_rang(p)
+            if r is None or p.busy or not self.pref_repond(p, now):
+                continue
+            if installe and now - max(p.zone_since, p.frais_depuis) < autorite.PREF_ENTREE:
+                continue
+            k = (r, p.zone_since, p.id)
+            if best is None or k < best[0]:
+                best = (k, p.id)
+        return best[1] if best is not None else None
+
+    def pref_reprise(self, zone: str, holder: int, present: list[Player], now: float) -> tuple[int | None, str]:
+        """Autorité présente : (nouvelle autorité, raison) si le PC préféré doit la prendre, ou la rendre (repli) ;
+        (None, "") sinon."""
+        h = self.players.get(holder)
+        if h is None:
+            return None, ""
+        if self.pref_rang(h) is not None:
+            if self.pref_repond(h, now) or h.state_t is None:
+                return None, ""             # un préféré qui répond la garde (jamais repris par un autre préféré)
+            # repli : le préféré ne répond plus (connexion qui décroche, jeu figé). Pas de calme exigé : ses
+            # monstres sont figés chez les autres de toute façon
+            autres = [p for p in present if p.id != holder and not p.busy and self.pref_repond(p, now)]
+            if not autres:
+                return None, ""
+            new = self.pref_meilleur(autres, now)
+            if new is None:
+                new = min(autres, key=lambda p: (p.zone_since, p.id)).id
+            return new, f"repli, {h.name} ne répond plus depuis {now - h.state_t:.1f} s"
+        if now - self.auth_t.get(zone, float("-inf")) < autorite.PREF_APRES:
+            return None, ""                 # hystérésis : passation récente dans cette zone
+        if any(p.busy for p in present):
+            return None, ""                 # A11 : jamais pendant une cinématique
+        if now - self.combat_t.get(zone, float("-inf")) < autorite.PREF_CALME:
+            return None, ""                 # jamais au milieu d'un combat
+        h_mod = self.hanteurs
+        if h_mod is not None and any(ps.get("zone") == zone for ps in h_mod.possessions.values()):
+            return None, ""                 # un monstre en laisse vit chez l'autorité actuelle
+        new = self.pref_meilleur([p for p in present if p.id != holder], now, installe=True)
+        if new is None:
+            return None, ""
+        return new, "PC d'autorité préféré (zone calme)"
+
+    def pref_combat(self, zone: str | None, now: float | None = None) -> None:
+        """S1 : signe de combat dans la zone (coup porté, reçu, monstre blessé ou tué) : pas de reprise avant
+        PREF_CALME s."""
+        if zone:
+            self.combat_t[zone] = time.monotonic() if now is None else now
+
+    def pref_ennemis(self, zone: str, lst: list) -> None:
+        """S1 : un monstre blessé ou tué dans l'instantané de l'autorité = combat."""
+        vus = self.ennemis_pv.get(zone)
+        neuf = {}
+        combat = False
+        for e in lst[:256]:
+            if not isinstance(e, dict) or not isinstance(e.get("key"), str):
+                continue
+            hp = e.get("hp")
+            hp = 0 if e.get("dead") in (1, True) else hp
+            if not isinstance(hp, (int, float)) or isinstance(hp, bool):
+                continue
+            neuf[e["key"]] = hp
+            if vus is not None:
+                avant = vus.get(e["key"])
+                if (avant is not None and hp < avant) or (avant is None and hp <= 0):
+                    combat = True
+        if vus is not None:
+            vus.update(neuf)
+            if len(vus) > 512:
+                vus = neuf
+            self.ennemis_pv[zone] = vus
+        else:
+            self.ennemis_pv[zone] = neuf
+        if combat:
+            self.pref_combat(zone)
+
+    def pref_revoir(self, zone: str, now: float) -> None:
+        """S1 : reprise et repli revus au plus toutes les PREF_PAS s par zone (sur les « state » de ses membres)."""
+        if now - self.pref_vu.get(zone, float("-inf")) < autorite.PREF_PAS:
+            return
+        self.pref_vu[zone] = now
+        self.reassign(zone)
+
+    def admin_autorite(self, valeur, qui: str = "l'administrateur") -> bool:
+        """Réglage changé à chaud (administration) ; les zones sont revues tout de suite (mêmes règles : une zone
+        en combat attend d'être calme)."""
+        if not self.pref.regler(valeur):
+            return False
+        log(f"PC d'autorité préféré changé par {qui} : {self.pref.texte()}")
+        for zone in sorted(z for z, (h, _e) in self.authority.items() if h is not None):
+            self.reassign(zone)
+        return True
+
+    def autorites_vue(self) -> list[dict]:
+        """Autorité de chaque zone occupée (administration : lecture seule)."""
+        out = []
+        for zone, (holder, epoch) in sorted(self.authority.items()):
+            o = self.players.get(holder) if holder is not None else None
+            if o is None:
+                continue
+            robot = o.id == self.robot.pid
+            d = {"zone": zone, "joueur": o.name, "epoque": epoch,
+                 "preferee": not robot and self.pref_rang(o) is not None,
+                 "presents": len([m for m in self.members(zone) if m.id != self.robot.pid])}
+            if robot:
+                d["robot"] = True                # joueur robot (absent sinon : sortie d'avant inchangée)
+            out.append(d)
+        return out[:64]
+
+    # --- joueur robot (serveur/robot.py, docs/etudes/joueur_robot.md) ------------------------------------------
+    def robot_joueur(self) -> Player | None:
+        """La connexion du robot (None : pas de robot connecté, ou --robot off)."""
+        pid = self.robot.pid
+        return self.players.get(pid) if pid is not None else None
+
+    def robot_est(self, p: Player | None) -> bool:
+        return p is not None and p.role == robot_mod.ROLE and p.id == self.robot.pid
+
+    def agit(self, p: Player) -> bool:
+        """Joueur de la partie, ou le robot (pour les seuls messages d'une autorité de zone)."""
+        return p.joueur or self.robot_est(p)
+
+    def robot_hello(self, p: Player, msg: dict) -> None:
+        r = self.robot
+        if not r.actif or not robot_mod.cle_valide(r.cle, msg.get("cle")):
+            log(f"connexion robot ({p.peer}) refusée : "
+                + ("robot désactivé (--robot off)" if not r.actif else "clé du robot fausse"))
+            p.send({"type": "error", "code": "robot", "msg": "robot refusé"})
+            p.writer.close()
+            return
+        ancien = self.robot_joueur()
+        if ancien is not None and ancien.id != p.id:
+            log(f"robot : ancienne connexion (id {ancien.id}) remplacée par la nouvelle (id {p.id})")
+            ancien.role = "remplace"          # son départ ne touchera plus l'état du robot
+            ancien.writer.close()
+        p.role, p.hello, p.name = robot_mod.ROLE, True, robot_mod.NOM
+        feat = msg.get("feat")
+        p.feat = {str(f)[:24] for f in feat[:16]} if isinstance(feat, list) else set()
+        r.pid = p.id
+        r.zone_autorite = None
+        r.changer_cible(None)
+        r.dernier_evt = "connecté"
+        log(f"robot connecté (id {p.id}, {p.peer}, outils {msg.get('client', '?')}) : il n'est pas un joueur "
+            "(ni place, ni fantôme, ni liste)")
+        p.send({"type": "welcome", "id": p.id, "version": VERSION, "name": p.name, "outils": CLIENT_VERSION,
+                "robot": 1, "couleur": 0,
+                "players": [{"id": o.id, "name": o.name, "pack": o.pack, "couleur": o.couleur, "pause": o.pause}
+                            for o in self.players.values() if o.joueur],
+                "deathlink": int(self.morts.on), "difficulte": self.dif_vue(), "epoque": self.epoque,
+                **({"monde": self.mp.bref()} if self.mp is not None else {})})
+        for zone, (holder, epoch) in self.authority.items():
+            p.send(self.autorite_msg(zone, holder, epoch))
+
+    def robot_message(self, p: Player, msg: dict) -> None:
+        """Ce que le robot peut envoyer : ce qu'envoie une autorité de zone (TYPES_ACCEPTES), ses « state » (jamais
+        relayés) et ses rapports. Le reste est ignoré : il ne touche jamais au monde."""
+        t = msg.get("type")
+        if t not in robot_mod.TYPES_ACCEPTES:
+            self.robot.ignores = getattr(self.robot, "ignores", 0) + 1
+            return
+        if t == "state":
+            stage, room = msg.get("stage"), msg.get("room")
+            zone = zone_of(stage, room) if isinstance(stage, str) and stage and isinstance(room, int) else None
+            pos = msg.get("pos")
+            if isinstance(pos, list) and len(pos) == 3 and all(isinstance(v, (int, float)) for v in pos):
+                p.pos = pos
+            p.state_t = time.monotonic()
+            r = self.robot
+            if r.zone_autorite is not None and zone != r.zone_autorite:
+                # il quitte (ou recharge) la zone qu'il tient : retour forcé, set_zone la rend aux joueurs
+                z, r.zone_autorite = r.zone_autorite, None
+                if r.tenue_t is not None:
+                    r.rendues += 1
+                    log(r.mesurer_rendu(z, "robot sorti de la zone", True, p.state_t))
+            self.set_zone(p, zone)
+            if zone is not None and zone == r.cible:
+                if r.arrive_t is None:
+                    r.arrive_t = p.state_t
+            else:
+                r.arrive_t = r.snap_t = None
+            return
+        if t == "robot":
+            self.robot_rapport(p, msg)
+            return
+        self._handle(p, msg)
+
+    def robot_rapport(self, p: Player, msg: dict) -> None:
+        r = self.robot
+        ev = msg.get("ev")
+        zone = msg.get("zone")
+        if ev == "pret" and isinstance(zone, str) and len(zone) <= 40:
+            if r.pret != zone:
+                log(f"robot : prêt dans {zone}")
+            r.pret = zone
+        elif ev == "etat":
+            garde = {}
+            for k in ("phase", "zone", "fps", "mem_mo", "cpu", "jeu", "version"):
+                v = msg.get(k)
+                if isinstance(v, (int, float, str)) and not isinstance(v, bool) and len(str(v)) <= 40:
+                    garde[k] = v
+            r.rapport = garde
+        elif ev == "erreur":
+            log(f"robot : erreur signalée : {str(msg.get('msg', ''))[:200]}")
+            r.dernier_evt = "erreur : " + str(msg.get("msg", ""))[:80]
+            if isinstance(zone, str) and zone == r.cible:
+                r.choix.ecarter(zone, time.monotonic())     # il n'y arrive pas : zone mise de côté un moment
+                r.changer_cible(None)
+
+    def robot_snap(self, zone: str, src: Player) -> None:
+        """Un instantané de l'autorité humaine de ``zone`` vient d'être relayé : le robot qui y attend l'a reçu."""
+        r = self.robot
+        rp = self.robot_joueur()
+        if rp is not None and src.id != rp.id and rp.zone == zone and zone == r.cible and r.arrive_t is not None:
+            r.snap_t = time.monotonic()
+
+    def robot_relais(self, p: Player, out: dict) -> None:
+        """« state » d'un joueur : au robot s'il est dans sa zone (ses monstres visent les fantômes, A3)."""
+        rp = self.robot_joueur()
+        if rp is not None and p.id != rp.id and p.zone is not None and rp.zone == p.zone:
+            rp.send(out)
+
+    def robot_comptes(self, now: float) -> dict:
+        """Zone -> (joueurs humains présents qui répondent, heure depuis laquelle elle est partagée)."""
+        par: dict[str, list[float]] = {}
+        for o in self.players.values():
+            if not o.joueur or o.zone is None:
+                continue
+            if self.hanteurs is not None and self.hanteurs.hors_jeu(o.id):
+                continue
+            if o.state_t is None or now - o.state_t > robot_mod.REPONSE_MAX:
+                continue
+            par.setdefault(o.zone, []).append(o.zone_since)
+        out = {}
+        for z, ts in par.items():
+            ts.sort()
+            out[z] = (len(ts), ts[1] if len(ts) >= 2 else ts[0])
+        return out
+
+    def robot_centre(self, zone: str) -> list | None:
+        pts = [o.pos for o in self.players.values() if o.joueur and o.zone == zone and o.pos]
+        if not pts:
+            return None
+        return [round(sum(q[i] for q in pts) / len(pts), 1) for i in range(3)]
+
+    def robot_ordre(self, rp: Player, ordre: dict, now: float, rappel: float = robot_mod.ORDRE_RAPPEL) -> None:
+        r = self.robot
+        cle = {k: v for k, v in ordre.items() if k != "pos"}
+        if r.ordre is not None and {k: v for k, v in r.ordre.items() if k != "pos"} == cle \
+                and now - r.ordre_t < rappel:
+            return
+        if r.ordre is None or r.ordre.get("ordre") != ordre.get("ordre") or r.ordre.get("zone") != ordre.get("zone"):
+            log(f"robot : ordre « {ordre.get('ordre')} »" + (f" {ordre['zone']}" if ordre.get("zone") else ""))
+        r.ordre, r.ordre_t = dict(ordre), now
+        rp.send({"type": "robot", **ordre})
+
+    def robot_tick(self, now: float | None = None) -> None:
+        """Choix de la zone (règles 2 et 3), processus, ordres et passations. Appelé toutes les 0,5 s
+        (robot_boucle) ; les tests l'appellent avec une horloge simulée."""
+        r = self.robot
+        if not r.actif:
+            return
+        now = time.monotonic() if now is None else now
+        if now - getattr(r, "bilan_t", now) >= 300.0:
+            log(f"robot : BILAN {r.mesures.vue()}")     # de quoi décider après l'essai : le garder ou l'enlever
+            r.bilan_t = now
+        elif not hasattr(r, "bilan_t"):
+            r.bilan_t = now
+        cible = r.choix.revoir(self.robot_comptes(now), now)
+        r.changer_cible(cible)
+        rp = self.robot_joueur()
+        if r.gest is not None:
+            if cible is not None:
+                r.repos_t = None
+            elif r.repos_t is None:
+                r.repos_t = now
+            garder = r.gest.en_marche() and r.repos_t is not None and now - r.repos_t < r.repos_arret
+            r.gest.tick(cible is not None or garder)
+        if rp is None:
+            r.zone_autorite = None
+            return
+        tenue = next((z for z, (h, _e) in self.authority.items() if h == rp.id), None)
+        if tenue is not None:
+            # retour automatique à l'autorité joueur : robot qui rame, se tait ou charge une autre zone (forcé,
+            # tout de suite, zone mise de côté) ; plus rien à gagner depuis RETOUR_DELAI s
+            force = ""
+            fps = r.rapport.get("fps")
+            if rp.state_t is None or now - rp.state_t > robot_mod.ROBOT_SILENCE:
+                force = "robot muet"
+            elif rp.zone != tenue:
+                force = "robot en chargement"
+            elif isinstance(fps, (int, float)) and fps < robot_mod.FPS_MIN:
+                force = f"robot trop lent ({fps:.0f} i/s)"
+            if force:
+                r.choix.ecarter(tenue, now)
+                r.changer_cible(None)
+                self.robot_rendre(tenue, force, True, now)
+                return
+            if tenue == cible:
+                ok, _raison = self.robot_gain(tenue, now)
+                if ok:
+                    r.sans_gain_t = None
+                else:
+                    r.sans_gain_t = now if r.sans_gain_t is None else r.sans_gain_t
+                    if now - r.sans_gain_t >= robot_mod.RETOUR_DELAI:
+                        r.pas_avant[tenue] = now + robot_mod.REPRISE_APRES
+                        self.robot_rendre(tenue, "plus de gain", False, now)
+                        return
+        if tenue is not None and tenue != cible:
+            # il doit partir : d'abord RENDRE l'autorité aux joueurs de la zone (A11 compris), l'ordre suit ensuite
+            self.robot_rendre(tenue, "autre zone" if cible else "repos", False, now)
+            return
+        if tenue is not None:
+            if now - r.suivi_t >= robot_mod.SUIVI_PAS:
+                r.suivi_t = now
+                centre = self.robot_centre(tenue)
+                if centre is not None:
+                    rp.send({"type": "robot", "ordre": "suis", "zone": tenue, "pos": centre})
+            return
+        if cible is None:
+            r.zone_autorite = None
+            self.robot_ordre(rp, {"ordre": "dors"}, now, rappel=30.0)
+            return
+        stage, _, room = cible.rpartition(":")
+        if rp.zone != cible or r.pret != cible:
+            if r.envoye_t is None:
+                r.envoye_t = now
+            elif now - r.envoye_t > robot_mod.TRAJET_MAX:
+                log(f"robot : pas prêt dans {cible} après {robot_mod.TRAJET_MAX:.0f} s, zone mise de côté")
+                r.dernier_evt = f"{cible} mise de côté"
+                r.choix.ecarter(cible, now)
+                r.changer_cible(None)
+                return
+            ordre = {"ordre": "va", "zone": cible, "stage": stage, "room": int(room) if room.isdigit() else room}
+            centre = self.robot_centre(cible)
+            if centre is not None:
+                ordre["pos"] = centre
+            self.robot_ordre(rp, ordre, now)
+            return
+        # dans la zone, prêt, pas encore l'autorité. Jamais pire qu'aujourd'hui : il ne la prend que s'il y gagne
+        # (robot_gain) depuis GAIN_DELAI s ; sinon il reste en veille, l'autorité reste au joueur (0 ms pour lui)
+        ok, raison = self.robot_gain(cible, now)
+        if now < r.pas_avant.get(cible, float("-inf")):
+            ok, raison = False, "reprise trop tôt"
+        if ok != r.gain[0]:
+            log(f"robot : {cible} : " + (f"gain ({raison}), prise dès que sûre" if ok
+                                         else f"rien à gagner ({raison}), l'autorité reste au joueur"))
+            if not ok:
+                r.mesures.sans_gain += 1
+        r.gain = (ok, raison)
+        if not ok:
+            r.gain_t = r.attente_t = None
+            return
+        if r.gain_t is None:
+            r.gain_t = now
+        if now - r.gain_t < robot_mod.GAIN_DELAI:
+            return
+        if r.attente_t is None:
+            r.attente_t = now
+        holder, _e = self.authority.get(cible, (None, 0))
+        snap_ok = holder is None or r.snap_t is not None or (r.arrive_t is not None
+                                                              and now - r.arrive_t >= robot_mod.SNAP_ATTENTE)
+        humains = [o for o in self.members(cible) if o.joueur]
+        occupe = any(o.busy for o in humains)
+        calme = now - self.combat_t.get(cible, float("-inf")) >= robot_mod.CALME_PRISE
+        force = now - r.attente_t >= robot_mod.PRISE_MAX
+        if not snap_ok or occupe or not (calme or force):
+            return
+        avant = self.players.get(holder) if holder is not None else None
+        r.zone_autorite = cible
+        self.reassign(cible)
+        if self.authority.get(cible, (None, 0))[0] == rp.id:
+            r.prises += 1
+            r.dernier_evt = f"autorité de {cible} prise ({raison})" + ("" if calme else ", combat en cours")
+            log(r.mesurer_prise(cible, raison, now - r.attente_t, avant.rtt if avant is not None else None,
+                                self.robot_rtt(rp), now))
+
+    def robot_rtt(self, rp: Player | None) -> float:
+        return rp.rtt if rp is not None and rp.rtt is not None else robot_mod.ROBOT_RTT_DEFAUT
+
+    def robot_gain(self, zone: str, now: float) -> tuple[bool, str]:
+        """Le robot améliore-t-il la zone ? (oui, raison) seulement si l'autorité joueur (actuelle, ou celle qui la
+        reprendrait) a un aller-retour nettement plus long que le robot ou instable, si l'autorité bascule souvent
+        entre joueurs, ou si aucun joueur présent n'est un bon candidat (muet). Sinon (non, raison) : l'autorité
+        reste au joueur, qui garde ses monstres natifs. RTT inconnu : non (on ne change rien sans mesure)."""
+        rp = self.robot_joueur()
+        humains = [o for o in self.members(zone) if o.joueur and not o.busy]
+        holder, _e = self.authority.get(zone, (None, 0))
+        bascules = [t for t in self.robot_bascules.get(zone, []) if now - t < robot_mod.BASCULES_FENETRE]
+        if len(bascules) >= robot_mod.BASCULES_MAX:
+            return True, f"{len(bascules)} bascules en {robot_mod.BASCULES_FENETRE:.0f} s"
+        cand = next((o for o in humains if o.id == holder), None)
+        if cand is None:
+            # le robot tient la zone (ou elle est en passation) : le joueur qui la reprendrait (règle habituelle)
+            cand = min(humains, key=lambda o: (o.zone_since, o.id)) if humains else None
+        if cand is None:
+            return False, "aucun joueur libre"
+        if not self.pref_repond(cand, now):
+            return True, f"{cand.name} ne répond plus"
+        if cand.rtt is None:
+            return False, f"aller-retour de {cand.name} inconnu"
+        ecart = cand.rtt - self.robot_rtt(rp)
+        if ecart >= robot_mod.GAIN_RTT:
+            return True, f"aller-retour {cand.name} {cand.rtt:.0f} ms, robot {self.robot_rtt(rp):.0f} ms"
+        hist = getattr(cand, "rtt_hist", None) or []
+        if len(hist) >= 5:
+            moy = sum(hist) / len(hist)
+            ecart_type = (sum((x - moy) ** 2 for x in hist) / len(hist)) ** 0.5
+            if ecart_type >= robot_mod.GIGUE:
+                return True, f"aller-retour de {cand.name} instable (écart type {ecart_type:.0f} ms)"
+        return False, f"{cand.name} est une bonne autorité ({cand.rtt:.0f} ms)"
+
+    def robot_rendre(self, zone: str, raison: str, force: bool, now: float) -> None:
+        """Rend l'autorité de ``zone`` aux joueurs présents (règle habituelle, A11 compris). Jamais de zone sans
+        autorité : s'il reste un joueur, il l'a ; l'ordre de départ ne part qu'après."""
+        r = self.robot
+        rp = self.robot_joueur()
+        r.zone_autorite = None
+        self.reassign(zone)
+        if rp is None or self.authority.get(zone, (None, 0))[0] != rp.id:
+            r.rendues += 1
+            r.sans_gain_t = None
+            r.dernier_evt = f"autorité de {zone} rendue ({raison})"
+            log(r.mesurer_rendu(zone, raison, force, now))
+
+    def robot_depart(self, p: Player) -> None:
+        if p.id != self.robot.pid:
+            return
+        r = self.robot
+        log(f"robot déconnecté (id {p.id})" + (f" : il tenait {r.zone_autorite}, rendue aux joueurs"
+                                                 if r.zone_autorite else ""))
+        if r.tenue_t is not None:
+            log(r.mesurer_rendu(r.zone_autorite or "?", "robot déconnecté", True, time.monotonic()))
+        r.pid = None
+        r.zone_autorite = None
+        r.changer_cible(None)
+        r.dernier_evt = "déconnecté"
+
+    def admin_robot(self, mode, qui: str = "l'administrateur"):
+        """Joueur robot à chaud : True si changé ; un texte (avertissement) si refusé. « off » : la zone tenue est
+        rendue aux joueurs tout de suite, le processus arrêté, le robot déconnecté."""
+        if robot_mod.normaliser(mode) == "auto" and self.hanteurs is not None:
+            return "robot : impossible avec le mode Hanteurs"
+        r = self.robot
+        if not r.regler(mode):
+            return False
+        log(f"robot : « {r.mode} » (changé par {qui})")
+        if r.mode == "off":
+            rp = self.robot_joueur()
+            tenue = next((z for z, (h, _e) in self.authority.items() if rp is not None and h == rp.id), None)
+            if tenue is not None:
+                self.robot_rendre(tenue, "robot coupé", True, time.monotonic())
+            if r.gest is not None:
+                r.gest.arreter("robot coupé")
+            if rp is not None:
+                rp.writer.close()
+            r.changer_cible(None)
+            r.choix.cible = None
+        return True
+
+    def robot_vue(self) -> dict | None:
+        """État du robot (administration, lobby) ; None : --robot off."""
+        r = self.robot
+        if not r.actif:
+            return None
+        rp = self.robot_joueur()
+        tenue = next((z for z, (h, _e) in self.authority.items() if rp is not None and h == rp.id), None)
+        return {"mode": r.mode, "phase": r.phase(rp.zone if rp else None, tenue),
+                "connecte": rp is not None, "zone": rp.zone if rp else None, "cible": r.cible, "autorite": tenue,
+                "prises": r.prises, "rendues": r.rendues, "evenement": r.dernier_evt, "rapport": dict(r.rapport),
+                "repos_arret": r.repos_arret, "processus": r.gest.vue() if r.gest is not None else None,
+                "gain": {"oui": r.gain[0], "raison": r.gain[1]}, "mesures": r.mesures.vue()}
+
+    # --- lot S2 : validation côté serveur (serveur/validation.py) ----------------------------------------------
+    def valid_exempt(self, p: Player) -> bool:
+        """Jamais mesuré : Hanteur (son Link caché suit les Link, se téléporte), Link possédé, clone de la potion."""
+        h = self.hanteurs
+        return bool(h is not None and p.joueur and (h.hors_jeu(p.id) or p.id in h.potions))
+
+    def admin_validation(self, mode, qui: str = "l'administrateur") -> bool:
+        if not self.valid.regler(mode):
+            return False
+        log(f"validation côté serveur : « {mode} » (changé par {qui})")
+        return True
 
     def set_zone(self, p: Player, zone: str | None) -> None:
         if zone == p.zone:
@@ -1559,6 +2176,12 @@ class Server:
         return voulu                                       # pragma: no cover
 
     def handle(self, p: Player, msg: dict) -> None:
+        if p.role == robot_mod.ROLE:
+            if self.robot_est(p):
+                self.robot_message(p, msg)    # joueur robot : messages d'une autorité de zone seulement
+            return
+        if p.role == "remplace":
+            return                            # ancienne connexion du robot, en train de fermer
         try:
             if msg.get("type") == "progress" and msg.get("jug") in (1, True):
                 # monde persistant + Hanteurs : première progression d'un Hanteur, envoyée POUR LE VERDICT seulement
@@ -1781,6 +2404,7 @@ class Server:
         elif t == "hviser":
             h.viser(p.id, msg)
         elif t == "pvp":
+            self.pref_combat(p.zone)
             h.pvp(p.id, msg)
 
     def relais_clone(self, p: Player, out: dict) -> bool:
@@ -1877,6 +2501,9 @@ class Server:
         t = msg["type"]
         if self.rejoindre:
             self.rejoindre_expire()
+        if t == "hello" and msg.get("role") == robot_mod.ROLE:
+            self.robot_hello(p, msg)          # joueur robot (serveur/robot.py) : jamais un joueur
+            return
         if t == "hello":
             voulu = str(msg.get("name", p.name)).strip()[:NAME_MAX] or p.name
             p.name = voulu
@@ -2012,7 +2639,7 @@ class Server:
                 log(f"ATTENTION : {p.name} a des outils sans le réglage de difficulté : chez lui les dégâts et la "
                     "vie des monstres restent ceux du jeu ; mettez le dépôt à jour")
             for zone, (holder, epoch) in self.authority.items():
-                p.send({"type": "authority", "zone": zone, "holder": holder, "epoch": epoch})
+                p.send(self.msg_autorite(zone, holder, epoch))
             self.broadcast({"type": "join", "id": p.id, "name": p.name, "pack": p.pack, "couleur": p.couleur,
                             "pause": p.pause}, exclude=p.id)
             self.check_packs()
@@ -2038,9 +2665,16 @@ class Server:
             if busy != p.busy:
                 p.busy = busy
                 log(f"{p.name} : {'en cinématique' if busy else 'fin de cinématique'}")
+            t_state = time.monotonic()
+            if p.state_t is None or t_state - p.state_t > autorite.PREF_SILENCE:
+                p.frais_depuis = t_state     # S1 : il répond de nouveau (ou pour la première fois)
+            p.state_t = t_state
+            self.valid.etat(p, msg, zone, busy, self.valid_exempt(p), t_state)   # S2 : vitesse, sauts (journal)
             self.set_zone(p, zone)
             if zone and zone in self.deferred:
                 self.reassign(zone)          # A11 : passation différée, à retenter
+            elif zone and self.pref.actif:
+                self.pref_revoir(zone, t_state)   # S1 : reprise par le PC préféré, repli s'il ne répond plus
             out = dict(msg, id=p.id, name=p.name)
             out.pop("clone", None)           # phase 2 : seule la potion (serveur) marque un clone
             h = self.hanteurs
@@ -2083,6 +2717,7 @@ class Server:
             else:
                 self.hv_vus.discard(p.id)
                 self.broadcast(out, exclude=p.id)
+                self.robot_relais(p, out)        # joueur robot de la zone : ses monstres visent ce Link
         elif t == "enemies":
             zone = msg.get("zone")
             if not isinstance(zone, str):
@@ -2095,9 +2730,31 @@ class Server:
                    "list": lst if isinstance(lst, list) else []}
             if msg.get("full") in (1, True) and isinstance(lst, list):
                 out["full"] = 1    # liste complète : les autres peuvent supprimer leurs ennemis orphelins
+            out.update(horodatage(msg))   # lot L2 de la latence : image, heure, aller-retour (optionnels)
             self.last_enemies[zone] = (time.monotonic(), out)
+            if self.pref.actif or self.robot.actif:
+                self.pref_ennemis(zone, out["list"])     # S1 : monstre blessé ou tué = combat (pas de reprise)
+            if self.robot.actif:
+                self.robot_snap(zone, p)                 # robot en attente dans la zone : marionnettes à jour
             if self.hanteurs is not None:
                 self.hanteurs.snapshot(zone, out["list"], bool(out.get("full")))
+            for o in self.members(zone):
+                if o.id != p.id:
+                    o.send(out)
+        elif t == "epos":
+            # lot L2 de la latence : positions intermédiaires des ennemis proches, de l'autorité actuelle seulement ;
+            # relayées à la zone, rien n'est gardé (le prochain instantané complet fait foi)
+            zone = msg.get("zone")
+            if not isinstance(zone, str):
+                return
+            holder, epoch = self.authority.get(zone, (None, 0))
+            if holder != p.id or msg.get("epoch") != epoch or p.zone != zone:
+                return
+            lst = valid_epos(msg.get("list"))
+            if not lst:
+                return
+            out = {"type": "epos", "from": p.id, "zone": zone, "epoch": epoch,
+                   "list": [[e["key"], *e["pos"], e["rotY"]] for e in lst], **horodatage(msg)}
             for o in self.members(zone):
                 if o.id != p.id:
                     o.send(out)
@@ -2109,10 +2766,19 @@ class Server:
             holder, _epoch = self.authority.get(zone, (None, 0))
             # A11 : pendant une passation différée, l'autorité inscrite a peut-être quitté la zone :
             # elle ne trouverait pas l'ennemi ; le coup est jeté ici plutôt que perdu chez elle
+            if p.zone == zone:
+                self.pref_combat(zone)           # S1 : coup porté dans la zone = combat
+            if p.zone == zone and not self.valid.coup(p, zone, msg.get("key"), self.last_enemies.get(zone),
+                                                      self.valid_exempt(p)):
+                return                           # S2, mode « refus » : coup de trop loin du monstre
             if holder is not None and holder != p.id and holder in self.players and p.zone == zone \
                     and self.players[holder].zone == zone:
+                # lot L4 (A4) : « inj » (de quoi rejouer le coup chez l'autorité : synchro/coups_monstres.py), validé
                 self.players[holder].send({"type": "hit", "from": p.id, "zone": zone,
-                                           "key": msg.get("key"), "dmg": int(msg.get("dmg", 1))})
+                                           "key": msg.get("key"), "dmg": int(msg.get("dmg", 1)),
+                                           **coups_monstres.champs_hit(msg),
+                                           # bit 26 : coup d'un projectile, seulement à une autorité qui le rejoue
+                                           **coups_projectiles.champ_serveur(msg, self.coups_proj_ok(holder))})
                 log(f"{p.name} touche {msg.get('key')} ({zone}) -> autorité {self.players[holder].name}")
         elif t == "progress":
             self.handle_progress(p, msg)
@@ -2177,6 +2843,7 @@ class Server:
             if self.drops_enabled and isinstance(msg.get("zone"), str) and msg["zone"] == p.zone:
                 self.ground_push(p, p.zone)
             if isinstance(msg.get("zone"), str) and msg["zone"] == p.zone:
+                self.valid.recharge(p)           # S2 : salle rechargée (chute, Game Over) : un saut est légitime
                 self.sticks_push(p, p.zone)
                 self.mob_push(p, p.zone)
                 self.herbe_push(p, p.zone)       # synchro v3 : salle rechargée, herbe repoussée chez lui
@@ -2195,6 +2862,11 @@ class Server:
             rtt = msg.get("rtt")
             if isinstance(rtt, (int, float)) and not isinstance(rtt, bool) and 0 <= rtt < 60000:
                 p.rtt = float(rtt)                     # A17 : affiché dans le lobby du lanceur
+                hist = getattr(p, "rtt_hist", None)    # joueur robot : gigue de l'autorité (robot_gain)
+                if hist is None:
+                    hist = p.rtt_hist = []
+                hist.append(p.rtt)
+                del hist[:-robot_mod.RTT_HIST]
             p.send({"type": "pong", "t": msg.get("t")})
         elif t == "lobby":
             if p.hello:
@@ -2241,6 +2913,10 @@ class Server:
             out["monde"] = self.mp.lobby(self)        # onglet « Mon monde » du lanceur
         if self.hanteurs is not None:
             out["hanteurs"] = self.hanteurs.resume_lobby()
+        rv = self.robot_vue()
+        if rv is not None:
+            # joueur robot : jamais dans « players » ; un résumé à part (ancien lanceur : ignoré)
+            out["robot"] = {k: rv[k] for k in ("phase", "zone", "autorite", "connecte")}
         return out
 
     def handle_progress(self, p: Player, msg: dict) -> None:
@@ -2499,6 +3175,7 @@ class Server:
         genre, cur = self.boss.report(group, rec, p.name)
         if genre in ("nouveau", "bas"):
             if genre == "bas":
+                self.pref_combat(p.zone)
                 log(f"boss [{group}] : {rec['key']} ({rec['stage']}) à {rec['hp']}/{rec['max']} PV ({p.name})")
             out = dict(cur, type="boss", group=group, **{"from": p.id})
             for o in self.players.values():
@@ -2514,7 +3191,7 @@ class Server:
         fantôme d'un joueur (Poe). Mêmes règles que ``player_hit`` : émetteur = autorité actuelle de la zone,
         victime = autre joueur de la même zone, pas en cinématique ; au plus SAISIE_RATE par seconde et par paire.
         Un événement : rien n'est gardé ni rejoué."""
-        if not self.ghost_hits_enabled or not p.joueur:
+        if not self.ghost_hits_enabled or not self.agit(p):
             return
         rec = valid_saisie(msg)
         if rec is None or p.zone is None or rec["zone"] != p.zone:
@@ -2533,6 +3210,7 @@ class Server:
         times.append(now)
         p.saisie_times[v.id] = times
         self.saisies += 1
+        self.pref_combat(p.zone)
         v.send(dict(rec, type="saisie", **{"from": p.id}))
         log(f"{p.name} : {rec['key']} possède le fantôme de {v.name} ({rec['zone']}, {rec['frames']} images)")
 
@@ -2542,7 +3220,7 @@ class Server:
         chez lui que les monstres réfléchissent ; docs/etudes/mode_hanteurs.md : autorité par zone), que la
         victime est un autre joueur de la même zone et pas en cinématique, au plus PLAYER_HIT_RATE par
         seconde et par paire. Un événement : rien n'est gardé ni rejoué."""
-        if not self.ghost_hits_enabled or not p.joueur:
+        if not self.ghost_hits_enabled or not self.agit(p):
             return
         rec = valid_player_hit(msg)
         if rec is None or p.zone is None or rec["zone"] != p.zone:
@@ -2557,6 +3235,8 @@ class Server:
             # phase 2 (potion) : ce fantôme est le clone joué par un Hanteur ; le possédé perdra ces dégâts à la fin
             log(f"{p.name} : {rec['key']} a touché le clone de {v.name} ({rec['dmg']} quart(s), gardé pour la fin)")
             return
+        if not self.valid.coup_fantome(p, v, rec):
+            return                              # S2, mode « refus » : impact trop loin de la victime
         now = time.monotonic()
         times = [x for x in p.hit_times.get(v.id, []) if now - x < 1.0]
         if len(times) >= PLAYER_HIT_RATE:
@@ -2565,6 +3245,7 @@ class Server:
         times.append(now)
         p.hit_times[v.id] = times
         self.player_hits += 1
+        self.pref_combat(p.zone)                            # S1 : coup reçu dans la zone = combat
         if self.hanteurs is not None:
             self.hanteurs.coup_relaye(v.id, rec["key"])     # mode Hanteurs : quel monstre a blessé (points)
         v.send(dict(rec, type="player_hit", **{"from": p.id}))
@@ -2574,7 +3255,7 @@ class Server:
     def handle_rare(self, p: Player, msg: dict) -> None:
         """cycle : propriétaire de l'horloge du stage seulement, relayé au stage ; rare (pilier) : relayé
         aux autres joueurs de la zone de l'émetteur."""
-        if not self.rares_enabled or not p.joueur or p.zone is None or msg.get("zone") != p.zone:
+        if not self.rares_enabled or not self.agit(p) or p.zone is None or msg.get("zone") != p.zone:
             return
         if msg["type"] == "cycle":
             v = valid_cycle(msg)
@@ -2660,7 +3341,7 @@ class Server:
         """pnj : positions des PNJ de la zone. Tout de l'AUTORITÉ de la zone ; d'un autre joueur, ses seules
         entrées « je le porte » (c) / « je lui parle » (t). Relayé aux autres joueurs de la zone, rien n'est
         gardé (voir synchro/pnj.py)."""
-        if not self.pnj_enabled or not p.joueur or p.zone is None or msg.get("zone") != p.zone:
+        if not self.pnj_enabled or not self.agit(p) or p.zone is None or msg.get("zone") != p.zone:
             return
         lst = valid_pnj(msg)
         if lst is None:
@@ -2861,7 +3542,7 @@ class Server:
     def handle_mobile(self, p: Player, msg: dict) -> None:
         """mob (blocs : verrou, dernière case ; bombes-fleurs), boom (débit), lift (autorité seulement) :
         relais aux autres joueurs de la zone de l'émetteur (voir le docstring du module)."""
-        if not self.mobiles_enabled or not p.joueur or p.zone is None or msg.get("zone") != p.zone:
+        if not self.mobiles_enabled or not self.agit(p) or p.zone is None or msg.get("zone") != p.zone:
             return
         zone, t, now = p.zone, msg["type"], time.monotonic()
         others = [o for o in self.members(zone) if o.id != p.id and o.joueur]
@@ -3863,6 +4544,8 @@ class Server:
                 p.last_seen = time.monotonic()
                 p.bytes_in += len(line)
                 msg = decode(line)
+                if isinstance(msg, dict) and not self.valid.debit(p, msg.get("type"), len(line)):
+                    continue                       # lot S2, mode « refus » : au-delà des débits, pas traité
                 if isinstance(msg, dict) and msg.get("type") in ("admin_defi", "admin"):
                     # administration du serveur dédié : son propre défi (compte admin, pas le mot de passe de partie)
                     if not await adm.recevoir(self, p, msg, log):
@@ -3870,6 +4553,10 @@ class Server:
                         break
                     await writer.drain()
                     continue
+                if not p.auth and isinstance(msg, dict) and msg.get("type") == "hello" \
+                        and msg.get("role") == robot_mod.ROLE and self.robot.actif \
+                        and robot_mod.cle_valide(self.robot.cle, msg.get("cle")):
+                    p.auth = True                  # joueur robot : sa clé (128 bits) vaut le mot de passe de partie
                 if not p.auth and not await acces.controler_hello(self.acces, p, msg, log):
                     reason = "mot de passe refusé"
                     break
@@ -3890,6 +4577,8 @@ class Server:
         finally:
             self.acces.fermer(ip_acces)
             del self.players[p.id]
+            self.robot_depart(p)               # joueur robot : sa zone revient aux joueurs (reassign plus bas)
+            self.valid.depart(p.id)
             self.hv_vus.discard(p.id)
             self.rejoindre_depart(p)
             if self.mp is not None and p.joueur:
@@ -3971,6 +4660,16 @@ class Server:
                     pass
 
 
+async def robot_boucle(srv: Server, pas: float = 0.5) -> None:
+    """Joueur robot : choix de zone, processus, ordres et passations (toutes les 0,5 s)."""
+    while True:
+        await asyncio.sleep(pas)
+        try:
+            srv.robot_tick()
+        except Exception as e:                 # jamais fatal : le serveur continue de relayer
+            log(f"robot : erreur ignorée ({type(e).__name__}: {e})")
+
+
 async def monde_boucle(srv: Server, pas: float = 1.0) -> None:
     """Monde persistant : écriture périodique, demandes d'image, fin d'attente des verdicts (chaque seconde)."""
     while True:
@@ -4031,7 +4730,8 @@ async def start(host: str, port: int, busy_defer: bool = True,
                 difficulte_on: bool = True, rando_mode: str = "sur",
                 rando_options: dict | None = None, trackeur: bool = True,
                 trackeur_deduire: bool = False,
-                pnj: bool = True) -> tuple[Server, asyncio.base_events.Server]:
+                pnj: bool = True, autorite_preferee: str | None = None,
+                **opts) -> tuple[Server, asyncio.base_events.Server]:
     """Démarre le serveur (port 0 = libre) ; utilisé aussi par les tests."""
     srv = Server(busy_defer=busy_defer, tsw=tsw, drops=drops, sticks=sticks, hote=hote, keys=keys,
                  keys_file=keys_file, coffres=coffres, inventaire=inventaire, cadeaux=cadeaux, boss=boss,
@@ -4040,7 +4740,8 @@ async def start(host: str, port: int, busy_defer: bool = True,
                  herbe=herbe, deathlink=deathlink, mot_de_passe=mot_de_passe, monde_persistant=monde_persistant,
                  rando_graine=rando_graine, difficulte=difficulte, difficulte_on=difficulte_on,
                  rando_mode=rando_mode, rando_options=rando_options,
-                 trackeur=trackeur, trackeur_deduire=trackeur_deduire, pnj=pnj)
+                 trackeur=trackeur, trackeur_deduire=trackeur_deduire, pnj=pnj,
+                 autorite_preferee=autorite_preferee, **opts)
     server = await asyncio.start_server(srv.client, host, port, limit=MAX_LINE)
     return srv, server
 
@@ -4094,7 +4795,8 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
                 difficulte_on: bool = True, rando_mode: str = "sur",
                 rando_options: dict | None = None, trackeur: bool = True,
                 trackeur_deduire: bool = False, pnj: bool = True,
-                admin: "adm.Admin | None" = None) -> str | None:
+                admin: "adm.Admin | None" = None, autorite_preferee: str | None = None,
+                **opts) -> str | None:
     """Renvoie « redemarrer » si l'administrateur a demandé un redémarrage (serveur/admin.py), sinon None."""
     try:
         srv, server = await start(host, port, busy_defer, tsw, drops, sticks, hote, keys, keys_file, coffres,
@@ -4105,7 +4807,8 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
                                   monde_persistant=monde_persistant, rando_graine=rando_graine,
                                   difficulte=difficulte, difficulte_on=difficulte_on,
                                   rando_mode=rando_mode, rando_options=rando_options,
-                                  trackeur=trackeur, trackeur_deduire=trackeur_deduire, pnj=pnj)
+                                  trackeur=trackeur, trackeur_deduire=trackeur_deduire, pnj=pnj,
+                                  autorite_preferee=autorite_preferee, **opts)
     except OSError as e:
         log(f"ÉCHEC : impossible d'écouter sur {host}:{port} ({e}). Un autre serveur tourne déjà sur ce "
             "port ? Ferme-le, ou choisis un autre --port.")
@@ -4132,6 +4835,12 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
         log("pas de mot de passe de partie (réseau local / VPN). Pour Internet : docs/hotes/JOUER_PAR_INTERNET.md")
     if hote:
         log(f"rejoindre (A15) : l'hôte est le joueur {hote}")
+    log(f"validation côté serveur : « {srv.valid.mode} » ("
+        + {"journal": "anomalies notées seulement, rien n'est refusé", "refus": "coups impossibles et messages en trop "
+           "REFUSÉS", "off": "désactivée"}[srv.valid.mode] + ")")
+    if srv.pref.actif:
+        log(f"PC d'autorité préféré : {srv.pref.texte()} ; il prend l'autorité des zones calmes où il est, et la "
+            "rend s'il ne répond plus (serveur/autorite.py)")
     if admin is not None:
         log(f"administration à distance : compte « {admin.utilisateur} » ({admin.source_compte}) ; configuration "
             f"{admin.chemin}")
@@ -4198,6 +4907,17 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
         "les plus proches)")
     stats_task = asyncio.create_task(srv.stats_loop(stats)) if stats > 0 else None  # noqa: F841 (référence gardée)
     monde_task = asyncio.create_task(monde_boucle(srv)) if srv.mp is not None else None  # noqa: F841
+    g = srv.robot.gest
+    if g is not None:
+        g.hote = "127.0.0.1" if host in ("0.0.0.0", "", "::") else host
+        g.port = server.sockets[0].getsockname()[1] if server.sockets else port
+    if srv.robot.actif:
+        log("JOUEUR ROBOT (--robot auto, docs/etudes/joueur_robot.md) : il prend l'autorité de la zone qui a le plus de "
+            f"joueurs (2 au moins), dort sinon ; arrêté après {srv.robot.repos_arret:.0f} s de repos ; "
+            + ("processus : " + (g.argv()[0] if g.argv() else "?") if g is not None
+               else "aucune --robot-commande : le serveur attend un robot lancé à part (clé : --robot-cle)"))
+    # toujours : le robot peut être allumé à chaud depuis « Administrer le serveur » (robot_tick ne fait rien sur off)
+    robot_task = asyncio.create_task(robot_boucle(srv))  # noqa: F841 (référence gardée)
     # A16 : on n'utilise pas serve_forever() : annulé, il attend la fermeture de TOUTES les
     # connexions (Python ≥ 3.12) avant qu'on puisse envoyer « bye ». Le serveur écoute déjà.
     try:
@@ -4216,6 +4936,10 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
     finally:
         if srv.mp is not None and srv.mp.sale:
             srv.mp.ecrire(srv, "arrêt")
+        if robot_task is not None:
+            robot_task.cancel()
+        if srv.robot.gest is not None:
+            srv.robot.gest.arreter("arrêt du serveur")
         server.close()
         try:
             await asyncio.wait_for(server.wait_closed(), 2.0)
@@ -4463,6 +5187,34 @@ def main(argv=None) -> int:
                     help="mode Hanteurs, possession complète : espèces À L'ESSAI que les Hanteurs peuvent posséder "
                          "et piloter (noms ou numéros séparés par des virgules : stalfos, darknut, keese, kargaroc, "
                          "rat, wizzrobe, poe, magtail, redead, armos, armos knight, octorok, boko baba ; « toutes ») ; désactivé par défaut ; remplace le réglage pilotage_essai du fichier")
+    ap.add_argument("--autorite-preferee", metavar="NOMS", default=None,
+                    help="lot S1 : PC d'autorité préféré : pseudo(s) séparés par des virgules (ordre de priorité), ou "
+                         "« @hote » (client lancé avec --hote, sinon celui de ce PC) ; il prend l'autorité des "
+                         "monstres des zones calmes où il est présent, au lieu du joueur présent depuis le plus "
+                         "longtemps, et la rend s'il part ou ne répond plus. Défaut : aucun (comme avant). Serveur "
+                         "dédié : réglé dans « Administrer le serveur » (config.json)")
+    ap.add_argument("--validation", choices=list(valid_mod.MODES), default=valid_mod.DEFAUT,
+                    help="lot S2 : validation côté serveur (vitesse plausible des Link, distance des coups, débits par "
+                         "message) : « journal » (défaut : anomalies notées, rien n'est refusé ; lanceur : « Administrer "
+                         "le serveur »), « refus » (coups impossibles et messages en trop refusés ; après un essai à "
+                         "plusieurs PC seulement) ou « off ». Serveur dédié : réglé dans config.json")
+    ap.add_argument("--robot", choices=list(robot_mod.MODES), default=robot_mod.DEFAUT,
+                    help="joueur robot (docs/etudes/joueur_robot.md) : « auto » = une instance du jeu sans joueur, sur "
+                         "ce serveur, fait autorité dans la zone qui a le plus de joueurs (2 au moins) et dort sinon ; "
+                         "« off » (défaut) : comme avant")
+    ap.add_argument("--robot-commande", metavar="CMD", default=None,
+                    help="commande qui lance le robot ({hote}, {port}, {cle}, {python} remplacés ; la clé est aussi "
+                         "dans WWMP_ROBOT_CLE) ; sans elle, le serveur attend un robot lancé à part")
+    ap.add_argument("--robot-portage", metavar="DOSSIER", default=None,
+                    help="dossier de la release du portage pour le robot : la commande est alors celle du dépôt "
+                         "(tools/client/robot.py : portage caché + client --robot ; docs/hotes/ESSAYER_LE_ROBOT.md)")
+    ap.add_argument("--robot-cle", metavar="CLE", default=None,
+                    help="clé du robot (sinon WWMP_ROBOT_CLE, sinon tirée au hasard) ; jamais journalisée")
+    ap.add_argument("--robot-repos", type=float, default=robot_mod.REPOS_ARRET, metavar="S",
+                    help=f"s de repos avant d'arrêter le processus du robot (défaut {robot_mod.REPOS_ARRET:.0f} ; 0 : "
+                         "tout de suite)")
+    ap.add_argument("--robot-journal", metavar="FICHIER", default=None,
+                    help="sortie du processus du robot ajoutée à ce fichier (défaut : jetée)")
     ap.add_argument("--max-joueurs", type=int, default=MAX_PLAYERS, metavar="N",
                     help=f"nombre de joueurs au plus (défaut {MAX_PLAYERS}, de 1 à {MAX_PLAYERS})")
     ap.add_argument("--mot-de-passe", metavar="MDP", default=None,
@@ -4668,7 +5420,13 @@ def main(argv=None) -> int:
                                          "indices_clairs": False if args.rando_indices_obscurs else None,
                                          "reglages": args.rando_reglages},
                           trackeur=not args.no_trackeur, trackeur_deduire=args.trackeur_deduire,
-                          pnj=not args.no_pnj, admin=admin_srv))
+                          pnj=not args.no_pnj, admin=admin_srv,
+                          autorite_preferee=autorite.normaliser(args.autorite_preferee),
+                          validation=args.validation if args.validation in valid_mod.MODES else valid_mod.DEFAUT,
+                          robot=args.robot, robot_commande=robot_mod.commande_defaut(args.robot_commande,
+                                                                                     args.robot_portage, TOOLS),
+                          robot_cle=args.robot_cle or os.environ.get("WWMP_ROBOT_CLE") or None,
+                          robot_repos=args.robot_repos, robot_journal=args.robot_journal))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

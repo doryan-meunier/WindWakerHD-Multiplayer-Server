@@ -22,7 +22,7 @@ ne lit que l'ÉTAT de ce Link, jamais la manette :
   bondit de lui-même), puis le Link caché est recollé sur le monstre ;
 * une vraie recharge par geste et par espèce (``RECHARGES``), tenue par le SERVEUR, multipliée par le réglage
   « recharge des attaques », envoyée au Hanteur (``hrecharge``) et affichée dans le lanceur ;
-* l'autorité répond 5 fois par seconde (``hpilote`` : accepté ou non et pourquoi, position vraie du monstre, « libre »
+* l'autorité répond 10 fois par seconde (``hpilote`` : accepté ou non et pourquoi, position vraie du monstre, « libre »
   pendant un coup) ; le client du Hanteur dessine sa marionnette du monstre SUR son Link caché (prédiction locale,
   aucune latence pour le pilote) et recolle le Link caché quand l'écart dépasse ``RECOLLAGE`` u.
 
@@ -48,7 +48,7 @@ RECOLLAGE = 300.0          # u : écart Link caché / monstre au-delà duquel le
 RECOLLAGE_MAX = 3000.0     # u : au-delà, position de retour jugée folle : ni recollage ni prédiction (client)
 RECOLLAGE_SERVEUR = 350.0  # u : un saut > SAUT_MAX est admis s'il arrive à cette distance du monstre (recollage)
 RECOLLAGE_PERIODE = 0.7    # s entre deux recollages (client)
-PERIODE_RETOUR = 0.2       # s entre deux ``hpilote`` (autorité -> Hanteur)
+PERIODE_RETOUR = 0.1       # s entre deux ``hpilote`` (autorité -> Hanteur) ; lot L3 (A6) : 10 Hz (avant 5)
 RETOUR_MAX = 1.5           # s : un ``hpilote`` plus vieux ne vaut plus (prédiction coupée)
 YEUX = 110.0               # u : hauteur des « yeux » de la carotte au-dessus de son sol [HYPO : Link adulte ~110 u]
 ACTION_MAX = 31            # le pack refuse la carotte hors de 0..31 (masque de 32 bits)

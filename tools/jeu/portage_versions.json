@@ -1,0 +1,17 @@
+{
+  "format": 1,
+  "depot": "ZeldaWWHDRecomp/ZeldaWWHDRecomp",
+  "note": "Versions du portage natif : « epinglee » = installée par le bouton « Installer le portage natif » ; « verifiees » = versions sur lesquelles le mod WWMP a été construit et vérifié (mise à jour directe ; une plus récente = avertissement, le joueur peut forcer). « empreintes » : sha256 de chaque fichier de la release OFFICIELLE (SHA256SUMS.txt de la release, recopié ici) ; un fichier absent de la table n'est jamais installé avec une empreinte épinglée. Ajouter une version : son SHA256SUMS.txt ici, puis « verifiees » après essai en jeu.",
+  "epinglee": "v0.5.1",
+  "verifiees": ["v0.5.1"],
+  "empreintes": {
+    "v0.5.1": {
+      "WindWakerHD-v0.5.1-windows-x86_64.zip": "2e8a8b29ed1b35e6d3cae370a7c9b6878a05d6269b28420dd492415da72f48c4",
+      "WindWakerHD-v0.5.1-windows-arm64.zip": "bd53bdb718d2f65d6bce08fbc72ff38edb196b59a05e390820d128f67e21a2a9",
+      "WindWakerHD-v0.5.1-linux-x86_64.zip": "d7f56850b5b74788f001bab8eecac8cccde5b1e24e11473e14fbd673b7616c3c",
+      "WindWakerHD-v0.5.1-linux-aarch64.zip": "d9aa58c1745e9c9bb32a163bc0dd06b6290cd4832ef852d6084886f3f6a75105",
+      "WindWakerHD-v0.5.1-linux-x86_64.AppImage": "e7532b3f4a04ccc0f4b6bb6dfb7bf79ceb8e249d71853c0bf62b0ed1ce5ebf8a",
+      "WindWakerHD-v0.5.1-linux-aarch64.AppImage": "9151908c2db0a14fee9da199973a7d7d67133f754f87e15615c1804c20cd45df"
+    }
+  }
+}

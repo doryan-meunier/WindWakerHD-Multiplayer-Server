@@ -40,7 +40,7 @@ def attach(pid: int | None = None, write: bool = False) -> Process:
         for name in CEMU_EXE_NAMES:
             pids += winmem.find_pids(name)
         if not pids:
-            raise RuntimeError(f"{nom} introuvable : lance Cemu et charge Wind Waker HD d'abord.")
+            raise RuntimeError(f"{nom} introuvable : lance Cemu et charge Wind Waker HD d'abord (ou le portage natif « Wind Waker HD » avec le mod wwmp-natif).")
         if len(pids) > 1:
             print(f"[!] plusieurs {nom} ({pids}), j'utilise {pids[0]} (option --pid pour choisir)")
         pid = pids[0]
@@ -83,7 +83,10 @@ def find_base_candidates(proc: Process) -> list[BaseCandidate]:
 
 
 class GuestMemory:
-    """Lecture d'adresses virtuelles Wii U (big-endian) dans le processus Cemu."""
+    """Lecture d'adresses virtuelles Wii U (big-endian) dans le processus Cemu (ou du portage natif : jeu/natif.py,
+    même classe avec une base fixe)."""
+    hote = "cemu"           # « natif » : jeu.natif.MemoireNatif
+    zone_boite = None       # natif : (lo, hi) où chercher la boîte aux lettres du mod C (mailbox.find)
 
     def __init__(self, proc: Process, base: int):
         self.proc = proc
@@ -256,8 +259,33 @@ def _base_valide(proc, bases: list[int], verbose: bool) -> int | None:
     return None
 
 
+def jeu_natif_choisi(pid: int | None = None, jeu: str | None = None) -> bool:
+    """Ouvrir le portage natif plutôt que Cemu ? ``jeu`` (ou la variable WWMP_JEU) : « cemu », « natif » ou « auto »
+    (défaut). Auto : Cemu dès qu'il tourne (rien ne change pour lui) ; le portage seulement s'il tourne SANS Cemu,
+    ou si ``pid`` est celui du portage."""
+    import os
+    choix = (jeu or os.environ.get("WWMP_JEU") or "auto").strip().lower()
+    if choix in ("natif", "recomp", "portage"):
+        return True
+    if choix == "cemu":
+        return False
+    try:
+        from jeu import natif
+        natifs = natif.find_natif_pids()
+        if not natifs:
+            return False
+        if pid is not None:
+            return pid in natifs and pid not in winmem.find_cemu_pids()
+        return not winmem.find_cemu_pids()
+    except Exception:                               # noqa: BLE001  (liste des processus illisible : Cemu, comme avant)
+        return False
+
+
 def open_guest(pid: int | None = None, base: int | None = None, verbose: bool = True,
-               write: bool = False) -> GuestMemory:
+               write: bool = False, jeu: str | None = None) -> GuestMemory:
+    if jeu_natif_choisi(pid, jeu):
+        from jeu import natif
+        return natif.open_natif(pid, write=write, verbose=verbose, base=base)
     proc = attach(pid, write)
     if base is None and winmem.SYSTEME == "linux":
         # vu le 2026-11-13 (Linux) : la meilleure réservation de 4 Gio n'était pas celle du jeu (« ce n'est pas Wind
