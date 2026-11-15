@@ -13,13 +13,16 @@
 #
 # Fichier .env facultatif à côté de ce fichier (modèle : serveur_dedie/docker/.env.exemple du dépôt) : WWMP_PORT (7777 par défaut),
 # WWMP_ADMIN_UTILISATEUR / WWMP_ADMIN_MOT_DE_PASSE (compte admin ; sinon créé au hasard dans le volume),
-# WWMP_MOT_DE_PASSE (mot de passe de partie au PREMIER démarrage seulement ; ensuite il se change dans le lanceur).
+# WWMP_MOT_DE_PASSE (mot de passe de partie au PREMIER démarrage seulement ; ensuite il se change dans le lanceur),
+# WWMP_UID / WWMP_GID (utilisateur qui fait tourner le serveur, 10001 par défaut ; jamais root).
 name: wwmp
 services:
   wwmp:
     image: ghcr.io/doryan-meunier/windwakerhd-multiplayer-server:latest
     pull_policy: always   # « up -d » prend la dernière image publiée
     container_name: wwmp-serveur
+    # utilisateur (UID:GID) qui fait tourner le serveur : défini ICI, pas dans l'image ; jamais root
+    user: "${WWMP_UID:-10001}:${WWMP_GID:-10001}"
     # un redémarrage demandé depuis le lanceur arrête proprement le serveur : Docker le relance
     restart: unless-stopped
     ports:

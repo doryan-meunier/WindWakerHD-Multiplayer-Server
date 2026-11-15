@@ -3,7 +3,7 @@
 Le serveur de partie de **Wind Waker Coop** (WindWakerHD-Multiplayer), seul, pour l'héberger avec Docker.
 Aucun fichier du jeu : le serveur ne fait que relayer et fusionner l'état des joueurs.
 
-> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `b61fcd3`).
+> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `5a6bc0a`).
 > Ne pas le modifier à la main : toute correction se fait dans WindWakerHD-Multiplayer, puis on régénère.
 
 ## Démarrer : seulement le docker-compose.yml
@@ -40,6 +40,11 @@ WWMP_MOT_DE_PASSE=le-mot-de-passe-a-donner-aux-amis
 | `WWMP_ADMIN_UTILISATEUR` | utilisateur admin (lanceur : « Administrer le serveur ») | `admin` |
 | `WWMP_ADMIN_MOT_DE_PASSE` | mot de passe admin, **différent** de celui de la partie ; tant qu'il est dans le `.env`, il l'emporte | créé au hasard : `docker compose exec wwmp cat /donnees/admin.txt` |
 | `WWMP_MOT_DE_PASSE` | mot de passe de la partie, lu au **premier** démarrage seulement ; ensuite il se change dans le lanceur | créé au hasard : `docker compose exec wwmp cat /donnees/mot_de_passe.txt` |
+| `WWMP_UID` / `WWMP_GID` | utilisateur et groupe (numéros) qui font tourner le serveur, défini dans le docker-compose.yml (`user:`), jamais root | 10001 / 10001 |
+
+L'image ne définit aucun utilisateur : c'est le `user:` du docker-compose.yml qui le choisit. Pour changer d'UID sur un
+volume déjà créé, donne-lui d'abord le volume :
+`docker compose run --rm --user 0 --entrypoint chown wwmp -R 1000:1000 /donnees` (avec tes numéros).
 
 Rien d'autre à mettre : le monde, le randomizer, le mode Hanteurs, les joueurs max, le deathlink et la difficulté se
 règlent depuis le lanceur (Héberger › « Sur mon serveur dédié » › « Administrer le serveur »). Garde ce `.env` pour toi

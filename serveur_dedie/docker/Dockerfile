@@ -6,12 +6,15 @@
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
+    HOME=/donnees \
     PYTHONIOENCODING=utf-8 \
     PYTHONDONTWRITEBYTECODE=1
 
-RUN useradd --system --uid 10001 --home-dir /donnees --shell /usr/sbin/nologin wwmp \
-    && mkdir -p /donnees /app \
-    && chown wwmp:wwmp /donnees \
+# L'UTILISATEUR qui fait tourner le serveur se choisit dans docker-compose.yml (« user: », 10001:10001 par défaut,
+# réglable par WWMP_UID / WWMP_GID dans .env) : l'image n'en crée aucun. /donnees appartient à 10001 pour qu'un volume
+# neuf soit écrivable par l'utilisateur par défaut ; avec un autre UID, donner le volume à cet UID (README).
+RUN mkdir -p /donnees /app \
+    && chown 10001:10001 /donnees \
     && chmod 700 /donnees
 
 WORKDIR /app
@@ -23,7 +26,6 @@ COPY tools/synchro /app/synchro
 COPY tools/rando /app/rando
 COPY tools/serveur /app/serveur
 
-USER wwmp
 VOLUME ["/donnees"]
 EXPOSE 7777/tcp
 
