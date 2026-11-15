@@ -2,7 +2,7 @@
 """Serveur de partie. Point d'entrée : le code est dans tools/serveur/principal.py.
 
 Lancé par le lanceur (Héberger), lancer_serveur.bat / .sh et l'image Docker
-(serveur_dedie/docker : ENTRYPOINT /app/wwmp_server.py) : chemin FIGÉ.
+(dépôt WindWakerHD-Multiplayer-Server, généré par outils/extraire_serveur.py : ENTRYPOINT /app/wwmp_server.py) : chemin FIGÉ.
 Les options sont celles de ``serveur.principal.main`` (``python tools/wwmp_server.py --help``).
 """
 import sys

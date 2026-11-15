@@ -1000,42 +1000,100 @@ def installer_natif(pack: str, config: str, jeu_tourne=None, source: str = PACK_
                                    "package copy failed (" + "; ".join(w["problemes"][:3]) + "): nothing is replaced")
         _refus_jeu(jeu_tourne)
         if os.path.exists(f_plan):
-            os.remove(f_plan)                       # d'abord : pendant le changement, aucun plan n'est annoncé
+            _reessayer(os.remove, f_plan)           # d'abord : pendant le changement, aucun plan n'est annoncé
+        # renommages réessayés : sous Windows, un fichier peut être tenu un instant (antivirus, indexation)
         if os.path.isdir(dest):
-            os.replace(dest, vieux)
-        os.replace(neuf, dest)
+            _reessayer(os.replace, dest, vieux)
+        _reessayer(os.replace, neuf, dest)
         if os.path.isdir(dg):
-            os.replace(dg, gvieux)
+            _reessayer(os.replace, dg, gvieux)
         if greffe is not None:
-            os.replace(gneuf, dg)
+            _reessayer(os.replace, gneuf, dg)
         _ecrire_atomique(f_plan, w["fichier_plan"])
     except OSError as e:
         raise ErreurGenerateur(f"installation impossible dans {mods} ({e})",
                                f"cannot install into {mods} ({e})") from None
     finally:
         for d in (neuf, vieux, gneuf, gvieux):
-            shutil.rmtree(d, ignore_errors=True)
+            if os.path.isdir(d):
+                _effacer_reste(d)                   # caché du jeu (nom en « . ») ; un reste tenu partira la fois suivante
     return {"dossier": dest, "plan": v["plan"], "fichiers": v["fichiers"],
             "greffe": dg if greffe is not None else None}
 
 
+ESSAIS_VERROU = 20          # Windows : un fichier tenu un instant (antivirus, indexation) : on réessaie…
+PAUSE_VERROU = 0.25         # …toutes les 0,25 s, environ 5 s en tout
+
+
+def _reessayer(fn, *args):
+    """``fn(*args)`` ; sur PermissionError (WinError 32/5 : fichier tenu un instant par un autre processus),
+    réessaie ESSAIS_VERROU fois. La dernière erreur remonte."""
+    for i in range(ESSAIS_VERROU):
+        try:
+            return fn(*args)
+        except PermissionError:
+            if i == ESSAIS_VERROU - 1:
+                raise
+            time.sleep(PAUSE_VERROU)
+
+
+def _effacer_reste(d: str) -> bool:
+    """Efface ``d`` en réessayant fichier par fichier ; ce qui reste tenu est laissé (nom caché « .…retire », ignoré
+    par le jeu, retiré à la prochaine fois). True si tout est parti."""
+    def onerror(fn, chemin, _exc):
+        try:
+            _reessayer(fn, chemin)
+        except OSError:
+            pass
+    shutil.rmtree(d, **({"onexc": onerror} if sys.version_info >= (3, 12) else {"onerror": onerror}))
+    return not os.path.exists(d)
+
+
+def retirer_dossier(d: str) -> None:
+    """Retire un de NOS paquets du portage sans jamais le laisser à moitié visible : d'abord RENOMMÉ en
+    ``.<nom>.retire`` (caché du jeu ; renommage réessayé si un fichier est tenu un instant), puis effacé. Vu le
+    2026-11-15 : « shutil.rmtree » s'arrêtait sur WinError 32 (fichier tenu par l'antivirus) en laissant un paquet
+    à moitié effacé. Si le renommage reste impossible, PermissionError remonte (rien n'a été effacé)."""
+    parent, nom = os.path.split(os.path.normpath(d))
+    for vieux in os.listdir(parent):                     # restes d'une fois précédente
+        if vieux.startswith(f".{nom}.") and vieux.endswith(".retire"):
+            _effacer_reste(os.path.join(parent, vieux))
+    corbeille = os.path.join(parent, f".{nom}.retire")
+    n = 1
+    while os.path.exists(corbeille):
+        n += 1
+        corbeille = os.path.join(parent, f".{nom}.{n}.retire")
+    _reessayer(os.replace, d, corbeille)
+    _effacer_reste(corbeille)
+
+
 def desinstaller_natif(config: str, jeu_tourne=None) -> bool:
     """Retire le paquet de contenu (s'il est à nous) et rando_plan.bin, jeu fermé. True si quelque chose est retiré."""
+    try:
+        return _desinstaller_natif(config, jeu_tourne)
+    except PermissionError as e:
+        raise ErreurGenerateur(f"un autre programme tient un fichier du paquet depuis plus de 5 s (antivirus, "
+                               f"explorateur ouvert dessus ?) : rien n'est à moitié retiré, réessaie ({e})",
+                               f"another program has held a package file for over 5 s (antivirus, file explorer "
+                               f"open on it?): nothing is half removed, try again ({e})") from None
+
+
+def _desinstaller_natif(config: str, jeu_tourne=None) -> bool:
     _refus_jeu(jeu_tourne)
     _mods, dest, f_plan = chemins_natif(config)
     fait = False
     if os.path.isfile(f_plan):
-        os.remove(f_plan)
+        _reessayer(os.remove, f_plan)
         fait = True
     dg = dossier_greffe(config)
     if os.path.isdir(dg) and not os.path.islink(dg) and _greffe_a_nous(dg):
-        shutil.rmtree(dg)
+        retirer_dossier(dg)
         fait = True
     if os.path.isdir(dest) and not os.path.islink(dest):
         if not _est_a_nous(dest):
             raise ErreurGenerateur(f"{dest} n'est pas un paquet WWMP Rando : rien n'est retiré",
                                    f"{dest} is not a WWMP Rando package: nothing is removed")
-        shutil.rmtree(dest)
+        retirer_dossier(dest)
         fait = True
     return fait
 

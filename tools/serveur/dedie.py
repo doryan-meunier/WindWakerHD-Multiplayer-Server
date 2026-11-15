@@ -1,4 +1,4 @@
-"""Serveur dédié (docs/hotes/JOUER_PAR_INTERNET.md, dossier serveur_dedie/docker) : wwmp_server.py qui tourne seul, sans
+"""Serveur dédié (docs/hotes/JOUER_PAR_INTERNET.md, Docker : dépôt WindWakerHD-Multiplayer-Server) : wwmp_server.py qui tourne seul, sans
 joueur ni Cemu, dans un conteneur Docker (le serveur reste lançable à la main : le lanceur s'en sert pour « Sur ce PC »).
 
 - ``mot_de_passe_serveur(args)`` : d'où vient le mot de passe de la partie (options, variable

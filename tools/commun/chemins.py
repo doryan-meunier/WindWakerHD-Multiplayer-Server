@@ -2,7 +2,7 @@
 
 ``TOOLS``   dossier du code : ``tools/``. Son nom et sa place sont FIGÉS : les lanceurs déjà installés
             n'acceptent dans un paquet de mise à jour que des fichiers sous ``tools/``, ``graphicpack/``,
-            ``docs/*.md`` et ``serveur_dedie/`` (commun/maj_paquet.chemin_autorise), lancent
+            ``docs/*.md`` (et l'ancien ``serveur_dedie/``) (commun/maj_paquet.chemin_autorise), lancent
             ``tools/wwmp_lanceur.py`` de la version installée, et « Wind Waker Coop.exe » vise
             ``R/tools/wwmp_lanceur.py``.
 ``RACINE``  dossier du mod (le dépôt, ou une version installée ``R/versions/<nom>``) : parent de ``tools/``.

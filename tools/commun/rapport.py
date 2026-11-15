@@ -235,6 +235,9 @@ _RE_ERREUR = re.compile(
     r"\b[ée]chec\b|\b[Cc]rash|[Pp]lantage|Not loaded|\[code mods\].*(?:refus|échou|[ée]chec|fail|error|erreur|"
     r"impossible|invalid|not |manqu))")
 _RE_HEURE = re.compile(r"^\s*(?:\d{4}-\d\d-\d\d[ T])?\d\d:\d\d:\d\d(?:[.,]\d+)?\s*")
+# messages sans gravité qui contiennent « error » : le portage sous Linux n'a pas le droit de monter la priorité de
+# ses fils (setpriority, EACCES = 13), il le dit pour chacun (vu le 2026-11-15 : rapport proposé à tort)
+_RE_PAS_ERREUR = re.compile(r"\[thread priority\].*operation=setpriority error=13")
 
 
 def erreurs(texte: str, maximum: int = ERREURS_MAX) -> tuple[int, list[str]]:
@@ -242,7 +245,7 @@ def erreurs(texte: str, maximum: int = ERREURS_MAX) -> tuple[int, list[str]]:
     vues: dict[str, str] = {}
     n = 0
     for ligne in texte.splitlines():
-        if _RE_ERREUR.search(ligne):
+        if _RE_ERREUR.search(ligne) and not _RE_PAS_ERREUR.search(ligne):
             n += 1
             cle = _RE_HEURE.sub("", ligne).strip()[:300]
             vues.pop(cle, None)

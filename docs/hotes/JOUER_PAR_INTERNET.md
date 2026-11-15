@@ -87,13 +87,20 @@ propose déjà.
 
 ### B1. Installer le serveur (Docker)
 
+Un seul fichier à prendre, le `docker-compose.yml` de ce dépôt (l'image est publiée par GitHub, rien à cloner ni à
+construire) :
+
 ```bash
-git clone <adresse du dépôt, la même que sur ton PC> wwmp
-cd wwmp/serveur_dedie/docker
-docker compose up -d --build
+mkdir wwmp && cd wwmp
+curl -fsSLO https://raw.githubusercontent.com/doryan-meunier/WindWakerHD-Multiplayer-Server/main/docker-compose.yml
+docker compose up -d
 docker compose logs wwmp | grep "COMPTE ADMIN"            # compte admin créé au premier démarrage
 docker compose exec wwmp cat /donnees/mot_de_passe.txt    # le mot de passe de la partie
 ```
+
+Construire l'image soi-même au lieu de la télécharger : `git clone https://github.com/doryan-meunier/WindWakerHD-Multiplayer-Server.git`,
+puis `cd WindWakerHD-Multiplayer-Server/serveur_dedie/docker && docker compose up -d --build` (même projet `wwmp`, même
+volume : on peut passer de l'un à l'autre sans perdre le monde).
 
 Image `python:3.12-slim`, aucune autre dépendance ; redémarrage automatique. **Rien à éditer dans
 `docker-compose.yml`** : tout ce qui se règle vit dans le volume `wwmp-donnees` (il survit à
@@ -105,9 +112,9 @@ Image `python:3.12-slim`, aucune autre dépendance ; redémarrage automatique. *
 | `admin.txt` | le compte admin (utilisateur, mot de passe), s'il n'est pas dans `.env` |
 | `mot_de_passe.txt` | le mot de passe de partie (celui que tu donnes à tes amis) |
 | `mondes/` | les mondes persistants (et leurs spoilers du randomizer, leurs sauvegardes) |
-| `cles.json`, `mises_a_jour/` | anciennes clés partagées ; paquets de mise à jour du mod ([MISES_A_JOUR.md](../joueurs/MISES_A_JOUR.md)) |
+| `cles.json`, `mises_a_jour/` | anciennes clés partagées ; paquets de mise à jour du mod ([MISES_A_JOUR.md](https://github.com/doryan-meunier/WindWakerHD-Multiplayer/blob/main/docs/joueurs/MISES_A_JOUR.md)) |
 
-Fichier **`.env`** facultatif, à côté de `docker-compose.yml` (copie `.env.exemple`) :
+Fichier **`.env`** facultatif, à côté de `docker-compose.yml` (modèle : `serveur_dedie/docker/.env.exemple` de ce dépôt) :
 
 | Variable | Rôle |
 |---|---|
@@ -184,8 +191,9 @@ Avant, on réglait le monde et le randomizer avec un fichier `docker-compose.ove
 `command: [... "--monde", "rando1", "--rando-graine", ..., "--rando-reglages", ...]`). Il n'est
 plus nécessaire :
 
-1. Mets à jour (`git pull`) **sans** supprimer l'override, puis
-   `docker compose up -d --build` : au premier démarrage, le serveur crée `config.json` **avec les
+1. Mets à jour (`git pull`, ou le docker-compose.yml seul : voir « Passer au docker-compose.yml seul » ; garde
+   l'override **à côté**) **sans** supprimer l'override, puis `docker compose up -d --build` (`docker compose up -d`
+   avec l'image publiée) : au premier démarrage, le serveur crée `config.json` **avec les
    options de l'override** (le journal liste celles qu'il a reprises). Si `.env` contient
    `WWMP_MOT_DE_PASSE`, il est repris dans `mot_de_passe.txt` : le mot de passe ne change pas.
 2. Vérifie : `docker compose exec wwmp cat /donnees/config.json`, et note le compte admin
@@ -322,23 +330,43 @@ redémarre ou quand l'hôte d'origine ne joue pas.
 * **Mode Hanteurs sur le monde** : permis (interrupteur « Mode Hanteurs » de « Administrer le serveur »). C'est une session
   temporaire au-dessus du monde : ce que les Link gagnent entre dans le monde, rien de ce que fait un
   Hanteur n'y entre, les rôles et les points ne sont jamais gardés (seuls les réglages du mode le sont).
-  Pour finir la session, coupe le mode dans « Administrer le serveur » (le serveur redémarre). Détail : `docs/dev/SYNCHRO.md`,
-  « Hanteurs sur un monde persistant ».
+  Pour finir la session, coupe le mode dans « Administrer le serveur » (le serveur redémarre). Détail : `docs/dev/SYNCHRO.md`
+  du dépôt du mod, « Hanteurs sur un monde persistant ».
 * Ancien `cles.json` : repris une fois dans le monde, puis renommé `cles.json.migre`.
 
 ### Mettre à jour le serveur
 
-Quand tu mets à jour les PC de jeu (`git pull`), mets à jour le serveur :
+Quand tu mets à jour les PC de jeu, mets à jour le serveur, dans le dossier de son `docker-compose.yml` :
 
 ```bash
-cd wwmp && git pull && cd serveur_dedie/docker && docker compose up -d --build
+docker compose pull && docker compose up -d
 ```
 
+(Image construite toi-même : `git pull` dans ce dépôt, puis `cd serveur_dedie/docker && docker compose up -d --build`.)
 Le volume (configuration, mondes, mots de passe) est gardé tel quel.
 
 Ton serveur peut aussi **distribuer les mises à jour du mod à tes amis** : leur lanceur les
 propose tout seul à la connexion. Il suffit de copier le paquet signé dans son dossier
-`mises_a_jour` du volume : voir [MISES_A_JOUR.md](../joueurs/MISES_A_JOUR.md), étape 3.
+`mises_a_jour` du volume : voir [MISES_A_JOUR.md](https://github.com/doryan-meunier/WindWakerHD-Multiplayer/blob/main/docs/joueurs/MISES_A_JOUR.md), étape 3.
+
+### Passer au docker-compose.yml seul (serveur installé depuis `serveur_dedie/docker` du dépôt du mod)
+
+Le dépôt du mod n'a plus de dossier `serveur_dedie/` : le serveur dédié vit ici. Si ton serveur tourne depuis
+`…/WindWakerHD-Multiplayer/serveur_dedie/docker`, **rien ne presse** : le conteneur continue de tourner après le
+`git pull` du mod (qui retire les fichiers suivis de ce dossier, mais garde ton `.env`, non suivi). Pour passer au
+`docker-compose.yml` seul, sans perdre le monde (même nom de projet `wwmp`, même volume `wwmp-donnees`) :
+
+```bash
+mkdir -p /opt/wwmp && cd /opt/wwmp
+curl -fsSLO https://raw.githubusercontent.com/doryan-meunier/WindWakerHD-Multiplayer-Server/main/docker-compose.yml
+cp /opt/WindWakerHD-Multiplayer/serveur_dedie/docker/.env . 2>/dev/null || true    # ton ancien .env, s'il y en avait un
+docker compose up -d          # télécharge l'image publiée, remplace le conteneur wwmp-serveur, garde le volume
+docker compose logs -f        # le même monde, le même compte admin, le même mot de passe
+```
+
+(Adapte `/opt/WindWakerHD-Multiplayer` au dossier de ton clone.) Vérifier que c'est bien le même volume :
+`docker volume ls | grep wwmp-donnees` ne montre qu'**un** volume, `wwmp_wwmp-donnees`. Ensuite, l'ancien dossier
+`serveur_dedie/docker` (où ne reste que `.env`) peut partir ; le clone du mod n'est plus utile au serveur.
 
 ---
 
@@ -400,8 +428,9 @@ publique ne peut alors pas se déclarer « hôte ».
 Après un essai, pour envoyer au développeur tout ce qui sert au diagnostic côté serveur (le pendant du bouton
 « Rapport d'essai » du lanceur, Réglages › Console) :
 
+Dans le dossier de ton `docker-compose.yml` :
+
 ```bash
-cd serveur_dedie/docker
 docker compose exec wwmp python -m serveur.rapport            # écrit /donnees/rapports/WWMP_rapport_serveur_<date>.zip
 docker compose cp wwmp:/donnees/rapports/WWMP_rapport_serveur_<date>.zip .   # le nom exact est affiché juste avant
 ```

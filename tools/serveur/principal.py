@@ -239,7 +239,7 @@ ce dossier, mot de passe créé au premier lancement) protègent la partie : dé
 « hello », refus après un délai, adresse bloquée après trop d'erreurs, connexions limitées par IP.
 Sans mot de passe (défaut, réseau local), rien ne change ; « hote » n'est alors accepté que d'une
 adresse locale ou de VPN. Le mot de passe n'est jamais journalisé. Aucune dépendance (ni numpy, ni
-Cemu) : le serveur tourne seul sur une machine sans joueur (Docker : serveur_dedie/docker).
+Cemu) : le serveur tourne seul sur une machine sans joueur (Docker : dépôt WindWakerHD-Multiplayer-Server).
 
 Serveur dédié Docker (serveur/admin.py) : --config /donnees/config.json garde la configuration de la partie (monde,
 randomizer, mode Hanteurs, joueurs max, deathlink, difficulté) dans le volume ; un compte admin (WWMP_ADMIN_*, sinon
@@ -5207,7 +5207,7 @@ def main(argv=None) -> int:
                          "dans WWMP_ROBOT_CLE) ; sans elle, le serveur attend un robot lancé à part")
     ap.add_argument("--robot-portage", metavar="DOSSIER", default=None,
                     help="dossier de la release du portage pour le robot : la commande est alors celle du dépôt "
-                         "(tools/client/robot.py : portage caché + client --robot ; docs/hotes/ESSAYER_LE_ROBOT.md)")
+                         "(tools/client/robot.py : portage caché + client --robot ; docs/hotes/ESSAYER_LE_ROBOT.md du dépôt du mod)")
     ap.add_argument("--robot-cle", metavar="CLE", default=None,
                     help="clé du robot (sinon WWMP_ROBOT_CLE, sinon tirée au hasard) ; jamais journalisée")
     ap.add_argument("--robot-repos", type=float, default=robot_mod.REPOS_ARRET, metavar="S",

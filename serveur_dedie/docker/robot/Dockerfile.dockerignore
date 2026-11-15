@@ -1,6 +1,0 @@
-# Image du joueur robot (BuildKit lit ce fichier à la place de /.dockerignore) : notre code seulement, jamais de
-# fichier du jeu (aucun n'est dans tools/).
-*
-!tools/
-**/__pycache__
-**/*.pyc

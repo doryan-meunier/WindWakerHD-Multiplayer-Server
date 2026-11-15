@@ -356,6 +356,28 @@ def extraire(chemin: str, parent: str, tete: str | None = None, progres=None, an
     return final
 
 
+def release_deja_posee(parent: str, nom: str, systeme: str | None = None) -> str:
+    """La release ``nom`` déjà téléchargée et décompressée (installation précédente arrêtée pendant la préparation du
+    jeu, vu le 2026-11-15) : son chemin, pour reprendre la préparation sans retélécharger ; "" sinon. ``parent`` peut
+    être le dossier choisi pour installer, ou la release elle-même. Le nom du dossier porte la version et la plateforme
+    (``WindWakerHD-v0.5.1-linux-x86_64``) ; on demande aussi l'outil de préparation du portage."""
+    tete = nom[:-len(".zip")] if nom.endswith(".zip") else nom
+    for final in (os.path.join(parent, tete), parent):
+        if os.path.basename(os.path.normpath(final)) != tete:
+            continue
+        if nom.endswith(".AppImage"):
+            if os.path.isfile(final) and not os.path.islink(final):
+                return final
+            continue
+        if not os.path.isdir(final) or os.path.islink(final):
+            continue
+        outil = os.path.join(final, "tools", "python", "python.exe") if _systeme(systeme) == "win32" \
+            else os.path.join(final, "tools", "setup-in-terminal.sh")
+        if os.path.isfile(outil):
+            return final
+    return ""
+
+
 def poser_appimage(fichier: str, parent: str, nom: str) -> str:
     """L'AppImage téléchargée posée dans ``parent/nom`` (jamais par-dessus un fichier existant), exécutable."""
     final = os.path.join(parent, nom)

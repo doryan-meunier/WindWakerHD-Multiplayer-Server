@@ -85,8 +85,9 @@ def chemin_autorise(rel) -> bool:
         return len(parts) >= 3 and parts[1].startswith("WWMP_")
     if haut == "docs":
         return len(parts) == 2 and ext == ".md"          # pas docs/etudes/
-    if haut == "serveur_dedie":
-        return True
+    # serveur_dedie/ (Docker) : n'est plus distribué, le serveur dédié a son dépôt (WindWakerHD-Multiplayer-Server).
+    # Retirer un dossier de la liste ne gêne pas les lanceurs déjà installés (ils acceptent toujours le paquet) ;
+    # l'élargir, si (tests/test_organisation.py).
     return False
 
 

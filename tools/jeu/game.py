@@ -135,8 +135,15 @@ def in_mem2(p: int) -> bool:
 CODECAVE_START, CODECAVE_END = 0x01800000, 0x02000000   # profils de nos acteurs custom
 
 
+# portage natif : les profils de nos acteurs (WwmpLink, WwmpModel) enregistrés par wwhd_native_actor_profile_register
+# sont dans une zone du portage (vu à 0x60001000), au-dessus de MEM2, jusqu'à la zone des mods (jeu/natif.py
+# ZONE_MODS). Vu le 2026-11-15 : sans elle, le scanner rejetait nos fantômes, leur pose n'était jamais écrite et,
+# dessinés sans recalcul, ils restaient figés.
+ZONE_PROFILS_NATIF = (0x60000000, 0x80000000)
+
+
 def is_profile_ptr(p: int) -> bool:
-    return in_mem2(p) or CODECAVE_START <= p < CODECAVE_END
+    return in_mem2(p) or CODECAVE_START <= p < CODECAVE_END or ZONE_PROFILS_NATIF[0] <= p < ZONE_PROFILS_NATIF[1]
 
 
 def version_check(mem: GuestMemory) -> tuple[bool, int | None]:
