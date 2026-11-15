@@ -3,7 +3,7 @@
 Le serveur de partie de **Wind Waker Coop** (WindWakerHD-Multiplayer), seul, pour l'héberger avec Docker.
 Aucun fichier du jeu : le serveur ne fait que relayer et fusionner l'état des joueurs.
 
-> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `714a633`).
+> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `b61fcd3`).
 > Ne pas le modifier à la main : toute correction se fait dans WindWakerHD-Multiplayer, puis on régénère.
 
 ## Démarrer : seulement le docker-compose.yml
@@ -21,6 +21,29 @@ Mettre à jour : `docker compose pull && docker compose up -d` (le monde reste d
 
 Déjà installé avec `git clone` et `--build` ? Même nom de projet (`wwmp`) et même volume : lance ces deux commandes
 dans un dossier qui contient ce docker-compose.yml, le monde est gardé. L'ancien dossier cloné peut ensuite partir.
+
+## Le fichier .env (facultatif)
+
+Sans `.env`, tout marche : port 7777, compte admin et mot de passe de partie créés au hasard au premier démarrage.
+Pour choisir toi-même, crée un fichier `.env` **à côté du docker-compose.yml**, puis `docker compose up -d` :
+
+```bash
+WWMP_PORT=7777
+WWMP_ADMIN_UTILISATEUR=admin
+WWMP_ADMIN_MOT_DE_PASSE=un-long-mot-de-passe-admin
+WWMP_MOT_DE_PASSE=le-mot-de-passe-a-donner-aux-amis
+```
+
+| Variable | Rôle | Vide ou absente |
+|---|---|---|
+| `WWMP_PORT` | port TCP ouvert sur la machine (celui à rediriger sur la box) | 7777 |
+| `WWMP_ADMIN_UTILISATEUR` | utilisateur admin (lanceur : « Administrer le serveur ») | `admin` |
+| `WWMP_ADMIN_MOT_DE_PASSE` | mot de passe admin, **différent** de celui de la partie ; tant qu'il est dans le `.env`, il l'emporte | créé au hasard : `docker compose exec wwmp cat /donnees/admin.txt` |
+| `WWMP_MOT_DE_PASSE` | mot de passe de la partie, lu au **premier** démarrage seulement ; ensuite il se change dans le lanceur | créé au hasard : `docker compose exec wwmp cat /donnees/mot_de_passe.txt` |
+
+Rien d'autre à mettre : le monde, le randomizer, le mode Hanteurs, les joueurs max, le deathlink et la difficulté se
+règlent depuis le lanceur (Héberger › « Sur mon serveur dédié » › « Administrer le serveur »). Garde ce `.env` pour toi
+(il contient des mots de passe) et évite les caractères `$`, `#` et les espaces dans les mots de passe.
 
 Construire soi-même au lieu de prendre l'image : `git clone` de ce dépôt, puis
 `cd serveur_dedie/docker && docker compose up -d --build`.
