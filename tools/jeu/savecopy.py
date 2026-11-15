@@ -155,7 +155,7 @@ def valider_image(img: bytes) -> tuple[list[str], list[str]]:
     if len(img) != IMG_LEN:
         return [f"taille 0x{len(img):X} au lieu de 0x{IMG_LEN:X}"], warn
     mx = struct.unpack_from(">H", img, GI_MAX_LIFE - IMG_BASE)[0]
-    if mx % 4 or not 12 <= mx <= 80:
+    if not 12 <= mx <= 80:          # quarts de cœur : 13, 14, 15 sont normaux (vu le 2026-11-15)
         err.append(f"vie maximale incohérente ({mx} quarts de cœur)")
     n_h = s8(img[GI_DAN - IMG_BASE])
     if not 0 <= n_h < N_MEM:
@@ -184,7 +184,7 @@ def partie_chargee(mem) -> str:
     if raw is None:
         return "sauvegarde illisible"
     mx = struct.unpack(">H", raw)[0]
-    if mx == 0 or mx % 4:
+    if not 1 <= mx <= 80:           # pas « multiple de 4 » : un quart de cœur donne 13 (client jamais lancé, 2026-11-15)
         return f"vie maximale incohérente ({mx})"
     return ""
 
