@@ -3,7 +3,7 @@
 Le serveur de partie de **Wind Waker Coop** (WindWakerHD-Multiplayer), seul, pour l'héberger avec Docker.
 Aucun fichier du jeu : le serveur ne fait que relayer et fusionner l'état des joueurs.
 
-> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `7573ef7`).
+> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `e4140bb`).
 > Ne pas le modifier à la main : toute correction se fait dans WindWakerHD-Multiplayer, puis on régénère.
 
 ## Démarrer
@@ -35,3 +35,8 @@ Pas à pas complet : [docs/hotes/JOUER_PAR_INTERNET.md](docs/hotes/JOUER_PAR_INT
 | `serveur_dedie/docker/` | Dockerfile et docker-compose.yml |
 
 Sans Docker (Python 3.10+, aucune dépendance) : `python tools/wwmp_server.py --help`.
+
+## Licence
+
+[MIT](LICENSE), pour le code de ce dépôt. Il ne contient aucun fichier de *The Legend of Zelda: The Wind Waker HD*,
+qui reste la propriété de Nintendo.
