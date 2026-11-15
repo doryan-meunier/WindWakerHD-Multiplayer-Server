@@ -185,8 +185,31 @@ def diagnostic(mem, boite: int) -> str:
     if z.get("rando_code"):
         from rando import natif_code as nc
         parts.append("code du randomizer : " + ", ".join(n for n in nc.FRAGMENTS if z["rando_code"] & nc.BIT[n]))
+    carte = lire_carte(mem, boite)
+    if carte is not None:
+        parts.append("carte : " + ("coupée" if carte["coupe"] else
+                                   f"{carte['marques']} marqueur(s), écran {ECRANS_CARTE.get(carte['ecran'], '?')}, "
+                                   f"écart de la flèche de Link {carte['ecart_link']:.1f}"))
     parts.append(f"pas de Link {z['pas']}")
     return " | ".join(parts)
+
+
+# les autres joueurs sur la carte du jeu (mod 0.19.0, bit 30 ; natif/mod_wwmp/carte.c, zone WWMPCAR1)
+CARTE_OFF, MAGIE_CARTE = 0x6000, b"WWMPCAR1"
+ECRANS_CARTE = {0: "aucun", 1: "télé", 2: "GamePad"}
+
+
+def lire_carte(mem, boite: int) -> dict | None:
+    """Compteurs de la zone WWMPCAR1 (mod 0.19.0 ou plus), ou None."""
+    raw = mem.try_read(boite + CARTE_OFF, 0x50)
+    if raw is None or raw[:8] != MAGIE_CARTE or struct.unpack_from(">I", raw, 8)[0] != 1:
+        return None
+    coupe, = struct.unpack_from(">I", raw, 0x0C)
+    dessins, listes, ecran, vues, vues_carte = struct.unpack_from(">5I", raw, 0x2C)
+    ecart, = struct.unpack_from(">f", raw, 0x40)
+    marques, = struct.unpack_from(">I", raw, 0x4C)
+    return {"coupe": coupe, "dessins": dessins, "listes": listes, "ecran": ecran, "vues": vues,
+            "vues_carte": vues_carte, "ecart_link": ecart, "marques": marques}
 
 
 def open_natif(pid: int | None = None, write: bool = False, verbose: bool = True,

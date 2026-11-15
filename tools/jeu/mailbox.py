@@ -130,6 +130,12 @@ COUL_FORMAT = 1
 OFF_COUL_N = 0x0C                # dessins teintés (jeu, mise au point)
 OFF_COUL_SOI = 0x10              # notre Link : masque des matériaux (u32) + facteurs R, G, B (3 × f32)
 OFF_COUL_SLOTS = 0x20            # 7 blocs de 0x10 octets, un par emplacement de fantôme
+# mod natif 0.18.0 (réservés à 0 dans le pack Cemu) : compteurs de preuve écrits par le jeu
+OFF_COUL_N_SOI = 0x94            # dessins de NOTRE Link teints
+OFF_COUL_N_FANTOMES = 0x98       # dessins de fantômes teints
+OFF_COUL_N_KONST0 = 0x9C         # matériaux dont konst0 (la lumière que lit le shader de Link) a été multiplié
+COUL_COMPTEURS_MOD = 18          # NATIF_VERSION_MOD qui tient ces compteurs
+OFF_NATIF = 0x1AE0               # zone WWMPNATF du mod natif (natif/mod_wwmp/boite.h ; version du mod à +0x20)
 COUL_BLOC = 0x10
 N_COUL_SLOTS = 7
 COUL_FACTEUR_MAX = 4.0
@@ -370,6 +376,32 @@ ROB_FORMAT = 1
 OFFR_CFG, OFFR_ETAPE, OFFR_SALLE, OFFR_POINT, OFFR_POS, OFFR_ANGLE, OFFR_DRAP = 0x0C, 0x10, 0x18, 0x1C, 0x20, 0x2C, 0x30
 OFFR_IMAGES = 0x34
 ROB_TAILLE = 0x60
+# canon du bateau fantôme (bit 28, MOD NATIF SEULEMENT, 0.14.0 ; natif/mod_wwmp/modele.c, jeu/models.py) : en mode
+# recalcul, les emplacements 3 à 7 du WwmpModel sont dessinés SANS recalcul (modelEntryDL, matrices écrites par le PC) ;
+# le PC y met le canon (daShip_c+0x418) du bateau distant quand il est sorti. Le pack Cemu les recalculerait (rappels
+# du canon nourris par un userArea nul) : le client n'y met rien sans ce bit.
+CAP_CANON_BATEAU = 0x10000000    # bit 28
+# les autres joueurs sur la carte du jeu (bit 30, MOD NATIF SEULEMENT, 0.19.0 ; natif/mod_wwmp/carte.c, client/carte.py,
+# docs/etudes/mini_carte.md) : zone wwmp_car (magie « WWMPCAR1 ») ; le PC écrit la couleur (RRGGBBAA) du marqueur de
+# chaque emplacement de fantôme, le mod dessine les marqueurs (ballon d'un carré, carte marine) par l'API HUD du portage.
+CAP_CARTE = 0x40000000           # bit 30
+MAGIC_CARTE = b"WWMPCAR1"
+CARTE_FORMAT = 1
+OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
+CARTE_TAILLE = 0x60
+# boulets du canon du bateau (bit 29, MOD NATIF SEULEMENT, 0.17.0 ; natif/mod_wwmp/boulets.c, synchro/boulets.py) : zone
+# wwmp_bou (magie « WWMPBOU1 »). Chez le tireur : file des tirs de NOTRE bateau (cfg bit 0). Chez les autres : CALL 16
+# BOULET (cfg bit 1) crée une copie inerte du boulet (départ et vitesses du jeu) ; « fin » d'un emplacement la retire.
+CAP_BOULETS = 0x20000000         # bit 29
+CALL_BOULET = 16
+MAGIC_BOU = b"WWMPBOU1"
+BOU_FORMAT = 1
+OFFB_CFG, OFFB_SEQ, OFFB_COPIES, OFFB_RETIREES, OFFB_INTERCEPTEES, OFFB_REFUS = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFB_POS, OFFB_ANGLE, OFFB_SALLE, OFFB_COPIE, OFFB_TIR = 0x30, 0x3C, 0x44, 0x50, 0xD0
+BOU_CFG_TIRS, BOU_CFG_COPIES = 0x1, 0x2
+BOU_N_COPIES, BOU_N_TIRS, BOU_COPIE, BOU_TIR, BOU_TAILLE = 8, 8, 0x10, 0x20, 0x1D0
+BOU_POS_MAX = 1e6
+R_BOULET_PLEIN, R_BOULET_CREATION = -5, -4
 ROB_CFG_MODE, ROB_A_POSITION = 0x1, 0x1
 ROB_ETAT_LINK, ROB_ETAT_LIBRE, ROB_ETAT_CHANGEMENT, ROB_ETAT_MODE, ROB_ETAT_EVENEMENT = 0x1, 0x2, 0x4, 0x8, 0x10
 R_ROBOT_CHANGEMENT, R_ROBOT_LINK, R_ROBOT_MENU = -7, -8, -9
@@ -660,6 +692,32 @@ class Mailbox:
                 "soi": brut[OFF_COUL_SOI:OFF_COUL_SOI + COUL_BLOC],
                 "fantomes": [brut[OFF_COUL_SLOTS + i * COUL_BLOC:OFF_COUL_SLOTS + (i + 1) * COUL_BLOC]
                              for i in range(N_COUL_SLOTS)]}
+
+    def compteurs_teinte(self) -> dict | None:
+        """Preuves écrites par le jeu (mod natif 0.18.0) : {"dessins", "soi", "fantomes", "konst0"} : dessins teints
+        (tous, notre Link, fantômes) et matériaux dont konst0 a été multiplié. None sans la zone. Pack Cemu : les trois
+        derniers restent à 0 (mots réservés)."""
+        a = self.couleurs_addr()
+        if a is None:
+            return None
+        n, = struct.unpack(">I", self.mem.read(a + OFF_COUL_N, 4))
+        soi, fantomes, konst0 = struct.unpack(">3I", self.mem.read(a + OFF_COUL_N_SOI, 12))
+        return {"dessins": n, "soi": soi, "fantomes": fantomes, "konst0": konst0,
+                "par_cible": self.version_mod_natif() >= COUL_COMPTEURS_MOD}
+
+    def version_mod_natif(self) -> int:
+        """NATIF_VERSION_MOD du mod natif (zone WWMPNATF qui suit la partie fixe), 0 pour le pack Cemu."""
+        v = getattr(self, "_vmod", None)
+        if v is None:
+            v = 0
+            try:
+                raw = self.mem.read(self.addr + OFF_NATIF, 0x24)
+                if raw[:8] == b"WWMPNATF":
+                    v = struct.unpack_from(">I", raw, 0x20)[0]
+            except Exception:
+                v = 0
+            self._vmod = v
+        return v
 
     @property
     def poids(self) -> bool:
@@ -1378,6 +1436,158 @@ class Mailbox:
         cfg, r, n = struct.unpack(">3I", bytes(self.mem.read(a + OFFK_CFG, 12)))
         return {"cfg": cfg, "refus": r, "appels": n}
 
+    # --- les autres joueurs sur la carte du jeu (bit 30, mod natif seulement) ------------------------------------------
+    def carte_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_car`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans le bit."""
+        if not (self.pack >= V19 and self.caps & CAP_CARTE):
+            return None
+        a = getattr(self, "_carte", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_CARTE, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != CARTE_FORMAT:
+                return None
+            a = self._carte = hits[0]
+        return a
+
+    def set_couleurs_carte(self, couleurs) -> bool:
+        """Couleurs (7 mots RRGGBBAA, un par emplacement de fantôme ; 0 = blanc) des marqueurs de la carte."""
+        a = self.carte_addr()
+        if a is None:
+            return False
+        c = [int(v) & 0xFFFFFFFF for v in couleurs]
+        if len(c) != 7:
+            raise ValueError("carte : 7 couleurs attendues")
+        self.mem.write(a + OFFC_COULEURS, struct.pack(">7I", *c))
+        return True
+
+    def carte_coupee(self, coupe: bool) -> bool:
+        a = self.carte_addr()
+        if a is None:
+            return False
+        self.mem.write(a + OFFC_COUPE, struct.pack(">I", 1 if coupe else 0))
+        return True
+
+    def carte_etat(self) -> dict:
+        """Compteurs du jeu (mise au point, rapport d'essai)."""
+        a = self.carte_addr()
+        if a is None:
+            return {}
+        d = bytes(self.mem.read(a + OFFC_DESSINS, 0x24))
+        dessins, listes, ecran, vues, vues_carte = struct.unpack_from(">5I", d, 0)
+        ecart, = struct.unpack_from(">f", d, 0x14)
+        inscrit, texture, marques = struct.unpack_from(">3I", d, 0x18)
+        return {"dessins": dessins, "listes": listes, "ecran": ecran, "vues": vues, "vues_carte": vues_carte,
+                "ecart_link": ecart, "inscrit": inscrit, "texture": texture, "marques": marques}
+
+    @property
+    def canon_bateau(self) -> bool:
+        """Canon du bateau fantôme (bit 28, mod natif 0.14.0 seulement) : emplacements 3 à 7 dessinés sans recalcul."""
+        return self.pack >= V19 and bool(self.caps & CAP_CANON_BATEAU)
+
+    # --- boulets du canon du bateau (bit 29, mod natif 0.17.0 seulement) -------------------------------------
+    @property
+    def boulets_ok(self) -> bool:
+        """Mod natif avec les boulets du canon (bit 29) et sa zone ``wwmp_bou`` trouvée (jamais un pack Cemu)."""
+        return self.bou_addr() is not None
+
+    def bou_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_bou`` (magie cherchée une fois, unique, alignée, format attendu)."""
+        if not (self.pack >= V19 and self.caps & CAP_BOULETS):
+            return None
+        a = getattr(self, "_bou", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_BOU, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != BOU_FORMAT:
+                return None
+            a = self._bou = hits[0]
+        return a
+
+    def bou_regler(self, cfg: int) -> None:
+        """``cfg`` : bit 0 = tirs de notre bateau relevés, bit 1 = copies permises (CALL 16). Sans la zone : rien."""
+        a = self.bou_addr()
+        if a is None:
+            return
+        if isinstance(cfg, bool) or not isinstance(cfg, int) or not 0 <= cfg <= 3:
+            raise ValueError("bou_regler : hors bornes")
+        self.mem.write(a + OFFB_CFG, struct.pack(">I", cfg))
+
+    def bou_seq(self) -> int:
+        a = self.bou_addr()
+        return 0 if a is None else struct.unpack(">I", bytes(self.mem.read(a + OFFB_SEQ, 4)))[0]
+
+    def bou_tirs(self, depuis: int) -> tuple[int, list[dict], int]:
+        """Tirs de notre bateau poussés depuis le compteur ``depuis`` : (nouveau compteur, tirs dans l'ordre, perdus).
+        Un tir n'est rendu que si son numéro est le bon (pas réécrit pendant la lecture) ; au plus 8. Tir : {"seq",
+        "id", "adr", "pos" (3 f32), "ang" (3 s16), "salle"}."""
+        a = self.bou_addr()
+        if a is None:
+            return depuis, [], 0
+        seq = self.bou_seq()
+        n = (seq - depuis) & 0xFFFFFFFF
+        if n == 0 or n > 0x7FFFFFFF:
+            return seq, [], 0
+        k = min(n, BOU_N_TIRS)
+        perdus = n - k
+        out = []
+        for j in range(k):
+            s = (seq - k + 1 + j) & 0xFFFFFFFF
+            e = bytes(self.mem.read(a + OFFB_TIR + (s & (BOU_N_TIRS - 1)) * BOU_TIR, BOU_TIR))
+            sq, pid, adr, x, y, z, ax, ay, az, salle = struct.unpack(">3I3f3hb", e[:0x1F])
+            if sq != s:
+                perdus += 1
+                continue
+            out.append({"seq": sq, "id": pid, "adr": adr, "pos": [x, y, z], "ang": [ax, ay, az], "salle": salle})
+        return seq, out, perdus
+
+    def boulet_creer(self, pos, ang, salle: int, source: int = 0, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 16 BOULET : copie inerte d'un boulet tiré par un autre joueur, partie de ``pos`` avec l'angle ``ang``
+        (hausse, cap, roulis : s16) dans la salle ``salle`` ; vitesses et gravité calculées par le mod comme le bateau
+        du jeu. ``source`` : id du boulet chez le tireur (mise au point). Résultat : id de la copie (> 0), -1 refusé
+        (cfg bit 1 absent, salle ou position hors bornes), -2 pas de partie, -3 événement, -4 création ratée, -5 plus
+        de place (8 copies). MailboxError sans la zone, ValueError hors bornes (rien n'est envoyé)."""
+        a = self.bou_addr()
+        if a is None:
+            raise MailboxError("boulets du canon (bit 29) : seulement le mod natif du portage à jour (0.17.0 ou plus)")
+        p = [float(v) for v in pos]
+        if len(p) != 3 or not all(abs(v) <= BOU_POS_MAX for v in p):           # NaN : comparaison fausse, refusé
+            raise ValueError("boulet_creer : position hors bornes")
+        g = list(ang)
+        if len(g) != 3 or any(isinstance(v, bool) or not isinstance(v, int) or not -0x8000 <= v <= 0xFFFF for v in g):
+            raise ValueError("boulet_creer : angle hors bornes")
+        if isinstance(salle, bool) or not isinstance(salle, int) or not 0 <= salle <= 63:
+            raise ValueError("boulet_creer : salle hors bornes")
+        if isinstance(source, bool) or not isinstance(source, int) or not 0 <= source <= 0xFFFFFFFF:
+            raise ValueError("boulet_creer : source hors bornes")
+        buf = struct.pack(">3f3HHi", *p, *(v & 0xFFFF for v in g), 0, salle)
+        with Mailbox._lock:
+            self._check_idle()
+            self.mem.write(a + OFFB_POS, buf)
+            return self._call(CMD_CALL, CALL_BOULET, source, timeout=timeout, cancel=True)
+
+    def boulet_fin(self, copie: int) -> bool:
+        """Copie ``copie`` à retirer (le mod la retire sans explosion à son pas suivant). False : pas trouvée."""
+        a = self.bou_addr()
+        if a is None or isinstance(copie, bool) or not isinstance(copie, int) or not 0 < copie <= 0xFFFFFFFF:
+            return False
+        for k in range(BOU_N_COPIES):
+            e = a + OFFB_COPIE + k * BOU_COPIE
+            if struct.unpack(">I", bytes(self.mem.read(e, 4)))[0] == copie:
+                self.mem.write(e + 8, struct.pack(">I", 1))
+                return True
+        return False
+
+    def bou_counters(self) -> dict:
+        """Mise au point : {"cfg", "seq", "copies", "retirees", "interceptees", "refus"} ; zéros sans la zone."""
+        a = self.bou_addr()
+        noms = ("cfg", "seq", "copies", "retirees", "interceptees", "refus")
+        if a is None:
+            return {k: 0 for k in noms}
+        return dict(zip(noms, struct.unpack(">6I", bytes(self.mem.read(a + OFFB_CFG, 24)))))
+
     @property
     def voile_bateau(self) -> bool:
         """Voile, mât et gouvernail du bateau fantôme (bit 22) : le pack lit les matrices écrites par le PC."""
@@ -2007,7 +2217,7 @@ class Mailbox:
 
     def whitelist_call(self, index: int, a1: int = 0, a2: int = 0, a3: int = 0,
                        timeout: float = TIMEOUT_V19) -> int:
-        """Commande 7 (CALL) brute : seuls les index 3, 8, 9, 10, 11, 12 et 13 sont codés (les autres renvoient -1)."""
+        """Commande 7 (CALL) brute : index 3 et 8 à 16 (15, 16 : mod natif) ; les autres : -1."""
         return self._v19(CMD_CALL, index, a1, a2, a3, timeout=timeout)
 
     def item_get(self, item: int, timeout: float = TIMEOUT_V19) -> int:

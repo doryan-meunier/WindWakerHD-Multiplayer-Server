@@ -41,6 +41,7 @@ REVEIL_TYPES = frozenset({"break", "drop", "herbe", "tsw", "progress", "magma", 
 COUPS_TYPES = frozenset({"player_hit", "saisie", "pvp_coup", "hlaisse"})
 REVEILS_COUPS_MAX = 4  # réveils « coup » au plus par seconde (au pire : hz + REVEILS_MAX + REVEILS_COUPS_MAX ticks/s)
 HLAISSE_MEMO = 16      # monstres possédés retenus pour reconnaître un ordre nouveau
+AGES_GARDE = 5.0       # s : âges mesurés (fantôme, marionnettes) gardés au plus ; au-delà, « pas de mesure »
 HERBE_SCAN = 0.1       # s entre deux relevés de l'herbe (prudent : HerbeSync.SCAN, 0,25 s)
 SWITCH_HZ = 10         # relevés par seconde des interrupteurs et de la progression (prudent : 5)
 SWITCH_HZ_PRUDENT = 5
@@ -183,11 +184,24 @@ class Latence:
         if delais:
             self.appli[sorte] = (self.appli.get(sorte, []) + [float(d) for d in delais])[-32:]
 
-    def note_age(self, sorte: str, ages) -> None:
-        """Âges mesurés (s) : retard entre ce qu'on affiche et le présent estimé de l'autre PC (lecture seule)."""
+    def note_age(self, sorte: str, ages, now: float | None = None) -> None:
+        """Âges mesurés (s) : retard entre ce qu'on affiche et le présent estimé de l'autre PC (lecture seule). Datés :
+        seuls ceux des AGES_GARDE dernières secondes comptent (``etat``)."""
         v = [float(a) for a in ages if a is not None and 0.0 <= a < 30.0]
         if v:
-            self.ages[sorte] = (self.ages.get(sorte, []) + v)[-64:]
+            now = self.clock() if now is None else now
+            self.ages[sorte] = (self.ages.get(sorte, []) + [(now, a) for a in v])[-64:]
+
+    def _ages(self, sorte: str, now: float | None = None) -> list[float]:
+        """Âges récents (essai du 2026-11-15 : les 64 derniers étaient gardés sans limite de temps ; l'autre joueur
+        parti, le fichier d'état affichait encore, 7 minutes plus tard, ceux de son départ : 1 s de « retard »)."""
+        now = self.clock() if now is None else now
+        lst = [(t, a) for t, a in self.ages.get(sorte, []) if 0.0 <= now - t <= AGES_GARDE]
+        if lst:
+            self.ages[sorte] = lst
+        else:
+            self.ages.pop(sorte, None)
+        return [a for _t, a in lst]
 
     def applique(self, sorte: str, now: float | None = None) -> None:
         """Des effets de cette sorte viennent d'être posés : délai depuis la plus vieille réception."""
@@ -207,6 +221,7 @@ class Latence:
         """Résumé pour le fichier d'état et l'affichage (durées en ms, None : pas encore mesuré)."""
         def ms(v):
             return None if v is None else round(v * 1000.0, 1)
+        fantome, marionnettes = self._ages("fantome"), self._ages("marionnettes")
 
         out = {"mode": "rapide" if self.rapide else "prudent",
                "periode_ms": ms(_med(self.periodes)), "travail_ms": ms(_med(self.travail)),
@@ -216,9 +231,9 @@ class Latence:
                # lot L1 (A1) : âges et délais des chaînes de combat, aller-retour avec le serveur
                "rtt_ms": None if rtt_ms is None else round(float(rtt_ms), 1),
                "reveils_coups": self.n_reveils_coups,
-               "fantome_ms": ms(_med(self.ages.get("fantome"))),
-               "fantome_max_ms": ms(max(self.ages["fantome"])) if self.ages.get("fantome") else None,
-               "marionnettes_ms": ms(_med(self.ages.get("marionnettes"))),
+               "fantome_ms": ms(_med(fantome)),
+               "fantome_max_ms": ms(max(fantome)) if fantome else None,
+               "marionnettes_ms": ms(_med(marionnettes)),
                "player_hit_envoi_ms": ms(_med(self.envoi.get("player_hit"))),
                "player_hit_ms": ms(_med(self.appli.get("player_hit"))),
                "ordre_ms": ms(_med(self.appli.get("ordre")))}

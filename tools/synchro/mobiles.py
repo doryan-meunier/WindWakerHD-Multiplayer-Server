@@ -26,6 +26,9 @@ Quatre synchros, chacune avec son option, toutes activées par --coop-donjon :
     commande 4 create(295, params 0x100 = EXPLODE_INSTANT, pos) : vraie explosion du jeu (effet,
     son, souffle, casse, blessures). Avant, le contenu des jarres relayables (A6) à moins de
     BOOM_POT_RADIUS est vidé (itemNo 0x3F) : leur objet arrive par A4 (sinon objet en double).
+    Boulets du canon du bateau (mod natif 0.17.0, bit 29, synchro/boulets.py) : jamais dans la main de Link ; le mod
+    signale chaque tir de notre bateau et ``track_bomb`` le suit comme une bombe « à moi ». Chez les autres, un rappel
+    de ``boom_hooks`` retire la copie inerte du boulet avant le rejeu de l'explosion.
   Bombes-fleurs (--share-flowers, --no-flowers) : daBFlower (296). Une Bomb2 qui arrive dans la main
     de MON Link depuis une fleur (pointeur mpBombActor +0x870 de la fleur, sinon la fleur la plus
     proche à moins de 80 u) part en « pick » {key}. Chez les autres : u8 +0x860 (m58C) = 0 si la fleur
@@ -284,6 +287,7 @@ class MobTable:
         self.cells: dict[str, dict[str, dict]] = {}       # zone -> clé -> {cell, y}
         self.locks: dict[str, dict[str, tuple]] = {}      # zone -> clé -> (joueur, heure)
         self.booms: dict[int, list[float]] = {}           # joueur -> heures
+        self.tirs: dict[int, list[float]] = {}            # joueur -> heures (boulets du canon, synchro/boulets.py)
 
     def _lock(self, zone: str, key: str, now: float):
         lk = self.locks.get(zone, {}).get(key)
@@ -328,6 +332,15 @@ class MobTable:
         if ok:
             t.append(now)
         self.booms[pid] = t
+        return ok
+
+    def tir_ok(self, pid: int, now: float) -> bool:
+        """Tirs du canon relayés au plus BOOM_RATE par seconde et par joueur (le canon tire au plus une fois par s)."""
+        t = [x for x in self.tirs.get(pid, []) if now - x < 1.0]
+        ok = len(t) < self.BOOM_RATE
+        if ok:
+            t.append(now)
+        self.tirs[pid] = t
         return ok
 
     def forget(self, zone: str) -> None:
@@ -521,6 +534,8 @@ class MobileSync:
         # rappel d'objets portés : claim(src, pos, id, now) -> vrai si la copie de cette bombe explose elle-même
         # (pas de second Bomb2 : une seule explosion)
         self.claim = None
+        # rappels sur un « boom » reçu : hook(src, id, now) (boulets du canon : la copie du boulet est retirée)
+        self.boom_hooks: list = []
         # blocs
         self.prev: dict[str, dict] = {}
         self.guard: dict[str, dict] = {}      # clé -> {"t": début, "zero": heure du mode 0 vu, "kind"}
@@ -739,6 +754,11 @@ class MobileSync:
         elif t == "boom" and self.bombs_on:
             v = valid_boom(m)
             if v is not None:
+                for h in self.boom_hooks:
+                    try:
+                        h(m.get("from"), v.get("id"), now)
+                    except Exception:
+                        pass
                 if self.claim is not None:
                     try:
                         mine = bool(self.claim(m.get("from"), v["pos"], v.get("id"), now))
@@ -1009,6 +1029,16 @@ class MobileSync:
         self.picks = keep
 
     # --- explosions ------------------------------------------------------------------------------
+    def track_bomb(self, pid: int, base: int, proc: int = PROC_BOMB, now: float | None = None) -> bool:
+        """Bombe « à moi » sans passer par la main de Link (boulet du canon de NOTRE bateau, signalé par le mod) :
+        suivie comme les autres, son explosion part en « boom ». False : déjà vue, créée par nous, ou trop de bombes."""
+        if not self.bombs_on or proc not in BOOM_KINDS or not _int(pid) or not _ptr(base):
+            return False
+        if pid in self.created or pid in self.done_bombs or pid in self.mine or len(self.mine) >= 16:
+            return False
+        self.mine[pid] = {"base": base, "proc": proc, "t": self.clock() if now is None else now, "pos": None}
+        return True
+
     def _bombs_observe(self, mem, grab: int, now: float) -> None:
         if grab and grab != self.last_grab:
             raw = mem.try_read(grab, 0x10)

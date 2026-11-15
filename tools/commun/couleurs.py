@@ -11,14 +11,18 @@ Trois étages, chacun utilisable sans le suivant :
    pack).
 3. La tenue en jeu : le pack « WWMP Mailbox » qui annonce le bit 12 de ses capacités multiplie les deux
    couleurs d'éclairage des matériaux de la tunique par trois facteurs (``Teintes``, écrits dans la zone
-   ``wwmp_coul``). Sans ce bit : rien n'est écrit, tout le monde reste vert.
+   ``wwmp_coul``). Sans ce bit : rien n'est écrit, tout le monde reste vert. Dans le rendu, seule konst0 (la
+   lumière, que le shader multiplie avec la texture) compte : la partie ÉCLAIRÉE de la tunique prend la couleur ;
+   la partie à l'ombre garde le vert (ambiante du modèle, commune à tout le corps). Mod natif 0.18.0 : le jeu
+   compte ce qu'il a teint (``Teinteur.compteurs``, ligne « Couleurs : … » du client, --status-file).
 
 Compatibilité : un ancien client n'envoie pas ``couleur`` (le serveur lit « automatique ») et ignore le
 champ qu'il reçoit ; un ancien serveur ne renvoie rien, le client retombe alors sur ``par_numero`` pour
 tout le monde, lui compris (``effective``) : son choix n'a pas voyagé, tous les PC doivent voir la même chose.
 
-Les facteurs sont des hypothèses de rendu (rien ne permet de voir l'image hors ligne) : ``--couleurs-table``
-charge un fichier JSON qui les remplace sans toucher au code ni au pack (``charger_table``).
+Les facteurs sont calculés sur la couleur de la texture (``TUNIQUE``) ; l'image finale dépend encore de la
+lumière du lieu : ``--couleurs-table`` charge un fichier JSON qui les remplace sans toucher au code ni au pack
+(``charger_table``).
 """
 from __future__ import annotations
 
@@ -29,16 +33,23 @@ import struct
 AUTO = 0
 N = 8
 # code (protocole et fichiers : le NUMÉRO 1..8 voyage, pas le nom), nom français, nom anglais, couleur de
-# la pastille du lanceur, facteurs R, G, B appliqués aux couleurs d'éclairage de la tunique
+# la pastille du lanceur, facteurs R, G, B appliqués à la lumière de la tunique (konst0 du shader de Link).
+#
+# Le shader de Link (cl.sharcfb, docs/etudes/couleurs_link.md §3.3) MULTIPLIE la texture par konst0 : la couleur
+# vue est donc (texture verte) x facteurs, canal par canal. Facteurs = cible / TUNIQUE (vert de la tunique relevé
+# dans linktexS3TC du dump). Jusqu'au 2026-11-15, des facteurs « à l'œil » : « sombre » (0.35 partout) gardait la
+# teinte du vert (vert foncé, pris pour la tenue d'origine à l'ombre), « jaune » donnait un vert-jaune et
+# « turquoise » un vert d'eau (tests/test_couleurs.py, TestRendu).
+TUNIQUE = (90, 180, 74)
 PALETTE = (
     ("vert", "Vert", "Green", "#3aa655", (1.0, 1.0, 1.0)),          # tenue d'origine : aucune teinte
-    ("rouge", "Rouge", "Red", "#d64541", (2.2, 0.35, 0.35)),
-    ("bleu", "Bleu", "Blue", "#3b7dd8", (0.35, 0.6, 2.4)),
-    ("violet", "Violet", "Purple", "#8e5bd0", (1.6, 0.4, 2.2)),
-    ("jaune", "Jaune", "Yellow", "#e6c833", (2.2, 1.3, 0.3)),
-    ("orange", "Orange", "Orange", "#e8862e", (2.4, 0.7, 0.2)),
-    ("turquoise", "Turquoise", "Teal", "#2fb8b0", (0.3, 1.2, 2.0)),
-    ("sombre", "Sombre", "Dark", "#4a4a55", (0.35, 0.35, 0.35)),
+    ("rouge", "Rouge", "Red", "#d64541", (2.28, 0.22, 0.47)),       # -> (205, 40, 35)
+    ("bleu", "Bleu", "Blue", "#3b7dd8", (0.5, 0.47, 2.91)),         # -> (45, 85, 215)
+    ("violet", "Violet", "Purple", "#8e5bd0", (1.67, 0.31, 2.7)),   # -> (150, 56, 200)
+    ("jaune", "Jaune", "Yellow", "#e6c833", (2.61, 1.17, 0.41)),    # -> (235, 211, 30)
+    ("orange", "Orange", "Orange", "#e8862e", (2.67, 0.67, 0.34)),  # -> (240, 121, 25)
+    ("turquoise", "Turquoise", "Teal", "#2fb8b0", (0.39, 1.03, 2.7)),   # -> (35, 185, 200)
+    ("sombre", "Sombre", "Dark", "#4a4a55", (0.67, 0.31, 0.95)),    # -> (60, 56, 70) : gris violacé, plus du vert
 )
 CODES = tuple(p[0] for p in PALETTE)
 # matériaux de la tenue dans le modèle « cl » de Link (24 matériaux ; relevé du fichier de modèle,
@@ -224,6 +235,9 @@ class Teinteur:
         self.erreur = ""
         self.ecrits: dict = {}          # cible (None = notre Link, 0..6 = emplacement) -> dernier bloc écrit
         self.n_emplacements = min(7, int(getattr(mb, "n_slots", 0) or 0))
+        self.compteurs: dict | None = None      # dernière lecture des preuves du jeu (mod natif 0.18.0)
+        self._attente: dict = {}        # "soi" / "fantomes" -> (instant, compteur) depuis la pose ou le dernier progrès
+        self._averti: set = set()
         if self.actif:
             self.effacer(force=True)    # blocs laissés par une session interrompue
 
@@ -264,6 +278,75 @@ class Teinteur:
             self.erreur = f"{e.__class__.__name__}: {e}"
             self.actif = False
 
+    # sans un seul dessin teint pendant ce temps alors qu'une teinte est posée : avertissement (une fois)
+    DELAI_PREUVE = 30.0
+    # relecture de la zone : un jeu relancé (zone remise à zéro) ne garde pas nos blocs, et ``ecrits`` croirait
+    # qu'ils y sont encore : sans cette relecture, plus rien ne serait reposé de la session
+    PERIODE_RELECTURE = 5.0
+
+    def verifier(self, maintenant: float) -> bool:
+        """Relit la zone (au plus une fois par ``PERIODE_RELECTURE``) ; si elle ne contient plus ce qu'on y a écrit,
+        oublie ``ecrits`` : le prochain ``appliquer`` repose tout. Rend True si un écart a été vu."""
+        if not self.actif or maintenant - getattr(self, "_relu", -1e9) < self.PERIODE_RELECTURE:
+            return False
+        self._relu = maintenant
+        lire = getattr(self.mb, "teintes", None)
+        if lire is None or not self.ecrits:
+            return False
+        try:
+            z = lire()
+        except Exception:
+            return False
+        def bloc(b):        # masque 0 : bloc nul (set_teinte n'efface pas les facteurs d'un bloc qu'il éteint)
+            b = bytes(b)
+            return b if len(b) == 16 and b[:4] != bytes(4) else BLOC_VIDE
+        vu = {None: bloc(z.get("soi", BLOC_VIDE))}
+        for i, b in enumerate(z.get("fantomes") or []):
+            vu[i] = bloc(b)
+        if any(vu.get(k, BLOC_VIDE) != b for k, b in self.ecrits.items()):
+            self.ecrits.clear()
+            return True
+        return False
+
+    def lire_compteurs(self) -> dict | None:
+        """Preuves du jeu (``Mailbox.compteurs_teinte``) ; None sans elles (faux, vieux client) ou en cas d'erreur."""
+        lire = getattr(self.mb, "compteurs_teinte", None)
+        if not self.actif or lire is None:
+            return None
+        try:
+            self.compteurs = lire()
+        except Exception:
+            self.compteurs = None
+        return self.compteurs
+
+    def diagnostic(self, maintenant: float) -> list[str]:
+        """À appeler après ``appliquer`` : relit les preuves du jeu et rend les avertissements nouveaux (une fois
+        chacun) quand une teinte est posée depuis ``DELAI_PREUVE`` secondes sans que le jeu ait teint un seul dessin
+        de cette cible (accroche jamais atteinte). Seulement si le jeu tient les compteurs par cible (``par_cible`` :
+        mod natif 0.18.0) ; le pack Cemu ne les a pas (mots réservés à 0) : rien n'est jugé."""
+        self.verifier(maintenant)
+        c = self.lire_compteurs()
+        if c is None or not c.get("par_cible"):
+            return []
+        out = []
+        poses = {"soi": self.ecrits.get(None, BLOC_VIDE) != BLOC_VIDE,
+                 "fantomes": any(b != BLOC_VIDE for k, b in self.ecrits.items() if k is not None)}
+        for cle, pose in poses.items():
+            n = c.get(cle, 0)
+            if not pose:
+                self._attente.pop(cle, None)
+                continue
+            t0, n0 = self._attente.setdefault(cle, (maintenant, n))
+            if n != n0:
+                self._attente[cle] = (maintenant, n)        # le jeu teint : on repart de là
+                continue
+            if maintenant - t0 >= self.DELAI_PREUVE and cle not in self._averti:
+                self._averti.add(cle)
+                qui = "ton Link" if cle == "soi" else "les fantômes"
+                out.append(f"couleurs : teinte posée, mais le jeu n'a teint aucun dessin de {qui} en "
+                           f"{self.DELAI_PREUVE:.0f} s (accroche du mod non atteinte ? joins le rapport d'essai)")
+        return out
+
     def statut(self) -> str:
         if self.erreur:
             return f"coupées ({self.erreur})"
@@ -271,4 +354,18 @@ class Teinteur:
             return "pack sans couleurs (pastilles du lanceur seulement)"
         n = sum(1 for k, b in self.ecrits.items() if k is not None and b != BLOC_VIDE)
         soi = "notre Link teinté" if self.ecrits.get(None, BLOC_VIDE) != BLOC_VIDE else "notre Link d'origine"
-        return f"{n} fantôme(s) teinté(s), {soi}"
+        c = self.compteurs
+        jeu = ""
+        if c and (c.get("soi") or c.get("fantomes") or c.get("konst0")):
+            jeu = (f" ; le jeu a teint {c['soi']} dessin(s) de notre Link, {c['fantomes']} de fantômes "
+                   f"(konst0 : {c['konst0']})")
+        elif c:
+            jeu = f" ; dessins teints par le jeu : {c.get('dessins', 0)}"
+        return f"{n} fantôme(s) teinté(s), {soi}{jeu}"
+
+    def vue(self) -> dict:
+        """--status-file (donc le rapport d'essai) : ce qui est posé et ce que le jeu en a fait."""
+        return {"actif": self.actif, "erreur": self.erreur or None,
+                "soi": self.ecrits.get(None, BLOC_VIDE) != BLOC_VIDE,
+                "fantomes": sum(1 for k, b in self.ecrits.items() if k is not None and b != BLOC_VIDE),
+                "jeu": dict(self.compteurs) if self.compteurs else None}

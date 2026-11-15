@@ -834,6 +834,18 @@ class CpuEtendu:
         if xo in (0, 32):                                       # cmpw, cmplw
             self._cmp((w >> 23) & 7, r[ra], r[rb], xo == 0)
             return
+        if xo in (597, 725):                                    # lswi, stswi (NB = rb ; 0 : 32 octets)
+            nb = rb or 32                                       # (code du jeu : cartes, 0x0263896C)
+            ea = r[ra] if ra else 0
+            for k in range(nb):
+                reg, octet = (rd + k // 4) % 32, 3 - k % 4
+                if xo == 597:
+                    if k % 4 == 0:
+                        r[reg] = 0
+                    r[reg] |= self.mem.lire((ea + k) & _M32, 1)[0] << (8 * octet)
+                else:
+                    self.mem.ecrire((ea + k) & _M32, bytes([(r[reg] >> (8 * octet)) & 0xFF]))
+            return
         if xo in self._X_LOADS:
             n, signe, maj = self._X_LOADS[xo]
             ea = self._ea_x(ra, rb)

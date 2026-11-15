@@ -158,22 +158,83 @@ def apply_ghost_models(mem, ghost: int, pos, rot_y: int, poses: dict[str, str], 
 MBX_MODEL_SRC, MBX_MODEL_SRC_SIZE, MBX_MODEL_CALC = 0x310, 0x314, 0x318   # graphic pack v10
 
 
-def place_ghost_calc(mem, ghost: int, pos, rot_y: int, n_models: int) -> None:
+def place_ghost_calc(mem, ghost: int, pos, rot_y: int, n_models: int, extra_mask: int = 0) -> None:
     """Mode recalcul (v10) : on ne donne que la position/rotation ; le jeu recalcule les
-    articulations (animation du bateau LOCAL) et les sommets pondérés, coque comprise."""
+    articulations (animation du bateau LOCAL) et les sommets pondérés, coque comprise.
+    extra_mask : emplacements en plus (canon du bateau, bit 28 : CANON_SLOT), matrices écrites par ``poser_canon``."""
     mem.write(ghost + 0x314, struct.pack(">3f", *pos))
     mem.write(ghost + 0x32A, struct.pack(">h", int(rot_y)))
-    mem.w_u32(ghost + GHOST_MASK, (1 << n_models) - 1)
+    mem.w_u32(ghost + GHOST_MASK, ((1 << n_models) - 1) | extra_mask)
 
 
-def apply_models(mem, actor: int, pos, rot_y: int, poses: dict[str, str]) -> int:
+# Canon du bateau (mod natif 0.14.0, bit 28 ; docs/etudes/BATEAU_TETE.md §8) [HD-ASM] : J3DModel daShip_c+0x418 (créé
+# en 0x0247B660, rappels 0x02471AAC sur ses articulations 1 et 2, userArea = le bateau), calculé à l'execute et dessiné
+# (modelEntryDL, 0x02472938) seulement si l'octet +0x637 vaut 2 (3 : la grue +0x41C). Le fantôme le reçoit en
+# matrices relatives (comme ``m``) et le dessine sans recalcul dans son emplacement 3.
+CANON_PATH = "0x418"
+SHIP_PART, PART_CANON = 0x637, 2
+CANON_SLOT = 3
+CANON_MAX_JOINTS = 16
+
+
+def canon_model_data(mem, ship: int) -> int:
+    """J3DModelData* du canon de notre bateau (0 s'il n'y en a pas)."""
+    model = resolve(mem, ship, CANON_PATH)
+    if not model:
+        return 0
+    data = mem.u32(model + MODEL_DATA)
+    return data if _is_heap(data) else 0
+
+
+def canon_relatif(mem, ship: int, pos, rot_y: int) -> str | None:
+    """Pose encodée du canon de notre bateau (relative à sa base) s'il est sorti (+0x637 == 2), sinon None."""
+    if mem.u8(ship + SHIP_PART) != PART_CANON:
+        return None
+    model = resolve(mem, ship, CANON_PATH)
+    if not model:
+        return None
+    data = mem.u32(model + MODEL_DATA)
+    if not _is_heap(data):
+        return None
+    nj = mem.u16(data + 6)
+    if not 1 <= nj <= CANON_MAX_JOINTS:
+        return None
+    return relative_models(mem, ship, pos, rot_y, [(CANON_PATH, nj)]).get(CANON_PATH)
+
+
+def poser_canon(mem, ghost: int, pos, rot_y: int, data: str | None) -> bool:
+    """Canon reçu posé sur le fantôme (emplacement 3, matrices monde = base(pos, rot_y) · relatives) ; False si rien
+    n'est posé (pas de canon reçu, pose illisible, modèle absent ou autre nombre d'articulations)."""
+    if not isinstance(data, str):
+        return False
+    model = mem.u32(ghost + GHOST_MODELS + 4 * CANON_SLOT)
+    if not _is_heap(model):
+        return False
+    try:
+        rel = pose.decode(data)
+    except Exception:
+        return False
+    if rel.ndim != 3 or rel.shape[1:] != (3, 4) or not 1 <= rel.shape[0] <= CANON_MAX_JOINTS \
+            or rel.shape[0] != mem.u16(mem.u32(model + MODEL_DATA) + 6) or not np.all(np.isfinite(rel)):
+        return False
+    joints = mem.u32(model + JOINTS_PTR)
+    if not _is_heap(joints):
+        return False
+    r = np.tile(np.eye(4), (rel.shape[0], 1, 1))
+    r[:, :3, :] = rel
+    mem.write(joints, (pose.base_matrix(pos, rot_y) @ r)[:, :3, :].astype(">f4").tobytes())
+    return True
+
+
+def apply_models(mem, actor: int, pos, rot_y: int, poses: dict) -> int:
+    """``poses`` : {chemin: pose encodée, ou matrices n×3×4 déjà décodées (marionnettes lissées, client/lissage.py)}."""
     g = pose.base_matrix(pos, rot_y)
     n = 0
     for path, data in poses.items():
         model = resolve(mem, actor, path)
         if not model:
             continue
-        rel = pose.decode(data)
+        rel = data if isinstance(data, np.ndarray) else pose.decode(data)
         if rel.shape[0] != mem.u16(mem.u32(model + MODEL_DATA) + 6):
             continue
         r = np.tile(np.eye(4), (rel.shape[0], 1, 1))

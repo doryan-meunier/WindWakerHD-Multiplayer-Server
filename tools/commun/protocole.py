@@ -268,6 +268,9 @@ Messages mob / boom / lift (synchro v2, lot 3, synchro/mobiles.py) : bloc pouss�
 en positions monde, cell, snap et deny du serveur), bombe-fleur vidée (pick), explosion (boom {pos,
 kind}), plateformes de l'autorité de la zone (lift) ; un serveur ancien les ignore, un client ancien
 aussi. La case de départ d'un push s'appelle « at » : « from » est l'émetteur, ajouté par le relais.
+Message tir (mod natif 0.17.0, bit 29, synchro/boulets.py) : boulet du canon du bateau {zone, id, pos, ang: [hausse,
+cap, roulis] s16, room} ; relayé à la zone comme boom (même débit) ; un serveur ancien l'ignore, un client ancien
+aussi (il voit seulement l'explosion, par boom).
 Messages carry et champ state.car (synchro v2, lot 3, suite, synchro/portage.py, objets portés) : carry
 {zone, ev: grab {key, proc, pos?, cause?: "rappel"} | rest {key, pos, rot} | gone {key, pos, cause:
 casse/eau/explose/perdu}} ; clé « c:<proc>/<params sans itemNo ni bit 31>/<home> » (jarre, pierre) ou

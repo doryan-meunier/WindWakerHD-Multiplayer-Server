@@ -1501,7 +1501,8 @@ def resume_nettoye(h):
 
 # Messages « monde » qu'un Hanteur (ou un ancien Hanteur en quarantaine) n'a pas le droit d'envoyer.
 MONDE_BLOQUE = frozenset({"keys", "key_get", "key_use", "inv", "cnt", "pickup", "drop", "break", "magma", "boss",
-                          "player_hit", "mob", "boom", "lift", "carry", "stick", "hit", "herbe", "trk", "pnj"})
+                          "player_hit", "mob", "boom", "tir", "lift", "carry", "stick", "hit", "herbe", "trk",
+                          "pnj"})
 
 
 def filtre_monde(msg: dict) -> dict | None:

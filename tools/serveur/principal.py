@@ -107,7 +107,8 @@ reçoit « deny » seul, la poussée et la case finale du gagnant le recalent ; 
 départ n'est pas la dernière connue reçoit « deny » puis la dernière « cell »), dernière case gardée par zone et envoyée (« snap ») à qui entre dans la zone ou redemande
 l'état (ground_req), oubliée quand la zone se vide ; relais aux autres joueurs de la zone. Message
 « boom » (explosion d'une bombe d'un joueur) : relais à la zone, au plus MobTable.BOOM_RATE par seconde
-et par joueur, rien n'est gardé. Message « lift » (plateformes Hmlif) : accepté de l'autorité de la
+et par joueur, rien n'est gardé. Message « tir » (boulet du canon du bateau, synchro/boulets.py) : même
+relais et même débit, rien n'est gardé. Message « lift » (plateformes Hmlif) : accepté de l'autorité de la
 zone seulement, relayé. --no-mobiles : messages ignorés.
 
 Trackeur du randomizer (rando/trackeur.py, docs/etudes/trackeur_randomizer.md) : partie avec randomizer seulement.
@@ -309,6 +310,7 @@ from synchro import coups_monstres  # noqa: E402
 from synchro import coups_projectiles  # noqa: E402
 from synchro.saisie import valid_saisie  # noqa: E402
 from synchro.mobiles import MobTable, valid_boom, valid_lift, valid_mob  # noqa: E402
+from synchro.boulets import valid_tir  # noqa: E402
 from synchro.rares import CycleOwners, valid_cycle, valid_rare  # noqa: E402
 from synchro.canons import SallesDetruites, valid_canon, valid_sw_mort  # noqa: E402
 from synchro.monde import MondeServeur  # noqa: E402
@@ -2806,7 +2808,7 @@ class Server:
             self.handle_player_hit(p, msg)
         elif t == "saisie":
             self.handle_saisie(p, msg)
-        elif t in ("mob", "boom", "lift"):
+        elif t in ("mob", "boom", "lift", "tir"):
             self.handle_mobile(p, msg)
         elif t in ("cycle", "rare"):
             self.handle_rare(p, msg)
@@ -3551,6 +3553,12 @@ class Server:
             if v is None or not self.mob.boom_ok(p.id, now):
                 return
             out = dict(v, type="boom", zone=zone, **{"from": p.id})
+        elif t == "tir":
+            # boulet du canon du bateau (synchro/boulets.py) : relais à la zone, débit borné comme les explosions
+            v = valid_tir(msg)
+            if v is None or not self.mob.tir_ok(p.id, now):
+                return
+            out = dict(v, type="tir", zone=zone, **{"from": p.id})
         elif t == "lift":
             if self.authority.get(zone, (None, 0))[0] != p.id:
                 return                       # seule l'autorité de la zone fait foi pour les plateformes
