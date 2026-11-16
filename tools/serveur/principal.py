@@ -156,6 +156,14 @@ serveur, ou serveur dédié avec mot de passe : outil lobby authentifié qui se 
 autres Link (une vague ; morts fusionnées pendant 10 s, ignorées pendant 8 s après la connexion du mort ; un
 Hanteur ne compte pas).
 
+Vie partagée (synchro/vie_partagee.py), règle de la PARTIE (--vie-partagee, désactivée par défaut ;
+--no-vie-partagee ; jamais avec --mode-hanteurs) : annoncée dans le welcome et chaque « regles » (« vie_partagee »),
+changée à chaud comme le deathlink (« regles_cmd » {vie_partagee}). Message « vie » : hello {v, max, ack}, sync, ou
+delta {seq, ev, d, max, fee?, fl?, zero?} ; une valeur par groupe, deltas appliqués dans l'ordre d'arrivée, bornés à
+[0, vie max du groupe], idempotents par « ev » ; réponse {v, max, ack, snap?} (« attente » au lieu de « v » pendant
+les 10 s où la fée en flacon du joueur tombé à 0 peut relever le groupe), relayée aux autres membres. Gardée avec
+le monde persistant (règle et valeur par groupe).
+
 Difficulté (commun/difficulte.py, docs/etudes/difficulte.md), règle de la PARTIE : dégâts reçus par les Link ×1 à ×4
 (--degats) et vie des monstres selon le nombre de Link (--pv-monstres off, demi, link) ; --no-difficulte : jeu
 normal, réglage refusé. Annoncée dans le welcome (« difficulte » {degats, pv_monstres, links}), changée à chaud par
@@ -301,7 +309,7 @@ from commun.protocole import (CLIENT_VERSION, DEFAULT_PORT, MAX_LINE, MAX_PLAYER
     REJOINDRE_TIMEOUT, TIMEOUT, VERSION, decode, encode, zone_of)
 from jeu.progress import bits_count, bits_or, bits_sub, from_wire, to_wire  # noqa: E402
 from synchro.drops import DropWatch, MagmaWatch, valid_break, valid_drop, valid_magma, zone_stage  # noqa: E402
-from synchro.cadeaux import valid_gift  # noqa: E402
+from synchro.cadeaux import valid_record  # noqa: E402
 from synchro.cachecache import CacheCacheServeur  # noqa: E402
 from commun import latence  # noqa: E402
 from synchro.boss_pv import BossPvTable, valid_boss  # noqa: E402
@@ -317,6 +325,7 @@ from synchro.monde import MondeServeur  # noqa: E402
 from synchro.herbe import HerbeTable, valid_herbe  # noqa: E402
 from synchro.pnj import filtre_serveur as pnj_filtre, valid_pnj  # noqa: E402
 from synchro.deathlink import MortsServeur  # noqa: E402
+from synchro.vie_partagee import VieServeur, valid_vie  # noqa: E402
 from synchro import pause_vivante as pvmod  # noqa: E402
 from commun import difficulte as dif_mod  # noqa: E402
 from synchro.portage import CarryTable, valid_carry  # noqa: E402
@@ -433,6 +442,10 @@ class Player:
         self.cnt_ack = 0                       # plus grand seq « cnt » intégré
         self.cnt_trou: int | None = None       # seq du premier événement refusé (débit) : rien d'autre accusé
         self.cnt_times: list[float] = []
+        self.vie_group: str | None = None      # vie partagée : groupe (None = pas inscrit)
+        self.vie_ack = 0                       # vie partagée : plus grand seq « vie » intégré
+        self.vie_trou: int | None = None       # vie partagée : seq du premier événement refusé (débit)
+        self.vie_times: list[float] = []
         self.pickup_times: list[float] = []
         self.hit_times: dict[int, list[float]] = {}   # synchro v2 (A2) : victime -> heures des coups relayés
         self.saisie_times: dict[int, list[float]] = {}   # synchro v4 (saisie transmise) : victime -> heures relayées
@@ -499,7 +512,8 @@ class Server:
                  trackeur: bool = True, trackeur_deduire: bool = False, pnj: bool = True,
                  autorite_preferee: str | None = None, validation: str = valid_mod.DEFAUT,
                  robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
-                 robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None):
+                 robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
+                 vie_partagee: bool = False):
         self.players: dict[int, Player] = {}
         # joueur robot (serveur/robot.py) : autorité d'UNE zone partagée tenue par une instance sans joueur ; « off » :
         # rien ne change. Jamais avec le mode Hanteurs (le Link caché du robot serait visé comme celui d'un Hanteur).
@@ -539,6 +553,11 @@ class Server:
         self.herbe_enabled = herbe
         self.herbe = HerbeTable()
         self.morts = MortsServeur(deathlink)
+        # vie partagée (synchro/vie_partagee.py) : une barre de vie par groupe, règle de la partie comme le deathlink ;
+        # jamais avec le mode Hanteurs (ses règles de K.O. et de points restent les siennes)
+        if vie_partagee and mode_hanteurs:
+            log("vie partagée : désactivée avec le mode Hanteurs (ses règles de vie restent les siennes)")
+        self.vies = VieServeur(bool(vie_partagee) and not mode_hanteurs)
         # difficulté (commun/difficulte.py) : dégâts reçus ×1..×4, vie des monstres selon le nombre de Link de la partie
         self.difficulte_on = bool(difficulte_on)
         self.difficulte = dif_mod.normaliser(difficulte) if self.difficulte_on else dif_mod.defaut()
@@ -1750,8 +1769,8 @@ class Server:
                 "robot": 1, "couleur": 0,
                 "players": [{"id": o.id, "name": o.name, "pack": o.pack, "couleur": o.couleur, "pause": o.pause}
                             for o in self.players.values() if o.joueur],
-                "deathlink": int(self.morts.on), "difficulte": self.dif_vue(), "epoque": self.epoque,
-                **({"monde": self.mp.bref()} if self.mp is not None else {})})
+                "deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on), "difficulte": self.dif_vue(),
+                "epoque": self.epoque, **({"monde": self.mp.bref()} if self.mp is not None else {})})
         for zone, (holder, epoch) in self.authority.items():
             p.send(self.autorite_msg(zone, holder, epoch))
 
@@ -2255,7 +2274,7 @@ class Server:
         self.dif_links_vus = n
         if not force and self.difficulte["pv_monstres"] == "off":
             return                              # le nombre de Link ne change rien : pas de message
-        self.broadcast({"type": "regles", "deathlink": int(self.morts.on), "difficulte": self.dif_vue()})
+        self.broadcast(self.regles_msg(difficulte=True))
 
     # --- mode Hanteurs ------------------------------------------------------------------
     def h_joueurs(self) -> None:
@@ -2477,7 +2496,17 @@ class Server:
             self.morts.on = bool(on)
             self.mp_marquer(rapide=True)
             log(f"deathlink {'activé' if on else 'désactivé'} par l'administrateur")
-            self.broadcast({"type": "regles", "deathlink": int(self.morts.on)})
+            self.broadcast(self.regles_msg())
+
+    def admin_vie_partagee(self, on: bool) -> None:
+        if bool(on) != self.vies.on:
+            if on and self.hanteurs is not None:
+                log("vie partagée : refusée par le serveur (mode Hanteurs)")
+                return
+            self.vies.on = bool(on)
+            self.mp_marquer(rapide=True)
+            log(f"vie partagée {'activée' if on else 'désactivée'} par l'administrateur")
+            self.broadcast(self.regles_msg())
 
     def admin_difficulte(self, d: dict) -> None:
         nd = dif_mod.fusionner(self.difficulte, d)
@@ -2624,6 +2653,7 @@ class Server:
                     "players": [{"id": o.id, "name": o.name, "pack": o.pack, "couleur": o.couleur, "pause": o.pause}
                                 for o in self.players.values() if o.id != p.id and o.joueur],
                     "deathlink": int(self.morts.on),      # synchro v3 : règle de la partie (absent = non)
+                    "vie_partagee": int(self.vies.on),    # vie partagée : règle de la partie (absent = non)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -2637,6 +2667,9 @@ class Server:
             if self.morts.on and "deathlink" not in p.feat:
                 log(f"ATTENTION : {p.name} a des outils sans deathlink : ses morts ne partent pas et celles des "
                     "autres ne le touchent pas ; mettez le dépôt à jour")
+            if self.vies.on and "vie_partagee" not in p.feat:
+                log(f"ATTENTION : {p.name} a des outils sans la vie partagée : sa vie reste la sienne ; mettez le "
+                    "dépôt à jour")
             if self.difficulte != dif_mod.defaut() and "difficulte" not in p.feat:
                 log(f"ATTENTION : {p.name} a des outils sans le réglage de difficulté : chez lui les dégâts et la "
                     "vie des monstres restent ceux du jeu ; mettez le dépôt à jour")
@@ -2824,6 +2857,8 @@ class Server:
             self.handle_pnj(p, msg)
         elif t == "mort":
             self.handle_mort(p)
+        elif t == "vie":
+            self.handle_vie(p, msg)
         elif t == "regles_cmd":
             self.handle_regles_cmd(p, msg)
         elif t == "hsummon":
@@ -2908,7 +2943,7 @@ class Server:
             lst.append(d)
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
-               "deathlink": self.morts.on,
+               "deathlink": self.morts.on, "vie_partagee": self.vies.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.mp is not None:
@@ -3123,9 +3158,10 @@ class Server:
         if msg.get("full") in (1, True):
             p.send({"type": "gift", "from": None, "group": group, "full": 1, "list": list(reg.values())})
             return
-        rec = valid_gift(msg)
+        rec = valid_record(msg)     # quart au sol (« piece: ») ou donné par un personnage (« pnj: », quarts_pnj.py)
         if rec is None:
-            log(f"cadeaux : message invalide de {p.name} ignoré (objet {msg.get('item')!r}, bit {msg.get('bit')!r})")
+            log(f"cadeaux : message invalide de {p.name} ignoré (src {str(msg.get('src'))[:24]!r}, objet "
+                f"{msg.get('item')!r}, bit {msg.get('bit')!r})")
             return
         now = time.monotonic()
         p.gift_times = [t for t in p.gift_times if now - t < 1.0]
@@ -3144,7 +3180,11 @@ class Server:
         rec["by"] = p.name
         reg[rec["src"]] = rec
         self.mp_marquer()
-        log(f"cadeaux [{group}] : {p.name} a ramassé un quart de cœur ({rec['src']}, {rec['stage'] or '?'})")
+        if "lieu" in rec:
+            quoi = "a obtenu un quart de cœur" if rec["quart"] else "a fait le lieu (sans quart)"
+            log(f"cadeaux [{group}] : {p.name} {quoi} ({rec['src']}, {rec['stage'] or '?'})")
+        else:
+            log(f"cadeaux [{group}] : {p.name} a ramassé un quart de cœur ({rec['src']}, {rec['stage'] or '?'})")
         out = dict(rec, type="gift", group=group, nom=p.name, **{"from": p.id})
         for o in self.players.values():
             if o.id != p.id and o.joueur and o.gift_group == group:
@@ -3407,6 +3447,91 @@ class Server:
         if self.hanteurs is not None:
             self.hanteurs.victoire_vague([o.id for o in dest])    # victoire « survie » : une vague = UN K.O.
 
+    # --- vie partagée (synchro/vie_partagee.py) -------------------------------------------
+    def vie_msg(self, o: Player, group: str, **extra) -> dict:
+        st = self.vies.etat(group)
+        m = {"type": "vie", "from": None, "group": group, "max": st["max"], "ack": o.vie_ack}
+        if st["attente"] is not None:
+            m["attente"] = 1                   # fée attendue : aucune valeur imposée
+        elif st["v"] is not None:
+            m["v"] = st["v"]
+        m.update(extra)
+        return m
+
+    def vie_diffuser(self, group: str, src: Player | None, **extra) -> None:
+        """Valeur commune aux membres du groupe (chacun avec SON accusé), sauf ``src``."""
+        for o in self.players.values():
+            if o.joueur and o.vie_group == group and (src is None or o.id != src.id):
+                o.send(self.vie_msg(o, group, **({"from": src.id, "nom": src.name} if src is not None else {}),
+                                    **extra))
+
+    def vie_echeances(self) -> None:
+        for g in self.vies.echeance(time.monotonic()):
+            log(f"vie partagée [{g}] : aucune fée n'a relevé le groupe : vie commune à 0, tout le monde meurt")
+            self.vie_diffuser(g, None, mort=1)
+
+    def handle_vie(self, p: Player, msg: dict) -> None:
+        """Vie commune par groupe : deltas appliqués dans l'ordre d'arrivée, bornés à [0, vie max du groupe],
+        idempotents par identifiant d'événement ; hello : inscription (le serveur fait foi pour un groupe connu) ;
+        sync : valeur renvoyée. Un Hanteur (mode coupé de toute façon) ou le joueur robot : jamais."""
+        if not self.vies.on or not p.joueur:
+            return
+        if self.hanteurs is not None and (self.hanteurs.est_hanteur(p.id) or self.hanteurs.bloque_monde(p.id)):
+            return
+        self.vie_echeances()
+        v = valid_vie(msg)
+        if v is None:
+            log(f"vie partagée : message invalide de {p.name} ignoré (seq {str(msg.get('seq'))[:12]!r})")
+            return
+        now = time.monotonic()
+        p.vie_times = [t for t in p.vie_times if now - t < 1.0]
+        delta = not v["hello"] and not v["sync"]
+        if len(p.vie_times) >= CNT_RATE and not v["hello"]:
+            log(f"vie partagée : {p.name} envoie trop de messages (> {CNT_RATE}/s) : ignoré")
+            if delta and (p.vie_trou is None or v["seq"] < p.vie_trou):
+                p.vie_trou = v["seq"]          # comme les compteurs : rien d'autre accusé avant son renvoi
+            return
+        p.vie_times.append(now)
+        group = v["group"]
+        p.vie_group = group
+        if v["hello"]:
+            p.vie_ack = max(p.vie_ack, v["ack"])
+            p.vie_trou = None
+            changed = self.vies.hello(group, v["v"], v["max"], self.prio_hote(p))
+            st = self.vies.etat(group)
+            log(f"vie partagée [{group}] : {p.name} inscrit ({v['v']}/{v['max']} quarts) ; commune "
+                f"{st['v']}/{st['max']}")
+            p.send(self.vie_msg(p, group, snap=1))
+            if changed:
+                self.mp_marquer()
+                self.vie_diffuser(group, p)
+            return
+        if v["sync"]:
+            p.send(self.vie_msg(p, group, snap=1))
+            return
+        if p.vie_trou is not None:
+            if v["seq"] > p.vie_trou:
+                return                         # après un trou : ni compté ni accusé (renvoyé dans l'ordre)
+            p.vie_trou = None
+        p.vie_ack = max(p.vie_ack, v["seq"])
+        res = self.vies.delta(group, v["ev"], v["d"], v["max"], v["fee"], v["fl"], v["zero"], now)
+        if res is None:
+            p.send(self.vie_msg(p, group))     # déjà compté (renvoi après une coupure)
+            return
+        if res["raison"]:
+            log(f"vie partagée [{group}] : {p.name} : {v['d']:+d} ignoré ({res['raison']})")
+        self.mp_marquer()
+        extra = {"mort": 1} if res["mort"] else {}
+        if res["mort"]:
+            log(f"vie partagée [{group}] : {p.name} : {v['d']:+d} : vie commune à 0, tout le monde meurt")
+        elif res["attente"] and res["app"]:
+            log(f"vie partagée [{group}] : {p.name} tombe à 0 avec une fée en flacon : attente de sa fée")
+        elif v["fee"] and res["app"]:
+            log(f"vie partagée [{group}] : la fée de {p.name} relève tout le groupe ({res['v']} quarts)")
+        p.send(self.vie_msg(p, group, **extra))
+        if res["app"] or res["mort"] or res["attente"]:
+            self.vie_diffuser(group, p, d=res["app"], **extra)
+
     def lanceur_hote(self, p: Player) -> bool:
         """Outil lobby du lanceur de l'hôte, seul autorisé à changer la partie (« regles_cmd », « hanteurs_cmd ») :
         - sur le PC du serveur (adresse locale de ce PC), toujours ;
@@ -3432,18 +3557,27 @@ class Server:
                 self.morts.on = on
                 self.mp_marquer(rapide=True)
                 log(f"deathlink {'activé' if on else 'désactivé'} par l'hôte")
-                self.broadcast({"type": "regles", "deathlink": int(on)})
+                self.broadcast(self.regles_msg())
+        if "vie_partagee" in msg:
+            on = msg.get("vie_partagee") in (1, True)
+            if on and self.hanteurs is not None:
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
+                        "msg": "vie partagée impossible avec le mode Hanteurs (ses règles de vie restent les siennes)"})
+                return
+            if on != self.vies.on:
+                self.vies.on = on
+                self.mp_marquer(rapide=True)
+                log(f"vie partagée {'activée' if on else 'désactivée'} par l'hôte")
+                self.broadcast(self.regles_msg())
         if "difficulte" in msg:
             if not self.difficulte_on:
-                p.send({"type": "regles_rep", "ok": 0, "deathlink": int(self.morts.on),
-                        "difficulte": self.dif_vue(),
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
                         "msg": "ce serveur tourne avec --no-difficulte : le réglage de difficulté est coupé"})
                 return
             d = dif_mod.fusionner(self.difficulte, msg.get("difficulte"))
             if d is None:
                 log(f"{p.name} : réglage de difficulté refusé (valeur inconnue : {str(msg.get('difficulte'))[:80]})")
-                p.send({"type": "regles_rep", "ok": 0, "deathlink": int(self.morts.on),
-                        "difficulte": self.dif_vue(),
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
                         "msg": "réglage de difficulté inconnu (dégâts : 1 à 4 ; vie des monstres : off, demi, link)"})
                 return
             if d != self.difficulte:
@@ -3451,7 +3585,20 @@ class Server:
                 self.mp_marquer(rapide=True)
                 log("difficulté changée par l'hôte : " + dif_mod.texte(d, self.dif_links()))
                 self.dif_diffuser(force=True)
-        p.send({"type": "regles_rep", "ok": 1, "deathlink": int(self.morts.on), "difficulte": self.dif_vue()})
+        p.send({"type": "regles_rep", "ok": 1, **self.regles_rep()})
+
+    def regles_rep(self) -> dict:
+        return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on), "difficulte": self.dif_vue()}
+
+    def regles_msg(self, difficulte: bool = False) -> dict:
+        """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
+        a été allumée une fois dans ce processus (absente, un client la garde telle quelle : message d'avant sinon)."""
+        m = {"type": "regles", "deathlink": int(self.morts.on)}
+        if self.vies.vu:
+            m["vie_partagee"] = int(self.vies.on)
+        if difficulte:
+            m["difficulte"] = self.dif_vue()
+        return m
 
     def handle_monde_cmd(self, p: Player, msg: dict) -> None:
         """Monde persistant : commande de l'administrateur du monde (lanceur de l'hôte : PC du serveur, ou mot de
@@ -3469,18 +3616,26 @@ class Server:
         rep = self.mp.commande(self, p, msg)
         p.send(dict(rep, type="monde_rep", cmd=str(msg.get("cmd"))[:16]))
 
-    def mp_heure(self, p: Player, out: dict, ref_avant: int | None) -> None:
-        """--monde-heure (désactivé par défaut) : le premier arrivé, devenu référence de l'heure, est recalé sur la
-        dernière heure connue du monde (en avant seulement, le client refuse sinon ; [HYPO] jamais essayé en jeu)."""
-        h = self.mp.heure if self.mp is not None else None
-        if not (self.mp is not None and self.mp.heure_auto and h and ref_avant is None and out.get("from") == p.id):
+    def monde_envoyer(self) -> None:
+        """Horloge commune (synchro/monde.py) : réponses et diffusions en attente ; les joueurs figés par leur nom."""
+        for dest, m in self.monde.prendre_envois():
+            figes = [self.players[i].name if i in self.players else str(i) for i in m.get("figes", [])]
+            m = dict(m, figes=figes)
+            for pid in dest:
+                o = self.players.get(pid)
+                if o is not None and o.joueur:
+                    o.send(m)
+
+    def monde_depart(self, p: Player) -> None:
+        """Un joueur part : il n'arrête plus l'heure des autres (diffusion si l'horloge repart)."""
+        if not self.monde_enabled:
             return
-        if getattr(p, "mp_heure_faite", False):
-            return
-        p.mp_heure_faite = True
-        if (h["d"], h["t"]) > (out["d"], out["t"]):
-            log(f"monde : heure de {p.name} recalée sur celle du monde (jour {h['d']}, {h['t']:.0f}°)")
-            p.send({"type": "heure", "t": h["t"], "d": h["d"], "group": out.get("group"), "from": None})
+        avant = {g: c["run"] for g, c in self.monde.horloges.items()}
+        self.monde.forget(set(self.players))
+        for g, c in self.monde.horloges.items():
+            if avant.get(g) is False and c["run"]:
+                log(f"heure : {p.name} parti, l'heure commune repart (groupe {g})")
+        self.monde_envoyer()
 
     # --- cache-cache des Killer Bees à plusieurs (synchro/cachecache.py) ------------------
     def cc_envoyer(self, sorties) -> None:
@@ -3512,19 +3667,29 @@ class Server:
         if not self.monde_enabled or not p.joueur:
             return
         self.monde.forget(set(self.players))
+        groupe = str(msg.get("group") or "default")[:32]
         if msg["type"] == "monde":
-            ref_avant = self.monde.ref(str(msg.get("group") or "default")[:32])
-            out, dest = self.monde.monde(p.id, self.prio_hote(p), msg)
+            # horloge commune : une horloge neuve part de l'heure gardée par le monde persistant
+            h = self.mp.heure if self.mp is not None else None
+            avant = self.monde.horloges.get(groupe, {}).get("run")
+            out, dest = self.monde.monde(p.id, self.prio_hote(p), msg, init=h,
+                                         robot=p.id == self.robot.pid)
             reply = None
-            if out is not None and self.mp is not None:
-                self.mp_heure(p, out, ref_avant)                       # avant de noter sa propre heure
-                self.mp.noter_heure(out["t"], out["d"], p.name)        # dernière heure connue du monde
+            c = self.monde.horloges.get(groupe)
+            if c is not None:
+                if avant is not None and avant != c["run"]:
+                    noms = ", ".join(self.players[i].name for i in c["figes"] if i in self.players)
+                    log("heure : l'heure commune repart" if c["run"] else
+                        f"heure : l'heure commune s'arrête ({noms or 'personne en jeu'})")
+                if self.mp is not None:
+                    self.mp.noter_heure(c["t"], c["d"], p.name)        # monde persistant : l'heure commune
         elif msg["type"] == "heure":
-            # Chant du temps qui passe chez un invité : passé à la référence, que tout le groupe suit
+            # Chant du temps qui passe : l'horloge commune saute en avant, tout le groupe la reçoit
+            seq = self.monde.horloges.get(groupe, {}).get("seq")
             out, dest = self.monde.heure(p.id, msg)
             reply = None
-            if out is not None:
-                log(f"heure : saut de {p.name} passé à la référence du groupe")
+            if self.monde.horloges.get(groupe, {}).get("seq") != seq:
+                log(f"heure : saut de {p.name} (Chant du temps qui passe) repris par l'heure commune")
         else:
             out, dest, reply = self.monde.vent_msg(p.id, self.prio_hote(p), msg)
             if out is not None:
@@ -3533,6 +3698,7 @@ class Server:
                     f"{'réglé' if out['on'] else 'jamais réglé'}, seq {out['seq']})")
         if reply is not None:
             p.send(reply)
+        self.monde_envoyer()
         if out is None:
             return
         for pid in dest:
@@ -4606,6 +4772,7 @@ class Server:
             self.sticks_left(p)
             self.mob.left(p.id)
             self.carry.left(p.id)
+            self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
             sorties = self.cache.depart(p.id)   # cache-cache : sa partie s'arrête pour les autres
             if sorties:
                 log(f"cache-cache : {p.name} parti, sa partie s'arrête")
@@ -4858,7 +5025,7 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
             "plus et à l'arrêt ; « Copier la partie » donne l'image du monde"
             + ("" if mp.quarantaine_on else " ; quarantaine désactivée")
             + (" ; clients sans identifiant de monde refusés" if mp.strict else "")
-            + (" ; heure recalée à la connexion (--monde-heure)" if mp.heure_auto else ""))
+            + " ; heure commune reprise du monde")
         if srv.hanteurs is not None:
             log("MODE HANTEURS sur ce monde : session temporaire. Ce que les Link gagnent entre dans le monde comme "
                 "en coop normale ; rien d'un Hanteur n'y entre ; la manche (rôles, points, possessions) n'est jamais "
@@ -5009,6 +5176,12 @@ def main(argv=None) -> int:
                          "les clients (mode Hanteurs : seuls les Link comptent). Désactivée par défaut")
     ap.add_argument("--no-deathlink", action="store_true",
                     help="deathlink désactivé même avec --deathlink")
+    ap.add_argument("--vie-partagee", action="store_true",
+                    help="règle de la partie : une seule barre de vie pour tout le groupe (chaque dégât et chaque "
+                         "soin d'un joueur vaut pour tous ; à 0, tout le monde meurt) ; imposée à tous les clients ; "
+                         "jamais avec le mode Hanteurs. Désactivée par défaut")
+    ap.add_argument("--no-vie-partagee", action="store_true",
+                    help="vie partagée désactivée même avec --vie-partagee")
     ap.add_argument("--degats", type=int, choices=list(dif_mod.DEGATS), default=1,
                     help="difficulté, règle de la partie : dégâts reçus par les Link multipliés (1 = jeu normal, "
                          "défaut ; 2, 3 ou 4). Demande le graphic pack à jour chez chaque joueur")
@@ -5262,8 +5435,8 @@ def main(argv=None) -> int:
     ap.add_argument("--no-monde-quarantaine", action="store_true",
                     help="monde persistant : pas de garde de contenu (une partie qui ne ressemble pas au monde y entre)")
     ap.add_argument("--monde-heure", action="store_true",
-                    help="monde persistant : recale l'heure du premier arrivé sur la dernière heure du monde (désactivé "
-                         "par défaut : jamais essayé en jeu)")
+                    help="sans effet (gardée pour les anciens réglages) : l'horloge commune du serveur repart TOUJOURS de "
+                         "l'heure gardée par le monde persistant")
     ap.add_argument("--monde-image-anciens-hanteurs", action="store_true",
                     help="monde persistant + mode Hanteurs : l'image du monde peut être demandée à un joueur qui a été "
                          "Hanteur puis est redevenu Link (désactivé par défaut : sa sauvegarde contient ce que son Link "
@@ -5362,6 +5535,7 @@ def main(argv=None) -> int:
         try:
             mp = mpm.Monde.ouvrir(dossier_mondes, nom_monde, log=log, nom_neuf=args.monde_nom,
                                   deathlink=args.deathlink and not args.no_deathlink,
+                                  vie_partagee=args.vie_partagee and not args.no_vie_partagee,
                                   difficulte={"degats": args.degats, "pv_monstres": args.pv_monstres},
                                   quarantaine=not args.no_monde_quarantaine, strict=args.monde_strict,
                                   heure_auto=args.monde_heure, ecriture_min=args.monde_ecriture)
@@ -5387,6 +5561,7 @@ def main(argv=None) -> int:
                           mode_hanteurs=args.mode_hanteurs, hanteurs_cfg=hcfg, rares=not args.no_rares,
                           monde=not args.no_monde, herbe=not args.no_herbe,
                           deathlink=args.deathlink and not args.no_deathlink,
+                          vie_partagee=args.vie_partagee and not args.no_vie_partagee,
                           mot_de_passe=mdp, mdp_source=mdp_source,
                           mises_a_jour=args.mises_a_jour, donnees=args.donnees, monde_persistant=mp,
                           rando_graine=None if args.no_rando else args.rando_graine,

@@ -58,7 +58,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
-from jeu import mailbox
+from jeu import mailbox   # jeu.natif importé à l'usage : le serveur importe ce module sans la mémoire du jeu
 from jeu import progress as prog
 from jeu import savecopy
 from synchro import cles
@@ -230,10 +230,11 @@ class Lecture:
     stage: str = ""
     pause: str = ""                # "" = jeu lisible et stable (pas de changement de stage, pas Xboss)
     etat: Etat | None = None
+    charg: int | None = None       # parties remplacées (mod natif 0.23.0 : état du portage chargé, voir lire)
 
     @property
     def contexte(self) -> tuple:
-        return (self.gi, self.date)
+        return (self.gi, self.date, self.charg)
 
 
 def lire(mem) -> Lecture:
@@ -251,7 +252,10 @@ def lire(mem) -> Lecture:
     if struct.unpack(">I", player)[0] == 0:
         return Lecture(False, "Link absent (chargement)", gi)
     play = mem.try_read(PLAY_BASE, PLAY_LEN)
-    lec = Lecture(True, "", gi, _g(blob, GI_DATE_IPL, 8), stage, "", etat_depuis(blob, play))
+    # Portage natif (audit du 2026-11-16) : un état de sauvegarde du portage chargé en pleine partie (F2-F6, Saves)
+    # remplace la sauvegarde sans changer gameInfo ni mDateIPL : seul le compteur ``chargements`` du mod 0.23.0
+    # (natif/mod_wwmp/chargements.c, jeu/natif.chargements) le trahit ; il entre dans le contexte (None : Cemu, mod plus ancien).
+    lec = Lecture(True, "", gi, _g(blob, GI_DATE_IPL, 8), stage, "", etat_depuis(blob, play), _chargements(mem))
     nxt = mem.try_read(prog.SYM_NEXT_STAGE_ENABLED, 1)
     if nxt is None or nxt[0]:
         lec.pause = "changement de stage en cours"
@@ -1039,3 +1043,10 @@ class InventaireSync:
         if self.item_get is None:
             s += " ; écriture directe (pack v17)"
         return f"{s} ; {self.status_txt}"
+
+
+def _chargements(mem):
+    """Compteur des états de sauvegarde chargés (jeu.natif.chargements, audit natif) ; importé ici seulement : le
+    serveur (et son image Docker) importe ce module sans winmem ni procmem."""
+    from jeu import natif
+    return natif.chargements(mem)

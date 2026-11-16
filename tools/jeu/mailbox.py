@@ -66,6 +66,9 @@ V19 = 19
 CMD_NOP, CMD_CALL, CMD_COUNT, CMD_KEYADD = 0, 7, 9, 10   # 8 : réservée (CREATE_FULL du contrat v18, non codée)
 CALL_ITEM_GET, CALL_GRANT = 3, 8                      # seuls index CALL codés en v19 (les autres : -1)
 GRANT_TBOX, GRANT_DUNGEON, GRANT_OCEAN, GRANT_ITEM = 0, 1, 2, 3
+# genre 4 (mod natif 0.24.0, bit 31 CAP_GRANT_EVT ; jamais un pack Cemu) : drapeau d'événement mSave.mEvent, idx = octet,
+# « bit » = masque entier (0xXXYY comme onEventBit) ; quarts de cœur des personnages (synchro/quarts_pnj.py)
+GRANT_EVENT = 4
 # codes communs des commandes v19
 R_DONE, R_HAD, R_REFUSED, R_NO_GI, R_BUSY, R_STAGE, R_NOP = 1, 0, -1, -2, -3, -4, -6
 COUNT_REFUSED, COUNT_BUSY = 0x80000000, 0x80000001
@@ -135,6 +138,13 @@ OFF_COUL_N_SOI = 0x94            # dessins de NOTRE Link teints
 OFF_COUL_N_FANTOMES = 0x98       # dessins de fantômes teints
 OFF_COUL_N_KONST0 = 0x9C         # matériaux dont konst0 (la lumière que lit le shader de Link) a été multiplié
 COUL_COMPTEURS_MOD = 18          # NATIF_VERSION_MOD qui tient ces compteurs
+# mod natif 0.20.0 (natif/mod_wwmp/couleurs.c : la texture de la tunique recolorée, posée sur le modèle) : mot +0x1C
+# des sauvegardes 0 à 3 (0 dans le pack Cemu)
+OFF_COUL_TEXTURES = 0xBC         # matériaux de la tenue dont la texture a été remplacée par sa copie recolorée
+OFF_COUL_COPIES = 0xDC           # textures recolorées (une par couleur, 8 au plus)
+OFF_COUL_KONST0_GPU = 0xFC       # repli : blocs « Mat » du modèle où konst0 teint a été écrit
+OFF_COUL_REFUS = 0x11C           # refus vus (bits) : 1 tas plein, 2 konst0 sans place, 4 modèle sans blocs, 8 texture
+COUL_TEXTURE_MOD = 20            # NATIF_VERSION_MOD qui teint par la texture
 OFF_NATIF = 0x1AE0               # zone WWMPNATF du mod natif (natif/mod_wwmp/boite.h ; version du mod à +0x20)
 COUL_BLOC = 0x10
 N_COUL_SLOTS = 7
@@ -383,12 +393,25 @@ ROB_TAILLE = 0x60
 CAP_CANON_BATEAU = 0x10000000    # bit 28
 # les autres joueurs sur la carte du jeu (bit 30, MOD NATIF SEULEMENT, 0.19.0 ; natif/mod_wwmp/carte.c, client/carte.py,
 # docs/etudes/mini_carte.md) : zone wwmp_car (magie « WWMPCAR1 ») ; le PC écrit la couleur (RRGGBBAA) du marqueur de
-# chaque emplacement de fantôme, le mod dessine les marqueurs (ballon d'un carré, carte marine) par l'API HUD du portage.
+# chaque emplacement de fantôme, le mod dessine les marqueurs (ballon d'un carré, carte marine, carte du donjon : 0.27.0)
+# par l'API HUD du portage.
 CAP_CARTE = 0x40000000           # bit 30
+# vie partagée (MOD NATIF SEULEMENT, 0.30.0 ; natif/mod_wwmp/vie.c, synchro/vie_partagee.py) : SANS bit de capacité (le
+# mot est plein) : la zone wwmp_vie (magie « WWMPVIE1 », format 1) trouvée dans la boîte EST la capacité. CALL 18 VIE :
+# la correction de la vie commune ajoutée à la vie de Link par le jeu (bornée à [0, vie max]) ; résultat : la vie après,
+# ou un refus (aucune écriture) : -1 arguments / mode robot, -2 pas de partie, -3 événement, -7 changement d'étape,
+# -8 Link absent, -9 message ou menu, -10 Link mort ou vie à 0, -11 variation de vie en attente, -12 vie incohérente.
+CALL_VIE = 18
+MAGIC_VIE = b"WWMPVIE1"
+VIE_FORMAT = 1
+OFFV_APPELS, OFFV_FAITS, OFFV_REFUS, OFFV_DERNIER = 0x0C, 0x10, 0x14, 0x18
+# GRANT genre 4 (bit 31, MOD NATIF SEULEMENT, 0.24.0 ; natif/mod_wwmp/commandes.c, synchro/quarts_pnj.py) : CALL 8 pose
+# un drapeau d'événement (octet + masque entier de mSave.mEvent) PUIS donne l'objet, dans la même image, hors événement
+CAP_GRANT_EVT = 0x80000000       # bit 31
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
-CARTE_TAILLE = 0x60
+CARTE_TAILLE = 0x80                # 0.27.0 : + compteurs de la carte du donjon (+0x60..+0x6C)
 # boulets du canon du bateau (bit 29, MOD NATIF SEULEMENT, 0.17.0 ; natif/mod_wwmp/boulets.c, synchro/boulets.py) : zone
 # wwmp_bou (magie « WWMPBOU1 »). Chez le tireur : file des tirs de NOTRE bateau (cfg bit 0). Chez les autres : CALL 16
 # BOULET (cfg bit 1) crée une copie inerte du boulet (départ et vitesses du jeu) ; « fin » d'un emplacement la retire.
@@ -397,6 +420,7 @@ CALL_BOULET = 16
 MAGIC_BOU = b"WWMPBOU1"
 BOU_FORMAT = 1
 OFFB_CFG, OFFB_SEQ, OFFB_COPIES, OFFB_RETIREES, OFFB_INTERCEPTEES, OFFB_REFUS = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFB_SONS = 0x24                 # (jeu) sons du tir joués par CALL 16 (mod 0.28.0)
 OFFB_POS, OFFB_ANGLE, OFFB_SALLE, OFFB_COPIE, OFFB_TIR = 0x30, 0x3C, 0x44, 0x50, 0xD0
 BOU_CFG_TIRS, BOU_CFG_COPIES = 0x1, 0x2
 BOU_N_COPIES, BOU_N_TIRS, BOU_COPIE, BOU_TIR, BOU_TAILLE = 8, 8, 0x10, 0x20, 0x1D0
@@ -406,6 +430,36 @@ ROB_CFG_MODE, ROB_A_POSITION = 0x1, 0x1
 ROB_ETAT_LINK, ROB_ETAT_LIBRE, ROB_ETAT_CHANGEMENT, ROB_ETAT_MODE, ROB_ETAT_EVENEMENT = 0x1, 0x2, 0x4, 0x8, 0x10
 R_ROBOT_CHANGEMENT, R_ROBOT_LINK, R_ROBOT_MENU = -7, -8, -9
 ROB_POS_MAX = 1e6
+# vent du Requiem (MOD NATIF SEULEMENT, 0.22.0 ; natif/mod_wwmp/vent.c, synchro/monde.py) : zone wwmp_ven (magie
+# « WWMPVEN1 », AUCUN bit de capacité : la zone trouvée EST la capacité). Chez celui qui joue : compteur des Requiem
+# (accroche de retour de Wind_CommitWind, écrit en dernier) et la direction que le jeu vient d'écrire ; chez les autres :
+# direction demandée par le PC (numéro « demande » écrit en dernier), appliquée UNE fois par dKyw_tact_wind_set.
+MAGIC_VENT = b"WWMPVEN1"
+VENT_FORMAT = 1
+OFFV2_REQUIEM, OFFV2_REQ, OFFV2_DEMANDE, OFFV2_XY, OFFV2_ON = 0x0C, 0x10, 0x14, 0x18, 0x1C
+OFFV2_FAIT, OFFV2_APPLIQUES, OFFV2_ATTENTES = 0x20, 0x24, 0x28
+VENT_TAILLE = 0x40
+# ouverture d'un coffre vue chez les autres (MOD NATIF SEULEMENT, 0.25.0 ; natif/mod_wwmp/ouverture.c, synchro/coffres.py
+# ChestRefresh) : zone wwmp_ouv (magie « WWMPOUV1 », AUCUN bit de capacité : la zone trouvée EST la capacité). CALL 17
+# OUVERTURE(id du coffre) : couvercle, éclat, lumières et sons du jeu, sans objet, événement ni caméra ; le coffre reste
+# en actionWait (« ouvert », comme figé). Résultat : emplacement 1..4, ou un refus (R_OUV_*).
+MAGIC_OUV = b"WWMPOUV1"
+OUV_FORMAT = 1
+CALL_OUVERTURE = 17
+OFFO_LANCEES, OFFO_FINIES, OFFO_INTERROMPUES, OFFO_REFUS, OFFO_IMAGES, OFFO_DERNIER = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFO_OUV = 0x40                  # 4 x {id, adresse, images au départ, état}
+OUV_N, OUV_ENTREE, OUV_TAILLE = 4, 0x10, 0x80
+OUV_ACTIF, OUV_LUMIERES, OUV_COUVERCLE, OUV_FUMEE, OUV_SOL = 0x1, 0x2, 0x4, 0x8, 0x10
+R_OUV_SANS_GI, R_OUV_EVENEMENT, R_OUV_ABSENT, R_OUV_ETAT, R_OUV_PROCHE, R_OUV_PLEIN = -2, -3, -4, -5, -6, -7
+
+# états des marionnettes (MOD NATIF SEULEMENT, 0.29.0 ; natif/mod_wwmp/etats.c, synchro/etats_marionnettes.py) : zone
+# wwmp_eta (magie « WWMPETA1 », AUCUN bit : la zone trouvée EST la capacité). Une entrée de 0x18 octets par emplacement
+# d'ennemi (même index) : genre, a, b, c, image, décalage (PC, 0x14 octets écrits d'un coup), puis « vu » (jeu).
+MAGIC_ETATS = b"WWMPETA1"
+ETATS_FORMAT = 1
+OFFE_COMPTEURS, OFFE_ENTREES, ETAT_ENTREE = 0x0C, 0x30, 0x18
+ETATS_TAILLE = 0x1B0
+ETATS_COMPTEURS = ("appliques", "refus", "ailes", "allumees", "eteintes", "retirees")
 
 
 def lire_entree_prj(e: bytes) -> dict:
@@ -702,8 +756,13 @@ class Mailbox:
             return None
         n, = struct.unpack(">I", self.mem.read(a + OFF_COUL_N, 4))
         soi, fantomes, konst0 = struct.unpack(">3I", self.mem.read(a + OFF_COUL_N_SOI, 12))
-        return {"dessins": n, "soi": soi, "fantomes": fantomes, "konst0": konst0,
-                "par_cible": self.version_mod_natif() >= COUL_COMPTEURS_MOD}
+        v = self.version_mod_natif()
+        out = {"dessins": n, "soi": soi, "fantomes": fantomes, "konst0": konst0, "par_cible": v >= COUL_COMPTEURS_MOD}
+        if v >= COUL_TEXTURE_MOD:       # mod 0.20.0 : la texture
+            for cle, off in (("textures", OFF_COUL_TEXTURES), ("copies", OFF_COUL_COPIES),
+                             ("konst0_gpu", OFF_COUL_KONST0_GPU), ("refus", OFF_COUL_REFUS)):
+                out[cle], = struct.unpack(">I", self.mem.read(a + off, 4))
+        return out
 
     def version_mod_natif(self) -> int:
         """NATIF_VERSION_MOD du mod natif (zone WWMPNATF qui suit la partie fixe), 0 pour le pack Cemu."""
@@ -1451,6 +1510,42 @@ class Mailbox:
             a = self._carte = hits[0]
         return a
 
+    # --- vie partagée (0.30.0, mod natif seulement, sans bit : la zone est la capacité) ---------------------------
+    def vie_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_vie`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_vie", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_VIE, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != VIE_FORMAT:
+                return None
+            a = self._vie = hits[0]
+        return a
+
+    @property
+    def vie_ok(self) -> bool:
+        return self.vie_addr() is not None
+
+    def vie_ajouter(self, delta: int, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 18 VIE : ``delta`` quarts (-80..80, non nul) ajoutés à la vie de Link par le jeu. Renvoie la vie après
+        (0..80) ou un code de refus (< 0 : rien n'a été écrit). ValueError avant tout envoi hors bornes ;
+        MailboxError sans la zone ; MailboxCancelled sans réponse (requête neutralisée : rien n'a été fait)."""
+        if self.vie_addr() is None:
+            raise MailboxError("vie partagée : seulement le mod natif du portage à jour (0.30.0 ou plus)")
+        if isinstance(delta, bool) or not isinstance(delta, int) or not -80 <= delta <= 80 or delta == 0:
+            raise ValueError(f"VIE : delta {delta!r} hors -80..80 (non nul)")
+        return self._call(CMD_CALL, CALL_VIE, delta, timeout=timeout, cancel=True)
+
+    def vie_counters(self) -> dict:
+        a = self.vie_addr()
+        if a is None:
+            return {"appels": 0, "faits": 0, "refus": 0, "dernier": 0}
+        n, f, r, d = struct.unpack(">3Ii", bytes(self.mem.read(a + OFFV_APPELS, 16)))
+        return {"appels": n, "faits": f, "refus": r, "dernier": d}
+
     def set_couleurs_carte(self, couleurs) -> bool:
         """Couleurs (7 mots RRGGBBAA, un par emplacement de fantôme ; 0 = blanc) des marqueurs de la carte."""
         a = self.carte_addr()
@@ -1485,6 +1580,23 @@ class Mailbox:
     def canon_bateau(self) -> bool:
         """Canon du bateau fantôme (bit 28, mod natif 0.14.0 seulement) : emplacements 3 à 7 dessinés sans recalcul."""
         return self.pack >= V19 and bool(self.caps & CAP_CANON_BATEAU)
+
+    # --- GRANT genre 4 : drapeau d'événement (bit 31, mod natif 0.24.0 seulement) -----------------------------
+    @property
+    def grant_evt_ok(self) -> bool:
+        """Mod natif dont le CALL 8 GRANT sait le genre 4 (drapeau d'événement, bit 31) ; jamais un pack Cemu."""
+        return bool(self.pack >= V19 and self.caps & CAP_GRANT_EVT)
+
+    def grant_event(self, flag: int, item: int = ITEM_NONE, count: int = 1, timeout: float = TIMEOUT_V19) -> int:
+        """GRANT genre 4 : ``flag`` = 0xXXYY (octet XX de mEvent, masque YY entier). Tous les bits du masque posés
+        PUIS l'objet donné, dans la même image. 1 posé et donné, 0 déjà posé (rien fait), -1 refusé, -3 occupé.
+        MailboxError sans le bit 31 (pack Cemu, mod plus ancien) : rien n'est envoyé."""
+        if not self.grant_evt_ok:
+            raise MailboxError("GRANT genre 4 (drapeau d'événement) : mod natif 0.24.0 ou plus récent requis")
+        flag = int(flag)
+        if not 0 <= flag <= 0xFFFF:
+            raise ValueError(f"GRANT genre 4 : drapeau 0x{flag:X} hors bornes")
+        return self.grant(GRANT_EVENT, flag >> 8, flag & 0xFF, item, count, False, timeout=timeout)
 
     # --- boulets du canon du bateau (bit 29, mod natif 0.17.0 seulement) -------------------------------------
     @property
@@ -1581,12 +1693,13 @@ class Mailbox:
         return False
 
     def bou_counters(self) -> dict:
-        """Mise au point : {"cfg", "seq", "copies", "retirees", "interceptees", "refus"} ; zéros sans la zone."""
+        """Mise au point : {"cfg", "seq", "copies", "retirees", "interceptees", "refus", "sons"} ; zéros sans la zone
+        (« sons » : sons du tir joués par CALL 16, mod 0.28.0 ; 0 avec un mod plus ancien, mot réservé)."""
         a = self.bou_addr()
-        noms = ("cfg", "seq", "copies", "retirees", "interceptees", "refus")
+        noms = ("cfg", "seq", "copies", "retirees", "interceptees", "refus", "sons")
         if a is None:
             return {k: 0 for k in noms}
-        return dict(zip(noms, struct.unpack(">6I", bytes(self.mem.read(a + OFFB_CFG, 24)))))
+        return dict(zip(noms, struct.unpack(">7I", bytes(self.mem.read(a + OFFB_CFG, 28)))))
 
     @property
     def voile_bateau(self) -> bool:
@@ -1709,6 +1822,143 @@ class Mailbox:
             self.mem.write(a + OFFW_PTS + 16 * (2 + i), bytes(brut[8 * i:8 * i + 8]))
         self.mem.w_u32(a + OFFW_N, len(pts))
         return True
+
+    # --- vent du Requiem (mod natif 0.22.0 seulement, zone sans bit) ---------------------------------------------------
+    def vent_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_ven`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle
+        (pack Cemu, mod plus ancien : le client lit alors la sauvegarde comme avant)."""
+        if self.pack < V19:
+            return None
+        a = getattr(self, "_vent", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_VENT, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != VENT_FORMAT:
+                return None
+            a = self._vent = hits[0]
+        return a
+
+    def vent_lire(self) -> dict | None:
+        """{"requiem", "x", "y", "demande", "fait", "appliques", "attentes"} (compteur des Requiem joués ICI et
+        direction du dernier ; état des demandes du PC), ou None sans la zone. Le compteur est lu AVANT la direction
+        (le jeu l'écrit en dernier)."""
+        a = self.vent_addr()
+        if a is None:
+            return None
+        n, = struct.unpack(">I", bytes(self.mem.read(a + OFFV2_REQUIEM, 4)))
+        raw = bytes(self.mem.read(a + OFFV2_REQ, OFFV2_ATTENTES + 4 - OFFV2_REQ))
+        x, y, dem = struct.unpack_from(">hhI", raw, 0)
+        fait, app, att = struct.unpack_from(">3I", raw, OFFV2_FAIT - OFFV2_REQ)
+        return {"requiem": n, "x": x, "y": y, "demande": dem, "fait": fait, "appliques": app, "attentes": att}
+
+    def vent_appliquer(self, x: int, y: int, on: bool) -> int | None:
+        """Demande au jeu d'appliquer cette direction (une fois, au prochain pas de Link libre) : x, y, on, puis le
+        numéro de la demande EN DERNIER. Rend ce numéro, ou None sans la zone (rien n'est écrit)."""
+        a = self.vent_addr()
+        if a is None:
+            return None
+        if not (-0x8000 <= int(x) <= 0x7FFF and -0x8000 <= int(y) <= 0x7FFF):
+            raise ValueError("vent_appliquer : angle hors bornes")
+        dem, = struct.unpack(">I", bytes(self.mem.read(a + OFFV2_DEMANDE, 4)))
+        dem = (dem + 1) & 0xFFFFFFFF
+        self.mem.write(a + OFFV2_XY, struct.pack(">hhI", int(x), int(y), 1 if on else 0))
+        self.mem.w_u32(a + OFFV2_DEMANDE, dem)
+        return dem
+
+    # --- ouverture d'un coffre vue chez les autres (mod natif 0.25.0 seulement, zone sans bit, CALL 17) ----------------
+    def ouv_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_ouv`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle
+        (pack Cemu, mod plus ancien : le coffre est recréé ouvert ou figé, comme avant)."""
+        if self.pack < V19:
+            return None
+        a = getattr(self, "_ouv", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_OUV, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != OUV_FORMAT:
+                return None
+            a = self._ouv = hits[0]
+        return a
+
+    @property
+    def ouverture_ok(self) -> bool:
+        return self.ouv_addr() is not None
+
+    def ouverture_coffre(self, pid: int, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 17 OUVERTURE : le coffre ``pid`` (proc 292, en actionOpenWait, Link à 100 u ou plus) s'ouvre chez nous
+        comme dans le jeu (couvercle, éclat, lumières, sons) sans objet, événement ni caméra, et reste en actionWait.
+        Résultat : emplacement 1..4, ou -2 pas de partie, -3 événement, -4 coffre absent, -5 coffre pas ouvrable
+        (action, commande, ouverture ou éclat en cours, né ouvert), -6 Link trop près (ou CANDOOR posé), -7 plus de
+        place. MailboxError sans la zone, ValueError hors bornes (rien n'est envoyé)."""
+        if self.ouv_addr() is None:
+            raise MailboxError("ouverture des coffres : seulement le mod natif du portage à jour (0.25.0 ou plus)")
+        if isinstance(pid, bool) or not isinstance(pid, int) or not 0 < pid <= 0xFFFFFFFF:
+            raise ValueError("ouverture_coffre : id hors bornes")
+        with Mailbox._lock:
+            return self._call(CMD_CALL, CALL_OUVERTURE, pid, timeout=timeout, cancel=True)
+
+    def ouv_lire(self) -> dict | None:
+        """{"lancees", "finies", "interrompues", "refus", "images", "dernier", "en_cours": [(id, état)]} ; None sans
+        la zone."""
+        a = self.ouv_addr()
+        if a is None:
+            return None
+        raw = bytes(self.mem.read(a, OUV_TAILLE))
+        lan, fin, inter, ref, img = struct.unpack_from(">5I", raw, OFFO_LANCEES)
+        dern, = struct.unpack_from(">i", raw, OFFO_DERNIER)
+        en_cours = []
+        for k in range(OUV_N):
+            pid, _adr, _debut, etat = struct.unpack_from(">4I", raw, OFFO_OUV + k * OUV_ENTREE)
+            if etat & OUV_ACTIF:
+                en_cours.append((pid, etat))
+        return {"lancees": lan, "finies": fin, "interrompues": inter, "refus": ref, "images": img, "dernier": dern,
+                "en_cours": en_cours}
+
+    # --- états des marionnettes (mod natif 0.29.0 seulement, zone sans bit) ------------------------------------------
+    def etats_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_eta`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle
+        (pack Cemu, mod plus ancien : les marionnettes restent comme avant)."""
+        if self.pack < V19:
+            return None
+        a = getattr(self, "_etats", None)
+        if a is None:
+            try:
+                hits = [h for h in self.mem.find_bytes(MAGIC_ETATS, self.addr, self.addr + 0x8000, limit=4)
+                        if h % 4 == 0]
+                if len(hits) != 1:
+                    return None
+                if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != ETATS_FORMAT:
+                    return None
+            except Exception:
+                return None
+            a = self._etats = hits[0]
+        return a
+
+    def ecrire_etat(self, i: int, entree: bytes) -> bool:
+        """Entrée ``i`` (0x14 octets de synchro/etats_marionnettes.entree, en une écriture) ; False sans la zone."""
+        a = self.etats_addr()
+        if a is None:
+            return False
+        if not 0 <= i < 16 or len(entree) != ETAT_ENTREE - 4:
+            raise ValueError("ecrire_etat : emplacement ou entrée invalide")
+        self.mem.write(a + OFFE_ENTREES + ETAT_ENTREE * i, bytes(entree))
+        return True
+
+    def effacer_etat(self, i: int) -> None:
+        """Entrée ``i`` remise à zéro, « vu » compris (la prochaine marionnette de l'emplacement repart de zéro)."""
+        a = self.etats_addr()
+        if a is not None and 0 <= i < 16:
+            self.mem.write(a + OFFE_ENTREES + ETAT_ENTREE * i, bytes(ETAT_ENTREE))
+
+    def etats_lire(self) -> dict | None:
+        """Compteurs du jeu (appliqués, refus, ailes coupées, flammes allumées, éteintes, retirées) ou None."""
+        a = self.etats_addr()
+        if a is None:
+            return None
+        raw = bytes(self.mem.read(a + OFFE_COMPTEURS, 4 * len(ETATS_COMPTEURS)))
+        return dict(zip(ETATS_COMPTEURS, struct.unpack(">%dI" % len(ETATS_COMPTEURS), raw)))
 
     def rando4_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_rnd4`` (coffres « en conflit » ; magie cherchée une fois, unique, alignée,
@@ -2197,6 +2447,8 @@ class Mailbox:
 
     def clear_enemy_slot(self, i: int) -> None:
         self.mem.w_u32(self.enemy_slot_addr(i), 0)
+        if getattr(self, "_etats", None) is not None:
+            self.effacer_etat(i)            # mod natif 0.29.0 : l'état d'espèce part avec l'emplacement
         if self.visee:
             # visée L/ZL (bit 20) : le monstre suivant ne doit pas hériter du y visé (+0x1C) de celui-ci
             self.mem.write(self.enemy_slot_addr(i) + ENEMY_VISEE, bytes(4))
@@ -2240,6 +2492,8 @@ class Mailbox:
             ok = 0 <= idx < 16 and bit in (0, 1, 2, 4)
         elif kind == GRANT_OCEAN:
             ok = 0 <= idx < 0x32 and 0 <= bit < 16
+        elif kind == GRANT_EVENT:
+            ok = 0 <= idx < 0x100 and 1 <= bit <= 0xFF     # octet de mEvent, MASQUE entier
         else:
             ok = False
         if not ok:

@@ -127,6 +127,12 @@ class Ecrivain:
             return 0
         origine = all(objets[k] == s[2] for k, s in enumerate(rando.SITES_DONNEES))
         actuels = lire(mem)
+        if actuels is None and any(mem.try_read(base, len(hexa) // 2) is None for base, hexa in rando.TEMOINS):
+            # lecture ratée (jeu qui se ferme ou plante : vu dans le rapport d'essai du 2026-11-15, natif) : ce n'est
+            # pas « une autre version du jeu ». Rien n'est écrit, pas de note ; nouvel essai à la période suivante.
+            r.don = False
+            self.etat = "jeu illisible (fermé ou en chargement)"
+            return 0
         if actuels is None:
             # témoins absents : autre version du jeu, jeu pas encore chargé, lecture ratée. Rien n'est écrit.
             r.don = False

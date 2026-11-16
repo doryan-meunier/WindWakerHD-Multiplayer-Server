@@ -82,7 +82,7 @@ MODES = ("recreer", "liberer", "journal")
 
 def _finite(p) -> bool:
     return p is not None and len(p) == 3 and all(isinstance(v, (int, float)) and math.isfinite(v)
-                                                  and abs(v) < 1e5 for v in p)
+                                                  and abs(v) < 1e6 for v in p)   # 1e6 : la mer (audit natif)
 
 
 def hidden(p) -> bool:

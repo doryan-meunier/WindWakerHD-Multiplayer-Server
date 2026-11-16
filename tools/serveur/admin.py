@@ -33,7 +33,7 @@ BLOCAGE s pour l'administration (hors adresse de ce PC). Aucune commande arbitra
 « redemarrer » existent, et « ecrire » ne prend que les clés de CLES, chacune validée.
 
 Ce qui l'emporte : config.json (le lanceur l'écrit). Les options de ligne de commande correspondantes (--monde,
---rando-graine, --rando-reglages, --mode-hanteurs, --hanteurs-config, --max-joueurs, --deathlink, --degats,
+--rando-graine, --rando-reglages, --mode-hanteurs, --hanteurs-config, --max-joueurs, --deathlink, --vie-partagee, --degats,
 --pv-monstres, --autorite-preferee, --validation, --robot) ne servent qu'à CRÉER config.json au premier démarrage (migration d'un
 docker-compose.override.yml ; une clé absente d'un ancien config.json est ajoutée depuis l'option) ; ensuite elles
 sont ignorées, avec une ligne dans le journal. « lire » renvoie aussi « autorites » (autorité de chaque zone occupée,
@@ -71,13 +71,15 @@ FORMAT = "wwmp-config"
 
 # clés de config.json ; les autres options du serveur restent celles de la ligne de commande
 CLES = ("monde", "rando_graine", "rando_reglages", "mode_hanteurs", "hanteurs", "max_joueurs", "deathlink",
-        "degats", "pv_monstres", "autorite_preferee", "validation", "robot")
-A_CHAUD = ("deathlink", "degats", "pv_monstres", "max_joueurs", "hanteurs", "autorite_preferee", "validation", "robot")
+        "degats", "pv_monstres", "autorite_preferee", "validation", "robot", "vie_partagee")
+A_CHAUD = ("deathlink", "degats", "pv_monstres", "max_joueurs", "hanteurs", "autorite_preferee", "validation", "robot",
+           "vie_partagee")
 AU_REDEMARRAGE = ("monde", "rando_graine", "rando_reglages", "mode_hanteurs")
 OPTIONS = {"monde": "--monde", "rando_graine": "--rando-graine", "rando_reglages": "--rando-reglages",
            "mode_hanteurs": "--mode-hanteurs", "hanteurs": "--hanteurs-config", "max_joueurs": "--max-joueurs",
            "deathlink": "--deathlink", "degats": "--degats", "pv_monstres": "--pv-monstres",
-           "autorite_preferee": "--autorite-preferee", "validation": "--validation", "robot": "--robot"}
+           "autorite_preferee": "--autorite-preferee", "validation": "--validation", "robot": "--robot",
+           "vie_partagee": "--vie-partagee"}
 
 
 class ConfigIllisible(Exception):
@@ -204,7 +206,7 @@ def compte(dossier: str, env=None, log=print) -> tuple[str, str, str]:
 def _defauts(max_players: int) -> dict:
     return {"monde": None, "rando_graine": None, "rando_reglages": None, "mode_hanteurs": False, "hanteurs": None,
             "max_joueurs": max_players, "deathlink": False, "degats": 1, "pv_monstres": "off",
-            "autorite_preferee": None, "validation": "journal", "robot": "off"}
+            "autorite_preferee": None, "validation": "journal", "robot": "off", "vie_partagee": False}
 
 
 def valider(d, max_players: int) -> tuple[dict, list[str]]:
@@ -238,7 +240,7 @@ def valider(d, max_players: int) -> tuple[dict, list[str]]:
                     err.append(f"chaîne de réglages du randomizer refusée ({str(e)[:160]})")
                     continue
             out[k] = c or None
-        elif k in ("mode_hanteurs", "deathlink"):
+        elif k in ("mode_hanteurs", "deathlink", "vie_partagee"):
             if not isinstance(v, bool):
                 err.append(f"{k} : vrai ou faux attendu")
                 continue
@@ -318,7 +320,8 @@ def options_lignes(args, hcfg) -> dict:
             "deathlink": bool(args.deathlink and not args.no_deathlink), "degats": args.degats,
             "pv_monstres": args.pv_monstres, "autorite_preferee": getattr(args, "autorite_preferee", None) or None,
             "validation": getattr(args, "validation", None) or "journal",
-            "robot": getattr(args, "robot", None) or "off"}
+            "robot": getattr(args, "robot", None) or "off",
+            "vie_partagee": bool(getattr(args, "vie_partagee", False) and not getattr(args, "no_vie_partagee", False))}
 
 
 def preparer(chemin: str, args, defauts_args, hcfg, max_players: int, log=print) -> tuple[dict, dict | None]:
@@ -362,6 +365,7 @@ def preparer(chemin: str, args, defauts_args, hcfg, max_players: int, log=print)
     args.mode_hanteurs = cfg["mode_hanteurs"]
     args.max_joueurs = cfg["max_joueurs"]
     args.deathlink, args.no_deathlink = cfg["deathlink"], False
+    args.vie_partagee, args.no_vie_partagee = cfg["vie_partagee"], False
     args.degats, args.pv_monstres = cfg["degats"], cfg["pv_monstres"]
     args.autorite_preferee = cfg["autorite_preferee"]
     args.validation = cfg["validation"]
@@ -510,7 +514,9 @@ def _actuel(srv) -> dict:
     h = getattr(srv, "hanteurs", None)
     dif = getattr(srv, "difficulte", None) or {"degats": 1, "pv_monstres": "off"}
     pref = getattr(srv, "pref", None)
-    return {"deathlink": bool(srv.morts.on), "degats": dif.get("degats", 1),
+    vies = getattr(srv, "vies", None)
+    return {"deathlink": bool(srv.morts.on), "vie_partagee": bool(vies.on) if vies is not None else False,
+            "degats": dif.get("degats", 1),
             "pv_monstres": dif.get("pv_monstres", "off"), "max_joueurs": srv.max_players,
             "mode_hanteurs": h is not None, "hanteurs": dict(h.cfg) if h is not None else None,
             "autorite_preferee": pref.valeur if pref is not None else None,
@@ -588,6 +594,12 @@ def ecrire(srv, p, a: Admin, req: dict, nonce: str, log) -> dict:
     if "deathlink" in vals and vals["deathlink"] != act["deathlink"]:
         srv.admin_deathlink(vals["deathlink"])
         appliques.append("deathlink")
+    if "vie_partagee" in vals and vals["vie_partagee"] != act["vie_partagee"] and hasattr(srv, "admin_vie_partagee"):
+        if vals["vie_partagee"] and getattr(srv, "hanteurs", None) is not None:
+            avert.append("vie partagée : impossible avec le mode Hanteurs")
+        else:
+            srv.admin_vie_partagee(vals["vie_partagee"])
+            appliques.append("vie_partagee")
     dif = {k: vals[k] for k in ("degats", "pv_monstres") if k in vals and vals[k] != act[k]}
     if dif:
         if srv.difficulte_on:

@@ -18,12 +18,32 @@ Trois synchros, chacune avec son option, toutes activées par --coop-donjon :
     son chant) : un saut d'heure en avant vu chez soi, en mer, dans la même salle, part au serveur (« heure »),
     qui le passe à la référence ; elle l'applique (jamais en arrière, minuit passé par le jeu) et tout le
     groupe la suit. Pendant ce temps (JUMP_HOLD), l'auteur du chant n'est pas recalé.
+    Ce qui précède (référence = l'hôte) ne sert plus qu'avec un ANCIEN serveur. Constat en jeu (2026-11-15, deux PC
+    sur le portage natif) : l'heure et la nuit n'étaient pas les mêmes. Cause : on ne recalait que quand l'heure
+    tournait chez les DEUX ; or setDaytime (0x0255B300) ne l'avance pas sur une île ou à l'intérieur (m_time_pass
+    nul : seulement de 0 h à 11 h et de 18 h à 23 h), ni pendant un événement (play+0x5292), ni avant l'objet
+    d'histoire (isGetItem(2, 0)) : dès qu'un joueur y passait du temps, l'autre continuait seul et les heures
+    divergeaient pour de bon. Désormais : HORLOGE COMMUNE gardée par le serveur (MondeServeur), une par groupe. Chaque
+    client dit s'il est « figé » (``fig`` dans « monde » : son heure ne bouge plus depuis FIG_DT s, jeu libre, salle
+    stable ; c'est le jeu qui le décide, rien n'est recopié de sa logique) ; l'heure commune n'avance que si PERSONNE
+    n'est figé. Chez un client dont l'heure avance : heure commune en marche -> recalage au-delà de TOL (comme
+    avant) ; heure commune arrêtée -> heure TENUE à la valeur commune (écart HOLD_TOL). Un client figé n'écrit
+    jamais (le jeu choisit son heure dans ces lieux) : en sortant, il reprend l'heure commune. Le Chant du temps
+    qui passe fait sauter l'horloge commune (même arrêtée). Joueur parti ou muet : il ne compte plus.
   Vent (--share-wind, --no-wind) : direction du Requiem des vents, dans la sauvegarde (mTactWindAngleX/Y s16
     gi+0x4A/+0x4C, -1/-1 = jamais réglé) ET dans g_env_light.mWind (+0xA24/+0xA26, drapeaux +0xA2C), que
     dKyw_wind_set (chaque image) lit pour le vecteur du vent qui pousse la voile ; même écriture que
     dKyw_tact_wind_set (HD 0x0257E490). « Le dernier qui joue le Requiem gagne » : un changement local part au
     serveur, qui garde un registre par groupe (initialisé par l'hôte) et le renvoie aux autres. Jamais pendant
     un vent d'événement (mEvtWindSet +0xA2D). Le vent tourne en douceur chez l'autre (cLib_addCalc du jeu).
+    Constat en jeu (2026-11-15, natif) : le Requiem joué chez l'un n'était pas repris chez l'autre. Cause : la
+    VOILE RAPIDE de la version HD (daShip_c::procSteerMove 0x0247E9E8..0x0247E9FC, play+0x5D2C) appelle aussi
+    dKyw_tact_wind_set à chaque pas pour mettre le vent dans le sens du bateau : la sauvegarde change sans cesse en
+    mer, chaque cap partait comme un « Requiem » (dernier qui gagne = dernier qui navigue) et écrasait le vrai
+    Requiem chez les deux ; et le receveur réécrivait le registre à chaque tour contre sa propre voile. Avec le mod
+    natif 0.22.0 (zone WWMPVEN1, natif/mod_wwmp/vent.c) : seul un vrai Requiem part (compteur du jeu, accroche de
+    retour de Wind_CommitWind), et un vent reçu est appliqué UNE fois par le jeu (dKyw_tact_wind_set, comme un
+    Requiem joué ici). Sans le mod (Cemu) : la lecture de la sauvegarde d'avant.
   Météo de la mer (--share-weather, --no-weather) : le tirage du temps qu'il fait en mer (dKy_event_proc HD
     0x0255D130, « dice weather ») est aléatoire sur chaque PC. On recopie l'état de son automate depuis la
     référence (moment du prochain tirage +0xFC0, fin d'étape +0xFC4, compteur +0x1068, mode +0x1093, état
@@ -43,7 +63,8 @@ Ennemis gardés chez soi (sans option : comme le filtre des boss, --no-boss-filt
   dialogue et le mini-jeu) et les Gyorgs (Gy, créés à la volée par GyCtrl à des positions tirées au hasard :
   leurs clés ne correspondent jamais d'un PC à l'autre).
 
-Aucune commande de la boîte aux lettres : compatible pack v17 (l'asm ne change pas).
+Aucune commande de la boîte aux lettres : compatible pack v17 (l'asm ne change pas). Seul le mod natif 0.22.0 ajoute
+une zone de données (WWMPVEN1, vent), sans commande ni bit de capacité.
 """
 from __future__ import annotations
 
@@ -200,7 +221,9 @@ def _group(g) -> str:
 
 
 def valid_monde(msg) -> dict | None:
-    """« monde » {group, t, d, run, tp, sea, w} : None si invalide."""
+    """« monde » {group, t, d, run, tp, sea, w, fig} : None si invalide. ``fig`` (facultatif : un ancien client ne
+    l'envoie pas) : True = l'heure est arrêtée chez ce joueur (lieu où le temps ne passe pas), False = elle avance,
+    None = pas encore vu."""
     if not isinstance(msg, dict):
         return None
     t, d = msg.get("t"), msg.get("d")
@@ -213,7 +236,24 @@ def valid_monde(msg) -> dict | None:
     w = None if w is None else valid_weather(w)
     if msg.get("w") is not None and w is None:
         return None
-    return {"group": _group(msg.get("group")), "t": float(t), "d": d, **flags, "w": list(w) if w else None}
+    fig = msg.get("fig")
+    if fig is not None and not isinstance(fig, bool):
+        return None
+    return {"group": _group(msg.get("group")), "t": float(t), "d": d, **flags, "w": list(w) if w else None,
+            "fig": fig}
+
+
+def valid_horloge(msg) -> dict | None:
+    """« horloge » {t, d, run, seq, figes} (serveur -> client : l'heure commune du groupe) : None si invalide."""
+    if not isinstance(msg, dict):
+        return None
+    t, d, run, seq = msg.get("t"), msg.get("d"), msg.get("run"), msg.get("seq", 0)
+    if not _time_ok(t) or not _int(d) or not 0 <= d <= 0xFFFF or not isinstance(run, bool) or not _int(seq):
+        return None
+    figes = msg.get("figes") or []
+    if not isinstance(figes, list):
+        return None
+    return {"t": float(t), "d": d, "run": run, "seq": seq, "figes": [str(x)[:24] for x in figes[:8]]}
 
 
 def valid_heure(msg) -> dict | None:
@@ -245,12 +285,25 @@ def valid_vent(msg) -> dict | None:
 # ---------------------------------------------------------------------------------------------------------
 class MondeServeur:
     """Référence = client lancé avec --hote (le seul du groupe), sinon le plus petit id ; parmi les joueurs du
-    groupe qui ont envoyé « monde » depuis moins de FRESH s. Vent : registre par groupe."""
+    groupe qui ont envoyé « monde » depuis moins de FRESH s (elle ne sert plus qu'à la météo de la mer). Vent :
+    registre par groupe.
+
+    Horloge commune (une par groupe) : le serveur garde l'heure de référence (t, jour) et la fait avancer au rythme du
+    jeu (RATE : 0,02 par pas, 30 pas par seconde). Chaque joueur dit dans « monde » si l'heure est arrêtée chez lui
+    (``fig`` : île figée, intérieur, événement…). Règle : l'heure n'avance que si AUCUN joueur frais du groupe n'est
+    figé ; un joueur qui part, ou qui se tait depuis FRESH s, ne compte plus. Personne : l'horloge s'arrête (monde
+    persistant : elle reprend où elle était). Chaque « monde » reçoit l'horloge en réponse ; un changement d'état
+    (arrêt, reprise, saut du Chant du temps qui passe) part à tout le groupe. Les envois attendent dans ``envois``
+    ([(destinataires, message)], vidé par ``prendre_envois``). La première horloge d'un groupe part de ``init`` (heure
+    gardée par le monde persistant) ou, sans elle, de l'heure du premier joueur ; un nouveau venu se range ensuite."""
 
     FRESH = 5.0
     MIN_GAP = 0.2               # s entre deux « monde » d'un même joueur
     VENT_MIN_GAP = 0.5
     HEURE_MIN_GAP = 1.0
+    RATE = FPS * 0.02           # unités d'heure par seconde (mTimeAdv 0,02 par pas de jeu)
+    SAUT_MIN = 3.0              # Chant du temps qui passe : saut en avant plus grand que l'écart toléré...
+    SAUT_MAX = 185.0            # ... et de 12 h au plus (jusqu'à 6 h ou 18 h ; un peu de marge pour la latence)
 
     def __init__(self, clock=time.monotonic):
         self.clock = clock
@@ -259,11 +312,130 @@ class MondeServeur:
         self.last: dict[int, float] = {}
         self.last_vent: dict[int, float] = {}
         self.last_heure: dict[int, float] = {}
+        self.fig: dict[int, bool | None] = {}                # joueur -> heure arrêtée chez lui (None : inconnu)
+        self.horloges: dict[str, dict] = {}                  # groupe -> {t, d, run, base, seq, figes}
+        self.envois: list[tuple[list[int], dict]] = []
 
     def forget(self, alive) -> None:
-        for d in (self.seen, self.last, self.last_vent, self.last_heure):
+        partis = {p for d in (self.seen, self.fig) for p in d if p not in alive}
+        groupes = {self.seen[p][0] for p in partis if p in self.seen}
+        for d in (self.seen, self.last, self.last_vent, self.last_heure, self.fig):
             for pid in [p for p in d if p not in alive]:
                 del d[pid]
+        now = self.clock()
+        for g in groupes:                       # un joueur figé qui part : l'heure repart pour les autres
+            if self.horloge_maj(g, now):
+                self._diffuser(g, now)
+
+    def prendre_envois(self) -> list[tuple[list[int], dict]]:
+        out, self.envois = self.envois, []
+        return out
+
+    # --- horloge commune -------------------------------------------------------------------------------------------
+    def _avancer(self, c: dict, group: str, now: float) -> None:
+        if c["run"]:
+            # jamais au-delà du moment où le dernier joueur du groupe était encore frais (personne : arrêtée)
+            vus = [t for g, t, _h in self.seen.values() if g == group]
+            fin = min(now, max(vus) + self.FRESH) if vus else c["base"]
+            t = c["t"] + max(0.0, fin - c["base"]) * self.RATE
+            n = int(t // DAY)
+            c["t"], c["d"] = t - n * DAY, (c["d"] + n) & 0xFFFF
+        c["base"] = now
+
+    def horloge_maj(self, group: str, now: float | None = None) -> bool:
+        """Avance l'horloge du groupe, puis refait son état (arrêtée si un joueur frais est figé, ou si personne).
+        True si l'état a changé (à diffuser)."""
+        now = self.clock() if now is None else now
+        c = self.horloges.get(group)
+        if c is None:
+            return False
+        self._avancer(c, group, now)
+        membres = self.members(group, now)
+        figes = sorted(p for p in membres if self.fig.get(p) is True)
+        run = bool(membres) and not figes
+        c["figes"] = figes
+        if run != c["run"]:
+            c["run"] = run
+            c["seq"] += 1
+            return True
+        return False
+
+    def horloge_de(self, group: str) -> dict | None:
+        """{t, d, run, seq, figes} de l'horloge du groupe (à l'instant), ou None."""
+        g = _group(group)
+        if g not in self.horloges:
+            return None
+        self.horloge_maj(g)
+        c = self.horloges[g]
+        return {k: c[k] for k in ("t", "d", "run", "seq")} | {"figes": list(c["figes"])}
+
+    def _msg_horloge(self, group: str) -> dict:
+        c = self.horloges[group]
+        return {"type": "horloge", "group": group, "t": round(c["t"], 3), "d": c["d"], "run": c["run"],
+                "seq": c["seq"], "figes": list(c["figes"])}
+
+    def _diffuser(self, group: str, now: float, aussi=()) -> None:
+        dest = sorted(set(self.members(group, now)) | set(aussi))
+        if dest:
+            self.envois.append((dest, self._msg_horloge(group)))
+
+    def _horloge(self, pid: int, v: dict, now: float, init=None, robot: bool = False) -> None:
+        g = v["group"]
+        self.fig[pid] = None if robot else v.get("fig")     # le joueur robot n'arrête jamais l'heure des autres
+        if g not in self.horloges:
+            t, d = (init["t"], init["d"]) if init else (v["t"], v["d"])
+            self.horloges[g] = {"t": float(t) % DAY, "d": int(d) & 0xFFFF, "run": False, "base": now, "seq": 0,
+                                "figes": []}
+        if self.horloge_maj(g, now):
+            self._diffuser(g, now, aussi=(pid,))
+        else:
+            self.envois.append(([pid], self._msg_horloge(g)))
+
+    def monde(self, pid: int, hote: bool, msg: dict, init=None, robot: bool = False) -> tuple[dict | None, list[int]]:
+        """(message à relayer, destinataires) ; (None, []) si rien. L'horloge (réponse, ou diffusion si son état
+        change) va dans ``envois``. ``init`` : {t, d} du monde persistant pour une horloge neuve ; ``robot`` : le
+        joueur robot (jamais figé)."""
+        v = valid_monde(msg)
+        if v is None:
+            return None, []
+        now = self.clock()
+        if now - self.last.get(pid, float("-inf")) < self.MIN_GAP:
+            return None, []
+        self.last[pid] = now
+        if v["group"] in self.horloges:
+            self.horloge_maj(v["group"], now)   # AVANT de le compter : un groupe resté vide n'a pas avancé
+        self.seen[pid] = (v["group"], now, bool(hote))
+        self._horloge(pid, v, now, init=init, robot=robot)
+        if self.ref(v["group"], now) != pid:
+            return None, []
+        out = dict(v, type="monde", ref=True, **{"from": pid})
+        out.pop("fig", None)
+        return out, [o for o in self.members(v["group"], now) if o != pid]
+
+    def heure(self, pid: int, msg: dict) -> tuple[dict | None, list[int]]:
+        """Saut d'heure d'un joueur (Chant du temps qui passe) : l'horloge du groupe saute en avant jusqu'à son
+        heure (minuit franchi : jour + 1), même arrêtée, et tout le groupe la reçoit (``envois``). Rien à relayer."""
+        v = valid_heure(msg)
+        if v is None:
+            return None, []
+        now = self.clock()
+        if now - self.last_heure.get(pid, float("-inf")) < self.HEURE_MIN_GAP:
+            return None, []
+        self.last_heure[pid] = now
+        g = v["group"]
+        c = self.horloges.get(g)
+        if c is None:
+            return None, []
+        self.horloge_maj(g, now)
+        saut = (v["t"] - c["t"]) % DAY
+        if not self.SAUT_MIN < saut <= self.SAUT_MAX:
+            return None, []                     # déjà là, ou en arrière : un chant n'avance que (12 h au plus)
+        if v["t"] < c["t"]:
+            c["d"] = (c["d"] + 1) & 0xFFFF
+        c["t"] = v["t"]
+        c["seq"] += 1
+        self._diffuser(g, now, aussi=(pid,))
+        return None, []
 
     def ref(self, group: str, now: float | None = None) -> int | None:
         now = self.clock() if now is None else now
@@ -278,36 +450,6 @@ class MondeServeur:
     def members(self, group: str, now: float | None = None) -> list[int]:
         now = self.clock() if now is None else now
         return [pid for pid, (g, t, _h) in self.seen.items() if g == group and now - t <= self.FRESH]
-
-    def monde(self, pid: int, hote: bool, msg: dict) -> tuple[dict | None, list[int]]:
-        """(message à relayer, destinataires) ; (None, []) si rien."""
-        v = valid_monde(msg)
-        if v is None:
-            return None, []
-        now = self.clock()
-        if now - self.last.get(pid, float("-inf")) < self.MIN_GAP:
-            return None, []
-        self.last[pid] = now
-        self.seen[pid] = (v["group"], now, bool(hote))
-        if self.ref(v["group"], now) != pid:
-            return None, []
-        out = dict(v, type="monde", ref=True, **{"from": pid})
-        return out, [o for o in self.members(v["group"], now) if o != pid]
-
-    def heure(self, pid: int, msg: dict) -> tuple[dict | None, list[int]]:
-        """Saut d'heure d'un joueur (Chant du temps qui passe) : passé à la référence du groupe, qui l'applique
-        (les autres la suivent). Rien si l'émetteur est la référence (les autres la suivent déjà)."""
-        v = valid_heure(msg)
-        if v is None:
-            return None, []
-        now = self.clock()
-        if now - self.last_heure.get(pid, float("-inf")) < self.HEURE_MIN_GAP:
-            return None, []
-        self.last_heure[pid] = now
-        r = self.ref(v["group"], now)
-        if r is None or r == pid:
-            return None, []
-        return {"type": "heure", "t": v["t"], "d": v["d"], "group": v["group"], "from": pid}, [r]
 
     def vent_msg(self, pid: int, hote: bool, msg: dict) -> tuple[dict | None, list[int], dict | None]:
         """(message à relayer aux autres, destinataires, réponse à l'émetteur)."""
@@ -372,6 +514,10 @@ class MondeSync:
     JUMP_MIN = 6.0          # saut d'heure local (au-delà de l'avance normale) qui part comme « heure »
     JUMP_HOLD = 20.0        # s : l'auteur du saut n'est pas recalé tant que la référence ne l'a pas suivi
     JUMP_TTL = 20.0         # s : un saut pas encore envoyé, ou reçu et pas encore appliqué, est oublié
+    RATE = MondeServeur.RATE
+    H_TTL = 3.0             # s : horloge du serveur trop vieille (le serveur répond à chaque « monde », 1 par s)
+    HOLD_TOL = 0.25         # heure tenue (arrêtée chez un autre) : écart toléré (≈ 0,4 s de jeu, 1 minute du jeu)
+    FIG_DT = 1.0            # s d'heure immobile (jeu libre, salle stable) pour se dire « figé »
 
     def __init__(self, time_on: bool = False, wind: bool = False, weather: bool = False,
                  minigames: bool = False, group: str = "default", clock=time.time):
@@ -394,6 +540,13 @@ class MondeSync:
         self.j_out: float | None = None        # heure réelle du saut vu chez nous, à envoyer
         self.j_hold = float("-inf")            # pas de recalage avant (sauf heures déjà proches)
         self.j_in: tuple | None = None         # (heure, jour, reçu à) à appliquer (référence)
+        # horloge commune (serveur) et « figé » chez nous
+        self.h: dict | None = None             # dernière horloge reçue (+ _t)
+        self.h_vue = False                     # le serveur a l'horloge commune (sinon : référence, comme avant)
+        self.fig: bool | None = None           # l'heure est arrêtée chez nous (None : pas encore vu)
+        self.f_prev: tuple | None = None       # (heure, heure réelle, zone) de la lecture d'avant
+        self.f_still = 0.0                     # heure réelle depuis laquelle l'heure ne bouge plus
+        self.tenue = False                     # heure tenue (arrêtée chez un autre) : la note part une fois
         # vent
         self.v_known: tuple | None = None      # dernier vent vu, envoyé ou écrit
         self.v_prev: tuple | None = None
@@ -401,13 +554,18 @@ class MondeSync:
         self.v_reg: tuple | None = None        # registre du serveur
         self.v_seq = 0                         # plus grand seq du registre reçu
         self.v_init_sent = False
+        self.v_req_n: int | None = None        # mod natif (WWMPVEN1) : compteur des Requiem déjà vu
+        self.v_mien: tuple | None = None       # direction de notre dernier Requiem (son écho n'est pas réappliqué)
+        self.v_seq_fait = 0                    # plus grand seq du registre déjà appliqué (une fois chacun)
+        self.v_natif = False                   # zone WWMPVEN1 trouvée (Requiem relevé par le jeu)
         # météo
         self.w_phase: float | None = None
         self.w_fix_t = float("-inf")
         self.w_diff_t: float | None = None     # début de l'écart de météo en cours
         # mini-jeu local
         self.minijeu = 0
-        self.n = {"time": 0, "date": 0, "wind_out": 0, "wind_in": 0, "weather": 0, "jump_out": 0, "jump_in": 0}
+        self.n = {"time": 0, "date": 0, "wind_out": 0, "wind_in": 0, "weather": 0, "jump_out": 0, "jump_in": 0,
+                  "hold": 0}
 
     @property
     def enabled(self) -> bool:
@@ -446,6 +604,9 @@ class MondeSync:
         self.v_reg = None
         self.v_seq = 0
         self.v_init_sent = False
+        self.v_seq_fait = 0
+        self.h = None
+        self.h_vue = False
         self.w_phase = None
         self.j_out = self.j_in = None
         self.j_hold = float("-inf")
@@ -459,6 +620,20 @@ class MondeSync:
                 v = valid_monde(m)
                 if v is not None and v["group"] == self.group:
                     self.ref = dict(v, _t=m["_t"])
+            elif t == "horloge" and self.time_on:
+                v = valid_horloge(m)
+                if v is None:
+                    continue
+                avant = self.h
+                self.h = dict(v, _t=m["_t"])
+                self.h_vue = True
+                if avant is not None and avant["run"] != v["run"]:
+                    if v["run"]:
+                        self._note("heure : elle repart pour tout le monde")
+                    else:
+                        qui = ", ".join(v["figes"])
+                        self._note("heure : arrêtée pour tout le monde" +
+                                   (f" ({qui} : lieu où le temps ne passe pas)" if qui else ""))
             elif t == "heure" and self.time_on:
                 v = valid_heure(dict(m, group=self.group))
                 if v is not None:
@@ -473,7 +648,8 @@ class MondeSync:
 
     # --- étape (thread de travail) ----------------------------------------------------------------------
     def step(self, mem, now: float, stage: str | None, free: bool = True, settled: bool = False,
-             can: bool = True, connected: bool = True, minijeu: int = 0, zone=None) -> None:
+             can: bool = True, connected: bool = True, minijeu: int = 0, zone=None, mb=None) -> None:
+        """Un tour. ``mb`` : la boîte aux lettres (mod natif : zone WWMPVEN1 du vent), ou None."""
         self.minijeu = minijeu if _int(minijeu) else 0
         if not self.enabled:
             return
@@ -489,6 +665,7 @@ class MondeSync:
             self.run_last = None
             self.w_phase = None
             self.j_prev = None
+            self.f_prev = None
             return
         cur["sea"] = stage == "sea"
         cur["run"] = self._running(cur["t"], now)
@@ -496,22 +673,32 @@ class MondeSync:
         zone = stage if zone is None else zone
         if self.time_on:
             self._jump_seen(cur, now, zone)
+            self._fig_vu(cur, now, zone, free and settled)
         self.j_prev = (cur["t"], zone, cur["tp"], now)
         if now - self.send_t >= self.PERIOD:
             self.send_t = now
-            self._send({"type": "monde", "t": round(cur["t"], 3), "d": cur["d"], "run": cur["run"],
-                        "tp": cur["tp"], "sea": cur["sea"],
-                        "w": list(cur["w"]) if self.weather_on and cur["sea"] and valid_weather(cur["w"]) else None})
+            msg = {"type": "monde", "t": round(cur["t"], 3), "d": cur["d"], "run": cur["run"], "tp": cur["tp"],
+                   "sea": cur["sea"],
+                   "w": list(cur["w"]) if self.weather_on and cur["sea"] and valid_weather(cur["w"]) else None}
+            if self.time_on:
+                msg["fig"] = self.fig
+            self._send(msg)
         ok = free and settled and can and not self.minijeu
         ref = self.ref
         if ref is not None and not 0 <= now - ref["_t"] <= self.TTL:
             ref = self.ref = None
+        h = self.h
+        if h is not None and not 0 <= now - h["_t"] <= self.H_TTL:
+            h = None
         if self.time_on:
             self._jump_step(mem, now, cur, ok, connected, zone)
-        if self.time_on and ref is not None:
-            self._time_step(mem, now, cur, ref, ok)
+        if self.time_on and self.h_vue:
+            if h is not None:
+                self._horloge_step(mem, now, cur, h, ok, zone)
+        elif self.time_on and ref is not None:
+            self._time_step(mem, now, cur, ref, ok)         # ancien serveur : la référence, comme avant
         if self.wind_on:
-            self._wind_step(mem, now, cur, ok, connected)
+            self._wind_step(mem, now, cur, ok, connected, mb)
         if self.weather_on:
             self._weather_step(mem, now, cur, ref, ok)
         else:
@@ -579,6 +766,7 @@ class MondeSync:
         self.fix_t = now
         self.run_last = (target, now)
         self.j_prev = (target, zone, cur["tp"], now)   # notre écriture n'est pas un chant
+        self.f_prev = (target, now, zone)              # ni une avance du jeu
         self.n["jump_in"] += 1
         self._note(f"heure : saut d'un autre joueur repris ({hhmm(cur['t'])} -> {hhmm(target)}, Chant du temps "
                    "qui passe)")
@@ -611,14 +799,20 @@ class MondeSync:
             mem.write(cur["gi"] + GI_TIME, struct.pack(">f", target))
         except Exception:
             return
-        self.fix_t = now
-        self.run_last = (target, now)
-        if self.j_prev is not None:
-            self.j_prev = (target,) + self.j_prev[1:3] + (now,)   # notre écriture n'est pas un chant
+        self._ecrit(target, now)
         self.n["time"] += 1
         self._note(f"heure recalée sur celle de l'hôte ({hhmm(cur['t'])} -> {hhmm(target)})")
 
-    def _date_step(self, mem, now: float, cur: dict, ref: dict, want: float) -> None:
+    def _ecrit(self, target: float, now: float) -> None:
+        """Après une écriture de l'heure : ni « l'heure tourne », ni un chant, ni une avance du jeu."""
+        self.fix_t = now
+        self.run_last = (target, now)
+        if self.j_prev is not None:
+            self.j_prev = (target,) + self.j_prev[1:3] + (now,)
+        if self.f_prev is not None:
+            self.f_prev = (target, now, self.f_prev[2])
+
+    def _date_step(self, mem, now: float, cur: dict, ref: dict, want: float, qui: str = "l'hôte") -> None:
         if ref["d"] == cur["d"] or now - self.date_t < self.GAP:
             return
         lo, hi = self.DATE_MARGIN, DAY - self.DATE_MARGIN
@@ -630,10 +824,130 @@ class MondeSync:
             return
         self.date_t = now
         self.n["date"] += 1
-        self._note(f"jour recalé sur celui de l'hôte (jour {cur['d']} -> {ref['d']} ; lune, Vaisseau fantôme)")
+        self._note(f"jour recalé sur celui de {qui} (jour {cur['d']} -> {ref['d']} ; lune, Vaisseau fantôme)")
+
+    # --- horloge commune (serveur) ---------------------------------------------------------------------
+    def _fig_vu(self, cur: dict, now: float, zone, libre: bool) -> None:
+        """« Figé » chez nous : l'heure ne bouge plus depuis FIG_DT s, jeu libre et salle stable (île à l'heure
+        arrêtée, intérieur…) ; elle avance : pas figé. Hors jeu libre (événement, menu, chargement) : la valeur
+        d'avant reste. Nos propres écritures ne comptent jamais (``_ecrit``)."""
+        p = self.f_prev
+        self.f_prev = (cur["t"], now, zone)
+        if not libre or p is None or p[2] != zone:
+            self.f_still = now
+            return
+        d = circ(cur["t"], p[0])
+        if 0.0 < d < self.RUN_MAX:
+            self.fig = False
+            self.f_still = now
+        elif d == 0.0:
+            if now - self.f_still >= self.FIG_DT:
+                self.fig = True
+        else:
+            self.f_still = now                  # saut (chant, chargement à heure imposée) : on réobserve
+
+    def _horloge_step(self, mem, now: float, cur: dict, h: dict, ok: bool, zone) -> None:
+        """L'heure commune du serveur : elle avance (personne n'est figé) -> recalage au-delà de TOL, comme avant ;
+        elle est arrêtée (un joueur figé) -> heure TENUE à la valeur commune tant que la nôtre avance. Jamais quand
+        l'heure est arrêtée chez nous (le jeu décide de son heure dans ces lieux), ni hors jeu libre."""
+        if not (ok and self.fig is False and cur["run"]) or self.w_phase is not None or self.fix_t == now:
+            return
+        want = (h["t"] + max(0.0, now - h["_t"]) * self.RATE) % DAY if h["run"] else h["t"]
+        d = circ(want, cur["t"])
+        if abs(d) <= (self.TOL if h["run"] else self.HOLD_TOL):
+            if abs(d) <= self.TOL:
+                self.j_hold = float("-inf")     # le serveur a suivi notre chant
+            self._date_step(mem, now, cur, h, want, "tout le monde")
+            if h["run"]:
+                self.tenue = False
+            return
+        if now < self.j_hold or self.j_out is not None:
+            return                              # notre chant : attendre que le serveur le reprenne
+        date = None
+        if d > 0:
+            target = want if want > cur["t"] else self.MIDNIGHT    # minuit en avant : le jeu le passe
+        else:
+            if want > cur["t"]:
+                if h["run"]:
+                    return                      # minuit en arrière : on attend
+                date = h["d"]                   # tenue : notre jeu a passé minuit, pas l'heure commune
+            target = want
+        if h["run"] and now - self.fix_t < self.GAP:
+            return
+        if abs(target - cur["t"]) <= (self.TOL if h["run"] else self.HOLD_TOL) / 2 and date is None:
+            return
+        try:
+            mem.write(cur["gi"] + GI_TIME, struct.pack(">f", target))
+            if date is not None and date != cur["d"]:
+                mem.write(cur["gi"] + GI_DATE, struct.pack(">H", date))
+        except Exception:
+            return
+        self._ecrit(target, now)
+        if h["run"]:
+            self.n["time"] += 1
+            self._note(f"heure recalée sur l'heure commune ({hhmm(cur['t'])} -> {hhmm(target)})")
+        else:
+            self.n["hold"] += 1
+            if not self.tenue:
+                self.tenue = True
+                qui = ", ".join(h["figes"])
+                self._note(f"heure tenue à {hhmm(target)} : arrêtée chez un autre joueur" + (f" ({qui})" if qui else ""))
 
     # --- vent -------------------------------------------------------------------------------------------
-    def _wind_step(self, mem, now: float, cur: dict, ok: bool, connected: bool) -> None:
+    def _wind_step(self, mem, now: float, cur: dict, ok: bool, connected: bool, mb=None) -> None:
+        z = None
+        if mb is not None:
+            try:
+                z = mb.vent_lire()
+            except Exception:
+                z = None
+        if z is not None:
+            self.v_natif = True
+            self._wind_natif(mb, z, now, cur, ok, connected)
+            return
+        self._wind_save(mem, now, cur, ok, connected)
+
+    def _wind_natif(self, mb, z: dict, now: float, cur: dict, ok: bool, connected: bool) -> None:
+        """Mod natif (zone WWMPVEN1) : seul un VRAI Requiem joué ici part (compteur du jeu, accroche de
+        Wind_CommitWind) ; la voile rapide, qui remet le vent dans le sens du bateau à chaque pas, ne compte jamais.
+        Un vent reçu (nouveau seq du registre) est appliqué UNE fois, par le jeu (dKyw_tact_wind_set)."""
+        n = z["requiem"]
+        if self.v_req_n is None:
+            self.v_req_n = n                    # Requiem d'avant notre arrivée : déjà dans la sauvegarde (init)
+        elif n != self.v_req_n:
+            self.v_req_n = n
+            v = (z["x"], z["y"], True)
+            self.v_known = self.v_reg = self.v_mien = v
+            self._send({"type": "vent", "x": v[0], "y": v[1], "on": True, "init": False})
+            self.n["wind_out"] += 1
+            self._note("vent : ta direction est envoyée aux autres (Requiem des vents)")
+            return
+        if self.v_known is None:
+            self.v_known = vent_de(cur)
+        if connected and not self.v_init_sent:
+            self.v_init_sent = True
+            k = vent_de(cur)
+            self._send({"type": "vent", "x": k[0], "y": k[1], "on": k[2], "init": True})
+        reg = self.v_reg
+        if reg is None or self.v_seq <= self.v_seq_fait:
+            return
+        if reg == self.v_mien or reg == vent_de(cur):
+            self.v_seq_fait = self.v_seq        # l'écho de notre Requiem, ou déjà ce vent : rien à écrire
+            return
+        if not ok or cur["evt"] not in (0, 0xFF):
+            return
+        try:
+            mb.vent_appliquer(reg[0], reg[1], reg[2])
+        except Exception:
+            return
+        self.v_seq_fait = self.v_seq
+        self.v_known = reg
+        self.n["wind_in"] += 1
+        self._note("vent : direction d'un autre joueur reprise (Requiem des vents)" if reg[2] else
+                   "vent : remis comme avant le Requiem des vents (direction de l'hôte)")
+
+    def _wind_save(self, mem, now: float, cur: dict, ok: bool, connected: bool) -> None:
+        """Sans le mod natif (Cemu, mod plus ancien) : tout changement de la sauvegarde part, comme avant."""
         v = vent_de(cur)
         if v != self.v_prev:
             self.v_prev, self.v_prev_t = v, now
@@ -735,8 +1049,14 @@ class MondeSync:
             parts.append(f"{hhmm(self.cur['t'])} jour {self.cur['d']}")
         if self.time_on:
             parts.append(f"heure {self.n['time']} recalage(s)" + (f", jour {self.n['date']}" if self.n["date"] else ""))
+            if self.h_vue and self.h is not None:
+                parts.append("heure commune " + ("en marche" if self.h["run"] else
+                                                 "arrêtée (" + (", ".join(self.h["figes"]) or "personne") + ")")
+                             + f", tenue {self.n['hold']} fois")
+            parts.append("ici : " + {True: "heure arrêtée", False: "l'heure avance", None: "pas encore vu"}[self.fig])
         if self.wind_on:
-            parts.append(f"vent {self.n['wind_out']} envoyé(s) / {self.n['wind_in']} repris")
+            parts.append(f"vent {self.n['wind_out']} envoyé(s) / {self.n['wind_in']} repris"
+                         + (" (Requiem relevé par le mod natif)" if self.v_natif else ""))
         if self.weather_on:
             parts.append(f"météo {self.n['weather']} recopie(s)")
         if self.minijeu:

@@ -825,6 +825,9 @@ class CpuEtendu:
     _X_LOADS = {23: (4, False, False), 55: (4, False, True), 87: (1, False, False), 119: (1, False, True),
                 279: (2, False, False), 311: (2, False, True), 343: (2, True, False), 375: (2, True, True)}
     _X_STORES = {151: (4, False), 183: (4, True), 215: (1, False), 247: (1, True), 407: (2, False), 439: (2, True)}
+    # octets inversés (lwbrx, lhbrx, stwbrx, sthbrx) : taille ; clang en fait pour les blocs BC1 petit-boutistes de
+    # natif/mod_wwmp/couleurs.c, le jeu pour ses blocs de paramètres (stwbrx de 0x027E65AC)
+    _X_INVERSES = {534: 4, 790: 2, 662: 4, 918: 2}
 
     def _op31(self, w: int, rd: int, ra: int, rb: int, pc: int) -> None:
         r = self.r
@@ -863,9 +866,19 @@ class CpuEtendu:
             if maj:
                 r[ra] = ea
             return
-        if xo in (535, 599, 663, 727):                          # lfsx lfdx stfsx stfdx
+        if xo in self._X_INVERSES:
+            n = self._X_INVERSES[xo]
             ea = self._ea_x(ra, rb)
-            if xo == 535:
+            if xo in (534, 790):
+                r[rd] = int.from_bytes(self._lire(ea, n).to_bytes(n, "big"), "little")
+            else:
+                self._ecrire(ea, int.from_bytes((r[rd] & ((1 << (8 * n)) - 1)).to_bytes(n, "big"), "little"), n)
+            return
+        if xo in (535, 599, 663, 727, 983):                     # lfsx lfdx stfsx stfdx stfiwx
+            ea = self._ea_x(ra, rb)
+            if xo == 983:                                       # stfiwx : mot bas de la double (fctiwz)
+                self._ecrire(ea, _bits64(self.f[rd]) & _M32, 4)
+            elif xo == 535:
                 self.f[rd] = self.ps1[rd] = _f32(self._lire(ea, 4))
             elif xo == 599:
                 self.f[rd] = _f64(self._lire(ea, 8))
@@ -1028,9 +1041,9 @@ def decodable(w: int) -> bool:
         spr = ((w >> 16) & 31) | (((w >> 11) & 31) << 5)
         if xo in (339, 467):
             return spr in (1, 8, 9)
-        return (xo in (0, 32, 19, 144, 24, 536, 792, 824, 26, 922, 954, 598, 854, 535, 599, 663, 727,
+        return (xo in (0, 32, 19, 144, 24, 536, 792, 824, 26, 922, 954, 598, 854, 535, 599, 663, 727, 983,
                        28, 60, 124, 284, 316, 412, 444, 476)
-                or xo in CpuEtendu._X_LOADS or xo in CpuEtendu._X_STORES
+                or xo in CpuEtendu._X_LOADS or xo in CpuEtendu._X_STORES or xo in CpuEtendu._X_INVERSES
                 or (xo & 0x1FF) in (266, 40, 10, 8, 138, 136, 202, 200, 234, 232, 104, 235, 75, 11, 491, 459))
     if op in (59, 63):
         if ((w >> 1) & 31) in (18, 20, 21, 25, 28, 29, 30, 31):

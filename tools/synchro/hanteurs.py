@@ -1645,6 +1645,20 @@ VK = {"F3": 0x72, "F4": 0x73, "F5": 0x74, "F6": 0x75, "F7": 0x76, "F8": 0x77, "F
       "PGDN": 0x22, "PGUP": 0x21}
 TOUCHES = {"F3": "garde", "F4": "posseder", "F5": "suivre", "F6": "invoquer", "F7": "espece", "F8": "suivi",
            "F9": "manifester", "PGUP": "monter", "PGDN": "descendre"}
+# Portage natif (audit du 2026-11-16) : F2-F6 SEULES y chargent un état de sauvegarde (raccourcis par défaut du
+# portage, runtime/src/input_map.cpp kShortcuts : Load1 F6, Load2 F2, Load3 F3, Load4 F4, Load5 F5 ; Maj+F1-F5
+# l'enregistrent), même en pleine partie (overlay.cpp activate_shortcut -> ss::request_load). Sur le natif, ces
+# touches ne comptent donc qu'avec Ctrl (Ctrl+F3…F6 : aucun raccourci du portage, qui exige les mêmes modificateurs ;
+# Ctrl n'est lié à aucun bouton par défaut). F7-F9 et PagePréc / PageSuiv restent seules.
+CONFLITS_NATIF = frozenset({"F3", "F4", "F5", "F6"})
+VK_CTRL = 0x11
+RAISON_NATIF = ("portage natif : Ctrl+F3, Ctrl+F4, Ctrl+F5, Ctrl+F6 (F3-F6 seules y chargent un état de sauvegarde "
+                "du portage) ; F7, F8, F9, PagePréc et PageSuiv inchangées")
+
+
+def nom_touche(k: str, natif: bool = False) -> str:
+    """Nom affiché d'une touche du mode Hanteurs (« Ctrl+F4 » sur le portage natif pour F3-F6)."""
+    return f"Ctrl+{k}" if natif and k in CONFLITS_NATIF else k
 
 
 # Possession complète : pourquoi le monstre possédé n'est pas piloté (``hpilote.raison``, wwmp/pilotage.RAISONS)
@@ -1661,8 +1675,9 @@ class Touches:
     """Fronts montants de F5-F8 (``GetAsyncKeyState``), seulement si la fenêtre au premier plan appartient au
     processus ``pid`` (Cemu). ``lire(vk) -> bool`` et ``premier_plan() -> pid`` injectables (tests)."""
 
-    def __init__(self, pid: int | None, lire=None, premier_plan=None):
+    def __init__(self, pid: int | None, lire=None, premier_plan=None, natif: bool = False):
         self.pid = pid
+        self.natif = bool(natif)         # portage natif : F3-F6 seulement avec Ctrl (CONFLITS_NATIF)
         self.lire, self.premier_plan = lire, premier_plan
         self.raison = ""                 # Linux : pourquoi les touches sont inactives (Wayland, python-xlib absent)
         if (lire is None or premier_plan is None) and sys.platform != "win32":
@@ -1696,6 +1711,8 @@ class Touches:
         try:
             actif = self.pid is not None and self.premier_plan() == self.pid
             bas = {k for k, vk in VK.items() if actif and self.lire(vk)}
+            if self.natif and bas & CONFLITS_NATIF and not self.lire(VK_CTRL):
+                bas -= CONFLITS_NATIF        # F3-F6 seules : état de sauvegarde du portage, pas une commande
         except Exception:
             bas = set()
         nouveaux = bas - self.avant
@@ -2688,9 +2705,12 @@ class HanteurSync:
                 self._note(f"écriture refusée ({type(exc).__name__}: {exc})")
         if role == ROLE_HANTEUR or envoute is not None:
             if self.touches is None and hasattr(mem, "proc"):
-                self.touches = Touches(getattr(mem.proc, "pid", None))
+                natif = getattr(mem, "hote", None) == "natif"
+                self.touches = Touches(getattr(mem.proc, "pid", None), natif=natif)
                 if self.touches.raison:
                     self._note(self.touches.raison)       # Linux : touches inactives, et pourquoi (une fois)
+                if natif:
+                    self._note(RAISON_NATIF)
             if self.touches is not None:
                 for action in self.touches.lire_commandes():
                     if role != ROLE_HANTEUR:

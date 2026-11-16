@@ -1021,6 +1021,8 @@ class ChestRefresh:
     MAYBE_TTL = 60.0
     MAX_TRIES = 3
     RETRY = 1.0
+    ANIM_DIST = 1500.0     # ouverture vue (mod natif 0.25.0, CALL 17) : Link à moins de cette distance du coffre
+    ANIM_FRESH = 12.0      # s : seulement un coffre que l'autre joueur vient d'ouvrir (rapport reçu en direct)
 
     def __init__(self, enabled: bool = True, clock=time.time):
         self.enabled, self.clock = enabled, clock
@@ -1045,6 +1047,12 @@ class ChestRefresh:
         self.contact = False                 # coffre ouvert ailleurs affiché ouvrable à moins de FREEZE_DIST de Link
         self.contact_t = float("-inf")
         self.n_hidden = 0
+        # ouverture vue chez nous (mod natif 0.25.0) : animer(pid) -> emplacement (> 0) ou refus (< 0) ; None : absente
+        self.animer = None
+        self.frais: dict[tuple, float] = {}  # (index, numéro) -> heure du rapport reçu en direct
+        self.animes: set = set()             # ids des coffres ouverts sous nos yeux (restent en actionWait)
+        self.anim_refus: set = set()         # ids refusés par le mod : repli habituel (figer, recréer)
+        self.n_animes = 0
 
     def _note(self, s: str) -> None:
         self.notes = (self.notes + [s])[-40:]
@@ -1060,6 +1068,8 @@ class ChestRefresh:
         self.next_try.clear()
         self.given_up.clear()
         self.frozen.clear()
+        self.animes.clear()
+        self.anim_refus.clear()
         self.noted = {t for t in self.noted if not (isinstance(t, tuple) and t[0] in ("pres", "bloque"))}
         self.why = ""
         if stage:
@@ -1067,6 +1077,48 @@ class ChestRefresh:
             self.created.clear()
             self.maybe.clear()
             self.deleted.clear()
+
+    def note_live(self, idx: int, n: int, now: float | None = None) -> None:
+        """Un autre joueur vient d'ouvrir le coffre (index, numéro) : rapport reçu en direct (pas le registre complet
+        renvoyé à la connexion). Seul un coffre « frais » s'ouvre sous nos yeux (CALL 17)."""
+        now = self.clock() if now is None else now
+        if len(self.frais) >= 64:
+            self.frais = {k: t for k, t in self.frais.items() if now - t <= self.ANIM_FRESH}
+        if len(self.frais) < 64:
+            self.frais[(idx, n)] = now
+
+    def _animer(self, mem, o: dict, d: float, now: float, can: bool, where: str) -> str:
+        """Ouverture vue (mod natif 0.25.0) au lieu de figer ou recréer : coffre ouvrable (actionOpenWait) d'un autre
+        joueur qui vient de l'ouvrir, dans notre salle, Link entre FREEZE_DIST et ANIM_DIST. Le mod revalide tout sur
+        le fil du jeu ; un refus laisse le repli habituel."""
+        pid = o["pid"]
+        if self.animer is None or not can or o["action"] != ACT_OPEN_WAIT or o["cmd"] != 0 \
+                or o["flags"] & FLAG_OPENING or pid in self.frozen or pid in self.animes or pid in self.anim_refus:
+            return ""
+        t = self.frais.get((o.get("idx"), o["no"]))
+        if t is None or now - t > self.ANIM_FRESH or not self.FREEZE_DIST <= d <= self.ANIM_DIST:
+            return ""
+        zone = self.ctx[0] if isinstance(self.ctx, tuple) and self.ctx else None
+        if isinstance(zone, str) and ":" in zone:
+            try:
+                if int(zone.rsplit(":", 1)[1]) != o["room"]:
+                    return ""                     # coffre d'une autre salle chargée : pas sous nos yeux
+            except ValueError:
+                pass
+        try:
+            r = int(self.animer(pid))
+        except Exception as exc:
+            self.anim_refus.add(pid)
+            self._note(f"coffres : ouverture vue impossible ({exc}) : mise à jour habituelle")
+            return ""
+        if r <= 0:
+            self.anim_refus.add(pid)
+            return ""
+        self.animes.add(pid)
+        self.n_animes += 1
+        self._note(f"coffres : {where} ouvert par un autre joueur : il s'ouvre sous tes yeux (rien n'est donné, il ne "
+                   "s'ouvre plus pour toi)")
+        return "anime"
 
     def pre_grant(self, idx: int, n: int) -> bool:
         """Ordre du vérificateur : figer -> GRANT (ou bit seul) -> recréer. True si aucun coffre (idx, n) chargé chez
@@ -1198,6 +1250,9 @@ class ChestRefresh:
                 return "fige"
             self.why = why
             return ""
+        act = self._animer(mem, o, d, now, can, where)
+        if act:
+            return act
         if not bit:
             if o["action"] != ACT_OPEN_WAIT or o["pid"] in self.frozen:
                 return ""                     # en apparition, en ouverture : on attend qu'il soit ouvrable
@@ -1370,6 +1425,8 @@ class ChestRefresh:
         if not self.enabled:
             return "désactivé"
         s = f"{self.recreated} coffre(s) affiché(s) ouvert(s), {self.n_frozen} figé(s)"
+        if self.n_animes:
+            s += f", {self.n_animes} ouvert(s) sous tes yeux"
         if self.n_hidden:
             s += f", {self.n_hidden} caché(s) figé(s) avant d'apparaître"
         if self.cleaned:
@@ -1476,7 +1533,10 @@ class ChestSync:
             if rec is None:
                 continue
             rec["nom"] = str(raw.get("nom") or raw.get("by") or "?")[:24]
-            n += self.grant.receive(rec)
+            nouveau = self.grant.receive(rec)
+            if nouveau and not msg.get("full") and rec.get("k") == "t":
+                self.refresh.note_live(rec["i"], rec["n"])     # ouvert à l'instant : il peut s'ouvrir sous nos yeux
+            n += nouveau
         return n
 
     def tick(self, mem, sm=None, tboxes=None, ctx=None, free: bool = True, room_settled: bool = True,

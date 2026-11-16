@@ -52,6 +52,20 @@ TEXTES = {
 # touche de chaque commande (les touches F et Page sont celles de wwmp/hanteurs.TOUCHES ; le test les recoupe)
 TOUCHES_BARRE = {"attaque": "t.epee", "lourde": "t.charge", "garde": "F3", "monter": "t.pgup",
                  "descendre": "t.pgdn", "lacher": "F4", "posseder": "F4", "invoquer": "F6", "espece": "F7"}
+# portage natif : F3-F6 seules y chargent un état de sauvegarde, le client ne les prend qu'avec Ctrl
+# (synchro/hanteurs.CONFLITS_NATIF) ; ``regler_natif`` (appelé par le client quand le jeu est natif) change l'affichage
+TOUCHES_NATIF = {k: f"Ctrl+{v}" for k, v in TOUCHES_BARRE.items() if v in ("F3", "F4", "F5", "F6")}
+_natif = False
+
+
+def regler_natif(on: bool) -> None:
+    global _natif
+    _natif = bool(on)
+
+
+def touche_de(commande: str) -> str:
+    """Touche affichée d'une commande (« Ctrl+F4 » sur le portage natif)."""
+    return (TOUCHES_NATIF.get(commande) if _natif else None) or TOUCHES_BARRE.get(commande, "")
 
 
 def langue_ok(langue) -> str:
@@ -133,7 +147,7 @@ class Memoire:
 
 
 def _case(cle, nom, langue, reste=0.0, duree=0.0, bloque="", memoire=None, detail="", touche=None) -> Case:
-    touche = touche if touche is not None else texte(TOUCHES_BARRE.get(cle.rsplit(".", 1)[-1], ""), langue)
+    touche = touche if touche is not None else texte(touche_de(cle.rsplit(".", 1)[-1]), langue)
     reste = max(0.0, _nombre(reste))
     if reste > 0:
         f = memoire.fraction(cle, reste, _nombre(duree)) if memoire is not None \

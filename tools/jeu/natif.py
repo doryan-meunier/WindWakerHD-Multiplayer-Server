@@ -134,11 +134,38 @@ def lire_zone(mem, boite: int) -> dict | None:
     raw = mem.try_read(boite + NATIF_OFF, NATIF_TAILLE)
     if raw is None or raw[:8] != MAGIE_NATIF:
         return None
-    fmt, adr, socle, pf, pm, pas, vmod, req, filt, confort, code = struct.unpack_from(">IIIiiIIIIII", raw, 8)
+    fmt, adr, socle, pf, pm, pas, vmod, req, filt, confort, code, charg = struct.unpack_from(">IIIiiIIIIIII", raw, 8)
     if fmt != NATIF_FORMAT:
         return None
     return {"boite": adr, "socle": socle, "profil_fantome": pf, "profil_modele": pm, "pas": pas,
-            "version_mod": vmod, "requetes": req, "filtrees": filt, "confort": confort, "rando_code": code}
+            "version_mod": vmod, "requetes": req, "filtrees": filt, "confort": confort, "rando_code": code,
+            "chargements": charg if vmod >= VERSION_CHARGEMENTS else None}
+
+
+# mod 0.23.0 (chargements.c) : mot +0x34 de la zone = appels de dSv_info_c::card_to_memory (état de sauvegarde du portage
+# chargé en pleine partie, Journal chargé, « Continuer » après un Game Over) ; avant : 0 (réservé)
+OFFN_CHARGEMENTS = 0x34
+VERSION_CHARGEMENTS = 23
+
+
+def chargements(mem) -> int | None:
+    """Compteur des parties remplacées (mod natif 0.23.0 ou plus), ou None (Cemu, mod plus ancien, boîte absente).
+    Synchro/compteurs.py, inventaire.py et cadeaux.py le mettent dans leur contexte : un état de sauvegarde du portage
+    chargé en pleine partie garde gameInfo et mDateIPL, seul ce compteur le trahit. La boîte trouvée est gardée sur la
+    mémoire (``_wwmp_boite``) et revalidée à chaque lecture (une lecture de 0x40 octets)."""
+    zone = getattr(mem, "zone_boite", None)
+    if not isinstance(zone, tuple):
+        return None
+    b = getattr(mem, "_wwmp_boite", None)
+    z = lire_zone(mem, b) if b else None
+    if z is None or z["boite"] != b:
+        b = trouver_boite(mem, *zone)
+        try:
+            mem._wwmp_boite = b
+        except AttributeError:
+            pass
+        z = lire_zone(mem, b) if b else None
+    return None if z is None else z["chargements"]
 
 
 def boite_valide(mem, h: int) -> bool:
@@ -189,27 +216,39 @@ def diagnostic(mem, boite: int) -> str:
     if carte is not None:
         parts.append("carte : " + ("coupée" if carte["coupe"] else
                                    f"{carte['marques']} marqueur(s), écran {ECRANS_CARTE.get(carte['ecran'], '?')}, "
-                                   f"écart de la flèche de Link {carte['ecart_link']:.1f}"))
+                                   f"écart de la flèche de Link {carte['ecart_link']:.1f}"
+                                   + (", bonnet absent (anneau)" if carte["bonnet"] == 0xFFFFFFFF else "")
+                                   + (f", {carte['refus']} hors de l'écran" if carte["refus"] else "")
+                                   + (f", donjon : {carte['vues_donjon']} passage(s), {carte['refus_etage']} à un "
+                                      f"autre étage, {carte['refus_cadre']} hors du cadre, écart de l'icône de Link "
+                                      f"{carte['ecart_donjon']:.1f}" if carte["vues_donjon"] else "")))
     parts.append(f"pas de Link {z['pas']}")
     return " | ".join(parts)
 
 
-# les autres joueurs sur la carte du jeu (mod 0.19.0, bit 30 ; natif/mod_wwmp/carte.c, zone WWMPCAR1)
+# les autres joueurs sur la carte du jeu (mod 0.19.0, carte du donjon 0.27.0, bit 30 ; natif/mod_wwmp/carte.c, zone WWMPCAR1)
 CARTE_OFF, MAGIE_CARTE = 0x6000, b"WWMPCAR1"
 ECRANS_CARTE = {0: "aucun", 1: "télé", 2: "GamePad"}
 
 
 def lire_carte(mem, boite: int) -> dict | None:
     """Compteurs de la zone WWMPCAR1 (mod 0.19.0 ou plus), ou None."""
-    raw = mem.try_read(boite + CARTE_OFF, 0x50)
+    raw = mem.try_read(boite + CARTE_OFF, 0x80)
     if raw is None or raw[:8] != MAGIE_CARTE or struct.unpack_from(">I", raw, 8)[0] != 1:
         return None
     coupe, = struct.unpack_from(">I", raw, 0x0C)
     dessins, listes, ecran, vues, vues_carte = struct.unpack_from(">5I", raw, 0x2C)
     ecart, = struct.unpack_from(">f", raw, 0x40)
-    marques, = struct.unpack_from(">I", raw, 0x4C)
+    marques, visage, bonnet, refus = struct.unpack_from(">4I", raw, 0x4C)
+    # 0.21.0 : poignées du visage et du bonnet (0 : pas encore chargées, 0xFFFFFFFF : absents), marqueurs refusés
+    # 0.27.0 : carte du donjon (passages, fantômes à un autre étage, hors du cadre, écart de l'icône de Link) ; zéro
+    # avant (le bourrage qui suit la zone)
+    vues_donjon, refus_etage, refus_cadre = struct.unpack_from(">3I", raw, 0x60)
+    ecart_donjon, = struct.unpack_from(">f", raw, 0x6C)
     return {"coupe": coupe, "dessins": dessins, "listes": listes, "ecran": ecran, "vues": vues,
-            "vues_carte": vues_carte, "ecart_link": ecart, "marques": marques}
+            "vues_carte": vues_carte, "ecart_link": ecart, "marques": marques, "visage": visage, "bonnet": bonnet,
+            "refus": refus, "vues_donjon": vues_donjon, "refus_etage": refus_etage, "refus_cadre": refus_cadre,
+            "ecart_donjon": ecart_donjon}
 
 
 def open_natif(pid: int | None = None, write: bool = False, verbose: bool = True,

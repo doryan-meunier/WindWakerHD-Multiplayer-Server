@@ -76,6 +76,16 @@ def valid_gift(e) -> dict | None:
     return {"src": src, "item": item, "i": i, "bit": bit, "stage": stage, "room": room}
 
 
+def valid_record(e) -> dict | None:
+    """Enregistrement du canal « gift » validé : quart AU SOL (``valid_gift``) ou quart donné par un personnage
+    (``synchro/quarts_pnj.valid_pnj``, src « pnj:<lieu> »). Serveur et monde persistant ; chaque client ne garde que
+    son genre (un ancien client ignore les « pnj: » : ``valid_gift`` les refuse)."""
+    if isinstance(e, dict) and isinstance(e.get("src"), str) and e["src"].startswith("pnj:"):
+        from synchro.quarts_pnj import valid_pnj
+        return valid_pnj(e)
+    return valid_gift(e)
+
+
 def piece_byte(bit: int) -> tuple[int, int]:
     """(offset dans dSv_memBit_c, masque) du bit d'objet `bit` (u32 BE mItem[0] à +0x14)."""
     return MEM_ITEM + 3 - (bit >> 3), 1 << (bit & 7)

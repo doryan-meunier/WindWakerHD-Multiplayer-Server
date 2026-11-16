@@ -98,7 +98,8 @@ def _int(v) -> bool:
     return isinstance(v, int) and not isinstance(v, bool)
 
 
-def _vec(v, lim: float = 1e5):
+# positions jusqu'à 1e6 u (en mer, carrés de 100 000 u : à 1e5, tout bâton en mer était refusé ; audit natif)
+def _vec(v, lim: float = 1e6):
     if isinstance(v, (list, tuple)) and len(v) == 3 and all(_num(x) and abs(x) < lim for x in v):
         return [float(x) for x in v]
     return None

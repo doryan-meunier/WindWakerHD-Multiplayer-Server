@@ -74,7 +74,7 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 
 from jeu import progress as prog
-from jeu import savecopy
+from jeu import savecopy   # jeu.natif importé à l'usage : le serveur importe ce module sans la mémoire du jeu
 
 # ---------------------------------------------------------------------------
 # Compteurs [HD-ASM : item_func 0x01..0x12 relues dans le RPX, tests/test_compteurs.py ; DECOMP d_item.cpp]
@@ -299,10 +299,11 @@ class Lu:
     save: dict = field(default_factory=dict)
     pend: dict = field(default_factory=dict)
     cap: dict = field(default_factory=dict)    # plafond local (0 = pas d'arc / de sac)
+    charg: int | None = None                   # parties remplacées (mod natif 0.23.0 : état du portage chargé)
 
     @property
     def contexte(self) -> tuple:
-        return (self.gi, self.date)
+        return (self.gi, self.date, self.charg)
 
     def L(self, k: str) -> int:
         return self.save[k] + self.pend[k]
@@ -339,8 +340,11 @@ def lire(mem) -> Lu:
     if struct.unpack(">I", player)[0] == 0:
         return Lu(False, "Link absent (chargement)", gi)
     save, pend, cap = decoder(blob, play)
+    # Portage natif (audit du 2026-11-16) : un état de sauvegarde du portage chargé en pleine partie (F2-F6, Saves)
+    # remplace la sauvegarde sans changer gameInfo ni mDateIPL : seul le compteur ``chargements`` du mod 0.23.0
+    # (natif/mod_wwmp/chargements.c, jeu/natif.chargements) le trahit ; il entre dans le contexte (None : Cemu, mod plus ancien).
     lu = Lu(True, "", gi, blob[savecopy.GI_DATE_IPL - GI_BASE:savecopy.GI_DATE_IPL - GI_BASE + 8], stage, "",
-            save, pend, cap)
+            save, pend, cap, _chargements(mem))
     nxt = mem.try_read(prog.SYM_NEXT_STAGE_ENABLED, 1)
     if nxt is None or nxt[0]:
         lu.pause = "changement de stage en cours"
@@ -928,3 +932,10 @@ class PremierArrive:
     def status(self) -> str:
         return (f"{len(self.track)} drop(s) suivi(s), {self.n_claims} ramassé(s) ici, "
                 f"{self.n_gone} pris ailleurs")
+
+
+def _chargements(mem):
+    """Compteur des états de sauvegarde chargés (jeu.natif.chargements, audit natif) ; importé ici seulement : le
+    serveur (et son image Docker) importe ce module sans winmem ni procmem."""
+    from jeu import natif
+    return natif.chargements(mem)

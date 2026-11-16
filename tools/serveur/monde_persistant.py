@@ -1,7 +1,8 @@
 """Monde persistant (chantier D, docs/etudes/monde_persistant.md) : le serveur garde le monde sur disque.
 
 Le jeu reste du solo sur chaque PC. « Le monde » est ce que le serveur sait fusionner (union de la progression,
-petites clés, coffres ouverts, quarts de cœur, inventaire commun, rubis / flèches / bombes, vent, deathlink),
+petites clés, coffres ouverts, quarts de cœur, inventaire commun, rubis / flèches / bombes, vent, deathlink, vie
+partagée et sa valeur commune),
 plus une IMAGE DE SAUVEGARDE de référence (0x7A0 octets, le format de « Copier la partie de l'hôte », A15) pour ce
 qu'aucune synchro ne couvre. Rien ici ne lit ni n'écrit la mémoire du jeu : le serveur ne fait que garder et
 renvoyer ce que les clients lui disent déjà.
@@ -50,7 +51,7 @@ from collections import OrderedDict
 from jeu import savecopy as sc
 from jeu.progress import bits_count, bits_sub, from_wire, to_wire
 
-from synchro.cadeaux import valid_gift
+from synchro.cadeaux import valid_record
 from synchro.cles import KeyPool
 from synchro.compteurs import EV_RE, KS, VAL_MAX, CompteurPool, valid_caps
 from commun import difficulte as _dif
@@ -86,7 +87,7 @@ TAMPON_MAX = 256             # messages gardés pendant l'attente du verdict
 GROUPES_MAX = 16
 
 # messages qui changent le monde (gardés pendant l'attente du verdict, filtrés en quarantaine)
-TYPES_TAMPON = frozenset({"progress", "keys", "key_get", "key_use", "coffre", "gift", "inv", "cnt", "trk"})
+TYPES_TAMPON = frozenset({"progress", "keys", "key_get", "key_use", "coffre", "gift", "inv", "cnt", "trk", "vie"})
 
 
 class MondeIllisible(Exception):
@@ -391,6 +392,11 @@ def exporter_groupes(srv) -> dict:
             g(nom)["compteurs"] = {"tot": dict(st["tot"]), "cap": dict(st["cap"]), "evs": list(st["evs"])}
     for nom, reg in srv.monde.vent.items():
         g(nom)["vent"] = {"x": reg["x"], "y": reg["y"], "on": reg["on"], "seq": reg["seq"]}
+    vies = getattr(srv, "vies", None)
+    for nom in (list(vies.groups) if vies is not None else []):
+        d = vies.document(nom)
+        if d is not None:
+            g(nom)["vie"] = d                    # vie partagée : valeur commune et vie max du groupe
     return groupes
 
 
@@ -398,7 +404,8 @@ def restaurer_groupes(srv, groupes, log, coffres_max: int = 1024, gifts_max: int
     """Charge chaque section dans l'état du serveur, en VALIDANT chaque entrée (une entrée abîmée est
     ignorée). Les groupes relus sont « fixés » : aucun client (hôte compris) n'impose plus ses compteurs, son
     sac ou son vent. Renvoie des comptes pour le journal."""
-    n = {"progress": 0, "cles": 0, "coffres": 0, "cadeaux": 0, "inv": 0, "compteurs": 0, "vent": 0, "ignores": 0}
+    n = {"progress": 0, "cles": 0, "coffres": 0, "cadeaux": 0, "inv": 0, "compteurs": 0, "vent": 0, "vie": 0,
+         "ignores": 0}
     if not isinstance(groupes, dict):
         if groupes is not None:
             log("monde : section « groupes » illisible : ignorée")
@@ -428,7 +435,7 @@ def restaurer_groupes(srv, groupes, log, coffres_max: int = 1024, gifts_max: int
             reg[(v["k"], v["i"], v["n"])] = v
             n["coffres"] += 1
         for rec in (sec.get("cadeaux") if isinstance(sec.get("cadeaux"), list) else []):
-            v = valid_gift(rec)
+            v = valid_record(rec)       # quarts au sol et quarts des personnages (src « pnj: »)
             reg = srv.gifts.setdefault(nom, {})
             if v is None or len(reg) >= gifts_max:
                 n["ignores"] += 1
@@ -475,6 +482,11 @@ def restaurer_groupes(srv, groupes, log, coffres_max: int = 1024, gifts_max: int
                 srv.monde.vent[nom] = {"x": v["x"], "y": v["y"], "on": v["on"], "seq": seq, "kind": "change",
                                        "hote": False, "from": 0}
                 n["vent"] += 1
+        if "vie" in sec and getattr(srv, "vies", None) is not None:
+            if srv.vies.restaurer(nom, sec["vie"]):
+                n["vie"] += 1                    # fixée : aucun hello (hôte compris) ne l'impose plus
+            else:
+                n["ignores"] += 1
     if cles_json:
         kp = KeyPool.from_json({"groups": cles_json})
         srv.keys = kp
@@ -527,6 +539,11 @@ def filtre_quarantaine(msg: dict) -> dict | None:
         return dict(msg, slots={}) if msg.get("hello") in (1, True) else None
     if t in ("key_get", "key_use", "pickup", "image_monde", "trk"):   # « trk » : vie, lettres, cadeaux (trackeur)
         return None
+    if t == "vie":
+        # vie partagée : il reçoit la valeur commune (hello sans « hote », sync), aucun de ses dégâts ou soins n'y entre
+        if msg.get("hello") in (1, True):
+            return {k: v for k, v in msg.items() if k != "hote"}
+        return msg if msg.get("sync") in (1, True) else None
     if t == "cnt":
         if msg.get("hello") in (1, True):
             return {k: v for k, v in msg.items() if k not in ("hote", "cap")}
@@ -541,7 +558,7 @@ def _inscription(msg: dict) -> bool:
         return msg.get("full") in (1, True) and not from_wire(msg.get("bits"))
     if t in ("coffre", "gift"):
         return msg.get("full") in (1, True)
-    if t in ("inv", "cnt"):
+    if t in ("inv", "cnt", "vie"):
         return msg.get("sync") in (1, True) and not msg.get("hello") and not msg.get("full")
     return False
 
@@ -556,7 +573,7 @@ class Monde:
     def __init__(self, dossier: str, ident: str, nom: str, doc: dict | None = None, log=print,
                  clock=time.monotonic, deathlink: bool = False, quarantaine: bool = True, strict: bool = False,
                  heure_auto: bool = False, ecriture_min: float = ECRITURE_MIN, source: str = "",
-                 difficulte: dict | None = None):
+                 difficulte: dict | None = None, vie_partagee: bool = False):
         self.dossier, self.id, self.nom = dossier, ident, nettoyer_nom(nom) or ident
         self.chemin = os.path.join(dossier, FICHIER)
         self.log, self.clock = log, clock
@@ -570,6 +587,8 @@ class Monde:
         regles = doc.get("regles") if isinstance(doc.get("regles"), dict) else {}
         # deathlink : la ligne de commande ne compte qu'à la création du monde
         self.deathlink = regles.get("deathlink") is True if "deathlink" in regles else bool(deathlink)
+        # vie partagée : comme le deathlink (la ligne de commande ne compte qu'à la création du monde)
+        self.vie_partagee = regles.get("vie_partagee") is True if "vie_partagee" in regles else bool(vie_partagee)
         # difficulté (commun/difficulte.py) : comme le deathlink, la ligne de commande ne compte qu'à la création
         self.difficulte = _dif.normaliser(regles["difficulte"] if "difficulte" in regles else difficulte)
         # mode Hanteurs : RÉGLAGES de la dernière session (bruts : validés par le serveur, hanteurs.valider_config) ;
@@ -687,6 +706,9 @@ class Monde:
     def restaurer(self, srv) -> None:
         """Au démarrage : toutes les sections dans le serveur ; règle du deathlink."""
         srv.morts.on = self.deathlink
+        if getattr(srv, "vies", None) is not None:
+            # jamais avec le mode Hanteurs (la règle reste gardée dans le monde pour la coop suivante)
+            srv.vies.on = self.vie_partagee and getattr(srv, "hanteurs", None) is None
         if getattr(srv, "difficulte_on", False):
             srv.difficulte = _dif.normaliser(self.difficulte)
         n = restaurer_groupes(srv, self.groupes_doc, self.log)
@@ -758,8 +780,11 @@ class Monde:
         sinon les derniers gardés), JAMAIS la manche (rôles, points, possessions, potion, ordres)."""
         if getattr(srv, "difficulte_on", False):         # --no-difficulte : le réglage gardé n'est pas écrasé
             self.difficulte = _dif.normaliser(getattr(srv, "difficulte", None))
-        r = {"deathlink": bool(srv.morts.on), "monde_heure": self.heure_auto,
-             "difficulte": dict(self.difficulte)}
+        vies = getattr(srv, "vies", None)
+        if vies is not None and getattr(srv, "hanteurs", None) is None:
+            self.vie_partagee = bool(vies.on)       # session Hanteurs : la règle gardée n'est pas écrasée
+        r = {"deathlink": bool(srv.morts.on), "vie_partagee": bool(self.vie_partagee),
+             "monde_heure": self.heure_auto, "difficulte": dict(self.difficulte)}
         h = getattr(srv, "hanteurs", None)
         if h is not None:
             self.hanteurs_regles = dict(h.cfg)
@@ -1169,6 +1194,7 @@ class Monde:
                 "image": self.image is not None, "note": m.get("note"), "image_de": m.get("de"),
                 "image_quand": m.get("quand"), "resume": m.get("resume"), "seuil_retard": SEUIL_RETARD,
                 "joueurs": joueurs[:64], "heure": self.heure, "deathlink": bool(srv.morts.on),
+                "vie_partagee": bool(getattr(getattr(srv, "vies", None), "on", False)),
                 "difficulte": dict(self.difficulte),
                 "rando": (self.rando_doc or {}).get("emp") if self.rando_doc else None,
                 "quarantaine": quar, "quarantaines": self.quarantaines[-8:],

@@ -177,6 +177,14 @@ class DeathLink:
         with self.lock:
             self.inbox = (self.inbox + [dict(msg, _t=self.clock() if now is None else now)])[-8:]
 
+    def mort_induite(self, now: float | None = None) -> None:
+        """Vie partagée (synchro/vie_partagee.py) : la vie commune vient d'être écrite à 0 chez nous ; la mort qui suit
+        est surveillée comme une mort appliquée (jamais renvoyée : pas de double comptage avec le deathlink)."""
+        now = self.clock() if now is None else now
+        self.pending = None
+        self.watch = now + WATCH
+        self.vu_mort_watch = False
+
     def reset_network(self) -> None:
         with self.lock:
             self.inbox.clear()

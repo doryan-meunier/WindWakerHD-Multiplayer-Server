@@ -19,6 +19,7 @@ import os
 # code de touche Windows (hanteurs.VK) -> keysym X11
 KEYSYMS = {0x72: 0xFFC0, 0x73: 0xFFC1, 0x74: 0xFFC2, 0x75: 0xFFC3, 0x76: 0xFFC4, 0x77: 0xFFC5, 0x78: 0xFFC6,
            0x21: 0xFF55, 0x22: 0xFF56}      # F3…F9, Page_Up (Prior), Page_Down (Next)
+KEYSYMS_CTRL = (0xFFE3, 0xFFE4)       # VK_CONTROL (0x11) : Control_L ou Control_R (portage natif : Ctrl+F3…F6)
 
 RAISON_WAYLAND = ("session Wayland sans affichage X11 : les touches F3-F9 ne peuvent pas être lues ; utilise les "
                   "boutons du lanceur (Jouer en ligne → Lobby, Mode Hanteurs)")
@@ -65,14 +66,15 @@ def creer(env=None, xlib=None):
     racine = d.screen().root
     a_actif = d.intern_atom("_NET_ACTIVE_WINDOW")
     a_pid = d.intern_atom("_NET_WM_PID")
-    codes = {vk: d.keysym_to_keycode(ks) for vk, ks in KEYSYMS.items()}
+    codes = {vk: (d.keysym_to_keycode(ks),) for vk, ks in KEYSYMS.items()}
+    codes[0x11] = tuple(d.keysym_to_keycode(ks) for ks in KEYSYMS_CTRL)
 
     def lire(vk) -> bool:
-        kc = codes.get(vk)
-        if not kc:
+        kcs = [kc for kc in codes.get(vk, ()) if kc]
+        if not kcs:
             return False
         carte = d.query_keymap()
-        return bool(carte[kc // 8] & (1 << (kc % 8)))
+        return any(carte[kc // 8] & (1 << (kc % 8)) for kc in kcs)
 
     def premier_plan():
         p = racine.get_full_property(a_actif, X.AnyPropertyType)

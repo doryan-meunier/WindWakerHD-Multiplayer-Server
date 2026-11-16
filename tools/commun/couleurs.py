@@ -14,7 +14,9 @@ Trois étages, chacun utilisable sans le suivant :
    ``wwmp_coul``). Sans ce bit : rien n'est écrit, tout le monde reste vert. Dans le rendu, seule konst0 (la
    lumière, que le shader multiplie avec la texture) compte : la partie ÉCLAIRÉE de la tunique prend la couleur ;
    la partie à l'ombre garde le vert (ambiante du modèle, commune à tout le corps). Mod natif 0.18.0 : le jeu
-   compte ce qu'il a teint (``Teinteur.compteurs``, ligne « Couleurs : … » du client, --status-file).
+   compte ce qu'il a teint (``Teinteur.compteurs``, ligne « Couleurs : … » du client, --status-file). Mod natif
+   0.20.0 : avec les MÊMES facteurs, le jeu recolore une copie de la texture de la tunique (vert x facteurs) et la
+   pose sur le modèle du Link teint : lumière et ombre (docs/etudes/couleurs_link.md §3.4) ; konst0 en repli.
 
 Compatibilité : un ancien client n'envoie pas ``couleur`` (le serveur lit « automatique ») et ignore le
 champ qu'il reçoit ; un ancien serveur ne renvoie rien, le client retombe alors sur ``par_numero`` pour
@@ -358,7 +360,12 @@ class Teinteur:
         jeu = ""
         if c and (c.get("soi") or c.get("fantomes") or c.get("konst0")):
             jeu = (f" ; le jeu a teint {c['soi']} dessin(s) de notre Link, {c['fantomes']} de fantômes "
-                   f"(konst0 : {c['konst0']})")
+                   f"(konst0 : {c['konst0']}")
+            if "textures" in c:             # mod natif 0.20.0 : la texture de la tunique recolorée
+                jeu += f", texture : {c['textures']} pose(s), {c['copies']} copie(s)"
+                if c.get("refus"):
+                    jeu += f", refus 0x{c['refus']:X}"
+            jeu += ")"
         elif c:
             jeu = f" ; dessins teints par le jeu : {c.get('dessins', 0)}"
         return f"{n} fantôme(s) teinté(s), {soi}{jeu}"

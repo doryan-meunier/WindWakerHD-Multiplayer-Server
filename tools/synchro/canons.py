@@ -49,7 +49,8 @@ Ce module :
    ou, chez l'autorité, un ennemi achevé par un coup distant, il pose le switch de mort que le jeu aurait posé :
    Bokoblin (proc 189) +0x3D4 (angle.z & 0xFF, 0 = aucun ; create 0x0209FB30-0x0209FB74, execute 0x0209BD80-
    0x0209BDC0), canonnière Oship (proc 179) +0x3CD (params >> 24, 0xFF = aucun ; 0x023C5890, onSwitch 0x023C7A14 et
-   0x023C7BE4). L'Octorok (Oq, proc 227) n'a pas de switch de mort (aucun onSwitch dans son code). Écriture comme
+   0x023C7BE4), Mothula (proc 204, fin du mini-boss : porte de la salle) +0x3EB si +0x3F2 != 0 et que ce n'est pas
+   une aile coupée (+0x3E9 == 0). L'Octorok (Oq, proc 227) n'a pas de switch de mort (aucun onSwitch dans son code). Écriture comme
    dSv_info_c::onSwitch : 0x00-0x7F mémoire du stage vivante, 0x80-0xBF donjon, 0xC0-0xEF zone de la salle
    (current.roomNo +0x326) ; au-delà, rien.
 
@@ -130,12 +131,17 @@ PROCS = (PROC_OCANON,)
 PUFF_Y = 100.0                 # fumée au-dessus du canon (comme les marionnettes)
 
 # --- switches de mort : proc -> (octet de l'instance, valeurs « aucun ») [HD-ASM, voir l'en-tête] ----------
-PROC_BK, PROC_OSHIP = 189, 179
+PROC_BK, PROC_OSHIP, PROC_GM = 189, 179, 204
 DEATH_SW = {
     PROC_BK: (0x3D4, frozenset({0x00, 0xFF})),
     PROC_OSHIP: (0x3CD, frozenset({0xFF})),
     PROC_OCANON: (OC_SW_DEATH, frozenset({0xFF})),
+    # Mothula (mod natif 0.29.0, fin du mini-boss) : la mort de son traitement (0x02152E14, 0x0215301C, 0x02153E68) et
+    # son delete (0x0214FFD8, mort par la glace) posent onSwitch(+0x3EB, salle +0x326) si +0x3EB != 0xFF et +0x3F2 != 0
+    PROC_GM: (0x3EB, frozenset({0xFF})),
 }
+# conditions en plus du switch : proc -> ((octet, valeur exigée ou None pour « non nul »), ...)
+DEATH_SW_COND = {PROC_GM: ((0x3F2, None), (0x3E9, 0))}     # drapeau du switch posé ; corps (pas une aile coupée)
 
 PROCS_MORT = (PROC_BK, PROC_OSHIP)    # ennemis dont le switch de mort est gardé pour la salle
 
@@ -190,6 +196,10 @@ def death_switch(mem, base: int) -> tuple[int, int, int] | None:
         room = mem.try_read(base + OFF_ROOM, 1)
         if sw is None or room is None or sw[0] in none:
             return None
+        for c_off, attendu in DEATH_SW_COND.get(proc, ()):
+            v = mem.try_read(base + c_off, 1)
+            if v is None or (v[0] == 0 if attendu is None else v[0] != attendu):
+                return None
         return proc, sw[0], struct.unpack(">b", room)[0]
     except Exception:
         return None

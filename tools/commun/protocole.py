@@ -112,6 +112,9 @@ Client -> serveur
                                                  le registre des quarts déjà pris)
   gift     {group, src: "piece:<index>:<bit>", item: 7, i, bit, stage, room}
            (quart de cœur AU SOL ramassé chez nous : bit mItem < 0x20 de mSave[index])
+  gift     {group, src: "pnj:<lieu>", lieu, quart: 0|1, stage, room}
+           (--share-pnj-hearts, synchro/quarts_pnj.py : lieu d'un personnage ou d'un mini-jeu fait chez
+            nous ; quart 1 = un quart de cœur reçu, 0 = drapeau seul ; pas d'adresse : table du client)
   boss     {group, stage, key: "<proc>:<params 8 hex>", hp, max}
            (synchro v2/v3 B1, --boss-pv, synchro/boss_pv.py : PV d'un boss de la table (Gohma 234 max 10,
             Kalle Demos, Gohdan, Roi Cuirasse, Ganon spectral, Ganon marionnette ×3, Molgera max 4 =
@@ -176,7 +179,9 @@ Serveur -> client
                                             dalles de moins de 11 s, âge corrigé, à qui entre)
   gift     {from, nom, group, src, item, i, bit, stage, room}   (synchro v2 : premier arrivé par src,
                                             aux AUTRES membres du groupe, quelle que soit la zone)
-  gift     {from: null, group, full: 1, list: [{src, item, i, bit, stage, room, by}]}   (registre)
+  gift     {from, nom, group, src: "pnj:<lieu>", lieu, quart, stage, room}   (même relais, même registre)
+  gift     {from: null, group, full: 1, list: [{src, item, i, bit, stage, room, by}]}   (registre ; aussi
+                                            les {src: "pnj:…", lieu, quart, stage, room, by})
   gift     {from: null, group, reset: 1}       (synchro v2 : registre vidé par un rejoindre, A15)
   stick    {from, zone, ev, key, …}         (A3 : relais aux autres joueurs de la zone ; le serveur
                                             arbitre : premier grab reçu gagne)
@@ -299,7 +304,7 @@ TIMEOUT = 5.0          # s sans message reçu -> le serveur coupe la connexion (
 CLIENT_TIMEOUT = 6.0   # s sans message du serveur -> le client se reconnecte
 MAX_LINE = 256 * 1024
 # A15 : rejoindre la partie (docs/etudes/rejoindre.md)
-FEATURES = ("rejoindre", "hanteurs", "deathlink", "image_monde", "monde_tot", "rando", "difficulte")   # hanteurs : client qui sait jouer un rôle du mode Hanteurs ;
+FEATURES = ("rejoindre", "hanteurs", "deathlink", "image_monde", "monde_tot", "rando", "difficulte", "vie_partagee")   # hanteurs : client qui sait jouer un rôle du mode Hanteurs ;
                                                   # deathlink : client qui sait suivre la règle (synchro v3) ;
                                                   # image_monde : client qui fournit l'image du monde persistant
                                                   # (image_req / image_monde) ; monde_tot : client qui envoie « tot »
