@@ -186,7 +186,7 @@ def controler_exclus_depart(o: dict) -> None:
     """Un objet de départ mélangé ne peut pas être aussi « exclu » (sa case garderait l'objet dans la logique alors
     que le pack ne le donne plus : objet perdu). Lève ErreurLot7."""
     exclus = set(o.get("exclus") or ())
-    pris = [l for n, _o, l in DEPART_MELANGEABLES if n in (o.get(OPTION_DEPART) or ()) and l in exclus]
+    pris = [l for n, _o, l in DEPART_MELANGEABLES if n in departs_melanges(o) and l in exclus]
     if pris:
         raise ErreurLot7(f"option depart_melange : {pris[0]!r} est aussi dans l'option exclus (décoche plutôt sa "
                          "case : un objet de départ exclu serait perdu)")
@@ -730,12 +730,20 @@ DEPART_MELANGEABLES = (
     ("sac_facteur", 0x30, "Start - Delivery Bag"),
     ("flacon", 0x50, "Start - Empty Bottle"),
     ("bouclier", 0x3B, "Start - Hero's Shield"),        # exige l'option boucliers_progressifs
+    # objets progressifs de TWWHD (option « progressifs_plus », rando/plus.py) : ces trois cases ne se cochent PAS dans
+    # depart_melange, elles suivent leur famille (épée : Excalibur sans pouvoir du départ et le palier « pleine
+    # puissance » que l'histoire donnait à la chambre de l'épée ; magie : la petite jauge, posée par deux octets)
+    ("epee_legende", 0x39, "Start - Master Sword"),
+    ("epee_pleine", 0x3A, "Story - Sword Chamber Full Power"),
+    ("magie", 0xB1, "Start - Magic Meter"),
 )
+# cases qui suivent une famille de progressifs_plus (jamais dans la liste depart_melange)
+CASES_PLUS = ("epee_legende", "epee_pleine", "magie")
 # Baguette ou Requiem à trouver : variante de la logique (nom, macro de TWWHD, texte d'origine, texte de la variante)
 VARIANTE_VOILE = ("voile_seule", "Can Sail Away", "(Can_Play_WR and Boats_Sail) or Swift_Sail",
                   "Boats_Sail or Swift_Sail")
 DEPART_VENT = ("baguette", "requiem")
-NOMS_DEPART = tuple(n for n, _o, _l in DEPART_MELANGEABLES)
+NOMS_DEPART = tuple(n for n, _o, _l in DEPART_MELANGEABLES if n not in CASES_PLUS)   # (cochables dans depart_melange)
 ID_DEPART = {l: o for _n, o, l in DEPART_MELANGEABLES}          # lieu d'histoire -> objet du jeu
 # ce que reçoit une case de départ vidée : un rubis tiré dans la réserve (vert, bleu, jaune, rouge, violet, orange,
 # argenté). Il n'est PAS donné à la création (rien de prouvé pour un rubis donné avant le chargement d'une salle) : la
@@ -821,10 +829,11 @@ def departs_melanges(options) -> tuple:
     ouvert ou option absente. Tolérant (ne contrôle rien : voir controler_options)."""
     if not ouvert(options):
         return ()
+    from rando import plus as rando_plus
     v = options.get(OPTION_DEPART)
-    if not isinstance(v, (list, tuple)):
-        return ()
-    return tuple(n for n in NOMS_DEPART if n in v)
+    v = list(v) if isinstance(v, (list, tuple)) else []
+    v += rando_plus.cases_depart(options)          # objets progressifs de TWWHD : cases qui suivent leur famille
+    return tuple(n for n, _o, _l in DEPART_MELANGEABLES if n in v)
 
 
 def ids_depart_melanges(options) -> frozenset:
@@ -849,6 +858,9 @@ def normaliser_depart(v) -> list:
     for x in v:
         if x in GARDES_DEPART:
             raise ErreurLot7("option depart_melange : " + GARDES_DEPART[x])
+        if x in CASES_PLUS:
+            raise ErreurLot7(f"option depart_melange : {x!r} se règle par l'option progressifs_plus (épée ou magie "
+                             "progressive)")
         if x not in NOMS_DEPART:
             raise ErreurLot7(f"option depart_melange : objet inconnu {x[:30]!r} (connus : " + ", ".join(NOMS_DEPART)
                              + ")")
@@ -976,6 +988,9 @@ def listes_creation(options) -> dict:
         objets = [x for x in objets if x not in melanges]
         if 0x31 in melanges:
             octets += list(OCTETS_BOMBES)
+        if 0xB1 in melanges:
+            # magie progressive (rando/plus.py) : plus de petite jauge au départ (ni max ni magie)
+            octets = [x for x in octets if x not in ((0x33, 0x10), (0x34, 0x10))]
     out = {"objets": objets, "bits": bits, "mots": list(MOTS_OUVERT) if o else [],
            "donjons": list(DONJONS_OUVERT) if o else [], "octets": octets}
     if not any(out.values()):

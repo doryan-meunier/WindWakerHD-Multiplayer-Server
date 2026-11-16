@@ -3,7 +3,7 @@
 Le serveur de partie de **Wind Waker Coop** (WindWakerHD-Multiplayer), seul, pour l'héberger avec Docker.
 Aucun fichier du jeu : le serveur ne fait que relayer et fusionner l'état des joueurs.
 
-> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `dcccacb`).
+> Dépôt **généré** depuis le dépôt du mod (`outils/extraire_serveur.py`, commit source : `f919f47`).
 > Ne pas le modifier à la main : toute correction se fait dans WindWakerHD-Multiplayer, puis on régénère.
 
 ## Démarrer : seulement le docker-compose.yml

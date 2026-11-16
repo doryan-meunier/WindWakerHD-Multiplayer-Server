@@ -159,6 +159,8 @@ def entrees_lot6(msg: dict) -> dict:
     par les options de la table, objet d'origine du relevé, objet accepté à cet endroit)."""
     table = table_de(msg)
     familles = rando_lot6.familles_actives(table.get("options"))
+    from rando import plus as rando_plus
+    libres = rando_plus.libres_fees(table.get("options"))
     out = {}
     for e in table.get("t") or []:
         if not (isinstance(e, list) and len(e) == 5 and e[0] == rando_lot6.TYPE_FICHIER):
@@ -166,7 +168,7 @@ def entrees_lot6(msg: dict) -> dict:
         _t, k, z, o, n = e
         if not (isinstance(k, int) and not isinstance(k, bool) and 0 <= k < len(rando_lot6.SITES) and z == 0
                 and k not in out and rando_lot6.SITES[k]["famille"] in familles and o == rando_lot6.SITES[k]["id"]
-                and isinstance(n, int) and not isinstance(n, bool) and rando_lot6.accepte(k, n)):
+                and isinstance(n, int) and not isinstance(n, bool) and rando_lot6.accepte(k, n, libres)):
             raise ErreurGenerateur("table du randomizer : lieu du lot 6 invalide (outils différents de ceux de "
                                    "l'hôte ?)", "randomizer table: invalid lot 6 location (tools differ from the "
                                    "host's?)")
@@ -243,7 +245,28 @@ def code_lot6(msg: dict, rpx) -> tuple[str, str]:
 
 def code_pack(msg: dict, rpx) -> tuple[str, str]:
     """(symboles, code et sites) du pack généré : lot 6 seul exactement comme avant (``code_lot6``), ou lots 6 et 7
-    réunis (une adresse = un nom ; deux lignes n'écrivent jamais la même adresse)."""
+    réunis (une adresse = un nom ; deux lignes n'écrivent jamais la même adresse). Avec l'option « progressifs_plus »
+    (rando/plus.py), une donnée de plus à la fin de la cave : l'étiquette ``wwr_plus`` (octet des familles), que le
+    lanceur recopie dans le plan du mod natif (rando/natif_code.py) ; elle ne réécrit aucun mot du jeu (sous Cemu,
+    sans effet : le serveur refuse un jeu sans la zone WWMPPRG2)."""
+    from rando import plus as rando_plus
+    sym, code = _code_pack(msg, rpx)
+    b = rando_plus.octet(table_de(msg).get("options"))
+    if b:
+        if not code:
+            raise ErreurGenerateur("objets progressifs de TWWHD sans randomizer par fichiers",
+                                   "TWWHD progressive items without the file randomizer")
+        code = code.rstrip("\n") + "\n" + "\n".join(lignes_plus(b)) + "\n"
+    return sym, code
+
+
+def lignes_plus(b: int) -> list[str]:
+    """Lignes de la cave qui portent l'octet des familles de progressifs_plus (lu par rando/natif_code.py)."""
+    return ["; --- objets progressifs de TWWHD (WWMP) : familles pour le mod natif 0.40.0 (donnee seule, sans site) ---",
+            "wwr_plus:", f"    .int 0x{b & 0xFF:08X}"]
+
+
+def _code_pack(msg: dict, rpx) -> tuple[str, str]:
     table = table_de(msg)
     opt = table.get("options")
     familles = rando_lot6.familles_actives(opt)

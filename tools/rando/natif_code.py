@@ -309,6 +309,13 @@ def analyser(texte: str) -> dict:
         out["salle"] = w & 0xFFFF
     if len(donnees) > MAX_DONNEES:
         raise ErreurNatif("trop de mots de données")
+    # objets progressifs de TWWHD (rando/plus.py, fichiers.lignes_plus) : octet des familles, sans site
+    out["plus"] = 0
+    if "wwr_plus" in a.labels:
+        w = struct.unpack(">I", _octets(a, a.labels["wwr_plus"], 4))[0]
+        if w & ~PLUS_FAMILLES:
+            raise ErreurNatif("objets progressifs de TWWHD : familles inconnues de ce mod")
+        out["plus"] = w
     return out
 
 
@@ -325,7 +332,8 @@ def greffes(analyse: dict) -> list[str]:
 # ---------------------------------------------------------------------------------------------------------------
 # Bloc de code (rando_plan.bin, format 2) : disposition de PlanCode (natif/mod_wwmp/rando_code.h)
 # ---------------------------------------------------------------------------------------------------------------
-OFF_FEES, OFF_POTIONS, OFF_ZUNARI, OFF_SALLE = 0x10, 0x18, 0x1C, 0x1D
+OFF_FEES, OFF_POTIONS, OFF_ZUNARI, OFF_SALLE, OFF_PLUS = 0x10, 0x18, 0x1C, 0x1D, 0x1E
+PLUS_FAMILLES = 0x3F                 # bits connus de l'octet +0x1E (rando_code.h PLUS_FAMILLES, rando/plus.FAMILLES)
 OFF_IMMEDIATS, OFF_BOSS, OFF_OBJETS = 0x20, 0x40, 0x48
 OFF_BITS, OFF_MOTS, OFF_DONJONS, OFF_OCTETS, OFF_DONNEES = 0x68, 0x168, 0x1E8, 0x208, 0x248
 OFF_MOTS_DONNEES = OFF_DONNEES + 2 * MAX_DONNEES
@@ -360,6 +368,7 @@ def bloc(analyse: dict) -> bytes:
     b[OFF_POTIONS:OFF_POTIONS + 2] = analyse["potions"]
     b[OFF_ZUNARI] = analyse["zunari"]
     b[OFF_SALLE] = analyse["salle"]
+    b[OFF_PLUS] = analyse.get("plus", 0) & 0xFF
     if len(IMMEDIATS) > 32 or len(BOSS) > 8:
         raise ErreurNatif("bloc de code : trop de lieux à immédiat")
     b[OFF_IMMEDIATS:OFF_IMMEDIATS + len(IMMEDIATS)] = analyse["immediats"]
@@ -400,7 +409,8 @@ def lire_fichier_plan(data) -> tuple[str, bytes]:
         return bytes(data[16:48]).hex(), b""
     if fmt == FORMAT_PLAN and n == TAILLE_BLOC and len(data) == 48 + n and data[48:56] == MAGIE:
         frags, nd = struct.unpack_from(">II", data, 56)
-        if frags & ~sum(BIT[x] for x in ACCEPTES) or not frags or nd > MAX_DONNEES:
+        if frags & ~sum(BIT[x] for x in ACCEPTES) or not frags or nd > MAX_DONNEES \
+                or data[48 + OFF_PLUS] & ~PLUS_FAMILLES:
             return "", b""
         for k in range(nd):
             adr = adresse_donnee(struct.unpack_from(">H", data, 48 + OFF_DONNEES + 2 * k)[0])

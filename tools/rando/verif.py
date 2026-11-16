@@ -115,13 +115,16 @@ def _familles6(options) -> frozenset:
     return frozenset(f for f, o in FAMILLES6.items() if isinstance(options, dict) and options.get(o) is True)
 
 
-def _accepte6(site: dict, objet: int, speciaux) -> bool:
-    """Le lieu du lot 6 ``site`` peut-il donner ``objet`` ?"""
+def _accepte6(site: dict, objet: int, speciaux, libres=frozenset()) -> bool:
+    """Le lieu du lot 6 ``site`` peut-il donner ``objet`` ? ``libres`` : paliers des fées sortis des fées
+    (progressifs_plus) : une fée donne alors n'importe quel objet."""
     if objet == site["id"]:
         return True
     if not 0 < objet < 0xFF or objet in speciaux or objet in SANS_OBJET6:
         return False
-    if site["voie"] == "fee" or objet in FEES6:
+    if site["voie"] == "fee" and libres:
+        return True
+    if (site["voie"] == "fee" or objet in FEES6) and objet not in libres:
         return site["voie"] == "fee" and objet in FEES6
     if site["voie"] == "boutique":
         return objet in PERMIS2 or objet in (0x2C, 0xE1)
@@ -155,7 +158,40 @@ DEPART7 = (("bombes", 0x31, "Start - Bombs"), ("perle_din", 0x6A, "Start - Din's
            ("hymne_vent", 0x71, "Start - Wind God's Aria"), ("baguette", 0x22, "Start - Wind Waker"),
            ("requiem", 0x6D, "Start - Wind's Requiem"), ("sac_butin", 0x24, "Start - Spoils Bag"),
            ("sac_facteur", 0x30, "Start - Delivery Bag"), ("flacon", 0x50, "Start - Empty Bottle"),
-           ("bouclier", 0x3B, "Start - Hero's Shield"))
+           ("bouclier", 0x3B, "Start - Hero's Shield"),
+           ("epee_legende", 0x39, "Start - Master Sword"), ("epee_pleine", 0x3A, "Story - Sword Chamber Full Power"),
+           ("magie", 0xB1, "Start - Magic Meter"))
+# objets progressifs de TWWHD (option « progressifs_plus »). RECOPIÉ (pas importé) de rando/plus.py ; les tests
+# comparent. Familles et paliers ; cases de départ qu'une famille vide (objet de logique de la case : la famille) ;
+# familles des fées. Un palier hors de PERMIS2 ne va que dans un coffre ordinaire (type 0) ou un lieu du lot 6 (5).
+FAMILLES_PLUS = (("epee", (0x38, 0x39, 0x3A, 0x3E)), ("magie", (0xB1, 0xB2)), ("boite", (0x23, 0x26)),
+                 ("bourse", (0xAB, 0xAC)), ("carquois", (0xAF, 0xB0)), ("bombes", (0xAD, 0xAE)))
+CASES_PLUS = {"epee": ("epee_legende", "epee_pleine"), "magie": ("magie",)}
+OBJET_CASES_PLUS = {"epee_legende": "Progressive Sword", "epee_pleine": "Progressive Sword",
+                    "magie": "Progressive Magic Meter"}
+FEES_PLUS = ("bourse", "carquois", "bombes")
+
+
+def _plus(options) -> tuple:
+    """Familles de progressifs_plus de ces options (ordre de FAMILLES_PLUS)."""
+    v = options.get("progressifs_plus") if isinstance(options, dict) else None
+    if not isinstance(v, list):
+        return ()
+    return tuple(n for n, _p in FAMILLES_PLUS if n in v)
+
+
+def _plus_paliers(options) -> frozenset:
+    return frozenset(o for n, p in FAMILLES_PLUS if n in _plus(options) for o in p)
+
+
+def _plus_libres(options) -> frozenset:
+    return frozenset(o for n, p in FAMILLES_PLUS if n in _plus(options) and n in FEES_PLUS for o in p)
+
+
+def _plus_cases(options) -> tuple:
+    if not isinstance(options, dict) or options.get("monde") != "ouvert":
+        return ()
+    return tuple(c for n in _plus(options) for c in CASES_PLUS.get(n, ()))
 # boucliers progressifs (option « boucliers_progressifs ») : RECOPIÉ de rando_lot7 (OPTION_BOUCLIER, SITE_BOUCLIER…,
 # TEMOINS_BOUCLIER) ; les tests comparent. La case « bouclier » n'est permise qu'avec l'option.
 OPTION_BOUCLIER7 = "boucliers_progressifs"
@@ -184,8 +220,8 @@ def _depart7(options) -> tuple:
     if not isinstance(options, dict) or options.get("monde") != "ouvert":
         return ()
     v = options.get("depart_melange")
-    if not isinstance(v, list):
-        return ()
+    v = list(v) if isinstance(v, list) else []
+    v += _plus_cases(options)
     return tuple(n for n, _o, _l in DEPART7 if n in v)
 
 
@@ -424,6 +460,13 @@ def _version(base: str, options) -> str:
                "paliers": [0x3B, 0x3C], "temoins": [list(x) for x in TEMOINS_BOUCLIER7]}
         rb = hashlib.sha256(json.dumps(doc, sort_keys=True).encode("utf-8")).hexdigest()[:16]
         base = hashlib.sha256(f"{base}|boucliers|{rb}".encode("utf-8")).hexdigest()[:16]
+    pl = _plus(options)
+    if pl:
+        # objets progressifs de TWWHD : même document que rando/plus.releve (les tests comparent)
+        doc = {"familles": [[n, list(dict(FAMILLES_PLUS)[n])] for n in pl], "cases": list(_plus_cases(options)),
+               "fees": sorted(_plus_libres(options)), "voies": [0, 5]}
+        rp = hashlib.sha256(json.dumps(doc, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+        base = hashlib.sha256(f"{base}|plus|{rp}".encode("utf-8")).hexdigest()[:16]
     g9 =_groupes(options) & GROUPES9
     ep9 = isinstance(options, dict) and options.get("boutique_epuise") is True
     if g9 or ep9:
@@ -679,7 +722,11 @@ class _Modele:
                                     "donjon": None, "cats": set(), "genre": 0, "don": None, "conflit": None,
                                     "prog": None, "fich": None, "depart": cases7.get(h["nom"])}
             c = cases7.get(h["nom"])
-            if c is not None and self.objets.get(self.lieux[h["nom"]]["objet"]) != c[1]:
+            plus = OBJET_CASES_PLUS.get(DEPART7[c[0]][0]) if c is not None else None
+            if plus is not None:
+                if self.lieux[h["nom"]]["objet"] != plus:
+                    raise Refus(f"case de départ : objet de logique différent de sa famille : {h['nom']}")
+            elif c is not None and self.objets.get(self.lieux[h["nom"]]["objet"]) != c[1]:
                 raise Refus(f"case de départ : objet de logique différent de l'objet donné : {h['nom']}")
         deplaces = {d["lieu"]: d for d in sc.get("lieux_deplaces", ())}
         # verrous par lieu du scénario : tests en plus de l'exigence du lieu (tous doivent passer)
@@ -1021,14 +1068,18 @@ def _verifier(m: _Modele, options: dict, table) -> list:
     vus, avant, apres = {}, [], []
     # lot 6 : objets des lieux mélangés du randomizer par fichiers qui ne vont que dans un tel lieu (hors de PERMIS2,
     # ou paliers des Grandes Fées)
+    libres = _plus_libres(options)
     seuls6 = {m.ident(nom) for (t6, _i, _z), nom in melanges.items() if t6 == TYPE_FICHIER
-              and (m.ident(nom) not in PERMIS2 or m.ident(nom) in FEES6)}
+              and (m.ident(nom) not in PERMIS2 or m.ident(nom) in FEES6 - libres)}
     # étape 5 : objets des lieux « donnée » ajoutés qui ne vont que dans un lieu « donnée »
     seuls9 = {m.ident(nom) for (t9, _i, _z), nom in melanges.items() if t9 == 2 and m.ident(nom) in SEULS9}
     # objets de départ mélangés : hors de la liste des stubs, ils ne vont que dans un lieu du lot 6 (et toute pièce de
     # même numéro aussi : les bombes du bateau pirate) ; il faut une famille du lot 6 qui sache les donner
     d7 = _depart7(options)
     seuls6 |= {o for n, o, _l in DEPART7 if n in d7 and o not in PERMIS2}     # (le flacon : partout)
+    # progressifs_plus : paliers hors de PERMIS2, permis dans un coffre ordinaire OU un lieu du lot 6
+    plus6 = _plus_paliers(options) - PERMIS2
+    seuls6 -= plus6
     if d7 and not any(options.get(FAMILLES6[f]) is True for f in FAMILLES_DEPART7):
         return ["objets de départ mélangés sans famille du lot 6 qui sache les donner"]
     if "bouclier" in d7 and options.get(OPTION_BOUCLIER7) is not True:
@@ -1054,8 +1105,12 @@ def _verifier(m: _Modele, options: dict, table) -> list:
         if nom is None:
             pb.append(f"lieu ({typ}, {idx}, {tbox}) : pas un lieu mélangé avec ces options")
             continue
-        if typ == TYPE_FICHIER and not _accepte6(m.lieux[nom]["fich"][2], n, sp):
+        if typ == TYPE_FICHIER and not _accepte6(m.lieux[nom]["fich"][2], n, sp, libres):
             pb.append(f"{nom} : objet {n} interdit à cet endroit (lieu du randomizer par fichiers)")
+            continue
+        if n != o and n in plus6 and typ not in (0, TYPE_FICHIER):
+            pb.append(f"{nom} : palier progressif {n} hors d'un coffre ordinaire ou d'un lieu du randomizer par "
+                      "fichiers")
             continue
         if typ == TYPE_DEPART7 and n not in SANS_VALEUR7:
             pb.append(f"{nom} : une case de départ vidée ne reçoit qu'un rubis (objet {n})")

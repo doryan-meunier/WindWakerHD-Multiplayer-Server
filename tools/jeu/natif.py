@@ -72,13 +72,84 @@ def base_hote(machine: str | None = None, systeme: str | None = None) -> int:
     return BASE_HOTE
 
 
-def find_natif_pids() -> list[int]:
-    """PID du jeu natif, sans doublon."""
+def find_natif_pids(robot: bool = False) -> list[int]:
+    """PID du jeu natif, sans doublon. Sans ``robot`` : SANS le jeu caché du joueur robot (``jeu.pid`` de son
+    dossier, client/robot.py) : sur le PC qui héberge l'essai du robot, deux « wwhd.exe » tournent et le client, le
+    lanceur, la détection « jeu ouvert » du JOUEUR ne doivent voir que le sien. Aucun fichier : rien n'est filtré."""
     out: list[int] = []
     for nom in NOMS_NATIF:
         for p in procmem.find_pids(nom):
             if p not in out:
                 out.append(p)
+    if not robot and out:
+        caches = pids_robot()
+        if caches:
+            out = [p for p in out if p not in caches]
+    return out
+
+
+# --- jeu caché du joueur robot (client/robot.py, docs/etudes/joueur_robot.md) ---------------------------------------
+ENV_ROBOT_DOSSIER = "WWMP_ROBOT_DOSSIER"     # dossier du robot (défaut : %LOCALAPPDATA%\WWMP\robot) ; les tests
+
+
+def dossier_robot(env=None) -> str:
+    e = os.environ if env is None else env
+    if e.get(ENV_ROBOT_DOSSIER):
+        return e[ENV_ROBOT_DOSSIER]
+    if sys.platform == "win32":
+        base = e.get("LOCALAPPDATA") or os.path.join(os.path.expanduser("~"), "AppData", "Local")
+        return os.path.join(base, "WWMP", "robot")
+    return os.path.join(e.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share"),
+                        "wwmp", "robot")
+
+
+def fichier_pid_robot(env=None) -> str:
+    return os.path.join(dossier_robot(env), "jeu.pid")
+
+
+def creation_processus(pid: int) -> int | None:
+    """Heure de création du processus (unité du système), pour qu'un pid réutilisé ne soit jamais pris pour le jeu
+    du robot ; None si illisible (le pid seul compte alors)."""
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+            k32 = ctypes.windll.kernel32
+            h = k32.OpenProcess(0x1000, False, int(pid))        # PROCESS_QUERY_LIMITED_INFORMATION
+            if not h:
+                return None
+            try:
+                t = [wintypes.FILETIME() for _ in range(4)]
+                if not k32.GetProcessTimes(h, *[ctypes.byref(x) for x in t]):
+                    return None
+                return (t[0].dwHighDateTime << 32) | t[0].dwLowDateTime
+            finally:
+                k32.CloseHandle(h)
+        with open(f"/proc/{int(pid)}/stat", "rb") as f:
+            champs = f.read().rsplit(b")", 1)[1].split()
+        return int(champs[19])                                   # starttime (22e champ)
+    except (OSError, ValueError, IndexError, AttributeError):
+        return None
+
+
+def pids_robot(fichier: str | None = None) -> set[int]:
+    """Pid(s) du jeu caché du robot encore valables (« pid création » par ligne ; création différente : pid réutilisé
+    par un autre programme, ignoré)."""
+    out: set[int] = set()
+    try:
+        with open(fichier or fichier_pid_robot(), encoding="ascii", errors="replace") as f:
+            lignes = f.read(4096).split("\n")
+    except OSError:
+        return out
+    for ligne in lignes:
+        mots = ligne.split()
+        try:
+            pid = int(mots[0])
+            cree = int(mots[1]) if len(mots) > 1 else None
+        except (ValueError, IndexError):
+            continue
+        if pid > 0 and (cree is None or creation_processus(pid) in (None, cree)):
+            out.add(pid)
     return out
 
 
@@ -218,6 +289,10 @@ def diagnostic(mem, boite: int) -> str:
                                    f"{carte['marques']} marqueur(s), écran {ECRANS_CARTE.get(carte['ecran'], '?')}, "
                                    f"écart de la flèche de Link {carte['ecart_link']:.1f}"
                                    + (", bonnet absent (anneau)" if carte["bonnet"] == 0xFFFFFFFF else "")
+                                   + (", flèche absente (flèche rouge du jeu)" if carte["fleche_png"] == 0xFFFFFFFF
+                                      else "")
+                                   + (f", {carte['fleches_soi']} flèche(s) de notre icône (flèches du jeu cachées : "
+                                      f"{carte['fleches_cachees']:#x})" if carte["fleches_soi"] else "")
                                    + (f", {carte['refus']} hors de l'écran" if carte["refus"] else "")
                                    + (f", donjon : {carte['vues_donjon']} passage(s), {carte['refus_etage']} à un "
                                       f"autre étage, {carte['refus_cadre']} hors du cadre, écart de l'icône de Link "
@@ -249,7 +324,11 @@ def lire_carte(mem, boite: int) -> dict | None:
     # avant (le bourrage qui suit la zone)
     vues_donjon, refus_etage, refus_cadre = struct.unpack_from(">3I", raw, 0x60)
     ecart_donjon, = struct.unpack_from(">f", raw, 0x6C)
-    return {"coupe": coupe, "dessins": dessins, "listes": listes, "ecran": ecran, "vues": vues,
+    # 0.42.0 : flèche à la couleur du joueur (poignées de carte_fleche.png et de la flèche rouge du jeu, flèches du jeu
+    # de notre icône cachées : bit 0 ballon, 1 carte marine, 2 donjon ; flèches de notre icône dessinées)
+    fleche_png, fleche_rouge, fleches_cachees, fleches_soi = struct.unpack_from(">4I", raw, 0x70)
+    return {"fleche_png": fleche_png, "fleche_rouge": fleche_rouge, "fleches_cachees": fleches_cachees,
+            "fleches_soi": fleches_soi,"coupe": coupe, "dessins": dessins, "listes": listes, "ecran": ecran, "vues": vues,
             "vues_carte": vues_carte, "ecart_link": ecart, "marques": marques, "visage": visage, "bonnet": bonnet,
             "refus": refus, "vues_donjon": vues_donjon, "refus_etage": refus_etage, "refus_cadre": refus_cadre,
             "ecart_donjon": ecart_donjon}

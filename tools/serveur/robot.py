@@ -19,6 +19,11 @@ Règles (choisies par l'utilisateur) :
   ``repos_arret`` s de repos (``--robot-repos``, 300 par défaut ; 0 = tout de suite), son processus est ARRÊTÉ (la
   mémoire est rendue) ; il est relancé dès qu'une zone le demande.
 * Une seule instance au plus.
+* **Essai solo** (``--robot essai``, serveur hébergé sur le PC du joueur seulement) : pour VOIR seul, sur un seul PC,
+  les monstres comme les voit un joueur non autoritaire. Le robot prend la zone du joueur même s'il est seul
+  (ESSAI_MIN = 1), sans gain exigé, sans repos (son processus tourne tant que le serveur tourne), et la suit quand le
+  joueur change de zone (ESSAI_PREMIER, ESSAI_QUITTER : 1 s). ``--robot-essai-latence MS`` ajoute MS d'aller-retour
+  entre le serveur et le robot (MS/2 dans chaque sens, ``Retard``) : un gérant éloigné. Jamais en serveur dédié.
 
 Passation propre (pas de doublon, pas de monstre qui réapparaît) : le robot n'est jamais envoyé ailleurs tant qu'il
 détient une autorité. Il entre d'abord dans la zone comme un joueur NON autoritaire : ses monstres y sont des
@@ -41,6 +46,8 @@ Python pur, sans dépendance (serveur dédié autonome) : ``ChoixZone`` (règles
 """
 from __future__ import annotations
 
+import asyncio
+import collections
 import hmac
 import os
 import secrets
@@ -49,7 +56,7 @@ import subprocess
 import sys
 import time
 
-MODES = ("off", "auto")
+MODES = ("off", "auto", "essai")
 DEFAUT = "off"
 ROLE = "robot"
 NOM = "robot du serveur"
@@ -79,24 +86,102 @@ ROBOT_RTT_DEFAUT = 2.0     # ms : robot sur la machine du serveur, s'il n'annonc
 ROBOT_SILENCE = 2.0        # s : robot qui tient une zone sans « state » depuis… -> retour forcé
 FPS_MIN = 25.0             # images/s : robot qui rame (rapport « etat ») -> retour forcé
 RTT_HIST = 20              # aller-retours gardés par joueur (gigue)
+# Essai solo (--robot essai) : un joueur suffit, aucun gain exigé, il suit le joueur d'une zone à l'autre
+ESSAI_MIN = 1              # joueurs humains au moins dans une zone (au lieu de ROBOT_MIN)
+ESSAI_PREMIER = 1.0        # s : au lieu de DELAI_PREMIER
+ESSAI_QUITTER = 1.0        # s : au lieu de DELAI_QUITTER (le joueur a changé de zone : le robot le suit)
+ESSAI_FPS_MIN = 15.0       # images/s : deux jeux sur le même PC, on tolère un robot plus lent qu'en « auto »
+ESSAI_PAUSE = 20.0         # s : zone mise de côté après un retour forcé (au lieu d'ECHEC_PAUSE : on réessaie vite)
+LATENCE_MAX = 1000         # ms : --robot-essai-latence au plus
 TYPES_ACCEPTES = {"state", "enemies", "epos", "player_hit", "saisie", "tsw", "drop", "pnj", "lift", "cycle", "rare",
                   "ping", "robot", "ground_req"}
 DIFFUSION = {"authority", "join", "leave", "regles"}   # messages diffusés aux joueurs que le robot reçoit aussi
 
 
-def commande_defaut(commande, portage: str | None, tools: str):
+def commande_defaut(commande, portage: str | None, tools: str, essai: bool = False, journal: str | None = None):
     """``--robot-commande`` si elle est donnée ; sinon, avec ``--robot-portage``, le lanceur du dépôt
-    (tools/client/robot.py : portage caché + client --robot) s'il est là (absent de l'image Docker du serveur)."""
+    (tools/client/robot.py : portage caché + client --robot) s'il est là (absent de l'image Docker du serveur).
+    ``essai`` (--robot essai) : la copie de sauvegarde du robot est refaite à chaque lancement (``--recopier`` : même
+    progression que le joueur). ``journal`` (--robot-journal) : le journal du jeu du robot va à côté (``_jeu``)."""
     if commande:
         return commande
     script = os.path.join(tools, "client", "robot.py")
     if portage and os.path.isfile(script):
-        return [sys.executable, script, "--hote", "{hote}", "--port", "{port}", "--portage", portage]
+        argv = [sys.executable, script, "--hote", "{hote}", "--port", "{port}", "--portage", portage]
+        if essai:
+            argv.append("--recopier")
+        if journal:
+            base, ext = os.path.splitext(journal)
+            argv += ["--journal-jeu", base + "_jeu" + (ext or ".log")]
+        return argv
     return None
+
+
+def latence_ok(ms) -> int:
+    """--robot-essai-latence : entier de 0 à LATENCE_MAX ms (négatif ou illisible : 0 ; trop grand : LATENCE_MAX)."""
+    try:
+        v = int(ms)
+    except (TypeError, ValueError):
+        return 0
+    return min(max(v, 0), LATENCE_MAX)
+
+
+class Retard:
+    """Latence artificielle (essai solo) : ``mettre(fn)`` exécute ``fn`` ``ms`` ms plus tard, DANS L'ORDRE (une file,
+    une seule minuterie de la boucle asyncio : deux messages ne se doublent jamais). Sans boucle en marche (tests),
+    ``vider(now)`` exécute ce qui est dû. ``ms`` = 0 : tout de suite, comme avant."""
+
+    def __init__(self, ms: float = 0.0, horloge=None, log=print):
+        self.s = max(0.0, float(ms)) / 1000.0
+        self.horloge = horloge or (lambda: time.monotonic())
+        self.log = log
+        self.file: collections.deque = collections.deque()
+        self._minuterie = None
+
+    def mettre(self, fn) -> None:
+        if self.s <= 0.0 and not self.file:
+            fn()
+            return
+        self.file.append((self.horloge() + self.s, fn))
+        self._armer()
+
+    def _armer(self) -> None:
+        if self._minuterie is not None or not self.file:
+            return
+        try:
+            boucle = asyncio.get_running_loop()
+        except RuntimeError:
+            return                              # pas de boucle (tests) : vider() à la main
+        self._minuterie = boucle.call_later(max(0.0, self.file[0][0] - self.horloge()), self._sonne)
+
+    def _sonne(self) -> None:
+        self._minuterie = None
+        self.vider()
+        self._armer()
+
+    def vider(self, now: float | None = None) -> int:
+        now = self.horloge() if now is None else now
+        n = 0
+        while self.file and self.file[0][0] <= now:
+            _t, fn = self.file.popleft()
+            n += 1
+            try:
+                fn()
+            except Exception as e:              # noqa: BLE001 (un message raté ne bloque pas les suivants)
+                self.log(f"robot : retard : erreur ignorée ({type(e).__name__}: {e})")
+        return n
+
+    def __len__(self) -> int:
+        return len(self.file)
 
 
 def normaliser(mode) -> str:
     return mode if mode in MODES else DEFAUT
+
+
+def actif(mode) -> bool:
+    """« auto » ou « essai » : le robot tourne."""
+    return normaliser(mode) in ("auto", "essai")
 
 
 def cle_valide(attendue: str | None, donnee) -> bool:
@@ -111,13 +196,18 @@ class ChoixZone:
     """Règles 2 (mélange) et 3 (repos), avec hystérésis. ``revoir`` prend, par zone, (joueurs humains présents,
     heure depuis laquelle la zone est partagée) et rend la zone voulue pour le robot, ou None (repos)."""
 
-    def __init__(self):
+    def __init__(self, minimum: int = ROBOT_MIN, premier: float = DELAI_PREMIER, quitter: float = DELAI_QUITTER):
+        self.regler(minimum, premier, quitter)
         self.cible: str | None = None
         self.depuis = 0.0                    # heure à laquelle la cible a été choisie
         self.candidat: str | None = None
         self.candidat_t = 0.0
         self.sous_t: float | None = None     # sa zone est sous ROBOT_MIN depuis…
         self.ecartees: dict[str, float] = {}   # zone -> jusqu'à quand elle est mise de côté (robot pas arrivé)
+
+    def regler(self, minimum: int = ROBOT_MIN, premier: float = DELAI_PREMIER, quitter: float = DELAI_QUITTER) -> None:
+        """Règles 2 et 3 (défaut) ; essai solo : ESSAI_MIN, ESSAI_PREMIER, ESSAI_QUITTER."""
+        self.minimum, self.premier, self.quitter = int(minimum), float(premier), float(quitter)
 
     def ecarter(self, zone: str, now: float, duree: float = ECHEC_PAUSE) -> None:
         self.ecartees[zone] = now + duree
@@ -127,7 +217,7 @@ class ChoixZone:
     def _choisir(self, comptes: dict, exclure: str | None = None) -> tuple[str | None, int]:
         best, kbest = None, None
         for z, (n, depuis) in comptes.items():
-            if n < ROBOT_MIN or z == exclure:
+            if n < self.minimum or z == exclure:
                 continue
             k = (-n, 0 if z == self.candidat else 1, depuis, z)
             if kbest is None or k < kbest:
@@ -144,10 +234,10 @@ class ChoixZone:
         comptes = {z: v for z, v in comptes.items() if z not in self.ecartees}
         cur = self.cible
         n_cur = comptes.get(cur, (0, 0.0))[0] if cur else 0
-        if cur is not None and n_cur < ROBOT_MIN:
+        if cur is not None and n_cur < self.minimum:
             if self.sous_t is None:
                 self.sous_t = now
-            if now - self.sous_t < DELAI_QUITTER:
+            if now - self.sous_t < self.quitter:
                 return cur
             best, _n = self._choisir(comptes, exclure=cur)
             return self._changer(best, now)
@@ -159,7 +249,7 @@ class ChoixZone:
         if best != self.candidat:
             self.candidat, self.candidat_t = best, now
         if cur is None:
-            if now - self.candidat_t >= DELAI_PREMIER:
+            if now - self.candidat_t >= self.premier:
                 return self._changer(best, now)
             return None
         if now - self.candidat_t >= DELAI_CHANGER and now - self.depuis >= SEJOUR_MIN:
@@ -225,7 +315,9 @@ class Gestionnaire:
         argv = self.argv()
         if not argv:
             return False
-        env = dict(os.environ, WWMP_ROBOT_CLE=self.cle, WWMP_ROBOT_HOTE=self.hote, WWMP_ROBOT_PORT=str(self.port))
+        # WWMP_ROBOT_PARENT : le lanceur du robot (client/robot.py) s'arrête, avec son jeu caché, si ce serveur meurt
+        env = dict(os.environ, WWMP_ROBOT_CLE=self.cle, WWMP_ROBOT_HOTE=self.hote, WWMP_ROBOT_PORT=str(self.port),
+                   WWMP_ROBOT_PARENT=str(os.getpid()))
         sortie = subprocess.DEVNULL
         if self.journal:
             try:
@@ -257,7 +349,24 @@ class Gestionnaire:
         if p is None:
             return
         if p.poll() is None:
-            p.terminate()
+            if os.name == "nt":
+                # Windows : terminate() tuerait client/robot.py SANS son jeu caché (wwhd.exe resterait, invisible).
+                # D'abord CTRL_BREAK (nouveau groupe de processus : il arrête lui-même le jeu et le client), puis
+                # tout l'arbre (taskkill /T) s'il ne s'arrête pas
+                try:
+                    os.kill(p.pid, getattr(__import__("signal"), "CTRL_BREAK_EVENT"))
+                except (OSError, AttributeError, ValueError):
+                    pass
+                try:
+                    p.wait(self.ARRET_DELAI)
+                except subprocess.TimeoutExpired:
+                    try:
+                        subprocess.run(["taskkill", "/PID", str(p.pid), "/T", "/F"], stdout=subprocess.DEVNULL,
+                                       stderr=subprocess.DEVNULL, timeout=self.ARRET_DELAI)
+                    except (OSError, subprocess.SubprocessError):
+                        pass
+            else:
+                p.terminate()
             try:
                 p.wait(self.ARRET_DELAI)
             except subprocess.TimeoutExpired:
@@ -373,8 +482,12 @@ class Robot:
     def __init__(self, mode: str = DEFAUT, cle: str | None = None, commande=None, repos_arret: float = REPOS_ARRET,
                  log=print, horloge=time.monotonic):
         self.mode = normaliser(mode)
-        self.cle = cle or (nouvelle_cle() if self.mode == "auto" else None)
+        self.cle = cle or (nouvelle_cle() if actif(self.mode) else None)
         self.choix = ChoixZone()
+        self.latence = 0                         # ms d'aller-retour ajoutées (essai solo, --robot-essai-latence)
+        self.vers_robot = Retard(0, horloge=horloge, log=log)      # serveur -> robot (latence / 2)
+        self.du_robot = Retard(0, horloge=horloge, log=log)        # robot -> serveur (latence / 2)
+        self._regles()
         self.repos_arret = max(0.0, float(repos_arret))
         self.gest = Gestionnaire(commande, cle=self.cle or "", log=log, horloge=horloge) if commande else None
         self.pid: int | None = None          # id de la connexion du robot (None : pas connecté)
@@ -411,7 +524,32 @@ class Robot:
 
     @property
     def actif(self) -> bool:
-        return self.mode == "auto"
+        return actif(self.mode)
+
+    @property
+    def essai(self) -> bool:
+        """Essai solo (--robot essai) : un joueur suffit, aucun gain exigé, aucun repos."""
+        return self.mode == "essai"
+
+    def _regles(self) -> None:
+        if self.essai:
+            self.choix.regler(ESSAI_MIN, ESSAI_PREMIER, ESSAI_QUITTER)
+        else:
+            self.choix.regler()
+
+    def regler_latence(self, ms) -> int:
+        """Essai solo : ``ms`` d'aller-retour ajoutées entre le serveur et le robot (MS/2 dans chaque sens)."""
+        self.latence = latence_ok(ms)
+        self.vers_robot.s = self.du_robot.s = self.latence / 2000.0
+        return self.latence
+
+    @property
+    def fps_min(self) -> float:
+        return ESSAI_FPS_MIN if self.essai else FPS_MIN
+
+    @property
+    def pause_echec(self) -> float:
+        return ESSAI_PAUSE if self.essai else ECHEC_PAUSE
 
     def regler(self, mode) -> bool:
         """Changement à chaud (administration). True si le mode a changé. Le processus reste celui de la ligne de
@@ -420,7 +558,8 @@ class Robot:
         if mode == self.mode:
             return False
         self.mode = mode
-        if mode == "auto" and not self.cle:
+        self._regles()
+        if actif(mode) and not self.cle:
             self.cle = nouvelle_cle()
             if self.gest is not None:
                 self.gest.cle = self.cle

@@ -157,14 +157,19 @@ def fich_seul(objet: int) -> bool:
     return objet not in _permis2()
 
 
-def accepte(site: int, objet: int) -> bool:
-    """Le lieu ``site`` peut-il donner ``objet`` ? (Son propre objet d'origine : toujours.)"""
+def accepte(site: int, objet: int, libres=frozenset()) -> bool:
+    """Le lieu ``site`` peut-il donner ``objet`` ? (Son propre objet d'origine : toujours.) ``libres`` : paliers des
+    Grandes Fées que l'option « progressifs_plus » sort des fées (rando/plus.libres_fees) ; vide : règle d'avant."""
     s = SITES[site]
     if objet == s["id"]:
         return True
     if not 0 < objet < 0xFF or objet in IDS_DONJON or objet in IDS_SANS_OBJET:
         return False
-    if s["voie"] == "fee" or objet in PALIERS_FEES:
+    if s["voie"] == "fee" and libres:
+        # objets progressifs de TWWHD (rando/plus.py) : le palier est choisi par execItemGet (mod natif 0.40.0), les
+        # fées donnent alors n'importe quel objet (createItemForPresentDemo de l'objet écrit par le code de la fée)
+        return True
+    if (s["voie"] == "fee" or objet in PALIERS_FEES) and objet not in libres:
         # le palier se choisit dans le code de la fée, d'après l'inventaire : ces six objets ne vont que chez une
         # Grande Fée, et (six fées, six paliers) une fée ne reçoit qu'eux
         return s["voie"] == "fee" and objet in PALIERS_FEES

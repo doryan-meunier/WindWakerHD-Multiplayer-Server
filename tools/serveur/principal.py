@@ -287,7 +287,9 @@ tirée au hasard et passée à la commande). Elle prend l'autorité de la zone q
 hystérésis), après y être entrée comme non-autorité (marionnettes à jour : pas de doublon), et la rend aux joueurs avant
 de partir ; aucune zone à 2 : « dors ». Jamais un joueur : ni liste, ni lobby, ni place, ni fantôme, ni monde ; seuls
 les messages d'une autorité de zone sont acceptés d'elle. État dans « Administrer le serveur » (« robot » de lire) et le
-lobby. Désactivé avec le mode Hanteurs.
+lobby. Désactivé avec le mode Hanteurs. --robot essai (serveur hébergé sur le PC du joueur, jamais en dédié) : essai
+solo, le robot prend la zone du joueur même seul, sans gain exigé ni repos, et le suit ; --robot-essai-latence MS ajoute
+MS d'aller-retour entre le serveur et le robot (un gérant éloigné).
 
 Mises à jour du mod (serveur/maj.py, docs/joueurs/MISES_A_JOUR.md) : --mises-a-jour DOSSIER (ou, serveur
 dédié, DONNEES/mises_a_jour) : le serveur propose le paquet signé de ce dossier aux
@@ -340,6 +342,7 @@ from serveur import autorite  # noqa: E402  (lot S1 : hôte d'autorité préfér
 from serveur import validation as valid_mod  # noqa: E402  (lot S2 : validation côté serveur, journal d'anomalies)
 from serveur import robot as robot_mod  # noqa: E402  (joueur robot : docs/etudes/joueur_robot.md)
 from serveur import maj as maj_serveur  # noqa: E402
+from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de donjon : docs/etudes/autres_zelda.md §2)
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -451,6 +454,8 @@ class Player:
         self.vie_trou: int | None = None       # vie partagée : seq du premier événement refusé (débit)
         self.vie_times: list[float] = []
         self.signal_t = float("-inf")          # signal « viens ici » : heure du dernier relayé
+        self.medailles_mort_t = float("-inf")  # médailles : dernier Game Over compté (« mort » du deathlink)
+        self.medailles_essai_t = float("-inf")  # ESSAI médailles : dernière fin simulée
         self.pickup_times: list[float] = []
         self.hit_times: dict[int, list[float]] = {}   # synchro v2 (A2) : victime -> heures des coups relayés
         self.saisie_times: dict[int, list[float]] = {}   # synchro v4 (saisie transmise) : victime -> heures relayées
@@ -518,17 +523,27 @@ class Server:
                  autorite_preferee: str | None = None, validation: str = valid_mod.DEFAUT,
                  robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
-                 vie_partagee: bool = False):
+                 vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
+                 essai_medailles: bool = False):
         self.players: dict[int, Player] = {}
+        # médailles de fin de donjon (serveur/medailles.py) : pour la gloire seule, classement montré à la fin du donjon
+        # (bandeau des clients, trackeur du lanceur). ESSAI (--essai-medailles, Réglages › Essais) : faux coéquipiers et
+        # fin simulée, pour essayer seul ; à retirer après validation
+        self.medailles = med_mod.Medailles(on=medailles, essai=medailles and essai_medailles)
+        if self.medailles.essai:
+            log("médailles : ESSAI allumé (--essai-medailles) : deux faux coéquipiers dans chaque donjon, la mer et les "
+                "îles comptées comme « Donjon d'essai », fin simulable (Réglages › Essais du lanceur)")
         # joueur robot (serveur/robot.py) : autorité d'UNE zone partagée tenue par une instance sans joueur ; « off » :
         # rien ne change. Jamais avec le mode Hanteurs (le Link caché du robot serait visé comme celui d'un Hanteur).
-        if robot_mod.normaliser(robot) == "auto" and mode_hanteurs:
+        if robot_mod.actif(robot) and mode_hanteurs:
             log("robot : désactivé avec le mode Hanteurs (ses monstres viseraient son Link caché)")
             robot = "off"
         self.robot = robot_mod.Robot(robot, cle=robot_cle, commande=robot_commande, repos_arret=robot_repos,
                                      log=lambda m: log(m), horloge=lambda: time.monotonic())
         if self.robot.gest is not None:
             self.robot.gest.journal = robot_journal
+        if self.robot.essai:
+            self.robot.regler_latence(robot_latence)   # essai solo : un gérant éloigné (0 : aucune latence ajoutée)
         self.robot_bascules: dict[str, list[float]] = {}   # zone -> heures des changements d'autorité entre joueurs
         # lot S2 : validation côté serveur (vitesse des Link, distance des coups, débits), journal d'anomalies lu par
         # l'administrateur ; « journal » par défaut (rien n'est refusé), « refus » à n'allumer qu'après un essai
@@ -669,6 +684,11 @@ class Server:
         # écrit) : un client relancé les reçoit avec l'état des coffres étrangers et ne les signale jamais ; le
         # serveur refuse de toute façon le rapport « coffre » de CE joueur pour ces coffres (aucune clé en trop).
         self.rando_muets: dict[str, dict] = {}
+        # objets progressifs de TWWHD (rando/plus.py) : par groupe, par session de jeu (un démarrage du jeu d'un
+        # joueur), le plus grand compte reçu de dons progressifs, par famille : {groupe: {session: {famille: n}}}.
+        # Total d'un groupe = somme des sessions ; gardé par le monde persistant (section « rando_plus »)
+        self.rando_plus: dict[str, dict[int, dict[str, int]]] = {}
+        self.rando_plus_emp = ""
         # monde persistant (--monde) : tout l'état partagé relu du disque, écrit périodiquement et à l'arrêt
         self.mp = monde_persistant
         if self.mp is not None:
@@ -688,6 +708,7 @@ class Server:
                 self.keys = KeyPool()             # monde existant : ses clés font foi, pas un ancien cles.json
             self.mp.restaurer(self)
             self.rando_muets = mpm.muets_relus(getattr(self.mp, "rando_muets_doc", None))
+            self.rando_plus_emp, self.rando_plus = mpm.plus_relus(getattr(self.mp, "rando_plus_doc", None))
             self.mp.migrer_cles(self, keys_file if keys else None)   # cles.json repris une fois (monde neuf)
             self.keys_file = None                 # les clés sont gardées dans le monde
         # chantier E (randomizer, palier 1 sûr) : table des coffres de la partie (None : pas de randomizer)
@@ -844,6 +865,7 @@ class Server:
         p.rando_don = r.get("don") in (1, True)
         p.rando_cap4 = r.get("cap4") in (1, True)
         p.rando_cap5 = r.get("cap5") in (1, True)
+        p.rando_cap7 = r.get("cap7") in (1, True)        # objets progressifs de TWWHD : mod natif 0.40.0
         p.rando_cap6 = r.get("cap6") in (1, True)
         p.rando_don9 = r.get("don9") in (1, True)        # étape 5 : Kane, autres lettres, enchère à 100 rubis
         if self.rando_bloque:
@@ -903,6 +925,21 @@ class Server:
                             "ce PC ne partage pas les coffres et l'inventaire (--no-chests, --no-inventory) : mets "
                             "les outils à jour, installe le pack v19 du dépôt (python tools/install_graphicpack.py) "
                             "et relance Cemu ; le client réessaie tout seul")
+            if getattr(self.rando, "plus_requis", False):
+                # objets progressifs de TWWHD (rando/plus.py) : le jeu donne le palier suivant celui qu'il a déjà
+                # (mod natif 0.40.0) ; le compte du groupe met l'inventaire commun au niveau du total : sans
+                # l'inventaire partagé, deux dons au même instant perdraient un palier
+                if not self.inv_enabled:
+                    return ("randomizer complet : cette partie a des objets progressifs de TWWHD (épée, magie, bourse…) "
+                            "et le serveur de l'hôte a été lancé sans le partage de l'inventaire (--no-inventory) : "
+                            "l'hôte doit relancer le serveur sans cette option (personne n'entre en attendant)")
+                if not p.rando_cap7:
+                    return ("randomizer complet : cette partie a des objets progressifs de TWWHD (épée, magie, "
+                            "bourse…) : il faut le portage natif avec le mod WWMP 0.40.0 ou plus (Cemu ne sait pas "
+                            "les donner), et ce PC doit partager les coffres et l'inventaire (--no-chests, "
+                            "--no-inventory) : mets les outils à jour et relance la partie depuis le lanceur ; le "
+                            "client réessaie tout seul. / Full randomizer: this game has TWWHD progressive items: it "
+                            "needs the native port with WWMP mod 0.40.0 or newer.")
             if getattr(self.rando, "hors_requis", False):
                 # portage TWWHD, lot 5 : objets de donjon hors de leur donjon. La petite clé d'un coffre étranger est
                 # créditée par le compteur commun des clés, quand le registre des coffres partagés voit le coffre
@@ -1125,6 +1162,101 @@ class Server:
         if n:
             self.keys_save()
         return n
+
+    # --- randomizer : objets progressifs de TWWHD (rando/plus.py ; dons comptés par le mod natif 0.40.0) --------
+    def rando_plus_active(self):
+        """La table de la partie si elle a une famille de progressifs_plus, sinon None."""
+        t = self.rando
+        return t if t is not None and t.mode == "complet" and getattr(t, "plus_requis", False) else None
+
+    def rando_plus_totaux(self, group: str) -> dict:
+        """{famille: dons progressifs reçus par tous les jeux du groupe} (somme des sessions ; chaque session garde son
+        plus grand compte : un message en double ou en retard ne compte jamais deux fois)."""
+        t = self.rando_plus_active()
+        if t is None or self.rando_plus_emp != t.empreinte:
+            return {}
+        out = {}
+        for c in self.rando_plus.get(group, {}).values():
+            for f, n in c.items():
+                out[f] = out.get(f, 0) + n
+        return out
+
+    def handle_rando_plus(self, p: Player, msg: dict) -> None:
+        """« rando_plus » d'un client de jeu : {group, emp, session, recus: {famille: n}}. Gardé si la table l'annonce,
+        champs bornés ; puis l'inventaire commun du groupe est mis au niveau (``rando_plus_inventaire``)."""
+        from rando import plus as rando_plus
+        t = self.rando_plus_active()
+        if t is None or not p.hello or not p.joueur or not self.inv_enabled or msg.get("emp") != t.empreinte:
+            return
+        ses, recus = msg.get("session"), msg.get("recus")
+        if not (self._int(ses) and 0 < ses < 1 << 32 and isinstance(recus, dict)):
+            return
+        familles = t.plus_familles()
+        group = str(msg.get("group") or p.inv_group or "default")[:32]
+        if self.rando_plus_emp != t.empreinte:
+            self.rando_plus_emp, self.rando_plus = t.empreinte, {}
+        sessions = self.rando_plus.setdefault(group, {})
+        c = sessions.get(ses)
+        if c is None:
+            if len(sessions) >= rando_plus.SESSIONS_MAX:
+                log(f"randomizer : {p.name} : trop de sessions de jeu pour les objets progressifs : ignoré")
+                return
+            c = sessions[ses] = {}
+        change = False
+        for f, n in list(recus.items())[:8]:
+            if f in familles and self._int(n) and 0 <= n <= rando_plus.COMPTE_MAX and n > c.get(f, 0):
+                c[f] = n
+                change = True
+        if not change:
+            return
+        log(f"randomizer : {p.name} : dons progressifs de TWWHD de sa session {ses} : "
+            + ", ".join(f"{f} {n}" for f, n in sorted(c.items())))
+        if self.mp is not None:
+            self.mp.rando_plus_doc = mpm.plus_document(self.rando_plus_emp, self.rando_plus)
+            self.mp_marquer()
+        self.rando_plus_inventaire(group)
+
+    def rando_plus_inventaire(self, group: str) -> None:
+        """Inventaire commun mis au niveau : pour chaque famille, rang = paliers de la création + dons progressifs du
+        groupe (ou le rang que l'inventaire a déjà, s'il est plus haut), borné au dernier palier. Épée et boîte à
+        images : paliers acquis ; bourse, carquois, sac de bombes, magie : plafond. Deux joueurs qui reçoivent le
+        même palier au même instant ont chacun le palier suivant le leur : le total en compte deux, et le second
+        arrive ici à tous. Jamais de retrait."""
+        from rando import plus as rando_plus
+        t = self.rando_plus_active()
+        if t is None or not self.inv_enabled:
+            return
+        totaux = self.rando_plus_totaux(group)
+        if not any(totaux.values()):
+            return
+        st = self.inv.setdefault(group, self.inv_vide())
+        ajout, caps = [], {}
+        for nom in t.plus_familles():
+            rang = rando_plus.rang_commun(nom, totaux.get(nom, 0), rando_plus.BASE.get(nom, 0), st["acq"], st["cap"])
+            acq, cap = rando_plus.a_donner(nom, rang)
+            for objet in acq:
+                if objet not in st["acq"]:
+                    st["acq"].append(objet)
+                    ajout.append(objet)
+            for k, v in cap.items():
+                if st["cap"].get(k, 0) < v:
+                    st["cap"][k] = v
+                    caps[k] = v
+        if not (ajout or caps):
+            return
+        self.mp_marquer(gain=True)
+        log(f"inventaire [{group}] : objets progressifs de TWWHD, dons du groupe "
+            + ", ".join(f"{f} {n}" for f, n in sorted(totaux.items()))
+            + (" : " + ", ".join(f"0x{o:02X}" for o in ajout) + " acquis pour tous" if ajout else "")
+            + (" ; plafonds " + ", ".join(f"{k} {v}" for k, v in sorted(caps.items())) if caps else ""))
+        out = {"type": "inv", "from": None, "group": group}
+        if ajout:
+            out["acq"] = ajout
+        if caps:
+            out["cap"] = dict(st["cap"])
+        for o in self.players.values():
+            if o.joueur and o.inv_group == group:
+                o.send(out)
 
     # --- randomizer, portage TWWHD, lot 4 : objets progressifs (compte commun au groupe) ---------------------
     def rando_prog_active(self):
@@ -1768,8 +1900,14 @@ class Server:
         r.zone_autorite = None
         r.changer_cible(None)
         r.dernier_evt = "connecté"
+        if r.essai and r.latence > 0:
+            # essai solo : un gérant éloigné. Tout ce qui part vers le robot attend latence/2 (dans l'ordre) ; ce qui
+            # vient de lui aussi (handle). Le relevé L2 (rtt de ses « ping ») mesure donc la latence ajoutée
+            envoyer = p.send
+            p.send = lambda m, _e=envoyer: r.vers_robot.mettre(lambda: _e(m))
         log(f"robot connecté (id {p.id}, {p.peer}, outils {msg.get('client', '?')}) : il n'est pas un joueur "
-            "(ni place, ni fantôme, ni liste)")
+            "(ni place, ni fantôme, ni liste)" + (f" ; essai solo, {r.latence} ms d'aller-retour ajoutées"
+                                                 if r.essai and r.latence > 0 else ""))
         p.send({"type": "welcome", "id": p.id, "version": VERSION, "name": p.name, "outils": CLIENT_VERSION,
                 "robot": 1, "couleur": 0,
                 "players": [{"id": o.id, "name": o.name, "pack": o.pack, "couleur": o.couleur, "pause": o.pause}
@@ -1888,6 +2026,9 @@ class Server:
         if not r.actif:
             return
         now = time.monotonic() if now is None else now
+        if r.latence:
+            r.vers_robot.vider(now)          # essai solo : messages retardés dus (la boucle asyncio le fait aussi)
+            r.du_robot.vider(now)
         if now - getattr(r, "bilan_t", now) >= 300.0:
             log(f"robot : BILAN {r.mesures.vue()}")     # de quoi décider après l'essai : le garder ou l'enlever
             r.bilan_t = now
@@ -1902,7 +2043,8 @@ class Server:
             elif r.repos_t is None:
                 r.repos_t = now
             garder = r.gest.en_marche() and r.repos_t is not None and now - r.repos_t < r.repos_arret
-            r.gest.tick(cible is not None or garder)
+            # essai solo : jamais de repos, le processus tourne tant que le serveur tourne (l'amorçage est long)
+            r.gest.tick(cible is not None or garder or r.essai)
         if rp is None:
             r.zone_autorite = None
             return
@@ -1916,10 +2058,10 @@ class Server:
                 force = "robot muet"
             elif rp.zone != tenue:
                 force = "robot en chargement"
-            elif isinstance(fps, (int, float)) and fps < robot_mod.FPS_MIN:
+            elif isinstance(fps, (int, float)) and fps < r.fps_min:
                 force = f"robot trop lent ({fps:.0f} i/s)"
             if force:
-                r.choix.ecarter(tenue, now)
+                r.choix.ecarter(tenue, now, r.pause_echec)
                 r.changer_cible(None)
                 self.robot_rendre(tenue, force, True, now)
                 return
@@ -1980,7 +2122,7 @@ class Server:
             return
         if r.gain_t is None:
             r.gain_t = now
-        if now - r.gain_t < robot_mod.GAIN_DELAI:
+        if now - r.gain_t < robot_mod.GAIN_DELAI and not r.essai:
             return
         if r.attente_t is None:
             r.attente_t = now
@@ -2001,6 +2143,9 @@ class Server:
             r.dernier_evt = f"autorité de {cible} prise ({raison})" + ("" if calme else ", combat en cours")
             log(r.mesurer_prise(cible, raison, now - r.attente_t, avant.rtt if avant is not None else None,
                                 self.robot_rtt(rp), now))
+            if r.essai:
+                log(f"ESSAI ROBOT : autorité de {cible} -> le robot du serveur (tes monstres y sont des marionnettes"
+                    + (f", {r.latence} ms d'aller-retour ajoutées" if r.latence else "") + ")")
 
     def robot_rtt(self, rp: Player | None) -> float:
         return rp.rtt if rp is not None and rp.rtt is not None else robot_mod.ROBOT_RTT_DEFAUT
@@ -2010,10 +2155,12 @@ class Server:
         reprendrait) a un aller-retour nettement plus long que le robot ou instable, si l'autorité bascule souvent
         entre joueurs, ou si aucun joueur présent n'est un bon candidat (muet). Sinon (non, raison) : l'autorité
         reste au joueur, qui garde ses monstres natifs. RTT inconnu : non (on ne change rien sans mesure)."""
+        if self.robot.essai:
+            return True, "essai solo"      # --robot essai : on veut VOIR le robot faire autorité, même sans gain
         rp = self.robot_joueur()
         humains = [o for o in self.members(zone) if o.joueur and not o.busy]
         holder, _e = self.authority.get(zone, (None, 0))
-        bascules = [t for t in self.robot_bascules.get(zone, []) if now - t < robot_mod.BASCULES_FENETRE]
+        bascules =[t for t in self.robot_bascules.get(zone, []) if now - t < robot_mod.BASCULES_FENETRE]
         if len(bascules) >= robot_mod.BASCULES_MAX:
             return True, f"{len(bascules)} bascules en {robot_mod.BASCULES_FENETRE:.0f} s"
         cand = next((o for o in humains if o.id == holder), None)
@@ -2049,6 +2196,10 @@ class Server:
             r.sans_gain_t = None
             r.dernier_evt = f"autorité de {zone} rendue ({raison})"
             log(r.mesurer_rendu(zone, raison, force, now))
+            if r.essai:
+                h = self.authority.get(zone, (None, 0))[0]
+                log(f"ESSAI ROBOT : autorité de {zone} -> "
+                    + (self.players[h].name if h in self.players else "personne") + f" ({raison})")
 
     def robot_depart(self, p: Player) -> None:
         if p.id != self.robot.pid:
@@ -2066,7 +2217,7 @@ class Server:
     def admin_robot(self, mode, qui: str = "l'administrateur"):
         """Joueur robot à chaud : True si changé ; un texte (avertissement) si refusé. « off » : la zone tenue est
         rendue aux joueurs tout de suite, le processus arrêté, le robot déconnecté."""
-        if robot_mod.normaliser(mode) == "auto" and self.hanteurs is not None:
+        if robot_mod.actif(mode) and self.hanteurs is not None:
             return "robot : impossible avec le mode Hanteurs"
         r = self.robot
         if not r.regler(mode):
@@ -2096,7 +2247,8 @@ class Server:
                 "connecte": rp is not None, "zone": rp.zone if rp else None, "cible": r.cible, "autorite": tenue,
                 "prises": r.prises, "rendues": r.rendues, "evenement": r.dernier_evt, "rapport": dict(r.rapport),
                 "repos_arret": r.repos_arret, "processus": r.gest.vue() if r.gest is not None else None,
-                "gain": {"oui": r.gain[0], "raison": r.gain[1]}, "mesures": r.mesures.vue()}
+                "gain": {"oui": r.gain[0], "raison": r.gain[1]}, "mesures": r.mesures.vue(),
+                **({"latence_ms": r.latence} if r.essai else {})}
 
     # --- lot S2 : validation côté serveur (serveur/validation.py) ----------------------------------------------
     def valid_exempt(self, p: Player) -> bool:
@@ -2204,7 +2356,11 @@ class Server:
     def handle(self, p: Player, msg: dict) -> None:
         if p.role == robot_mod.ROLE:
             if self.robot_est(p):
-                self.robot_message(p, msg)    # joueur robot : messages d'une autorité de zone seulement
+                if self.robot.essai and self.robot.latence > 0:
+                    # essai solo : ce qui vient du robot attend latence/2, dans l'ordre (serveur/robot.py Retard)
+                    self.robot.du_robot.mettre(lambda: self.robot_message(p, msg) if self.robot_est(p) else None)
+                else:
+                    self.robot_message(p, msg)    # joueur robot : messages d'une autorité de zone seulement
             return
         if p.role == "remplace":
             return                            # ancienne connexion du robot, en train de fermer
@@ -2728,6 +2884,7 @@ class Server:
                 p.frais_depuis = t_state     # S1 : il répond de nouveau (ou pour la première fois)
             p.state_t = t_state
             self.valid.etat(p, msg, zone, busy, self.valid_exempt(p), t_state)   # S2 : vitesse, sauts (journal)
+            self.medailles_etat(p, msg, busy)    # médailles : fenêtre du donjon, quarts perdus (sans vie partagée)
             self.set_zone(p, zone)
             if zone and zone in self.deferred:
                 self.reassign(zone)          # A11 : passation différée, à retenter
@@ -2796,6 +2953,8 @@ class Server:
                 self.robot_snap(zone, p)                 # robot en attente dans la zone : marionnettes à jour
             if self.hanteurs is not None:
                 self.hanteurs.snapshot(zone, out["list"], bool(out.get("full")))
+            if self.medailles.on and self.medailles_compte(p):
+                self.medailles.ennemis(zone, p.name, out["list"])   # médailles : monstres vaincus (dernier coup)
             for o in self.members(zone):
                 if o.id != p.id:
                     o.send(out)
@@ -2829,6 +2988,8 @@ class Server:
             if p.zone == zone and not self.valid.coup(p, zone, msg.get("key"), self.last_enemies.get(zone),
                                                       self.valid_exempt(p)):
                 return                           # S2, mode « refus » : coup de trop loin du monstre
+            if p.zone == zone and self.medailles.on and self.medailles_compte(p):
+                self.medailles.coup(zone, msg.get("key"), p.name)    # médailles : le dernier coup compte (3 s)
             if holder is not None and holder != p.id and holder in self.players and p.zone == zone \
                     and self.players[holder].zone == zone:
                 # lot L4 (A4) : « inj » (de quoi rejouer le coup chez l'autorité : synchro/coups_monstres.py), validé
@@ -2882,6 +3043,8 @@ class Server:
             self.handle_mort(p)
         elif t == "vie":
             self.handle_vie(p, msg)
+        elif t == "medailles_essai":
+            self.handle_medailles_essai(p, msg)
         elif t == "signal":
             self.handle_signal(p, msg)
         elif t == "regles_cmd":
@@ -2942,6 +3105,8 @@ class Server:
                 p.send(self.rando_plan_message())     # randomizer par fichiers : lanceur, avant de lancer le jeu
         elif t == "rando_muet":
             self.handle_rando_muet(p, msg)
+        elif t == "rando_plus":
+            self.handle_rando_plus(p, msg)
         elif t == "trackeur":
             self.handle_trackeur(p, msg)
         elif t == "trackeur_cmd":
@@ -2977,6 +3142,8 @@ class Server:
                "deathlink": self.morts.on, "vie_partagee": self.vies.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
+        if self.medailles.on:
+            out["medailles"] = self.medailles.vue()   # trackeur du lanceur : donjons FINIS seulement (ancien : ignoré)
         if self.mp is not None:
             out["monde"] = self.mp.lobby(self)        # onglet « Mon monde » du lanceur
         if self.hanteurs is not None:
@@ -3019,6 +3186,8 @@ class Server:
             for o in self.players.values():
                 if o.id != p.id and o.group == group:
                     o.send(out)
+            for n in med_mod.fins_de_donjon(new):
+                self.medailles_fin(n, f"boss vaincu ({p.name})")   # médailles : bit « boss vaincu » posé la 1re fois
         if msg.get("full") or p.group != group:
             p.group = group
             p.send({"type": "progress", "from": None, "group": group, "bits": to_wire(union), "full": True})
@@ -3170,6 +3339,8 @@ class Server:
             return
         rec["by"] = p.name
         reg[key] = rec
+        if old is None and rec["k"] == "t" and self.medailles_compte(p):
+            self.medailles.coffre(p.name)             # médailles : coffre ouvert (premier rapport)
         self.mp_marquer()
         item = "inconnu" if rec["item"] is None else f"0x{rec['item']:02X}" + (" (probable)" if rec.get("prob") else "")
         log(f"coffres [{group}] : {p.name} a ouvert {what}, objet {item}")
@@ -3477,6 +3648,9 @@ class Server:
         if not p.joueur:
             return
         hanteur = self.hanteurs is not None and self.hanteurs.est_hanteur(p.id)
+        if self.medailles_compte(p) and p.medailles_mort_t + 10.0 < time.monotonic():
+            p.medailles_mort_t = time.monotonic()
+            self.medailles.mort(p.name)                # médailles : Game Over dans le donjon, plus de prudence
         n, raison = self.morts.mort(time.monotonic(), p.connected, hanteur)
         if n is None:
             if self.morts.on:
@@ -3512,6 +3686,57 @@ class Server:
         for g in self.vies.echeance(time.monotonic()):
             log(f"vie partagée [{g}] : aucune fée n'a relevé le groupe : vie commune à 0, tout le monde meurt")
             self.vie_diffuser(g, None, mort=1)
+
+    # --- médailles de fin de donjon (serveur/medailles.py, docs/etudes/autres_zelda.md §2) ------------------------
+    def medailles_compte(self, p: Player) -> bool:
+        """Un Link qui compte : joueur, jamais un Hanteur (il a son propre score), ni un joueur au monde fermé."""
+        if not self.medailles.on or not p.joueur:
+            return False
+        h = self.hanteurs
+        return h is None or not (h.est_hanteur(p.id) or h.bloque_monde(p.id))
+
+    def medailles_etat(self, p: Player, msg: dict, busy: bool) -> None:
+        if not self.medailles_compte(p):
+            return
+        # vie partagée : la vie lue bouge aussi des coups des autres ; seuls les deltas « vie » de CE joueur comptent
+        self.medailles.etat(p.name, msg.get("stage"), msg.get("life"), msg.get("max_life"), busy,
+                            compter_degats=not self.vies.on)
+
+    def medailles_fin(self, n: int, raison: str) -> dict | None:
+        """Fin du donjon ``n`` : classement calculé, envoyé à tous les Link (bandeau), gardé (trackeur, monde)."""
+        res = self.medailles.fin(n)
+        if res is not None:
+            self.medailles_diffuser(res, raison)
+        return res
+
+    def medailles_diffuser(self, res: dict, raison: str) -> None:
+        lignes = med_mod.lignes_bandeau(res)
+        out = {"type": "medailles", "donjon": res["donjon"], "nom": res["nom"], "lignes": [[t, c] for t, c in lignes],
+               "or": res["or"], **({"essai": 1} if res.get("essai") else {})}
+        k = 0
+        for o in list(self.players.values()):
+            if o.joueur and not (self.hanteurs is not None and self.hanteurs.est_hanteur(o.id)):
+                o.send(out)
+                k += 1
+        log(f"médailles : {res['nom']} fini ({raison}) : " + " | ".join(t for t, _c in lignes[1:])
+            + f" ; envoyé à {k} joueur(s)")
+        if not res.get("essai"):
+            self.mp_marquer(rapide=True)
+
+    def handle_medailles_essai(self, p: Player, msg: dict) -> None:
+        """ESSAI (--essai-medailles seulement) : fin simulée du donjon où est le joueur (« Donjon d'essai » ailleurs),
+        au plus une toutes les 3 s ; refusé sans l'essai."""
+        if not self.medailles.essai or not self.medailles_compte(p) or msg.get("ev") != "fin":
+            return
+        now = time.monotonic()
+        if now - p.medailles_essai_t < 3.0:
+            return
+        p.medailles_essai_t = now
+        res = self.medailles.fin_essai(p.name)
+        if res is None:
+            log(f"médailles (essai) : fin simulée par {p.name} : aucun donjon commencé")
+            return
+        self.medailles_diffuser(res, f"ESSAI : fin simulée par {p.name}")
 
     def handle_signal(self, p: Player, msg: dict) -> None:
         """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
@@ -3582,6 +3807,8 @@ class Server:
         if res is None:
             p.send(self.vie_msg(p, group))     # déjà compté (renvoi après une coupure)
             return
+        if v["d"] < 0 and self.medailles_compte(p):
+            self.medailles.degats(p.name, -v["d"])     # médailles, vie partagée : SES quarts perdus (deltas propres)
         if res["raison"]:
             log(f"vie partagée [{group}] : {p.name} : {v['d']:+d} ignoré ({res['raison']})")
         self.mp_marquer()
@@ -3919,6 +4146,7 @@ class Server:
         p.inv_times.append(now)
         p.inv_group = group
         self.rando_prog_inventaire(group)             # lot 4 : commun au niveau du compte (monde relu, groupe neuf)
+        self.rando_plus_inventaire(group)             # progressifs de TWWHD : idem (dons comptés par les jeux)
         st = self.inv.setdefault(group, self.inv_vide())
         new_acq = [no for no in v["acq"] if no not in st["acq"]]
         prog_avant = self.rando_prog_effectifs(group) if new_acq else None
@@ -4104,6 +4332,8 @@ class Server:
             p.send(self.cnt_msg(p, group))
             return
         app, lost = res
+        if clone is None and self.medailles_compte(p):
+            self.medailles.rubis(p.name, v["d"].get("r", 0))    # médailles : rubis ramassés par CE joueur
         self.mp_marquer()                      # total et événement compté (idempotence après un redémarrage)
         extra = {"perdu": lost} if any(x < 0 for x in lost.values()) else {}
         if extra:
@@ -5150,7 +5380,13 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
     if g is not None:
         g.hote = "127.0.0.1" if host in ("0.0.0.0", "", "::") else host
         g.port = server.sockets[0].getsockname()[1] if server.sockets else port
-    if srv.robot.actif:
+    if srv.robot.essai:
+        log("ESSAI ROBOT (--robot essai, docs/etudes/joueur_robot.md §11) : une 2e instance du jeu, cachée, fait "
+            "autorité dans ta zone même si tu es seul, et te suit ; tes monstres y sont des marionnettes pilotées par "
+            f"elle ; latence ajoutée {srv.robot.latence} ms d'aller-retour ; "
+            + ("processus : " + (g.argv()[0] if g.argv() else "?") if g is not None
+               else "aucune --robot-commande : le serveur attend un robot lancé à part (clé : --robot-cle)"))
+    elif srv.robot.actif:
         log("JOUEUR ROBOT (--robot auto, docs/etudes/joueur_robot.md) : il prend l'autorité de la zone qui a le plus de "
             f"joueurs (2 au moins), dort sinon ; arrêté après {srv.robot.repos_arret:.0f} s de repos ; "
             + ("processus : " + (g.argv()[0] if g.argv() else "?") if g is not None
@@ -5342,6 +5578,11 @@ def main(argv=None) -> int:
                          "logique compte qu'on navigue avec la seule voile ; bouclier : exige "
                          "--rando-boucliers-progressifs ; la voile, le Talisman et les épées restent au départ) ; "
                          "partie neuve exigée ; jamais essayé en jeu")
+    ap.add_argument("--rando-progressifs-plus", default=None, metavar="FAMILLES",
+                    help="randomizer complet, par fichiers, portage natif (mod 0.40.0) : objets progressifs de TWWHD, "
+                         "séparés par des virgules : epee, magie (monde ouvert), boite, bourse, carquois, bombes "
+                         "(Grandes Fées mélangées) ; chaque palier trouvé donne le suivant, le serveur compte les dons "
+                         "du groupe (inventaire partagé exigé) ; jamais essayé en jeu")
     ap.add_argument("--rando-boucliers-progressifs", action="store_true",
                     help="randomizer complet, par fichiers : boucliers progressifs (le bouclier du héros donne le "
                          "bouclier miroir à qui a déjà un bouclier, jamais de rétrogradation ; le coffre du miroir "
@@ -5406,6 +5647,12 @@ def main(argv=None) -> int:
     ap.add_argument("--rando-spoiler", metavar="DOSSIER", default=None,
                     help="randomizer : dossier du spoiler (spoiler_<empreinte>.txt/.json ; défaut : dossier du monde, "
                          "sinon --donnees ; jamais envoyé aux joueurs)")
+    ap.add_argument("--no-medailles", action="store_true",
+                    help="médailles de fin de donjon coupées (docs/etudes/autres_zelda.md §2 : rien n'est compté)")
+    ap.add_argument("--essai-medailles", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : deux faux coéquipiers dans chaque donjon, la mer et "
+                         "les îles comptées comme un « Donjon d'essai », fin de donjon simulable par le client ; "
+                         "pour essayer seul, jamais dans une vraie partie")
     ap.add_argument("--no-trackeur", action="store_true",
                     help="trackeur du randomizer désactivé : le serveur ne tient ni ne publie l'état commun (le "
                          "lanceur ne coche alors que les coffres ouverts)")
@@ -5446,7 +5693,12 @@ def main(argv=None) -> int:
     ap.add_argument("--robot", choices=list(robot_mod.MODES), default=robot_mod.DEFAUT,
                     help="joueur robot (docs/etudes/joueur_robot.md) : « auto » = une instance du jeu sans joueur, sur "
                          "ce serveur, fait autorité dans la zone qui a le plus de joueurs (2 au moins) et dort sinon ; "
-                         "« off » (défaut) : comme avant")
+                         "« off » (défaut) : comme avant ; « essai » : essai solo sur un serveur hébergé sur ce PC (le "
+                         "robot prend la zone du joueur même seul, sans gain exigé ni repos, et le suit ; jamais en "
+                         "serveur dédié)")
+    ap.add_argument("--robot-essai-latence", type=int, default=0, metavar="MS",
+                    help=f"--robot essai : ms d'aller-retour ajoutées entre le serveur et le robot (MS/2 dans chaque "
+                         f"sens ; 0 à {robot_mod.LATENCE_MAX}, défaut 0) : simule un gérant éloigné")
     ap.add_argument("--robot-commande", metavar="CMD", default=None,
                     help="commande qui lance le robot ({hote}, {port}, {cle}, {python} remplacés ; la clé est aussi "
                          "dans WWMP_ROBOT_CLE) ; sans elle, le serveur attend un robot lancé à part")
@@ -5544,6 +5796,10 @@ def main(argv=None) -> int:
             print(f"erreur : réglages Hanteurs illisibles ({args.hanteurs_config}) : {e}", file=sys.stderr)
             return 2
     admin_srv = None
+    if args.robot == "essai" and (args.config or args.donnees):
+        # l'essai solo lance une 2e instance du jeu sur CE PC : jamais sur un serveur dédié (config.json ne le connaît pas)
+        log("robot : --robot essai refusé sur un serveur dédié (--config / --donnees) : robot coupé")
+        args.robot = "off"
     if args.config:
         # serveur dédié Docker : config.json du volume (créé depuis les options au premier démarrage, puis il l'emporte)
         f_mdp = serveur_dedie.fichier_mdp_volume(args)
@@ -5659,6 +5915,7 @@ def main(argv=None) -> int:
                                          "cartes_melangees": args.rando_cartes,
                                          "depart_melange": args.rando_depart_melange,
                                          "boucliers_progressifs": args.rando_boucliers_progressifs,
+                                         "progressifs_plus": args.rando_progressifs_plus,
                                          # étape 5
                                          "lieux_kane": args.rando_lieux_kane,
                                          "courrier_tout": args.rando_courrier_tout,
@@ -5670,10 +5927,13 @@ def main(argv=None) -> int:
                           pnj=not args.no_pnj, admin=admin_srv,
                           autorite_preferee=autorite.normaliser(args.autorite_preferee),
                           validation=args.validation if args.validation in valid_mod.MODES else valid_mod.DEFAUT,
-                          robot=args.robot, robot_commande=robot_mod.commande_defaut(args.robot_commande,
-                                                                                     args.robot_portage, TOOLS),
+                          robot=args.robot, robot_commande=robot_mod.commande_defaut(
+                              args.robot_commande, args.robot_portage, TOOLS, essai=args.robot == "essai",
+                              journal=args.robot_journal if args.robot == "essai" else None),
                           robot_cle=args.robot_cle or os.environ.get("WWMP_ROBOT_CLE") or None,
-                          robot_repos=args.robot_repos, robot_journal=args.robot_journal))
+                          robot_repos=args.robot_repos, robot_journal=args.robot_journal,
+                          robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
+                          medailles=not args.no_medailles, essai_medailles=args.essai_medailles))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

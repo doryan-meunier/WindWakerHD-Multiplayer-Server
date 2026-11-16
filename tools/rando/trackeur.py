@@ -115,7 +115,8 @@ _OBJETS = (
     ("Skull Hammer", 1, "masse"), ("Iron Boots", 1, "bottes"), ("Power Bracelets", 1, "bracelets"),
     ("Progressive Picto Box", 2, "boite_images"), ("Spoils Bag", 1, "sac_butin"), ("Bait Bag", 1, "sac_appats"),
     ("Delivery Bag", 1, "sac_facteur"), ("Progressive Wallet", 2, "bourse"), ("Progressive Quiver", 2, "carquois"),
-    ("Progressive Magic Meter", 2, "magie"), ("Empty Bottle", 4, "flacon"), ("Heart Container", 17, "coeur"),
+    # sac de bombes : 60 puis 99 (Grandes Fées ; objet progressif de TWWHD, option « progressifs_plus »)
+    ("Progressive Bomb Bag", 2, "sac_bombes"), ("Progressive Magic Meter", 2, "magie"), ("Empty Bottle", 4, "flacon"), ("Heart Container", 17, "coeur"),
     ("Piece of Heart", 44, "quart_coeur"),
 )
 _CHANTS = ("Wind's Requiem", "Ballad of Gales", "Command Melody", "Earth God's Lyric", "Wind God's Aria",
@@ -152,11 +153,13 @@ OFF_CHANTS, OFF_TRIFORCE, OFF_PERLES, OFF_CARTES = 0xDD, 0xDE, 0xDF, 0xF4
 CARTE_ID_MIN, CARTE_ID_MAX = 0xC2, 0xFE
 CAP_CARQUOIS = {30: 0, 60: 1, 99: 2}
 CAP_MAGIE = {16: 1, 32: 2}
+CAP_BOMBES = {30: 0, 60: 1, 99: 2}
 ITEM_PETITE, ITEM_GRANDE, ITEM_CARTE, ITEM_BOUSSOLE = 0x15, 0x4E, 0x4C, 0x4D
 # objets que l'inventaire commun suffit à connaître (un coffre ouvert ne les compte donc pas une seconde fois)
 PAR_INVENTAIRE = frozenset(
     set(RANGS) | {n for n, _i in ARC} | set(SIMPLES) | set(SAC) | set(_CHANTS) | set(_PERLES)
-    | {"Progressive Wallet", "Progressive Quiver", "Progressive Magic Meter", "Empty Bottle", "Ghost Ship Chart"}
+    | {"Progressive Wallet", "Progressive Quiver", "Progressive Bomb Bag", "Progressive Magic Meter", "Empty Bottle",
+       "Ghost Ship Chart"}
     | {f"Triforce Shard {k}" for k in range(1, 9)} | {f"Triforce Chart {k}" for k in range(1, 4)}
     | {f"Treasure Chart {k}" for k in range(1, 47)})
 
@@ -399,6 +402,7 @@ def _inv_un(lg, st: dict, c: dict) -> None:
     if cap.get("w") in (1, 2):
         monte("Progressive Wallet", cap["w"])
     monte("Progressive Quiver", CAP_CARQUOIS.get(cap.get("am"), 0))
+    monte("Progressive Bomb Bag", CAP_BOMBES.get(cap.get("bm"), 0))
     monte("Progressive Magic Meter", CAP_MAGIE.get(cap.get("mm"), 0))
     fl = st.get("fl")
     if _entier(fl) and 0 < fl <= 4:

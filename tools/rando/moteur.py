@@ -38,6 +38,7 @@ from rando import lot6 as L6
 from rando import lot7 as L7
 from rando import lot8 as L8
 from rando import lot9 as L9
+from rando import plus as P
 
 ALGO = "wwmp-rando-v2"
 FORMAT = 2
@@ -71,7 +72,7 @@ _CLES_PORTAGE = _CLES_DONNEES | {"coffres_conflit", "progressifs", "fichiers_dem
 # lots 7 et 8 : options à valeur, absentes de la forme publiée quand elles ont leur valeur par défaut (tirages du lot
 # 8 : absents tant qu'ils ne sont pas faits)
 _DEFAUTS_PORTAGE = {"monde": "histoire", "entrees": L8.ENTREES_DEFAUT, "tirage_entrees": None, "tirage_cartes": None,
-                    L7.OPTION_DEPART: []}
+                    L7.OPTION_DEPART: [], P.OPTION: []}
 METHODES = {"coffre": TYPE_COFFRE, "n2": TYPE_N2}
 
 # Catégories de lieux (clé d'option -> catégorie TWWHD). Seules celles qui portent un lieu applicable (coffre, ou
@@ -157,6 +158,11 @@ OPTIONS_DEFAUT = {
     # sauf le flacon). Baguette ou Requiem : logique « la voile suffit pour naviguer » (rando_lot7.VARIANTE_VOILE). La
     # voile, le bouclier, le Talisman et les épées restent au départ (voir rando_lot7). Jamais essayé en jeu.
     "depart_melange": [],
+    # objets progressifs de TWWHD (rando/plus.py) : liste de familles parmi « epee », « magie », « boite », « bourse »,
+    # « carquois », « bombes ». Vide (défaut) : ni dans le germe ni dans la table (tables d'avant). Exige le randomizer
+    # par fichiers (le mod natif 0.40.0 lit les familles dans le plan), le monde ouvert pour l'épée et la magie, les
+    # Grandes Fées pour la bourse, le carquois et les sacs. Jamais essayé en jeu.
+    "progressifs_plus": [],
     # tirages du lot 8, faits par le moteur depuis la graine et ÉCRITS dans la table (le générateur ne tire rien) :
     # destination derrière chaque porte (ordre de rando_lot8.POOLS), île d'origine de la carte de chaque île
     "tirage_entrees": None,
@@ -884,6 +890,10 @@ class Logique:
         if rb:
             # boucliers progressifs : site du crochet, suites, octet lu, mots du jeu relus
             base = hashlib.sha256(f"{base}|boucliers|{rb}".encode("utf-8")).hexdigest()[:16]
+        rp = P.releve(options)
+        if rp:
+            # objets progressifs de TWWHD : familles, paliers, cases vidées, fées libérées, voies permises
+            base = hashlib.sha256(f"{base}|plus|{rp}".encode("utf-8")).hexdigest()[:16]
         r9 = L9.releve(options)
         if r9:
             # étape 5 : et les lieux « donnée » ajoutés (Kane, lettres, enchère à 100), leur verrou, le correctif
@@ -1002,7 +1012,8 @@ def normaliser_options(options: dict | None, lg: Logique | None = None) -> dict:
     out["entrees"] = o.get("entrees", L8.ENTREES_DEFAUT)
     try:
         out[L7.OPTION_DEPART] = L7.normaliser_depart(o.get(L7.OPTION_DEPART))
-    except L7.ErreurLot7 as ex:
+        out[P.OPTION] = P.normaliser(o.get(P.OPTION))
+    except (L7.ErreurLot7, P.ErreurPlus) as ex:
         raise ErreurRando(str(ex)) from None
     for cle in L8.TIRAGES:
         v = o.get(cle)
@@ -1010,7 +1021,8 @@ def normaliser_options(options: dict | None, lg: Logique | None = None) -> dict:
     try:
         L7.controler_options(out)
         L8.controler_options(out)
-    except (L7.ErreurLot7, L8.ErreurLot8) as ex:
+        P.controler(out)
+    except (L7.ErreurLot7, L8.ErreurLot8, P.ErreurPlus) as ex:
         raise ErreurRando(str(ex)) from None
     L9.controler_options(out)
     exclus = o.get("exclus", [])
@@ -1147,6 +1159,7 @@ class Plan:
         cats = {CATEGORIES[k] for k in opt["lieux"]}
         exclus = set(opt["exclus"])
         self.mobiles, self.raisons = [], {}
+        self.opt = opt
         # lieu d'origine de la pièce -> (donjon, index de sauvegarde) imposé : une clé ramassée compte pour
         # le donjon du NIVEAU où l'on est, donc elle ne doit pas quitter l'index de sauvegarde de son coffre
         self.restriction = {}
@@ -1184,6 +1197,14 @@ class Plan:
         # de la liste du pack (le flacon, rando.PERMIS2), qui va partout comme les autres flacons. Vides quand l'option
         # est coupée (aucun tirage de plus : tables d'avant).
         self.depart = set()
+        # objets progressifs de TWWHD (option « progressifs_plus », rando/plus.py) : pièces dont l'objet est un palier
+        # d'une famille active hors de la liste du pack (épée, magie, paliers des fées) ; elles vont dans un coffre
+        # ordinaire (le mod natif 0.40.0 les y accepte) ou un lieu du lot 6, jamais ailleurs. ``coffres0`` : coffres
+        # ordinaires mobiles. ``libres`` : paliers des fées sortis des fées (une fée reçoit alors n'importe quel objet).
+        # Vides quand l'option est coupée (aucun tirage de plus : tables d'avant).
+        self.plus, self.coffres0 = set(), set()
+        plus_ids = P.paliers(opt) - PERMIS2
+        libres = P.libres_fees(opt)
         cases = {l: k for k, (n, _o, l) in enumerate(L7.DEPART_MELANGEABLES) if n in L7.departs_melanges(opt)}
         ids_dep = frozenset(x for x in L7.ids_depart_melanges(opt) if x not in PERMIS2)
         don9 = bool(L9.groupes_actifs(opt))
@@ -1223,8 +1244,8 @@ class Plan:
                 self.fich.add(i)
                 if L6.SITES[site]["voie"] == "fee":
                     self.fees.add(i)
-                self.interdits[i] = frozenset(x for x in range(256) if not L6.accepte(site, x))
-                if e["id"] in L6.PALIERS_FEES:
+                self.interdits[i] = frozenset(x for x in range(256) if not L6.accepte(site, x, libres))
+                if e["id"] in L6.PALIERS_FEES and e["id"] not in libres:
                     self.fee_seul.add(i)
                 elif e["id"] not in PERMIS2:
                     self.fich_seul.add(i)
@@ -1253,6 +1274,8 @@ class Plan:
                     self.portee[i] = modes[e["id"]]
             if self.cle[i][0] == TYPE_COFFRE:
                 self.hors_ok.add(i)
+                if plus_ids:
+                    self.coffres0.add(i)
         if not self.portee:
             self.hors_ok = set()
         if len(self.depart) != len(cases):
@@ -1261,6 +1284,16 @@ class Plan:
         for i in self.mobiles:
             if lg.lieux[i]["id"] in ids_dep and i not in self.fees:
                 self.fich_seul.add(i)        # même numéro qu'un objet de départ mélangé (bombes du bateau pirate)
+        for i in self.mobiles:
+            if lg.lieux[i]["id"] in plus_ids:
+                self.plus.add(i)
+                self.fich_seul.discard(i)
+                self.fee_seul.discard(i)
+
+    def plus_permis(self, coffre) -> bool:
+        """Un palier progressif de TWWHD (pièce de ``plus``) peut-il aller dans ce lieu ? Coffre ordinaire mobile ou
+        lieu du lot 6 (son objet interdit reste contrôlé par ``interdits``)."""
+        return coffre in self.coffres0 or coffre in self.fich
 
     def etranger(self, lg, p, coffre) -> bool:
         """La pièce ``p`` (lieu d'origine) est-elle un objet de donjon qui, posé dans ``coffre``, serait hors du
@@ -1333,7 +1366,7 @@ def _remplir(lg: Logique, plan: Plan, flux: Flux):
     reste_p = [p for p in pieces if lg.origine[p] not in lg.progression]
     # pièces contraintes d'abord (elles ont le moins de coffres possibles) ; tri stable : l'ordre tiré reste
     prog.sort(key=lambda p: (p not in plan.restriction, p not in plan.fee_seul, p not in plan.fich_seul,
-                             p not in plan.don_seul))
+                             p not in plan.don_seul, p not in plan.plus))
     libres = set(plan.mobiles)
     place = {}
     en_main = {}
@@ -1351,6 +1384,14 @@ def _remplir(lg: Logique, plan: Plan, flux: Flux):
     def permis(p, coffre):
         if (p in plan.fich_seul or p in plan.fee_seul) and coffre not in plan.fich:
             return False                 # lot 6 : objet hors de la liste des stubs : seulement dans un lieu du lot
+        if p in plan.plus and not plan.plus_permis(coffre):
+            return False                 # palier progressif de TWWHD : coffre ordinaire ou lieu du lot 6 seulement
+        if coffre in plan.fees and p not in plan.fee_seul and plan.fee_seul and plan.plus:
+            # progressifs_plus : une fée peut recevoir d'autres objets ; garder assez de fées pour les paliers qui
+            # n'y vont que là (familles des fées non libérées)
+            reste = sum(1 for q in plan.fee_seul if q not in poses)
+            if reste and sum(1 for k in libres if k in plan.fees) - 1 < reste:
+                return False
         if p in plan.don_seul and coffre not in plan.dons:
             return False                 # étape 5 : objet hors de la liste du pack : seulement dans un lieu « donnée »
         if coffre in plan.depart:
@@ -1406,12 +1447,14 @@ def _remplir(lg: Logique, plan: Plan, flux: Flux):
     # lot 6 : pièces sans valeur qui ne vont que dans un lieu du lot (paliers des fées d'abord) ; aucun tirage de plus
     # quand aucune famille n'est mélangée
     for q in [q for q in reste_p if q in plan.fee_seul] + [q for q in reste_p if q in plan.fich_seul] \
-            + [q for q in reste_p if q in plan.don_seul]:     # (étape 5 : vide sans ses options)
+            + [q for q in reste_p if q in plan.don_seul] \
+            + [q for q in reste_p if q in plan.plus]:         # (étape 5, progressifs_plus : vides sans leurs options)
         cands = [k for k in sorted(libres) if permis(q, k)]
         if not cands:
             return None
         poser(q, cands[flux.sous(len(cands))])
-    reste_p = [q for q in reste_p if q not in plan.fee_seul and q not in plan.fich_seul and q not in plan.don_seul]
+    reste_p = [q for q in reste_p if q not in plan.fee_seul and q not in plan.fich_seul and q not in plan.don_seul
+               and q not in plan.plus]
     # lieux qui ne sont pas des coffres, seulement s'il reste une pièce sans valeur qu'ils refusent (objet d'un coffre
     # en conflit) : ensemble vide quand l'option « coffres_conflit » est coupée
     etroits = plan.sans_conflit if any(lg.lieux[q]["id"] in OBJETS_CONFLIT for q in reste_p) else ()
@@ -1714,7 +1757,7 @@ def controler_depart(lg: Logique, plan: Plan) -> None:
             continue                     # objet de la liste du pack (flacon) : il va aussi dans un coffre
         main = dict(stock, **{objet: stock.get(objet, 0) - sum(1 for q in plan.mobiles if lg.origine[q] == objet)})
         _c, pris, _s = lg.explorer(contenu, main)
-        if not any(pris[k] and L6.accepte(lg.lieux[k]["fich"][1], ident) for k in libres):
+        if not any(pris[k] and L6.accepte(lg.lieux[k]["fich"][1], ident, P.libres_fees(plan.opt)) for k in libres):
             raise ErreurRando(f"objets de départ mélangés : {lg.nom_fr(objet)} n'a aucun lieu du randomizer par "
                               "fichiers atteignable sans lui"
                               + (" (hors des donjons, ces lieux attendent le Roi Cuirasse vaincu, et la Forteresse "
@@ -1798,6 +1841,7 @@ def verifier_table(lg: Logique, opt: dict, table) -> dict:
     # lieux (rubis vert : pot du lot 6 et lettre de l'étape 5) : chacun des deux genres sait le donner, il est alors
     # permis dans l'un ou l'autre (les pièces sont interchangeables)
     seuls9 = {lg.lieux[i]["id"] for i in plan.don_seul}
+    plus_ids = P.paliers(opt) - PERMIS2          # progressifs_plus : coffre ordinaire ou lieu du lot 6 seulement
     if not isinstance(table, (list, tuple)):
         raise ErreurRando("table : liste attendue")
     for t in table:
@@ -1829,8 +1873,11 @@ def verifier_table(lg: Logique, opt: dict, table) -> dict:
         if apres in OBJETS_CONFLIT and typ not in (TYPE_COFFRE, TYPE_CONFLIT, TYPE_FICHIER):
             raise ErreurRando(f"table : objet 0x{apres:02X} d'un coffre en conflit hors d'un coffre "
                               f"({lg.lieux[i]['nom']!r})")
-        if typ == TYPE_FICHIER and not L6.accepte(idx, apres):
+        if typ == TYPE_FICHIER and not L6.accepte(idx, apres, P.libres_fees(opt)):
             raise ErreurRando(f"table : objet 0x{apres:02X} interdit dans {lg.lieux[i]['nom']!r}")
+        if apres != avant and apres in plus_ids and not (typ == TYPE_FICHIER or i in plan.coffres0):
+            raise ErreurRando(f"table : palier progressif de TWWHD 0x{apres:02X} hors d'un coffre ordinaire ou d'un "
+                              f"lieu du randomizer par fichiers ({lg.lieux[i]['nom']!r})")
         if typ == TYPE_DEPART and apres not in L7.SANS_VALEUR_DEPART:
             raise ErreurRando(f"table : la case de départ {lg.lieux[i]['nom']!r} ne reçoit qu'un rubis (0x{apres:02X})")
         if typ != TYPE_FICHIER and apres in seuls and apres != avant \

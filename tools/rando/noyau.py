@@ -749,6 +749,18 @@ class Table2:
         """Carte de la zone wwmp_prg pour ces comptes (voir ``carte_prog``)."""
         return carte_prog(set(self.prog_familles()), comptes)
 
+    def plus_familles(self) -> tuple:
+        """Objets progressifs de TWWHD (option « progressifs_plus », rando/plus.py) : familles actives de cette table
+        (ordre de plus.FAMILLES ; () sans l'option)."""
+        from rando import plus as rando_plus
+        return rando_plus.familles(self.options)
+
+    @property
+    def plus_requis(self) -> bool:
+        """La table a-t-elle une famille progressive de TWWHD (mod natif 0.40.0 exigé chez chaque joueur : zone
+        WWMPPRG2, coffres qui acceptent les paliers, inventaire partagé pour le compte du groupe) ?"""
+        return bool(self.plus_familles())
+
     @property
     def boucliers_prog(self) -> bool:
         """Boucliers progressifs (option « boucliers_progressifs ») : le client remet le bouclier porté au plus haut
@@ -858,7 +870,8 @@ def options_completes(lieux=None, cles=None, grandes_cles=None, cartes_donjon=No
                       lieux_beedle=None, monde=None, depart=None, coffres_cinematiques=None,
                       cinematiques_courtes=None, pas_de_recombats=None, textes=None, sans_epee=None, entrees=None,
                       cartes_melangees=None, lieux_kane=None, courrier_tout=None, lieux_encheres_100=None,
-                      boutique_epuise=None, depart_melange=None, boucliers_progressifs=None) -> dict:
+                      boutique_epuise=None, depart_melange=None, boucliers_progressifs=None,
+                      progressifs_plus=None) -> dict:
     """Options du moteur à partir des réglages de l'hôte (ligne de commande du serveur, lanceur). ``lieux`` : liste
     de catégories, texte « a,b,c », « tout », ou None / "" (défaut du moteur) ; les autres : texte du moteur
     (« origine », « donjon », « melange »), booléen (True = mélangé) ou None (défaut : d'origine) ; ``cadeaux`` :
@@ -882,8 +895,9 @@ def options_completes(lieux=None, cles=None, grandes_cles=None, cartes_donjon=No
     ``boutique_epuise`` : booléens (randomizer par fichiers, étape 5, rando/lot9.py ; défaut : non).
     ``depart_melange`` : objets de départ du monde ouvert mélangés (liste, ou texte « bombes,perle_din,… » ; noms de
     rando_lot7.NOMS_DEPART ; défaut : aucun ; « bouclier » exige ``boucliers_progressifs``). ``boucliers_progressifs`` :
-    booléen (l'item_func du bouclier du héros donne le miroir à qui a déjà un bouclier ; défaut : non). Lève
-    ErreurRando."""
+    booléen (l'item_func du bouclier du héros donne le miroir à qui a déjà un bouclier ; défaut : non).
+    ``progressifs_plus`` : objets progressifs de TWWHD (liste, ou texte « epee,magie,… » ; noms de rando/plus.NOMS ;
+    défaut : aucun). Lève ErreurRando."""
     from rando import moteur as rm
     lg = rm.logique()
     if reglages:
@@ -931,6 +945,8 @@ def options_completes(lieux=None, cles=None, grandes_cles=None, cartes_donjon=No
         o["depart"] = depart
     if depart_melange not in (None, "", []):
         o["depart_melange"] = depart_melange
+    if progressifs_plus not in (None, "", []):
+        o["progressifs_plus"] = progressifs_plus
     if o.get("monde") == "ouvert":
         o["coffres_cinematiques"] = True      # lot 7 : le monde ouvert les exige (cinématiques retirées)
     indices = rm.indices_depuis_texte(indices)
@@ -1009,6 +1025,11 @@ def _forme2(msg: dict) -> None:
     # lot 4 : les paliers d'un objet progressif (dont les flèches de lumière, hors de PERMIS2) ne sont permis que dans
     # une table qui l'annonce (option « progressifs »), et seulement dans un coffre ordinaire
     prog = isinstance(o, dict) and o.get("progressifs") is True
+    # objets progressifs de TWWHD (rando/plus.py) : leurs paliers hors de la liste du pack sont permis dans un coffre
+    # ordinaire (le mod natif 0.40.0 les accepte) ou un lieu du lot 6, seulement dans une table qui l'annonce
+    from rando import plus as rando_plus
+    plus_ids = rando_plus.paliers(o) - PERMIS2
+    libres6 = rando_plus.libres_fees(o)
     cles_conflit = {(s[1], s[2]) for s in SITES_CONFLIT}
     familles6 = rando_lot6.familles_actives(o)
     # étape 5 (rando/lot9.py) : groupes de lieux « donnée » annoncés par les options ; avec l'un d'eux, les objets
@@ -1061,7 +1082,8 @@ def _forme2(msg: dict) -> None:
             # lot 6 : lieu du randomizer par fichiers, site de NOTRE relevé, famille annoncée par les options, objet
             # d'origine du relevé, objet permis à cet endroit (jamais d'objet de donjon : il irait au donjon de la salle)
             if not (0 <= e[1] < len(rando_lot6.SITES) and e[2] == 0 and e[3] == rando_lot6.SITES[e[1]]["id"]
-                    and rando_lot6.SITES[e[1]]["famille"] in familles6 and rando_lot6.accepte(e[1], e[4])):
+                    and rando_lot6.SITES[e[1]]["famille"] in familles6
+                    and rando_lot6.accepte(e[1], e[4], libres6)):
                 raise ErreurRando("message rando (complet) : lieu du randomizer par fichiers inconnu de ces outils, "
                                   "objet d'origine différent, option absente ou objet interdit à cet endroit")
         elif e[0] == TYPE_DEPART:
@@ -1094,6 +1116,8 @@ def _forme2(msg: dict) -> None:
             raise ErreurRando("message rando (complet) : clé en double")
         vus.add(tuple(e[:3]))
         liste = PERMIS4 if conflit and e[0] in (TYPE_COFFRE, TYPE_CONFLIT) else PERMIS2
+        if plus_ids and e[0] == TYPE_COFFRE:
+            liste = liste | plus_ids
         if prog and e[0] == TYPE_COFFRE:
             liste = liste | OBJETS_PROG
         elif prog and e[4] in OBJETS_PROG:
@@ -1103,7 +1127,8 @@ def _forme2(msg: dict) -> None:
             # étape 5 : octet écrit par le client, aucune liste du pack en jeu ; ailleurs (coffre, cadeau, coffre en
             # conflit) ces objets restent refusés par la liste du pack ci-dessous
             liste = liste | don_seuls
-        if e[0] not in (TYPE_FICHIER, TYPE_DEPART) and e[4] != e[3] and e[4] in ids_depart:
+        if e[0] not in (TYPE_FICHIER, TYPE_DEPART) and e[4] != e[3] and e[4] in ids_depart \
+                and not (e[0] == TYPE_COFFRE and e[4] in plus_ids):
             raise ErreurRando(f"message rando (complet) : objet de départ 0x{e[4]:02X} hors d'un lieu du randomizer "
                               "par fichiers")
         if e[0] in (TYPE_FICHIER, TYPE_DEPART):
@@ -1261,6 +1286,17 @@ class RandoClient:
         self._muets_serveur: set = set()
         self._muets_envoyes: set = set()
         self.etat_conflit: dict | None = None  # dernier en-tête lu de la zone des coffres en conflit
+        # objets progressifs de TWWHD (rando/plus.py) : cap7 = zone WWMPPRG2 du mod natif 0.40.0 trouvée ; dons
+        # progressifs comptés par le jeu, envoyés au serveur (« rando_plus ») par session (un démarrage du jeu).
+        # _plus_vus : derniers comptes lus ; _plus_tus : dons comptés pendant que le monde m'était fermé (mode
+        # Hanteurs : Hanteur, possédé, quarantaine), jamais envoyés ; _plus_envoye : dernier message (comptes, instant)
+        self.cap7: bool | None = None
+        self.etat_plus: dict | None = None
+        self._plus_ses = 0
+        self._plus_vus = [0] * 8
+        self._plus_tus = [0] * 8
+        self._plus_envoye = None
+        self._plus_prevenu = False
         self.charges = 0
         self.refus = ""
         self._prevenu_cap = False
@@ -1286,9 +1322,13 @@ class RandoClient:
                 # autres lettres, enchère à 100 rubis) et garde le mutisme des coffres étrangers sur le serveur
                 "don9": int(self.don is not False), "muet": 1,
                 "cap5": int(bool(self.cap5) and self.prog_partage),
+
                 "cap6": int(bool(self.hors_partage)),
                 "rpack": int(self.rpack or 0), "rplan": self.rplan, "rfich": self.rfich,
-                "emp": e.get("emp_hex", "") if e.get("etat") in (ETAT_SUR, ETAT_COMPLET) else ""}
+                "emp": e.get("emp_hex", "") if e.get("etat") in (ETAT_SUR, ETAT_COMPLET) else "",
+                # objets progressifs de TWWHD : mod natif 0.40.0 (zone WWMPPRG2) ET inventaire partagé ; absent sinon
+                # (hello d'avant inchangé, le serveur lit l'absence comme 0)
+                **({"cap7": 1} if self.cap7 and self.prog_partage else {})}
 
     RNDR_PERIODE = 60.0                   # pack WWMP_Rando absent : nouvelle recherche au plus toutes les 60 s
 
@@ -1332,6 +1372,7 @@ class RandoClient:
         else:
             self.voulu = RandoClient.INCONNU      # la table arrive dans le message « rando »
         self.t_verif = float("-inf")
+        self._plus_envoye = None                  # progressifs de TWWHD : comptes renvoyés au nouveau serveur
         self.hors_recu = False                    # lot 5 : l'état des coffres étrangers est renvoyé après la table
         self._hors_vus = {}
 
@@ -1558,6 +1599,61 @@ class RandoClient:
                                   f"donjon : {nom_hors(objet, donjon)} ; ajouté à ta sauvegarde")
         return written
 
+    PLUS_REDIT = 10.0                     # s : comptes des progressifs de TWWHD renvoyés au plus toutes les 10 s
+
+    def plus_message(self, mb, now: float | None = None, monde_ok: bool = True) -> dict | None:
+        """Objets progressifs de TWWHD (rando/plus.py) : message « rando_plus » des dons progressifs comptés par CE jeu
+        (zone WWMPPRG2 du mod natif), ou None. Le serveur garde, par session, le plus grand compte reçu (un message en
+        double ou en retard ne compte jamais deux fois) et met l'inventaire commun du groupe au niveau du total.
+
+        Session : numéro tiré ici et écrit dans la zone si elle n'en a pas (jeu démarré) ; un client relancé pendant
+        que le jeu tourne reprend celle du jeu. Mode Hanteurs (``monde_ok`` faux) : ce qui est reçu pendant ce temps
+        est mis de côté pour la vie de ce client, jamais envoyé. Rien si la zone ne porte pas les familles de la table
+        (paquet généré d'une autre partie : le serveur refuse déjà ce cas). Données seulement (une écriture : la
+        session)."""
+        v = self.voulu
+        if not self.enabled or not isinstance(v, TABLES) or not getattr(v, "plus_requis", False) or not self.cap7 \
+                or mb is None or not hasattr(mb, "plus_lire"):
+            return None
+        from rando import plus as rando_plus
+        now = time.monotonic() if now is None else now
+        z = mb.plus_lire()
+        if z is None:
+            return None
+        if not z["session"]:
+            import secrets
+            mb.plus_session(secrets.randbelow(0x7FFFFFFF) + 1)
+            z = mb.plus_lire() or z
+        self.etat_plus = z
+        if z["familles"] != rando_plus.octet(v.options) or not z["session"]:
+            if not self._plus_prevenu:
+                self._plus_prevenu = True
+                self.notes.append("randomizer : objets progressifs de TWWHD : le jeu ne joue pas les familles de cette "
+                                  "partie (paquet généré d'une autre partie, ou mod natif plus ancien) : rien n'est "
+                                  "compté ici")
+            return None
+        if z["session"] != self._plus_ses:
+            self._plus_ses = z["session"]
+            self._plus_vus = [0] * 8
+            self._plus_tus = [0] * 8
+            self._plus_envoye = None
+        recus = list(z["recus"])[:8]
+        for k, n in enumerate(recus):
+            n = max(0, int(n))
+            if n > self._plus_vus[k] and not monde_ok:
+                self._plus_tus[k] += n - self._plus_vus[k]
+            self._plus_vus[k] = max(self._plus_vus[k], n)
+        if not monde_ok:
+            return None
+        comptes = {nom: max(0, self._plus_vus[k] - self._plus_tus[k]) for k, nom in enumerate(rando_plus.NOMS)
+                   if nom in v.plus_familles()}
+        dernier = self._plus_envoye
+        if dernier is not None and dernier[0] == comptes and now - dernier[1] < self.PLUS_REDIT:
+            return None
+        self._plus_envoye = (comptes, now)
+        return {"type": "rando_plus", "group": self.groupe, "emp": v.empreinte, "session": self._plus_ses,
+                "recus": comptes}
+
     def prog_paliers(self, idx, tbox):
         """Paliers de la famille si le coffre (index de sauvegarde, numéro) est un lieu progressif de la table
         voulue, sinon None (coffres partagés : voir ChestGrant.prog)."""
@@ -1622,6 +1718,13 @@ class RandoClient:
             except Exception:
                 cap5 = False
         self.cap5 = cap5
+        cap7 = False
+        if hasattr(mb, "plus_addr"):
+            try:                                       # zone des progressifs de TWWHD (mod natif 0.40.0)
+                cap7 = mb.plus_addr() is not None
+            except Exception:
+                cap7 = False
+        self.cap7 = cap7
         if not self.enabled:
             # --no-rando (relecture adverse) : une table chargée plus tôt dans CE Cemu (autre session du client) resterait
             # active (état 1) et le stub changerait encore les coffres : on la vide (état 0, données seulement)
@@ -1806,6 +1909,10 @@ class RandoClient:
                     "(rien n'est changé)")
         if prog and self.prog_comptes() is None:
             return f"table {v.empreinte} reçue, en attente du compte des objets progressifs (serveur)"
+        plus = v.etat == ETAT_COMPLET and bool(getattr(v, "plus_requis", False))
+        if plus and self.cap7 is False:
+            return (f"table {v.empreinte} reçue, mod natif sans les objets progressifs de TWWHD (0.40.0 exigé ; rien "
+                    "n'est changé)")
         hors = v.etat == ETAT_COMPLET and bool(getattr(v, "hors_requis", False))
         if hors and not self.hors_partage:
             return (f"table {v.empreinte} reçue, objets de donjon hors de leur donjon impossibles sans partager "
@@ -1826,7 +1933,9 @@ class RandoClient:
                         if f in v.prog_familles())
                        + f", coffres à palier traités {(self.etat_prog or {}).get('vus', 0)}" if prog else "")
                     + (f" ; objets de donjon hors de leur donjon : {len(v.hors)} coffres dans la table (petites clés "
-                       f"par le compteur commun), bits posés ici {self.hors_poses}" if hors else ""))
+                       f"par le compteur commun), bits posés ici {self.hors_poses}" if hors else "")
+                    + (" ; progressifs de TWWHD : " + ", ".join(v.plus_familles())
+                       + f", dons comptés ici {(self.etat_plus or {}).get('total', 0)}" if plus else ""))
         return f"table {v.empreinte} reçue, chargement dans le jeu en cours"
 
 

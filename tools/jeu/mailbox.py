@@ -440,6 +440,56 @@ MAGIC_MAN = b"WWMPMAN1"
 MAN_FORMAT = 1
 OFFM_TENUS, OFFM_FRONTS, OFFM_MASQUES = 0x0C, 0x10, 0x20
 MAN_N, MAN_TAILLE = 16, 0x40
+# fantôme soulevable par Link (MOD NATIF SEULEMENT, 0.38.0 ; natif/mod_wwmp/porter.c, client/essai_porter.py, lot P0 de
+# docs/etudes/porter_coequipier.md) : zone wwmp_por (magie « WWMPPOR1 », AUCUN bit), 0x80 octets à 0x6C00. Le PC lève
+# le bit de l'emplacement d'un fantôme « portable » (le mod lui pose les champs d'attention de Médolie : « Soulever » au
+# bouton A) ; le jeu le saisit, le porte, le pose, le lance ; le mod compte (prises, posés, lancés, lâchés, pas tenus).
+# 0.39.0 (lot P1 « porteur ») : zone agrandie à 0xC0 (format toujours 1, champs de 0.38.0 inchangés) : o mesuré (position
+# du fantôme tenu dans le repère de Link), refus par emplacement (CARRY retiré), raison et nombre des fins, ligne de
+# distance réglable, cible du bouton A de Link (distance, priorité face à une jarre).
+MAGIC_POR = b"WWMPPOR1"
+POR_FORMAT = 1
+OFFPO_PORTABLES, OFFPO_HAUTEUR, OFFPO_TENUS = 0x0C, 0x10, 0x14   # OFFPO_ : OFFP_ est pris par le poids (OFFP_REFUS = 0x18)
+POR_TAILLE = 0x80
+POR_CLES = ("tenus", "tenu_id", "emplacement", "souleves", "poses", "lances", "laches", "images_tenu", "images_prise",
+            "proc", "fin_proc", "marques", "retires")       # mots de +0x14 à +0x47, dans l'ordre
+POR_P1_MOD = 39                    # NATIF_VERSION_MOD qui a la partie P1 (zone de 0xC0 octets)
+POR_P1_TAILLE = 0xC0
+OFFPO_O, OFFPO_REFUS, OFFPO_LIGNE, OFFPO_CIBLE = 0x58, 0x74, 0x7C, 0x80
+POR_LIGNE_MAX = 0x2D               # le mod prend 0x27 (Médolie) pour 0 ou au-delà
+POR_FINS = {0: "aucune", 1: "posé", 2: "lancé", 3: "autre", 4: "absent", 5: "retiré"}   # fin_raison (POR_FIN_*)
+# objets progressifs de TWWHD du randomizer (MOD NATIF SEULEMENT, 0.40.0 ; natif/mod_wwmp/rando_plus.c, rando/plus.py) :
+# zone wwmp_prg2 (magie « WWMPPRG2 », AUCUN bit), 0x40 octets à 0x6CC0. Les familles actives viennent du PLAN du paquet
+# généré (le jeu les recopie en +0x0C) ; le jeu compte chaque don progressif par famille (+0x20, total EN DERNIER en
+# +0x1C) ; le PC n'écrit que la session (+0x10 : un numéro tiré par lui, la zone revenant à 0 à chaque démarrage du jeu)
+MAGIC_PRG2 = b"WWMPPRG2"
+PRG2_FORMAT = 1
+OFFQ_FAMILLES, OFFQ_SESSION, OFFQ_BRUTS, OFFQ_DERNIER, OFFQ_TOTAL, OFFQ_RECUS = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+PRG2_N, PRG2_TAILLE = 6, 0x40
+PRG2_MOD = 40                      # NATIF_VERSION_MOD qui a la zone
+POR_P2_MOD = 41                    # 0.41.0 : o retenu aux pas stables (GrabWait), o_brut, moyenne (o_somme / stables)
+OFFPO_O_BRUT = 0x98
+# le Link porté (MOD NATIF SEULEMENT, 0.41.0 ; natif/mod_wwmp/porte.c, client/essai_porte.py, lot P2 de
+# docs/etudes/porter_coequipier.md) : zone wwmp_prt (magie « WWMPPRT1 », AUCUN bit), 0x100 octets à 0x6E00. CALL 22
+# PRT(vie 1..300, emplacement du fantôme du porteur 0..6, drapeaux | angle relatif << 16), o à +0x40 (3 f32, ±300) :
+# 1 armé, 2 entretenu, 0 libéré ; refus : -1 arguments / robot, -2 pas de partie, -3 événement, -4 o refusé, -5 porteur
+# absent, -6 Link trop loin de la cible (400 u), -7 changement d'étape, -8 Link absent, -9 procédure exclue, -10 Link
+# mort, -11 Link enfermé (Hanteurs).
+CALL_PRT = 22
+MAGIC_PRT = b"WWMPPRT1"
+PRT_FORMAT = 1
+PRT_VIE_MAX = 300
+PRT_ANGLE_GARDE, PRT_STICK_LIBRE = 0x1, 0x2
+OFFT_ARME = 0x0C
+OFFT_APPELS = 0x48
+OFFT_PROCS = 0x90
+PRT_RAISONS = {0: "", 1: "durée écoulée", 2: "porteur absent", 3: "salle changée", 4: "changement d'étape",
+               5: "événement", 6: "Link mort", 7: "dégâts", 8: "grappin", 9: "descendu (PC)", 10: "Link loin de la cible",
+               11: "plafond", 12: "chute", 13: "sortie (eau, échelle, corde, bateau…)", 14: "Link absent",
+               15: "mode robot ou enfermement", 16: "L3 : descendu"}
+PRT_REFUS = {-1: "arguments ou mode robot", -2: "pas de partie", -3: "événement", -4: "o refusé", -5: "porteur absent",
+             -6: "Link trop loin du porteur", -7: "changement d'étape", -8: "Link absent", -9: "procédure exclue",
+             -10: "Link mort", -11: "Link enfermé"}
 # GRANT genre 4 (bit 31, MOD NATIF SEULEMENT, 0.24.0 ; natif/mod_wwmp/commandes.c, synchro/quarts_pnj.py) : CALL 8 pose
 # un drapeau d'événement (octet + masque entier de mSave.mEvent) PUIS donne l'objet, dans la même image, hors événement
 CAP_GRANT_EVT = 0x80000000       # bit 31
@@ -453,6 +503,19 @@ SIG_NOMS, SIG_SIGNAUX, SIG_MANETTE = 0x1, 0x2, 0x4
 OFFS_CFG, OFFS_DEMANDES, OFFS_POS, OFFS_IDS, OFFS_VUS, OFFS_NOMS, OFFS_SIG = 0x0C, 0x10, 0x14, 0x20, 0x3C, 0x40, 0xB0
 SIG_N, SIG_NOM, SIG_ENTREE = 4, 16, 0x14
 SIG_MOD = 33                       # NATIF_VERSION_MOD qui a la zone
+# bandeau (MOD NATIF SEULEMENT, 0.44.0 ; natif/mod_wwmp/bandeau.c, client/bandeau.py ; lot 0 de
+# docs/etudes/autres_zelda.md §1.3) : SANS bit : la zone wwmp_ban (magie « WWMPBAN1 », format 1), 0x100 octets à 0x7100,
+# EST la capacité. Le PC écrit les 4 lignes {rgba, taille, Latin-1 44 octets}, la durée (pas) et l'ancre, puis seq EN
+# DERNIER ; le jeu prend le seq nouveau et décompte (suspendu en cinématique, menu, fondu, changement d'étape).
+MAGIC_BAN = b"WWMPBAN1"
+BAN_FORMAT = 1
+BAN_N, BAN_TEXTE, BAN_LIGNE = 4, 44, 0x34
+BAN_ALLUME = 0x1
+BAN_HAUT, BAN_DROITE, BAN_BAS = 0, 1, 2
+BAN_DUREE_MAX = 9000               # pas (5 min), borne du mod
+OFFN_CFG, OFFN_SEQ, OFFN_DUREE, OFFN_ANCRE, OFFN_VU, OFFN_RESTE = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFN_MONTRES, OFFN_DESSINS, OFFN_ATTENTES, OFFN_LIGNES = 0x24, 0x28, 0x2C, 0x30
+BAN_MOD = 44                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
@@ -1714,6 +1777,47 @@ class Mailbox:
         cfg, n = struct.unpack(">2I", bytes(self.mem.read(a + OFFS_CFG, 8)))
         nv, sv = struct.unpack(">2H", bytes(self.mem.read(a + OFFS_VUS, 4)))
         return {"cfg": cfg, "demandes": n, "noms_vus": nv, "signaux_vus": sv}
+    # --- bandeau (0.44.0, mod natif seulement, sans bit : la zone est la capacité) -----------------------------------
+    def ban_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_ban`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_ban", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_BAN, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != BAN_FORMAT:
+                return None
+            a = self._ban = hits[0]
+        return a
+
+    def poser_bandeau(self, lignes, duree: int, ancre: int = BAN_HAUT, cfg: int = BAN_ALLUME) -> bool:
+        """Bandeau : ``lignes`` = jusqu'à 4 (texte Latin-1 déjà nettoyé, rgba, taille) ; lignes, durée (pas, 0 : efface),
+        ancre et cfg, puis le numéro EN DERNIER (le jeu prend le bandeau à son prochain pas). False sans la zone."""
+        a = self.ban_addr()
+        if a is None:
+            return False
+        lignes = list(lignes or [])[:BAN_N]
+        bloc = b""
+        for k in range(BAN_N):
+            txt, rgba, taille = (lignes[k] + (0, 0))[:3] if k < len(lignes) else (b"", 0, 0)
+            bloc += struct.pack(">II", int(rgba) & 0xFFFFFFFF, max(0, min(int(taille), 255))) \
+                + bytes(txt or b"")[:BAN_TEXTE].ljust(BAN_TEXTE, b"\0")
+        self.mem.write(a + OFFN_LIGNES, bloc)
+        self.mem.write(a + OFFN_CFG, struct.pack(">I", int(cfg) & BAN_ALLUME))
+        self.mem.write(a + OFFN_DUREE, struct.pack(">II", max(0, min(int(duree), BAN_DUREE_MAX)),
+                                                    int(ancre) if ancre in (BAN_HAUT, BAN_DROITE, BAN_BAS) else 0))
+        seq = (struct.unpack(">I", bytes(self.mem.read(a + OFFN_SEQ, 4)))[0] + 1) & 0xFFFFFFFF
+        self.mem.w_u32(a + OFFN_SEQ, seq)
+        return True
+
+    def ban_counters(self) -> dict:
+        a = self.ban_addr()
+        if a is None:
+            return {"cfg": 0, "seq": 0, "vu": 0, "reste": 0, "montres": 0, "dessins": 0, "attentes": 0}
+        cfg, seq, _d, _a, vu, reste, mo, de, at = struct.unpack(">9I", bytes(self.mem.read(a + OFFN_CFG, 36)))
+        return {"cfg": cfg, "seq": seq, "vu": vu, "reste": reste, "montres": mo, "dessins": de, "attentes": at}
     # --- enfermement des Hanteurs (0.35.0, mod natif seulement, sans bit : la zone est la capacité) ------------------
     def enf_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_enf`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
@@ -1812,6 +1916,211 @@ class Mailbox:
         """Boutons VPAD tenus à la dernière lecture du jeu (diagnostic)."""
         a = self.manette_addr()
         return struct.unpack(">I", bytes(self.mem.read(a + OFFM_TENUS, 4)))[0] if a is not None else 0
+
+    # --- objets progressifs de TWWHD (0.40.0, mod natif seulement, sans bit : la zone est la capacité) -------------
+    def plus_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_prg2`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_prg2", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_PRG2, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != PRG2_FORMAT:
+                return None
+            a = self._prg2 = hits[0]
+        return a
+
+    def plus_lire(self) -> dict | None:
+        """Familles actives (bit k), session, dons bruts, dernier don, total et comptes par famille (PRG2_N) ; None
+        sans la zone. Le total est relu APRÈS les comptes (le jeu l'écrit en dernier) : s'il a bougé entre les deux
+        lectures, la lecture est refaite (une fois)."""
+        a = self.plus_addr()
+        if a is None:
+            return None
+        for _essai in range(2):
+            b = bytes(self.mem.read(a + OFFQ_FAMILLES, PRG2_TAILLE - OFFQ_FAMILLES))
+            fam, ses, bruts, dernier, total = struct.unpack_from(">5I", b, 0)
+            recus = list(struct.unpack_from(f">{PRG2_N}I", b, OFFQ_RECUS - OFFQ_FAMILLES))
+            if struct.unpack(">I", bytes(self.mem.read(a + OFFQ_TOTAL, 4)))[0] == total:
+                break
+        return {"familles": fam, "session": ses, "bruts": bruts, "dernier": dernier, "total": total, "recus": recus}
+
+    def plus_session(self, session: int) -> bool:
+        """Écrit la session (non nulle) si la zone n'en a pas encore ; relue. Données seulement."""
+        a = self.plus_addr()
+        session &= 0xFFFFFFFF
+        if a is None or not session:
+            return False
+        cur = struct.unpack(">I", bytes(self.mem.read(a + OFFQ_SESSION, 4)))[0]
+        if cur:
+            return cur == session
+        self.mem.w_u32(a + OFFQ_SESSION, session)
+        return struct.unpack(">I", bytes(self.mem.read(a + OFFQ_SESSION, 4)))[0] == session
+
+    # --- fantôme soulevable par Link (0.38.0, mod natif seulement, sans bit : la zone est la capacité) ---------------
+    def porter_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_por`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_por", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_POR, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != POR_FORMAT:
+                return None
+            a = self._por = hits[0]
+        return a
+
+    @property
+    def porter_ok(self) -> bool:
+        return self.porter_addr() is not None
+
+    @property
+    def porter_p1(self) -> bool:
+        """La zone a la partie P1 « porteur » (mod 0.39.0 ou plus) : o, refus, fins, ligne, cible du bouton A."""
+        return self.porter_addr() is not None and self.version_mod_natif() >= POR_P1_MOD
+
+    def porter_regler(self, portables: int, hauteur: float = 0.0, ligne: int = 0) -> bool:
+        """Emplacements dont le fantôme est soulevable (bit i ; 0 : aucun), hauteur du point visé au-dessus de ses
+        pieds (0 : défaut du mod) et, mod 0.39.0, ligne de la table des distances (0 : 0x27, celle de Médolie ;
+        1..POR_LIGNE_MAX). False sans la zone (mod plus ancien, Cemu)."""
+        a = self.porter_addr()
+        if a is None:
+            return False
+        h = float(hauteur) if hauteur == hauteur and abs(float(hauteur)) < 300.0 else 0.0
+        self.mem.write(a + OFFPO_PORTABLES, struct.pack(">If", int(portables) & 0x7F, h))
+        if self.porter_p1:
+            lg = int(ligne or 0)
+            self.mem.write(a + OFFPO_LIGNE, struct.pack(">I", lg if 0 < lg <= POR_LIGNE_MAX else 0))
+        return True
+
+    def porter_refuser(self, refus: int) -> bool:
+        """Refus du serveur (bit i : emplacement dont la prise est refusée) : le mod retire CARRY au fantôme tenu (Link
+        le lâche par son propre code) et ne le propose plus au bouton A tant que le bit reste levé. False sans la
+        partie P1 (mod plus ancien que 0.39.0)."""
+        a = self.porter_addr()
+        if a is None or not self.porter_p1:
+            return False
+        self.mem.write(a + OFFPO_REFUS, struct.pack(">I", int(refus) & 0x7F))
+        return True
+
+    def porter_compteurs(self) -> dict:
+        """Compteurs du mod (POR_CLES, plus « pos » : position du fantôme au dernier pas tenu) ; {} sans la zone.
+        Mod 0.39.0 : aussi « o » (fantôme dans le repère de Link), « incl_z », « ecart_y », « angle_link », « fins »,
+        « fin_raison » (nom, POR_FINS), « refus_faits », « cible_images », « cible_dmin » / « cible_dmax » (distance
+        horizontale Link-fantôme quand le bouton A le visait), « cible_dy », « proches », « autre_proc »."""
+        a = self.porter_addr()
+        if a is None:
+            return {}
+        v = struct.unpack(">13I3f", bytes(self.mem.read(a + OFFPO_TENUS, 13 * 4 + 12)))
+        d = dict(zip(POR_CLES, v[:13]))
+        d["pos"] = [round(x, 1) for x in v[13:]]
+        if self.porter_p1:
+            b = bytes(self.mem.read(a + OFFPO_O, POR_P1_TAILLE - OFFPO_O))
+            o = struct.unpack_from(">3f", b, 0)
+            ang, ang_link, fins, raison, _refus, refus_faits = struct.unpack_from(">6I", b, 0x0C)
+            ci, = struct.unpack_from(">I", b, OFFPO_CIBLE - OFFPO_O)
+            d2min, d2max, dy = struct.unpack_from(">3f", b, OFFPO_CIBLE - OFFPO_O + 4)
+            proches, autre = struct.unpack_from(">2I", b, OFFPO_CIBLE - OFFPO_O + 16)
+
+            def s16(x):
+                return x - 0x10000 if x & 0x8000 else x
+            d.update({"o": [round(x, 1) for x in o], "incl_z": s16(ang >> 16), "ecart_y": s16(ang & 0xFFFF),
+                      "angle_link": ang_link & 0xFFFF, "fins": fins, "fin_raison": POR_FINS.get(raison, raison),
+                      "refus_faits": refus_faits, "cible_images": ci,
+                      "cible_dmin": round(max(d2min, 0.0) ** 0.5, 1) if ci else None,
+                      "cible_dmax": round(max(d2max, 0.0) ** 0.5, 1) if ci else None,
+                      "cible_dy": round(dy, 1) if ci else None, "proches": proches, "autre_proc": autre})
+            if self.version_mod_natif() >= POR_P2_MOD:
+                # 0.41.0 : o (ci-dessus) = dernier pas STABLE (GrabWait) ; o_brut = dernier pas tenu (sens de 0.39.0)
+                ob = struct.unpack_from(">3f", b, OFFPO_O_BRUT - OFFPO_O)
+                st, = struct.unpack_from(">I", b, OFFPO_O_BRUT - OFFPO_O + 12)
+                so = struct.unpack_from(">3f", b, OFFPO_O_BRUT - OFFPO_O + 16)
+                d.update({"o_brut": [round(x, 1) for x in ob], "stables": st,
+                          "o_moyen": [round(x / st, 1) for x in so] if st else None})
+        return d
+
+    # --- le Link porté (0.41.0, mod natif seulement, sans bit : la zone est la capacité) ------------------------------
+    def porte_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_prt`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_prt", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_PRT, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != PRT_FORMAT:
+                return None
+            a = self._prt = hits[0]
+        return a
+
+    @property
+    def porte_ok(self) -> bool:
+        return self.porte_addr() is not None
+
+    def porter_sur(self, emplacement: int, o, vie: int, drapeaux: int = 0, angle: int = 0,
+                   timeout: float = TIMEOUT_V19) -> int:
+        """CALL 22 PRT : arme (ou entretient, même emplacement) le port de NOTRE Link sur les mains du fantôme de
+        l'emplacement ``emplacement`` (0..6), ``o`` = (x local, hauteur, devant) dans le repère du porteur (±300),
+        pour ``vie`` images (1..300) ; ``drapeaux`` PRT_ANGLE_GARDE / PRT_STICK_LIBRE, ``angle`` y relatif au porteur.
+        Renvoie 1 armé, 2 entretenu, ou un refus (< 0, PRT_REFUS). ValueError avant tout envoi hors bornes ;
+        MailboxError sans la zone ; MailboxCancelled sans réponse (requête neutralisée : rien n'a été fait)."""
+        if self.porte_addr() is None:
+            raise MailboxError("porté : seulement le mod natif du portage à jour (0.41.0 ou plus)")
+        for v, lo, hi, nom in ((vie, 1, PRT_VIE_MAX, "vie"), (emplacement, 0, 6, "emplacement"),
+                               (drapeaux, 0, 0xFFFF, "drapeaux")):
+            if isinstance(v, bool) or not isinstance(v, int) or not lo <= v <= hi:
+                raise ValueError(f"PRT : {nom} {v!r} hors {lo}..{hi}")
+        try:
+            x, y, z = (float(v) for v in o)
+        except (TypeError, ValueError):
+            raise ValueError("PRT : o illisible") from None
+        if not all(v == v and abs(v) < 300.0 for v in (x, y, z)):
+            raise ValueError("PRT : o refusé (±300)")
+        arg3 = (drapeaux & 0xFFFF) | ((int(angle) & 0xFFFF) << 16)
+        with Mailbox._lock:
+            self._check_idle()
+            self.mem.write(self.addr + OFF_CREATE_POS, struct.pack(">3f", x, y, z))
+            return self._call(CMD_CALL, CALL_PRT, vie, emplacement, arg3, timeout=timeout, cancel=True)
+
+    def descendre(self, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 22 PRT avec une vie nulle : Link n'est plus porté (0). MailboxError sans la zone."""
+        if self.porte_addr() is None:
+            raise MailboxError("porté : seulement le mod natif du portage à jour (0.41.0 ou plus)")
+        return self._call(CMD_CALL, CALL_PRT, 0, 0, 0, timeout=timeout, cancel=True)
+
+    def porte_compteurs(self) -> dict:
+        """Mise au point : armé, vie, emplacement, o, cible, glissement, compteurs (appels, armements, refus, dernier,
+        libérations, raison en clair, fin_proc, pas imposés, sols corrigés, sols absents, sol du dessous, plafond,
+        filtres, visées, proc, evt, écart max, L3), procédures vues (liste) et glissades ; {} sans la zone."""
+        a = self.porte_addr()
+        if a is None:
+            return {}
+        b = bytes(self.mem.read(a, 0xB8))
+        arme, vie, emp = struct.unpack_from(">IiI", b, OFFT_ARME)
+        o = struct.unpack_from(">3f", b, 0x18)
+        dr, salle, glisse = struct.unpack_from(">IiI", b, 0x24)
+        cible = struct.unpack_from(">3f", b, 0x3C)
+        appels, arm, refus, dernier, lib, raison, fin_proc, imposes, sols, absents = struct.unpack_from(">3Ii6I", b,
+                                                                                                       OFFT_APPELS)
+        dessous, toit = struct.unpack_from(">2f", b, 0x70)
+        filtres, visees, proc, evt = struct.unpack_from(">4I", b, 0x78)
+        e2, = struct.unpack_from(">f", b, 0x88)
+        l3, = struct.unpack_from(">I", b, 0x8C)
+        procs = struct.unpack_from(">8I", b, OFFT_PROCS)
+        glissades, = struct.unpack_from(">I", b, 0xB0)
+        vus = [32 * i + k for i, w in enumerate(procs) for k in range(32) if w >> k & 1]
+        return {"arme": arme, "vie": vie, "emplacement": emp, "o": [round(x, 1) for x in o], "drapeaux": dr & 0xFFFF,
+                "angle": dr >> 16, "salle": salle, "glisse": glisse, "cible": [round(x, 1) for x in cible],
+                "appels": appels, "armements": arm, "refus": refus, "dernier": dernier, "liberations": lib,
+                "raison": PRT_RAISONS.get(raison, raison), "raison_n": raison, "fin_proc": fin_proc,
+                "pas_imposes": imposes, "sols": sols, "sols_absents": absents, "sol_dessous": round(dessous, 1),
+                "toit": round(toit, 1), "filtres": filtres, "visees": visees, "proc": proc, "evt": evt,
+                "ecart_max": round(max(e2, 0.0) ** 0.5, 1), "l3": l3, "procs_vus": vus, "glissades": glissades}
 
     def set_couleurs_carte(self, couleurs) -> bool:
         """Couleurs (7 mots RRGGBBAA, un par emplacement de fantôme ; 0 = blanc) des marqueurs de la carte."""

@@ -874,9 +874,12 @@ class CpuEtendu:
             else:
                 self._ecrire(ea, int.from_bytes((r[rd] & ((1 << (8 * n)) - 1)).to_bytes(n, "big"), "little"), n)
             return
-        if xo in (535, 599, 663, 727, 983):                     # lfsx lfdx stfsx stfdx stfiwx
+        if xo in (535, 567, 599, 663, 727, 983):                # lfsx lfsux lfdx stfsx stfdx stfiwx
             ea = self._ea_x(ra, rb)
-            if xo == 983:                                       # stfiwx : mot bas de la double (fctiwz)
+            if xo == 567:                                       # lfsux (clang, natif/mod_wwmp/porte.c) : rA = EA
+                self.f[rd] = self.ps1[rd] = _f32(self._lire(ea, 4))
+                r[ra] = ea
+            elif xo == 983:                                     # stfiwx : mot bas de la double (fctiwz)
                 self._ecrire(ea, _bits64(self.f[rd]) & _M32, 4)
             elif xo == 535:
                 self.f[rd] = self.ps1[rd] = _f32(self._lire(ea, 4))
@@ -1041,7 +1044,7 @@ def decodable(w: int) -> bool:
         spr = ((w >> 16) & 31) | (((w >> 11) & 31) << 5)
         if xo in (339, 467):
             return spr in (1, 8, 9)
-        return (xo in (0, 32, 19, 144, 24, 536, 792, 824, 26, 922, 954, 598, 854, 535, 599, 663, 727, 983,
+        return (xo in (0, 32, 19, 144, 24, 536, 792, 824, 26, 922, 954, 598, 854, 535, 567, 599, 663, 727, 983,
                        28, 60, 124, 284, 316, 412, 444, 476)
                 or xo in CpuEtendu._X_LOADS or xo in CpuEtendu._X_STORES or xo in CpuEtendu._X_INVERSES
                 or (xo & 0x1FF) in (266, 40, 10, 8, 138, 136, 202, 200, 234, 232, 104, 235, 75, 11, 491, 459))

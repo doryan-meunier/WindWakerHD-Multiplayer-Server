@@ -267,6 +267,8 @@ def decoder(a: int, w: int):
             return (GPR[rd] | GPR[ra] | GPR[rb], GPR[ra], "seq", None)
         if xo in (535, 599):
             return (rA0 | GPR[rb], FPR[rd], "seq", None)
+        if xo == 567:                                                 # lfsux : rA = EA
+            return (GPR[ra] | GPR[rb], FPR[rd] | GPR[ra], "seq", None)
         if xo in (663, 727, 983):
             return (FPR[rd] | rA0 | GPR[rb], 0, "seq", None)
         if xo in (598, 86, 54, 278, 1014, 982, 470, 854):

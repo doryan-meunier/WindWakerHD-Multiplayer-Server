@@ -305,7 +305,7 @@ def jeu_natif_choisi(pid: int | None = None, jeu: str | None = None) -> bool:
         return False
     try:
         from jeu import natif
-        natifs = natif.find_natif_pids()
+        natifs = natif.find_natif_pids(robot=pid is not None)   # un --pid donné peut être le jeu du robot
         if not natifs:
             return False
         if pid is not None:

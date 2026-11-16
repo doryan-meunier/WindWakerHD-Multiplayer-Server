@@ -87,7 +87,8 @@ TAMPON_MAX = 256             # messages gardés pendant l'attente du verdict
 GROUPES_MAX = 16
 
 # messages qui changent le monde (gardés pendant l'attente du verdict, filtrés en quarantaine)
-TYPES_TAMPON = frozenset({"progress", "keys", "key_get", "key_use", "coffre", "gift", "inv", "cnt", "trk", "vie"})
+TYPES_TAMPON = frozenset({"progress", "keys", "key_get", "key_use", "coffre", "gift", "inv", "cnt", "trk", "vie",
+                          "rando_plus"})
 
 
 class MondeIllisible(Exception):
@@ -525,6 +526,40 @@ def muets_document(muets: dict) -> dict:
             for nom, d in list(muets.items())[:MUETS_JOUEURS_MAX] if isinstance(d, dict) and d.get("c")}
 
 
+PLUS_GROUPES_MAX = 64
+
+
+def plus_relus(doc) -> tuple[str, dict]:
+    """Section « rando_plus » relue (objets progressifs de TWWHD) : (empreinte de la table, {groupe: {session:
+    {famille: n}}}). Toute entrée abîmée est ignorée ; rien n'est inventé."""
+    from rando import plus as rando_plus
+    if not (isinstance(doc, dict) and isinstance(doc.get("emp"), str) and len(doc["emp"]) <= 64
+            and isinstance(doc.get("groupes"), dict)):
+        return "", {}
+    out = {}
+    for g, sessions in list(doc["groupes"].items())[:PLUS_GROUPES_MAX]:
+        if not (isinstance(g, str) and isinstance(sessions, dict)):
+            continue
+        d = {}
+        for s, c in list(sessions.items())[:rando_plus.SESSIONS_MAX]:
+            try:
+                ses = int(s)
+            except (TypeError, ValueError):
+                continue
+            if not (0 < ses < 1 << 32 and isinstance(c, dict)):
+                continue
+            d[ses] = {f: n for f, n in c.items()
+                      if f in rando_plus.NOMS and _int(n) and 0 <= n <= rando_plus.COMPTE_MAX}
+        out[g[:32]] = d
+    return doc["emp"], out
+
+
+def plus_document(emp: str, groupes: dict) -> dict:
+    """Section « rando_plus » à écrire (forme JSON de ``plus_relus`` : sessions en texte)."""
+    return {"emp": emp, "groupes": {g: {str(s): dict(c) for s, c in d.items()}
+                                    for g, d in list(groupes.items())[:PLUS_GROUPES_MAX]}}
+
+
 def filtre_quarantaine(msg: dict) -> dict | None:
     """Il reçoit le monde (inscriptions), rien de lui n'y entre. None : ignoré."""
     t = msg.get("type")
@@ -537,7 +572,8 @@ def filtre_quarantaine(msg: dict) -> dict | None:
         return {"type": "inv", "group": msg.get("group"), "seq": seq if _int(seq) and seq >= 0 else 0, "sync": 1}
     if t == "keys":
         return dict(msg, slots={}) if msg.get("hello") in (1, True) else None
-    if t in ("key_get", "key_use", "pickup", "image_monde", "trk"):   # « trk » : vie, lettres, cadeaux (trackeur)
+    if t in ("key_get", "key_use", "pickup", "image_monde", "trk", "rando_plus"):   # « trk » : trackeur ;
+        # « rando_plus » : dons progressifs de TWWHD reçus dans une partie en quarantaine
         return None
     if t == "vie":
         # vie partagée : il reçoit la valeur commune (hello sans « hote », sync), aucun de ses dégâts ou soins n'y entre
@@ -608,6 +644,9 @@ class Monde:
         # randomizer, étape 5 : coffres étrangers muets par joueur (validés par muets_relus au démarrage du serveur)
         rm_ = doc.get("rando_muets")
         self.rando_muets_doc: dict | None = rm_ if isinstance(rm_, dict) else None
+        # objets progressifs de TWWHD : dons progressifs par groupe et par session (validés par plus_relus)
+        rp_ = doc.get("rando_plus")
+        self.rando_plus_doc: dict | None = rp_ if isinstance(rp_, dict) else None
         rf = doc.get("rando_fichiers")
         self.rando_fichiers: dict | None = {"plan": rf["plan"], "fichiers": rf["fichiers"]} \
             if isinstance(rf, dict) and isinstance(rf.get("plan"), str) and isinstance(rf.get("fichiers"), str) \
@@ -645,6 +684,8 @@ class Monde:
         self.groupes_doc = doc.get("groupes")
         # trackeur du randomizer : section relue telle quelle, validée par le serveur (Server.trk_restaurer)
         self.trackeur_doc = doc.get("trackeur") if isinstance(doc.get("trackeur"), dict) else None
+        # médailles de fin de donjon (serveur/medailles.py) : relues telles quelles, validées par le serveur
+        self.medailles_doc = doc.get("medailles") if isinstance(doc.get("medailles"), dict) else None
         # salles retenues (canons détruits, switches de mort ; synchro/canons.py §3), validées par SallesDetruites
         self.salles_doc = doc.get("salles") if isinstance(doc.get("salles"), dict) else None
         self.ignores = 0
@@ -716,6 +757,9 @@ class Monde:
         self.groupes_doc = None
         if getattr(self, "trackeur_doc", None) is not None and hasattr(srv, "trackeur_doc"):
             srv.trackeur_doc = self.trackeur_doc
+        if getattr(self, "medailles_doc", None) is not None and hasattr(srv, "medailles"):
+            self.ignores += srv.medailles.restaurer(self.medailles_doc)
+            self.medailles_doc = None
         if getattr(self, "salles_doc", None) is not None and hasattr(srv, "salles"):
             ok, bad = srv.salles.restaurer(self.salles_doc)
             self.ignores += bad
@@ -761,9 +805,16 @@ class Monde:
             doc["rando_fichiers"] = dict(self.rando_fichiers)   # un ancien serveur l'ignore sans erreur
         if getattr(self, "rando_muets_doc", None):
             doc["rando_muets"] = self.rando_muets_doc          # étape 5 (un ancien serveur l'ignore sans erreur)
+        if getattr(self, "rando_plus_doc", None):
+            doc["rando_plus"] = self.rando_plus_doc            # progressifs de TWWHD (un ancien serveur l'ignore)
         trk = srv.trk_document() if hasattr(srv, "trk_document") else None
         if trk is not None:
             doc["trackeur"] = trk      # corrections manuelles du trackeur (un ancien serveur l'ignore sans erreur)
+        med = srv.medailles.exporter() if hasattr(srv, "medailles") else None
+        if med is not None and (med["finis"] or med["en_cours"]):
+            doc["medailles"] = med     # médailles de fin de donjon (un ancien serveur l'ignore sans erreur)
+        elif getattr(self, "medailles_doc", None):
+            doc["medailles"] = self.medailles_doc     # relue mais pas encore rendue au serveur : jamais perdue
         salles = srv.salles.document() if hasattr(srv, "salles") else {}
         if salles:
             doc["salles"] = salles     # canons détruits, switches de mort par salle (un ancien serveur l'ignore)
