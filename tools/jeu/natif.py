@@ -222,6 +222,10 @@ def diagnostic(mem, boite: int) -> str:
                                    + (f", donjon : {carte['vues_donjon']} passage(s), {carte['refus_etage']} à un "
                                       f"autre étage, {carte['refus_cadre']} hors du cadre, écart de l'icône de Link "
                                       f"{carte['ecart_donjon']:.1f}" if carte["vues_donjon"] else "")))
+    sig = lire_reperes(mem, boite)
+    if sig is not None:
+        parts.append(f"noms et signaux : cfg {sig['cfg']}, {sig['noms_vus']} nom(s) et {sig['signaux_vus']} "
+                     f"signal(aux) dessinés, {sig['demandes']} double(s) clic(s) du stick gauche")
     parts.append(f"pas de Link {z['pas']}")
     return " | ".join(parts)
 
@@ -249,6 +253,20 @@ def lire_carte(mem, boite: int) -> dict | None:
             "vues_carte": vues_carte, "ecart_link": ecart, "marques": marques, "visage": visage, "bonnet": bonnet,
             "refus": refus, "vues_donjon": vues_donjon, "refus_etage": refus_etage, "refus_cadre": refus_cadre,
             "ecart_donjon": ecart_donjon}
+
+
+# noms au-dessus des têtes et signal « viens ici » (mod 0.33.0, sans bit ; natif/mod_wwmp/reperes.c, zone WWMPSIG1)
+SIG_OFF, MAGIE_SIG = 0x6900, b"WWMPSIG1"
+
+
+def lire_reperes(mem, boite: int) -> dict | None:
+    """Compteurs de la zone WWMPSIG1 (mod 0.33.0 ou plus), ou None."""
+    raw = mem.try_read(boite + SIG_OFF, 0x40)
+    if raw is None or raw[:8] != MAGIE_SIG or struct.unpack_from(">I", raw, 8)[0] != 1:
+        return None
+    cfg, demandes = struct.unpack_from(">2I", raw, 0x0C)
+    noms_vus, signaux_vus = struct.unpack_from(">2H", raw, 0x3C)
+    return {"cfg": cfg, "demandes": demandes, "noms_vus": noms_vus, "signaux_vus": signaux_vus}
 
 
 def open_natif(pid: int | None = None, write: bool = False, verbose: bool = True,

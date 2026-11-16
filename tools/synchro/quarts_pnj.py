@@ -31,9 +31,26 @@ Principe (même contrat que les coffres et les quarts au sol : le DRAPEAU est la
   drapeau. Drapeau seul : GRANT genre 4 sans objet, ou écriture du drapeau. Contrat « propriétaire unique » : si
   l'inventaire compte la vie max, drapeau seul.
 
-Non couverts (aucun drapeau prouvé dans le RPX HD, ou registre au sens inconnu) : Maggie (livraison), tir aux tonneaux
-(registre 0xB703), Bataille navale, Orque 500 coups, photos de Lenzo. Le reste des 44 quarts : coffres, sol, trésors
-engloutis (coffres), Gros Octo.
+Mini-jeux à compteur de prix (genre ``cpt``) : le jeu ne pose pas de bit, il compte les prix gagnés dans un registre
+(valeur brute dans les bits du masque, getEventReg HD sans décalage 0x025B8BB0) et donne ``table[compteur]`` APRÈS
+l'avoir augmenté ; compteur >= 1 = premier prix (le quart) déjà donné. « Fait » : registre non nul ; le receveur ne
+pose que le bit de poids faible (``pose`` : 0 -> 1, jamais 3 ; GRANT genre 4 inchangé, il OU le masque passé) et
+seulement si le registre est à 0 (relu juste avant). Hors de la progression (octets >= 0x60) : comme une lettre, seul
+un quart prouvé part.
+  - tir aux tonneaux (Kg2, Île des Binocles) : registre 0xB703, seul écrivain 0x0226A73C setEventReg (fin de
+    KG2_CLEAR_DEMO, plafond 3), puis KG2_GETDEMO -> evn_createItem_init (0x02269004) donne 0x1001C194[reg] =
+    07 07 D7 (reg > 2 : 0x06) ; TWWHD met le premier prix aux octets 0 ET 1 de cette table ;
+  - Bataille navale (Kg1, Mercantîle) : registre 0xFE07, seul écrivain 0x02267884 setEventReg (message de victoire,
+    plafond 3), puis wait_action (0x022671FC) donne {07, CC, 05}[reg - 1].
+Orca (500 coups) : bit 0x0F10, seul ``onEventBit`` à 0x02258738 juste avant le quart (createItem de Ji1) ; le
+même bit ferme la récompense des coups (battleGuardCheck 0x0225AA0C).
+
+Non couverts : Maggie (livraison de la lettre du Moblin) : le jeu ne garde AUCUN drapeau ni registre de la remise
+(Kp1 n'appelle ni onEventBit ni un setEventReg utile ; getMsg 0x0227D1E0-0x0227D200 déduit « livrée » de la lettre
+0x9B obtenue une fois, bit 15 de mGetBagItem, et absente du sac) : marquer « fait » chez les autres voudrait dire
+retirer une lettre qu'ils n'ont peut-être pas encore, pas propre. Photos de Lenzo : aucun quart dans la version HD
+(Lenzo et les photos donnent boîte à images, pendentif, cartes : déjà des cadeaux N2). Le reste des 44 quarts :
+coffres, sol, trésors engloutis (coffres), Gros Octo.
 """
 from __future__ import annotations
 
@@ -58,7 +75,8 @@ class Lieu:
     code: str            # identifiant court, stable (message, monde persistant)
     nom: str             # nom de la logique (rando/logique/lieux.json)
     drapeau: int         # 0xXXYY de mSave.mEvent : octet XX, masque YY (tous les bits du masque = fait)
-    genre: str           # "bit" (octet partagé par la progression : relayé toujours) ou "reg" (lettre : quart seul)
+    genre: str           # "bit" (octet partagé par la progression : relayé toujours), "reg" (lettre : quart seul) ou
+                         # "cpt" (compteur de prix d'un mini-jeu : fait = non nul ; quart seul)
     origine: int         # objet du jeu d'origine
     preuve: str          # où le jeu pose le drapeau (cking.rpx USA v0)
 
@@ -69,6 +87,23 @@ class Lieu:
     @property
     def masque(self) -> int:
         return self.drapeau & 0xFF
+
+    @property
+    def pose(self) -> int:
+        """Bits posés chez le receveur : le masque entier, sauf compteur : son bit de poids faible (0 -> 1)."""
+        m = self.masque
+        return m & -m if self.genre == "cpt" else m
+
+    @property
+    def drapeau_pose(self) -> int:
+        """0xXXYY passé au GRANT genre 4 (le mod OU ces bits ; « déjà posé » quand ils le sont tous)."""
+        return self.octet << 8 | self.pose
+
+    def fait(self, octet: int) -> bool:
+        """Le lieu est fait d'après la valeur de son octet de mSave.mEvent."""
+        if self.genre == "cpt":
+            return (octet & self.masque) != 0
+        return (octet & self.masque) == self.masque
 
     @property
     def src(self) -> str:
@@ -90,6 +125,10 @@ LIEUX = (
     Lieu("enchere5", "Windfall Island - Auction 5 Rupee", 0x1080, "bit", 0xE4, "table des enchères 0x1019016C"),
     Lieu("enchere40", "Windfall Island - Auction 40 Rupee", 0x0F01, "bit", 0x1F, "table des enchères 0x1019016C"),
     Lieu("enchere60", "Windfall Island - Auction 60 Rupee", 0x1040, "bit", 0xED, "table des enchères 0x1019016C"),
+    Lieu("orca", "Outset Island - Orca Hit 500 Times", 0x0F10, "bit", 0x07, f"0x02258738 {_ON}"),
+    # compteurs de prix (registre augmenté AVANT le prix ; preuve : son seul setEventReg, tests/test_quarts_pnj_rpx.py)
+    Lieu("tonneaux", "Spectacle Island - Barrel Shooting First Prize", 0xB703, "cpt", 0x07, "0x0226A73C setEventReg"),
+    Lieu("calmar", "Windfall Island - Battle Squid First Prize", 0xFE07, "cpt", 0x07, "0x02267884 setEventReg"),
     # lettres : registre de 2 bits mis à 3 en fin de remise (0x023A510C setEventReg, rando/trackeur_client.py) ; site
     # du courrier = index de rando.SITES_DONNEES (même clé que trackeur_client.LETTRES)
     Lieu("lettre0", "Mailbox - Letter from Baito's Mother", 0xAC03, "reg", 0x07, "0x023A510C setEventReg"),
@@ -196,7 +235,7 @@ def lire_drapeaux(mem, gi: int) -> dict | None:
     raw = mem.try_read(gi + prog.GI_EVENT, prog.EVENT_SIZE)
     if raw is None or len(raw) != prog.EVENT_SIZE:
         return None
-    return {l.code: (raw[l.octet] & l.masque) == l.masque for l in LIEUX}
+    return {l.code: l.fait(raw[l.octet]) for l in LIEUX}
 
 
 def lire_preuve(mem, gi: int) -> tuple[int, int] | None:
@@ -209,8 +248,9 @@ def lire_preuve(mem, gi: int) -> tuple[int, int] | None:
 
 
 def poser_drapeau(mem, gi: int, lieu: Lieu) -> bool:
-    """Repli Python : tous les bits du masque posés dans mSave.mEvent (OU, lecture-modification-écriture gardée)."""
-    return bool(prog._rmw(mem, gi + prog.GI_EVENT + lieu.octet, lieu.masque))
+    """Repli Python : les bits ``lieu.pose`` posés dans mSave.mEvent (OU, lecture-modification-écriture gardée ;
+    compteur : 0 -> 1)."""
+    return bool(prog._rmw(mem, gi + prog.GI_EVENT + lieu.octet, lieu.pose))
 
 
 # ---------------------------------------------------------------------------
@@ -219,8 +259,10 @@ def poser_drapeau(mem, gi: int, lieu: Lieu) -> bool:
 class PnjWatch:
     LECTURES = 2            # lectures de suite à 1 avant de croire un drapeau
     SAUT_MAX = 3            # plus de drapeaux d'un coup : sauvegarde chargée (nouvelle base)
-    PREUVE_AVANT = {"bit": 60.0, "reg": 300.0}   # s : le quart peut précéder le drapeau (lettre : fin de remise)
-    PREUVE_APRES = 30.0     # s : le quart peut suivre le drapeau (démo d'obtention)
+    PREUVE_AVANT = {"bit": 60.0, "reg": 300.0, "cpt": 60.0}   # s : le quart peut précéder le drapeau (lettre : fin
+                                                               # de remise)
+    PREUVE_APRES = {"bit": 30.0, "reg": 30.0, "cpt": 90.0}    # s : le quart peut suivre le drapeau (démo d'obtention ;
+                                                               # compteur : augmenté au message de victoire, prix après)
     CONTENU_MAX = 300.0     # s à attendre la table du randomizer au plus
     HIST_MAX = 400.0
 
@@ -302,7 +344,7 @@ class PnjWatch:
                 p0, p = cand["p0"], preuve
                 if p0 is not None and p is not None and (p[0] > p0[0] or p[1] > p0[1]):
                     quart = 1
-                elif now - cand["t"] > self.PREUVE_APRES:
+                elif now - cand["t"] > self.PREUVE_APRES[lieu.genre]:
                     quart = 0
                     self.notes.append(f"{lieu.nom} : fait, mais aucun quart de cœur vu chez toi : lieu marqué fait "
                                       "chez les autres, rien ne leur est donné")
@@ -312,7 +354,7 @@ class PnjWatch:
                 quart = 0
             del self.cands[c]
             if quart == 0 and lieu.genre != "bit":
-                self.n_jetes += 1             # lettre sans quart : hors de la synchro, comme avant
+                self.n_jetes += 1             # lettre ou compteur sans quart : hors de la synchro, comme avant
                 continue
             self.sent.add(c)
             if quart:
@@ -421,7 +463,7 @@ class PnjApply:
                 continue
             if self.granter is not None:
                 try:
-                    res = int(self.granter(lieu.drapeau, ITEM_PIECE if give else ITEM_NONE, 1))
+                    res = int(self.granter(lieu.drapeau_pose, ITEM_PIECE if give else ITEM_NONE, 1))
                 except Exception as exc:      # boîte sans réponse : idempotent, on réessaie
                     self.next_try[src] = now + self.RETRY * 5
                     self._once(("err", src), f"{lieu.nom} : pas encore appliqué ({exc}) : nouvel essai")

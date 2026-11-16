@@ -99,6 +99,8 @@ class Latence:
         self.attente_coup = False             # le réveil en attente vient d'un coup (budget à part)
         self.hlaisse_vus: dict = {}           # clé du monstre possédé -> (élan, séquence) du dernier hlaisse
         self.ages: dict[str, list[float]] = {}  # sorte -> âges mesurés (s) : fantôme affiché, marionnettes
+        self.etapes: dict[str, list[float]] = {}  # partie du travail d'un tick -> durées (s) des derniers ticks
+        self.releves_tick = 0                 # relevés complets des acteurs faits DANS le tick (entrée de salle…)
 
     # --- cadences ---------------------------------------------------------------
     def diviseur(self, hz: int) -> int:
@@ -176,6 +178,12 @@ class Latence:
         self.n_ticks += 1
         self.travail = (self.travail + [max(0.0, travail)])[-200:]
 
+    def note_etapes(self, durees: dict) -> None:
+        """Durée (s) de chaque partie du travail de ce tick (lecture du jeu, fantômes, marionnettes, synchro…) : §4 ter
+        de rollback_netcode.md, pour voir dans le fichier d'état où passe le temps quand la boucle sature."""
+        for nom, d in durees.items():
+            self.etapes[nom] = (self.etapes.get(nom, []) + [max(0.0, float(d))])[-100:]
+
     def note_envoi(self, sorte: str, delais) -> None:
         if delais:
             self.envoi[sorte] = (self.envoi.get(sorte, []) + [float(d) for d in delais])[-32:]
@@ -236,7 +244,10 @@ class Latence:
                "marionnettes_ms": ms(_med(marionnettes)),
                "player_hit_envoi_ms": ms(_med(self.envoi.get("player_hit"))),
                "player_hit_ms": ms(_med(self.appli.get("player_hit"))),
-               "ordre_ms": ms(_med(self.appli.get("ordre")))}
+               "ordre_ms": ms(_med(self.appli.get("ordre"))),
+               # §4 ter : où passe le travail d'un tick (médiane et pire des derniers), relevés complets dans le tick
+               "etapes_ms": {k: [ms(_med(v)), ms(max(v))] for k, v in self.etapes.items() if v},
+               "releves_tick": self.releves_tick}
         e, a = _med(self.envoi.get("jarres")), _med(self.appli.get("jarres"))
         if e is not None and a is not None:
             # notre moitié d'émetteur + notre moitié de receveur (l'autre PC a la sienne, proche en LAN)

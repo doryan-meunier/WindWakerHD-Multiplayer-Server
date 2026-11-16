@@ -33,6 +33,15 @@ RAISON_XLIB = ("python-xlib absent : touches F3-F9 inactives (pip install python
                "les boutons du lanceur (Jouer en ligne → Lobby, Mode Hanteurs) font les mêmes actions")
 
 
+def vk_keysyms() -> dict:
+    """Code virtuel Windows (``commun.commandes.TOUCHES``, sans conversion de disposition) -> keysyms X11."""
+    from commun import commandes as cm
+    out = {vk: (ks,) for vk, _sc, ks in cm.TOUCHES.values()}
+    for nom, vk in cm.VK_MODIFICATEURS.items():
+        out[vk] = cm.KEYSYMS_MODIFICATEURS[nom]
+    return out
+
+
 def _rien(_vk=None):
     return False
 
@@ -69,8 +78,14 @@ def creer(env=None, xlib=None):
     codes = {vk: (d.keysym_to_keycode(ks),) for vk, ks in KEYSYMS.items()}
     codes[0x11] = tuple(d.keysym_to_keycode(ks) for ks in KEYSYMS_CTRL)
 
+    def code(vk):
+        """Touches configurables (commun/commandes.py, onglet Commandes du lanceur) : keysym trouvé à la demande."""
+        if vk not in codes:
+            codes[vk] = tuple(d.keysym_to_keycode(ks) for ks in vk_keysyms().get(vk, ()))
+        return codes[vk]
+
     def lire(vk) -> bool:
-        kcs = [kc for kc in codes.get(vk, ()) if kc]
+        kcs = [kc for kc in code(vk) if kc]
         if not kcs:
             return False
         carte = d.query_keymap()

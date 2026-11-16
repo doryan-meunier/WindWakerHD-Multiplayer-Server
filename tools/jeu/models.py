@@ -101,13 +101,21 @@ def relative_models(mem, actor: int, pos, rot_y: int, paths: list[tuple[str, int
         raw = mem.try_read(mem.u32(model + JOINTS_PTR), nj * 48)
         if not raw:
             continue
-        w = np.tile(np.eye(4), (nj, 1, 1))
-        w[:, :3, :] = np.frombuffer(raw, dtype=">f4").astype(np.float64).reshape(nj, 3, 4)
-        try:
-            out[path] = pose.encode((binv @ w)[:, :3, :].astype(np.float32))
-        except ValueError:                  # matrices périmées hors du float16 : modèle pas envoyé cette fois
-            continue
+        enc = pose_relative(binv, raw, nj)
+        if enc is not None:
+            out[path] = enc
     return out
+
+
+def pose_relative(binv, raw: bytes, nj: int) -> str | None:
+    """Pose encodée de ``nj`` matrices monde (``raw`` : nj × 3×4 flottants big-endian) relatives à la base inversée
+    ``binv`` ; None si les matrices sont périmées (hors du float16 : modèle pas envoyé cette fois)."""
+    w = np.tile(np.eye(4), (nj, 1, 1))
+    w[:, :3, :] = np.frombuffer(raw, dtype=">f4", count=nj * 12).astype(np.float64).reshape(nj, 3, 4)
+    try:
+        return pose.encode((binv @ w)[:, :3, :].astype(np.float32))
+    except ValueError:
+        return None
 
 
 # Bateau (proc 165) [LIVE] : chemins de ses 3 modèles depuis l'acteur. La fouille

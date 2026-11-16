@@ -405,12 +405,59 @@ CALL_VIE = 18
 MAGIC_VIE = b"WWMPVIE1"
 VIE_FORMAT = 1
 OFFV_APPELS, OFFV_FAITS, OFFV_REFUS, OFFV_DERNIER = 0x0C, 0x10, 0x14, 0x18
+# capacités des monstres possédés (MOD NATIF SEULEMENT, 0.34.0 ; natif/mod_wwmp/capacites.c, synchro/capacites.py) :
+# SANS bit de capacité : la zone wwmp_cap (magie « WWMPCAP1 », format 1, à +0x6A00) trouvée dans la boîte EST la
+# capacité. CALL 20 CAPACITE(id de l'acteur, index) : l'action native propre à l'espèce, depuis un état « libre » ;
+# résultat 1 fait, 0 pas libre (rien écrit), -1 index ou espèce, -2 capacité coupée, -3 événement, -4 introuvable,
+# -8 Link absent (Moblin). Le PC écrit +0x10 (capacités coupées, bit par index) et +0x14 (garde du Darknut, images).
+CALL_CAP = 20
+MAGIC_CAP = b"WWMPCAP1"
+CAPA_FORMAT = 1
+CAPA_N = 3
+OFFA_NOMBRE, OFFA_COUPEES, OFFA_GARDE, OFFA_APPELS = 0x0C, 0x10, 0x14, 0x18   # capacités (pas OFFK_ : cache-cache)
+CAPA_GARDE_MIN, CAPA_GARDE_MAX = 15, 120
+# enfermement des Hanteurs (MOD NATIF SEULEMENT, 0.35.0 ; natif/mod_wwmp/enfermement.c, synchro/enfermement.py) : SANS bit
+# de capacité, la zone wwmp_enf (magie « WWMPENF1 », format 1, à 0x6A80) trouvée dans la boîte EST la capacité. CALL 21
+# ENF(vie en images 0..300, rayon 100..5000, salle -1..63), centre à +0x40 : 1 armé, 2 entretenu, 0 libéré ; refus :
+# -1 arguments / robot, -2 pas de partie, -3 événement, -4 centre refusé, -5 autre salle, -6 Link hors du cercle
+# (+ 300), -7 changement d'étape, -8 Link absent, -10 Link mort.
+CALL_ENF = 21
+MAGIC_ENF = b"WWMPENF1"
+ENF_FORMAT = 1
+ENF_VIE_MAX = 300
+ENF_RAYON_MIN, ENF_RAYON_MAX = 100, 5000
+OFFE_ARME = 0x0C                 # jeu : 1 armé ; puis vie (s32), centre (3 f32), rayon (f32), salle (s32)
+OFFE_APPELS = 0x38               # jeu : appels, armements, refus, dernier, repoussés, chocs, libérations, raison, evt,
+                                 # effets, sons
+ENF_RAISONS = {0: "", 1: "durée écoulée", 2: "salle changée", 3: "changement d'étape", 4: "Link mort",
+               5: "Link réapparu loin", 6: "Link absent", 7: "libéré"}
+# commandes à la manette (MOD NATIF SEULEMENT, 0.37.0 ; natif/mod_wwmp/manette.c, commun/commandes.py, synchro/hanteurs
+# Touches) : zone wwmp_man (magie « WWMPMAN1 », AUCUN bit : la zone trouvée EST la capacité), 0x40 octets à 0x6B00.
+# Filtre d'entrée du SDK : le mod relève les boutons tenus (wwhd_input_read, avant les règles du portage : L compris),
+# compte chaque combinaison COMPLÉTÉE (fronts, u8 qui tourne) et la retire au jeu jusqu'au relâchement de ses boutons.
+# Masques en code compact 16 bits (commandes.compact) écrits par le PC ; 0 = emplacement libre.
+MAGIC_MAN = b"WWMPMAN1"
+MAN_FORMAT = 1
+OFFM_TENUS, OFFM_FRONTS, OFFM_MASQUES = 0x0C, 0x10, 0x20
+MAN_N, MAN_TAILLE = 16, 0x40
 # GRANT genre 4 (bit 31, MOD NATIF SEULEMENT, 0.24.0 ; natif/mod_wwmp/commandes.c, synchro/quarts_pnj.py) : CALL 8 pose
 # un drapeau d'événement (octet + masque entier de mSave.mEvent) PUIS donne l'objet, dans la même image, hors événement
 CAP_GRANT_EVT = 0x80000000       # bit 31
+# noms au-dessus des têtes et signal « viens ici » (MOD NATIF SEULEMENT, 0.33.0 ; natif/mod_wwmp/reperes.c,
+# client/reperes.py) : SANS bit (le mot est plein) : la zone wwmp_sig (magie « WWMPSIG1 », format 1) EST la capacité.
+# Le PC écrit cfg, le nom (Latin-1, 15 octets au plus) de chaque emplacement avec l'id de process de SON fantôme, et les
+# signaux reçus (durée en pas EN DERNIER) ; le jeu relève le double clic du stick gauche (position puis compteur).
+MAGIC_SIG = b"WWMPSIG1"
+SIG_FORMAT = 1
+SIG_NOMS, SIG_SIGNAUX, SIG_MANETTE = 0x1, 0x2, 0x4
+OFFS_CFG, OFFS_DEMANDES, OFFS_POS, OFFS_IDS, OFFS_VUS, OFFS_NOMS, OFFS_SIG = 0x0C, 0x10, 0x14, 0x20, 0x3C, 0x40, 0xB0
+SIG_N, SIG_NOM, SIG_ENTREE = 4, 16, 0x14
+SIG_MOD = 33                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
+OFFC_MOI = 0x5C                    # 0.31.0 : RRGGBBAA du bonnet de NOTRE icône (0 : icône du jeu telle quelle)
+CARTE_MOI_MOD = 31                 # NATIF_VERSION_MOD qui lit +0x5C (avant : mot de réserve, jamais relu)
 CARTE_TAILLE = 0x80                # 0.27.0 : + compteurs de la carte du donjon (+0x60..+0x6C)
 # boulets du canon du bateau (bit 29, MOD NATIF SEULEMENT, 0.17.0 ; natif/mod_wwmp/boulets.c, synchro/boulets.py) : zone
 # wwmp_bou (magie « WWMPBOU1 »). Chez le tireur : file des tirs de NOTRE bateau (cfg bit 0). Chez les autres : CALL 16
@@ -1546,6 +1593,226 @@ class Mailbox:
         n, f, r, d = struct.unpack(">3Ii", bytes(self.mem.read(a + OFFV_APPELS, 16)))
         return {"appels": n, "faits": f, "refus": r, "dernier": d}
 
+    # --- capacités des monstres possédés (0.34.0, mod natif seulement, sans bit : la zone est la capacité) ---------
+    def capacites_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_cap`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_cap", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_CAP, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != CAPA_FORMAT:
+                return None
+            a = self._cap = hits[0]
+        return a
+
+    @property
+    def capacites_ok(self) -> bool:
+        return self.capacites_addr() is not None
+
+    def capacites_regler(self, coupees: int = 0, garde: int = 0) -> bool:
+        """Réglages lus par le jeu à chaque CALL 20 : ``coupees`` (bit k : capacité k refusée) et ``garde`` (images de
+        la garde du Darknut, bornées 15..120 ici comme par le mod ; 0 : la valeur du mod). Rien n'est écrit si les
+        valeurs y sont déjà ; False sans la zone."""
+        a = self.capacites_addr()
+        if a is None:
+            return False
+        c = int(coupees) & ((1 << CAPA_N) - 1)
+        g = int(garde)
+        g = 0 if g <= 0 else max(CAPA_GARDE_MIN, min(CAPA_GARDE_MAX, g))
+        if struct.unpack(">2I", bytes(self.mem.read(a + OFFA_COUPEES, 8))) != (c, g):
+            self.mem.write(a + OFFA_COUPEES, struct.pack(">2I", c, g))
+        return True
+
+    def capacite(self, proc_id: int, index: int, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 20 CAPACITE : joue la capacité ``index`` (synchro/capacites.py INDEX) du monstre ``proc_id``, sur le fil du
+        jeu, s'il est « libre ». Résultat : 1 fait, 0 pas libre, -1 index ou espèce, -2 coupée, -3 événement,
+        -4 introuvable, -8 Link absent. MailboxError sans la zone, ValueError hors bornes (rien n'est envoyé) ;
+        MailboxCancelled sans réponse (requête neutralisée : rien n'a été fait)."""
+        if self.capacites_addr() is None:
+            raise MailboxError("capacités des monstres : seulement le mod natif du portage à jour (0.34.0 ou plus)")
+        if isinstance(index, bool) or isinstance(proc_id, bool):
+            raise ValueError("capacité : arguments hors bornes")
+        proc_id, index = int(proc_id), int(index)
+        if not (0 < proc_id < 0xFFFFFFFF and 0 <= index < CAPA_N):
+            raise ValueError("capacité : arguments hors bornes")
+        return self._call(CMD_CALL, CALL_CAP, proc_id, index, timeout=timeout, cancel=True)
+
+    def capacites_counters(self) -> dict:
+        a = self.capacites_addr()
+        if a is None:
+            return {"nombre": 0, "coupees": 0, "garde": 0, "appels": 0, "faites": 0, "refus": 0, "dernier": 0,
+                    "derniere": 0}
+        n, c, g, ap, f, r, d, i = struct.unpack(">6IiI", bytes(self.mem.read(a + OFFA_NOMBRE, 32)))
+        return {"nombre": n, "coupees": c, "garde": g, "appels": ap, "faites": f, "refus": r, "dernier": d,
+                "derniere": i}
+    # --- noms au-dessus des têtes et signal « viens ici » (0.33.0, mod natif seulement, sans bit) ----------------
+    def sig_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_sig`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_sig", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_SIG, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != SIG_FORMAT:
+                return None
+            a = self._sig = hits[0]
+        return a
+
+    def set_sig_cfg(self, cfg: int) -> bool:
+        a = self.sig_addr()
+        if a is None:
+            return False
+        self.mem.w_u32(a + OFFS_CFG, int(cfg) & (SIG_NOMS | SIG_SIGNAUX | SIG_MANETTE))
+        return True
+
+    def set_nom(self, slot: int, pid: int, nom: bytes) -> bool:
+        """Nom (Latin-1 déjà nettoyé, 15 octets au plus) du fantôme ``pid`` de l'emplacement ``slot`` : id à 0 d'abord,
+        puis le nom, puis l'id (le jeu ne montre jamais un nom avec un autre fantôme). ``pid`` 0 : plus de nom."""
+        a = self.sig_addr()
+        if a is None:
+            return False
+        if not 0 <= int(slot) < 7:
+            raise ValueError(f"nom : emplacement {slot!r}")
+        n = bytes(nom or b"")[:SIG_NOM - 1]
+        self.mem.w_u32(a + OFFS_IDS + 4 * slot, 0)
+        self.mem.write(a + OFFS_NOMS + SIG_NOM * slot, n.ljust(SIG_NOM, b"\0"))
+        if pid:
+            self.mem.w_u32(a + OFFS_IDS + 4 * slot, int(pid) & 0xFFFFFFFF)
+        return True
+
+    def poser_signal(self, k: int, pos, rgba: int, duree: int) -> bool:
+        """Signal ``k`` (0..3) : durée à 0 d'abord, position et couleur, puis la durée (pas de Link) EN DERNIER."""
+        a = self.sig_addr()
+        if a is None:
+            return False
+        if not 0 <= int(k) < SIG_N:
+            raise ValueError(f"signal : entrée {k!r}")
+        e = a + OFFS_SIG + SIG_ENTREE * k
+        self.mem.w_u32(e, 0)
+        self.mem.write(e + 4, struct.pack(">3fI", *[float(v) for v in pos], int(rgba) & 0xFFFFFFFF))
+        if duree > 0:
+            self.mem.w_u32(e, min(int(duree), 0xFFFF))
+        return True
+
+    def lire_demande_signal(self) -> tuple[int, tuple[float, float, float]] | None:
+        """(compteur des doubles clics du stick gauche, position de Link au dernier) ; None sans la zone."""
+        a = self.sig_addr()
+        if a is None:
+            return None
+        n, x, y, z = struct.unpack(">I3f", bytes(self.mem.read(a + OFFS_DEMANDES, 16)))
+        return n, (x, y, z)
+
+    def sig_counters(self) -> dict:
+        a = self.sig_addr()
+        if a is None:
+            return {"cfg": 0, "demandes": 0, "noms_vus": 0, "signaux_vus": 0}
+        cfg, n = struct.unpack(">2I", bytes(self.mem.read(a + OFFS_CFG, 8)))
+        nv, sv = struct.unpack(">2H", bytes(self.mem.read(a + OFFS_VUS, 4)))
+        return {"cfg": cfg, "demandes": n, "noms_vus": nv, "signaux_vus": sv}
+    # --- enfermement des Hanteurs (0.35.0, mod natif seulement, sans bit : la zone est la capacité) ------------------
+    def enf_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_enf`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_enf", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_ENF, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != ENF_FORMAT:
+                return None
+            a = self._enf = hits[0]
+        return a
+
+    @property
+    def enf_ok(self) -> bool:
+        return self.enf_addr() is not None
+
+    def enfermer(self, centre, rayon: int, salle: int, vie: int, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 21 ENF : arme (ou entretient, mêmes centre, rayon et salle) l'enfermement de Link dans le cercle
+        (``centre`` x, y, z ; ``rayon`` 100..5000 u ; ``salle`` -1..63) pour ``vie`` images (1..300), décomptées par le
+        jeu. Renvoie 1 armé, 2 entretenu, ou un refus (< 0, rien d'armé). ValueError avant tout envoi hors bornes ;
+        MailboxError sans la zone ; MailboxCancelled sans réponse (requête neutralisée : rien n'a été fait)."""
+        if self.enf_addr() is None:
+            raise MailboxError("enfermement : seulement le mod natif du portage à jour (0.35.0 ou plus)")
+        for v, lo, hi, nom in ((vie, 1, ENF_VIE_MAX, "vie"), (rayon, ENF_RAYON_MIN, ENF_RAYON_MAX, "rayon"),
+                               (salle, -1, 63, "salle")):
+            if isinstance(v, bool) or not isinstance(v, int) or not lo <= v <= hi:
+                raise ValueError(f"ENF : {nom} {v!r} hors {lo}..{hi}")
+        try:
+            x, y, z = (float(v) for v in centre)
+        except (TypeError, ValueError):
+            raise ValueError("ENF : centre illisible") from None
+        if not all(v == v and abs(v) < float(1 << 20) for v in (x, y, z)):
+            raise ValueError("ENF : centre refusé")
+        with Mailbox._lock:
+            self._check_idle()
+            self.mem.write(self.addr + OFF_CREATE_POS, struct.pack(">3f", x, y, z))
+            return self._call(CMD_CALL, CALL_ENF, vie, rayon, salle, timeout=timeout, cancel=True)
+
+    def liberer_enf(self, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 21 ENF avec une vie nulle : Link libéré tout de suite (0). MailboxError sans la zone."""
+        if self.enf_addr() is None:
+            raise MailboxError("enfermement : seulement le mod natif du portage à jour (0.35.0 ou plus)")
+        return self._call(CMD_CALL, CALL_ENF, 0, 0, 0, timeout=timeout, cancel=True)
+
+    def enf_counters(self) -> dict:
+        """Mise au point : {"arme", "vie", "appels", "armements", "refus", "dernier", "repousses", "chocs",
+        "liberations", "raison", "evt", "effets", "sons"} ; zéros sans la zone."""
+        cles = ("appels", "armements", "refus", "dernier", "repousses", "chocs", "liberations", "raison", "evt",
+                "effets", "sons")
+        a = self.enf_addr()
+        if a is None:
+            return dict.fromkeys(("arme", "vie") + cles, 0)
+        arme, vie = struct.unpack(">Ii", bytes(self.mem.read(a + OFFE_ARME, 8)))
+        v = struct.unpack(">3Ii7I", bytes(self.mem.read(a + OFFE_APPELS, 44)))
+        return {"arme": arme, "vie": vie, **dict(zip(cles, v))}
+    # --- commandes à la manette (0.37.0, mod natif seulement, sans bit : la zone est la capacité) ------------------
+    def manette_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_man`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_man", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_MAN, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != MAN_FORMAT:
+                return None
+            a = self._man = hits[0]
+        return a
+
+    @property
+    def manette_ok(self) -> bool:
+        return self.manette_addr() is not None
+
+    def manette_masques(self, masques) -> bool:
+        """Combinaisons à lire (code compact 16 bits, au plus 16 ; le reste mis à 0 : emplacements libres)."""
+        a = self.manette_addr()
+        if a is None:
+            return False
+        m = [int(v) & 0xFFFF for v in list(masques)[:MAN_N]]
+        m += [0] * (MAN_N - len(m))
+        self.mem.write(a + OFFM_MASQUES, struct.pack(">16H", *m))
+        return True
+
+    def manette_fronts(self) -> list[int]:
+        """Compteurs (u8) de combinaisons complétées, un par emplacement."""
+        a = self.manette_addr()
+        if a is None:
+            return [0] * MAN_N
+        return list(bytes(self.mem.read(a + OFFM_FRONTS, MAN_N)))
+
+    def manette_tenus(self) -> int:
+        """Boutons VPAD tenus à la dernière lecture du jeu (diagnostic)."""
+        a = self.manette_addr()
+        return struct.unpack(">I", bytes(self.mem.read(a + OFFM_TENUS, 4)))[0] if a is not None else 0
+
     def set_couleurs_carte(self, couleurs) -> bool:
         """Couleurs (7 mots RRGGBBAA, un par emplacement de fantôme ; 0 = blanc) des marqueurs de la carte."""
         a = self.carte_addr()
@@ -1555,6 +1822,14 @@ class Mailbox:
         if len(c) != 7:
             raise ValueError("carte : 7 couleurs attendues")
         self.mem.write(a + OFFC_COULEURS, struct.pack(">7I", *c))
+        return True
+
+    def set_couleur_moi_carte(self, rgba: int) -> bool:
+        """Couleur (RRGGBBAA ; 0 = icône du jeu telle quelle) du bonnet de NOTRE icône sur la carte (mod 0.31.0)."""
+        a = self.carte_addr()
+        if a is None:
+            return False
+        self.mem.write(a + OFFC_MOI, struct.pack(">I", int(rgba) & 0xFFFFFFFF))
         return True
 
     def carte_coupee(self, coupe: bool) -> bool:

@@ -15,6 +15,7 @@ import json
 import math
 import os
 import struct
+import sys
 from dataclasses import dataclass, field
 
 from jeu.cemu import MEM2_END, MEM2_START, GuestMemory
@@ -246,6 +247,29 @@ def _actor_de_brut(raw: bytes, base: int, lay: dict, prof_ok: bool, prof_size: i
                  home_room, speedF, hp, max_hp, prof_ok, params, home_pos)
 
 
+def _mots_alignes(data: bytes, va: int, mots: tuple[bytes, ...]) -> list[list[int]] | None:
+    """Adresses alignées sur 4 de chacun des ``mots`` (4 octets) dans ``data`` lu à ``va``, en une comparaison numpy
+    par mot. Latence (docs/etudes/rollback_netcode.md §4 ter) : ``bytes.find`` tient le verrou global de Python ~8 ms
+    par bloc de 32 Mio, deux fois par bloc ; le relevé en fond (~5 blocs) bloquait ainsi ~80 ms le fil de travail, le
+    fil des images et la boucle réseau. numpy compare ~4 fois plus vite et relâche le verrou pendant la comparaison.
+    None (bloc non aligné, numpy absent) : l'appelant garde ``bytes.find``. Mêmes adresses dans les deux cas."""
+    if va % 4 or any(len(m) != 4 for m in mots):
+        return None
+    try:
+        import numpy as np
+    except ImportError:                      # pragma: no cover (numpy est requis par le client)
+        return None
+    n = len(data) // 4
+    if n == 0:
+        return [[] for _ in mots]
+    mots_n = np.frombuffer(data, dtype=np.uint32, count=n)     # ordre de l'hôte : on compare des octets
+    out = []
+    for m in mots:
+        v = int.from_bytes(m, sys.byteorder)
+        out.append([va + 4 * int(i) for i in np.flatnonzero(mots_n == v)])
+    return out
+
+
 def _plausible(a: Actor) -> bool:
     return all(math.isfinite(v) and abs(v) < 1e6 for v in a.pos)
 
@@ -280,6 +304,11 @@ class ActorScanner:
         ac = struct.pack(">I", SYM_FOPAC_METHOD)
         lf_hits, ac_hits = set(), []
         for va, data in self.mem.iter_chunks(lo, hi):
+            trouves = _mots_alignes(data, va, (lf, ac))
+            if trouves is not None:
+                lf_hits.update(trouves[0])
+                ac_hits.extend(trouves[1])
+                continue
             for needle, sink in ((lf, None), (ac, ac_hits)):
                 i = data.find(needle)
                 while i != -1:
@@ -366,7 +395,9 @@ class ActorScanner:
         return out
 
     def read_all(self) -> list[Actor]:
-        if self._leger():
+        # lecture groupée : mode léger (Linux), ou blocs de morceaux proches (GuestMemory.read_lot, Windows) ; tailles
+        # des profils (statiques) gardées : un appel par bloc d'acteurs au lieu de deux par acteur (§4 ter)
+        if self._leger() or getattr(self.mem, "lecture_groupee", False) is True:
             return self._read_all_lot()
         out = []
         for b in self.bases:

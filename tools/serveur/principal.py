@@ -305,6 +305,7 @@ import sys
 import time
 
 from commun.chemins import TOOLS  # noqa: E402
+from commun.protocole import SIGNAL_ENTRE, valid_signal  # noqa: E402  (signal « viens ici », mod natif 0.33.0)
 from commun.protocole import (CLIENT_VERSION, DEFAULT_PORT, MAX_LINE, MAX_PLAYERS, REJOINDRE_MAX, REJOINDRE_PART,
     REJOINDRE_TIMEOUT, TIMEOUT, VERSION, decode, encode, zone_of)
 from jeu.progress import bits_count, bits_or, bits_sub, from_wire, to_wire  # noqa: E402
@@ -332,6 +333,7 @@ from synchro.portage import CarryTable, valid_carry  # noqa: E402
 from synchro.batons import STICK_MAX, valid_stick  # noqa: E402
 from commun import arret  # noqa: E402
 from commun import acces  # noqa: E402
+from commun import triches as triches_mod  # noqa: E402
 from serveur import dedie as serveur_dedie  # noqa: E402
 from serveur import admin as adm  # noqa: E402  (serveur dédié Docker : compte admin, config.json du volume)
 from serveur import autorite  # noqa: E402  (lot S1 : hôte d'autorité préféré)
@@ -344,6 +346,7 @@ from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_sl
 from commun.protocole import horodatage, valid_epos  # noqa: E402  (lot L2 de la latence)
 from synchro import hanteurs as hmod  # noqa: E402
 from synchro import potion as potion_mod  # noqa: E402
+from synchro import enfermement as enf_mod  # noqa: E402
 from serveur import monde_persistant as mpm  # noqa: E402
 from rando import noyau as rnd  # noqa: E402
 from commun import couleurs  # noqa: E402
@@ -410,6 +413,7 @@ class Player:
         # anciens) ; format de sa zone (None : pas annoncé) ; synchro/pause_vivante.py
         self.pause: int | None = None
         self.pause_fmt: int | None = None
+        self.triches: list[str] = []     # triches du portage natif actives chez lui (« triches », commun/triches.py)
         self.couleur = 0                 # couleur de tenue attribuée au hello (1..8 ; 0 : pas encore), commun/couleurs.py
         self.hello = False
         self.bytes_in = 0
@@ -446,6 +450,7 @@ class Player:
         self.vie_ack = 0                       # vie partagée : plus grand seq « vie » intégré
         self.vie_trou: int | None = None       # vie partagée : seq du premier événement refusé (débit)
         self.vie_times: list[float] = []
+        self.signal_t = float("-inf")          # signal « viens ici » : heure du dernier relayé
         self.pickup_times: list[float] = []
         self.hit_times: dict[int, list[float]] = {}   # synchro v2 (A2) : victime -> heures des coups relayés
         self.saisie_times: dict[int, list[float]] = {}   # synchro v4 (saisie transmise) : victime -> heures relayées
@@ -2354,6 +2359,24 @@ class Server:
         if raison:
             log(f"{p.name} : invocation refusée ({raison})")
 
+    def handle_henfermer(self, p: Player, msg: dict) -> None:
+        """Mode Hanteurs, enfermement (synchro/enfermement.py) : ``henfermer`` d'un Hanteur. Seuls les Link dont le
+        client sait être enfermé (« enfermement » dans feat) le sont ; refusé si l'autorité de la salle est en
+        cinématique."""
+        h = self.hanteurs
+        if h is None or not p.joueur:
+            return
+        holder, _epoch = self.authority.get(p.zone, (None, 0)) if p.zone else (None, 0)
+        o = self.players.get(holder) if holder is not None else None
+
+        def peut(pid):
+            x = self.players.get(pid)
+            return x is not None and x.joueur and enf_mod.FEAT in x.feat
+        raison = h.enfermer(p.id, msg, (holder if o is not None and o.zone == p.zone else None,
+                                        bool(o is not None and o.zone == p.zone and o.busy)), peut)
+        if raison:
+            log(f"{p.name} : enfermement refusé ({raison})")
+
     def handle_hpilote(self, p: Player, msg: dict) -> None:
         """Possession complète : retour de l'AUTORITÉ de la zone (un Link, jamais un Hanteur) au Hanteur qui pilote
         un monstre de cette zone. Tout autre expéditeur est ignoré."""
@@ -2859,10 +2882,14 @@ class Server:
             self.handle_mort(p)
         elif t == "vie":
             self.handle_vie(p, msg)
+        elif t == "signal":
+            self.handle_signal(p, msg)
         elif t == "regles_cmd":
             self.handle_regles_cmd(p, msg)
         elif t == "hsummon":
             self.handle_hsummon(p, msg)
+        elif t == "henfermer":
+            self.handle_henfermer(p, msg)
         elif t in ("hposseder", "hlacher", "hordre", "hmanif"):
             self.handle_possession(p, msg)
         elif t == "hpilote":
@@ -2908,6 +2935,8 @@ class Server:
         elif t == "lobby":
             if p.hello:
                 p.send(self.lobby())
+        elif t == "triches":
+            self.handle_triches(p, msg)
         elif t == "rando_plan":
             if p.hello:
                 p.send(self.rando_plan_message())     # randomizer par fichiers : lanceur, avant de lancer le jeu
@@ -2937,6 +2966,8 @@ class Server:
                  "pause": o.pause,
                  "rtt": round(o.rtt) if o.rtt is not None else None,
                  "depuis": round(now - o.connected), "silence": round(now - o.last_seen, 1)}
+            if o.triches:
+                d["triches"] = list(o.triches)     # triches du portage chez lui (absent : aucune ; ancien lanceur : ignoré)
             if self.hanteurs is not None:
                 d["role"] = self.hanteurs.role(o.id)
                 d["points"] = int(self.hanteurs.points.get(o.id, 0.0)) if self.hanteurs.est_hanteur(o.id) else None
@@ -2955,6 +2986,18 @@ class Server:
             # joueur robot : jamais dans « players » ; un résumé à part (ancien lanceur : ignoré)
             out["robot"] = {k: rv[k] for k in ("phase", "zone", "autorite", "connecte")}
         return out
+
+    def handle_triches(self, p: Player, msg: dict) -> None:
+        """« triches » d'un client de jeu : triches du portage natif actives chez lui (vie infinie, rubis infinis…,
+        commun/triches.py). Rien n'est corrigé ni refusé : gardé pour le lobby du lanceur, qui prévient les joueurs, et
+        journalisé à chaque changement. Ids inconnus ignorés, liste bornée."""
+        if not p.hello or not p.joueur:
+            return
+        ids = triches_mod.normaliser(msg.get("actives"))
+        if ids is None or ids == p.triches:
+            return
+        p.triches = ids
+        log(f"{p.name} : triches du portage " + (", ".join(ids) if ids else "plus aucune"))
 
     def handle_progress(self, p: Player, msg: dict) -> None:
         """Étape 8 : OU des bits reçus dans l'union du groupe ; seuls les bits nouveaux
@@ -3469,6 +3512,27 @@ class Server:
         for g in self.vies.echeance(time.monotonic()):
             log(f"vie partagée [{g}] : aucune fée n'a relevé le groupe : vie commune à 0, tout le monde meurt")
             self.vie_diffuser(g, None, mort=1)
+
+    def handle_signal(self, p: Player, msg: dict) -> None:
+        """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
+        les SIGNAL_ENTRE s par joueur. Un Hanteur est invisible des Link : son signal ne part qu'aux autres Hanteurs."""
+        if not p.joueur:
+            return
+        v = valid_signal(msg)
+        now = time.monotonic()
+        if v is None or now - p.signal_t < SIGNAL_ENTRE:
+            return
+        p.signal_t = now
+        out = dict(v, type="signal", **{"from": p.id})
+        h = self.hanteurs
+        hanteur = h is not None and h.est_hanteur(p.id)
+        n = 0
+        for o in list(self.players.values()):
+            if o.id == p.id or not o.joueur or (hanteur and not h.est_hanteur(o.id)):
+                continue
+            o.send(out)
+            n += 1
+        log(f"signal « viens ici » de {p.name} ({v['stage']}, salle {v['room']}) relayé à {n} joueur(s)")
 
     def handle_vie(self, p: Player, msg: dict) -> None:
         """Vie commune par groupe : deltas appliqués dans l'ordre d'arrivée, bornés à [0, vie max du groupe],

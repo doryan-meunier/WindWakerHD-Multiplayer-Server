@@ -25,7 +25,7 @@ ROLE_HANTEUR = "hanteur"
 
 TEXTES = {
     "fr": {
-        "attaque": "Attaque", "lourde": "Attaque lourde", "garde": "Garde", "elan": "Élan",
+        "attaque": "Attaque", "lourde": "Attaque lourde", "garde": "Garde", "elan": "Élan", "capacite": "Capacité",
         "monter": "Monter", "descendre": "Descendre", "lacher": "Relâcher",
         "invoquer": "Invoquer", "espece": "Espèce suivante", "posseder": "Posséder",
         "t.epee": "Épée", "t.charge": "Épée chargée", "t.pgup": "PagePréc", "t.pgdn": "PageSuiv",
@@ -37,7 +37,7 @@ TEXTES = {
         "boss": "Boss : {}",
     },
     "en": {
-        "attaque": "Attack", "lourde": "Heavy attack", "garde": "Guard", "elan": "Lunge",
+        "attaque": "Attack", "lourde": "Heavy attack", "garde": "Guard", "elan": "Lunge", "capacite": "Ability",
         "monter": "Climb", "descendre": "Descend", "lacher": "Release",
         "invoquer": "Summon", "espece": "Next species", "posseder": "Possess",
         "t.epee": "Sword", "t.charge": "Charged sword", "t.pgup": "PageUp", "t.pgdn": "PageDown",
@@ -50,11 +50,11 @@ TEXTES = {
     },
 }
 # touche de chaque commande (les touches F et Page sont celles de wwmp/hanteurs.TOUCHES ; le test les recoupe)
-TOUCHES_BARRE = {"attaque": "t.epee", "lourde": "t.charge", "garde": "F3", "monter": "t.pgup",
+TOUCHES_BARRE = {"attaque": "t.epee", "lourde": "t.charge", "capacite": "F2", "garde": "F3", "monter": "t.pgup",
                  "descendre": "t.pgdn", "lacher": "F4", "posseder": "F4", "invoquer": "F6", "espece": "F7"}
 # portage natif : F3-F6 seules y chargent un état de sauvegarde, le client ne les prend qu'avec Ctrl
 # (synchro/hanteurs.CONFLITS_NATIF) ; ``regler_natif`` (appelé par le client quand le jeu est natif) change l'affichage
-TOUCHES_NATIF = {k: f"Ctrl+{v}" for k, v in TOUCHES_BARRE.items() if v in ("F3", "F4", "F5", "F6")}
+TOUCHES_NATIF = {k: f"Ctrl+{v}" for k, v in TOUCHES_BARRE.items() if v in ("F2", "F3", "F4", "F5", "F6")}
 _natif = False
 
 
@@ -63,8 +63,24 @@ def regler_natif(on: bool) -> None:
     _natif = bool(on)
 
 
+_reglees: dict = {}
+
+
+def regler_touches(table: dict) -> None:
+    """Touches réglées dans le lanceur (onglet Commandes) : {commande: touche} ; celles qui gardent leur défaut
+    restent affichées comme avant (« t.pgup » traduit, etc.)."""
+    global _reglees
+    _reglees = {k: v for k, v in table.items() if isinstance(k, str) and isinstance(v, str)}
+
+
 def touche_de(commande: str) -> str:
-    """Touche affichée d'une commande (« Ctrl+F4 » sur le portage natif)."""
+    """Touche affichée d'une commande (« Ctrl+F4 » sur le portage natif ; celle réglée dans le lanceur)."""
+    c = "posseder" if commande == "lacher" else commande
+    if c in _reglees:
+        from commun import commandes as cm
+        defaut = next((x.defaut_clavier(_natif) for x in cm.COMMANDES if x.id == c), None)
+        if _reglees[c] != defaut:
+            return _reglees[c] or "—"
     return (TOUCHES_NATIF.get(commande) if _natif else None) or TOUCHES_BARRE.get(commande, "")
 
 
@@ -186,6 +202,11 @@ def _possession(vue: dict, pv, langue: str, memoire) -> Modele:
         elif g == "attaque" and etat_pil == "laisse":
             # laisse classique : le coup d'épée donne l'élan vers le Link le plus proche (même recharge)
             cases.append(_case(g, texte("elan", langue), langue, r.get("reste"), r.get("duree"), "", memoire))
+    cap = vue.get("capacite") if isinstance(vue.get("capacite"), dict) else None
+    if cap is not None:                                  # capacité propre de l'espèce (synchro/capacites.py)
+        r = rech.get("capacite") if isinstance(rech.get("capacite"), dict) else {}
+        nom = str((cap.get("en") if langue == "en" else cap.get("nom")) or texte("capacite", langue))[:24]
+        cases.append(_case("capacite", nom, langue, r.get("reste"), r.get("duree"), en_geste, memoire))
     if _nombre(vue.get("vol")) > 0:                      # volant piloté : hauteur
         cases.append(_case("monter", texte("monter", langue), langue))
         cases.append(_case("descendre", texte("descendre", langue), langue))

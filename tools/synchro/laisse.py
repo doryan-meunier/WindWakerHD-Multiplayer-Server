@@ -67,6 +67,7 @@ import struct
 import threading
 import time
 
+from synchro import capacites as capacites_mod
 from synchro import ordres as ordres_mod
 from synchro import pilotage
 
@@ -274,12 +275,26 @@ def choisir_victime(mpos, local_pos, autres: dict, voulu: int | None = None
 
 
 def _ord(m: dict) -> tuple[int, str] | None:
-    """Ordre de phase 3 porté par un ``hlaisse`` : (séquence, geste) ou None."""
+    """Ordre de phase 3 porté par un ``hlaisse`` : (séquence, geste) ou None. Le geste « capacite »
+    (synchro/capacites.py) est la capacité propre de l'espèce."""
     o = m.get("ord")
     if (isinstance(o, (list, tuple)) and len(o) == 2 and isinstance(o[0], int) and not isinstance(o[0], bool)
-            and o[1] in ordres_mod.GESTES):
+            and (o[1] in ordres_mod.GESTES or o[1] == capacites_mod.GESTE)):
         return int(o[0]), str(o[1])
     return None
+
+
+def _cap_reglages(m: dict) -> tuple[int, int]:
+    """Réglages de la capacité portés par un ``hlaisse`` (champ ``cap`` : [capacités coupées, garde en images]),
+    bornés comme par le mod ; (0, 0) sans le champ : les valeurs du mod."""
+    c = m.get("cap")
+    if not isinstance(c, (list, tuple)) or len(c) != 2 or any(isinstance(v, bool) or not isinstance(v, int)
+                                                             for v in c):
+        return 0, 0
+    coupees = c[0] & ((1 << capacites_mod.N_JEU) - 1)
+    g = c[1]
+    g = 0 if g <= 0 else max(15, min(120, g))
+    return coupees, g
 
 
 def lire_acteur(mem, base: int):
@@ -334,6 +349,8 @@ class LaisseHote:
         self.essai = False                         # espèces à l'essai permises d'office ici (True, ou des process) ;
                                                    # sinon le ``hlaisse`` du serveur le dit (réglage de la partie)
         self.n_appats = 0                          # attaques demandées par l'appât (carotte rapprochée)
+        # capacités des monstres possédés (synchro/capacites.py, CALL 20 du mod natif 0.34.0)
+        self.n_capacites_faites = self.n_capacites_sans = self.n_capacites_refus = 0
         self.out: list[dict] = []                  # ``hpilote`` à envoyer au serveur (retour au Hanteur)
         self._retours: dict[str, tuple] = {}       # clé -> (heure, état) du dernier ``hpilote``
         self.n_pilotes = self.n_carottes = self.n_replis = 0
@@ -516,7 +533,7 @@ class LaisseHote:
             e["ord_seq"] = od[0]
             t_recu = m.get("_t")
             e["ordre"] = {"geste": od[1], "t": now, "essai": float("-inf"),
-                          "recu": t_recu if isinstance(t_recu, (int, float)) else now}
+                          "recu": t_recu if isinstance(t_recu, (int, float)) else now, "cap": _cap_reglages(m)}
         hpos = _pos3(m["pos"])
         a3 = esp.get("a3", True)
         voulu = m.get("cible")
@@ -709,6 +726,9 @@ class LaisseHote:
             e["ordre"] = None
             self.n_ordres_perimes += 1
             return
+        if od["geste"] == capacites_mod.GESTE:
+            self._capacite(e, proc, pid, puppets, od, now)
+            return
         # espèce pilotée sans ordre CALL 10 : « attaque » par l'appât (la carotte vient à portée devant le monstre,
         # son IA attaque d'elle-même) ; aucun appel au jeu, aucune écriture d'état
         etendus = bool(getattr(puppets, "formes_ok", False))   # seconde table d'ordres : bit 17 du pack
@@ -764,6 +784,36 @@ class LaisseHote:
             self.n_ordres_refus += 1
         # 0 (pas libre) ou -3 (événement) : nouvel essai tant que l'ordre est frais
 
+    def _capacite(self, e, proc, pid, puppets, od, now) -> None:
+        """Capacité propre de l'espèce (synchro/capacites.py) : genre « jeu » -> CALL 20 du mod natif (gardes et
+        écritures dans le mod), comme un ordre (nouvel essai tant qu'elle est fraîche et le monstre pas libre) ; genre
+        « frenesie » : rien à faire ici (le serveur tient les recharges). Sans le mod 0.34.0 : abandon."""
+        c = capacites_mod.CAPACITES.get(proc)
+        if c is None or c.genre != "jeu" or not self.ordres_on or not getattr(puppets, "capacites_ok", False):
+            e["ordre"] = None
+            self.n_capacites_sans += 1
+            return
+        if now - od["essai"] < ORDRE_ESSAI:
+            return
+        od["essai"] = now
+        coupees, garde = od.get("cap", (0, 0))
+        try:
+            r = puppets.capacite(pid, c.index, coupees, garde)
+        except Exception as exc:                  # boîte occupée, délai : nouvel essai (dans ORDRE_VIE)
+            if self.n_ordres_erreurs < 3:
+                self._note(f"capacité {c.cle} : {type(exc).__name__}: {exc}")
+            self.n_ordres_erreurs += 1
+            return
+        if r == 1:
+            e["ordre"] = None
+            self.n_capacites_faites += 1
+            if c.libre > 0:
+                e["libre_fin"] = now + c.libre
+        elif r in (-1, -2, -4, -8):               # espèce, coupée, introuvable, Link absent : abandon
+            e["ordre"] = None
+            self.n_capacites_refus += 1
+        # 0 (pas libre) ou -3 (événement) : nouvel essai tant que la capacité est fraîche
+
     def status(self) -> str:
         if not self.enabled:
             return "désactivée"
@@ -772,6 +822,9 @@ class LaisseHote:
         if self.n_ordres_faits or self.n_ordres_perimes or self.n_ordres_sans or self.n_ordres_refus:
             s += (f", ordres : {self.n_ordres_faits} fait(s), {self.n_ordres_perimes} trop tard, "
                   f"{self.n_ordres_sans} sans effet (pack ou espèce), {self.n_ordres_refus} refusé(s)")
+        if self.n_capacites_faites or self.n_capacites_sans or self.n_capacites_refus:
+            s += (f", capacités : {self.n_capacites_faites} jouée(s), {self.n_capacites_sans} sans effet (mod ou "
+                  f"espèce), {self.n_capacites_refus} refusée(s)")
         if self.n_pilotes or self.n_replis:
             s += (f", pilotage : {self.n_pilotes} image(s) pilotée(s) dont {self.n_carottes} avec carotte, "
                   f"{self.n_appats} appât(s), {self.n_replis} repli(s) sur la laisse")

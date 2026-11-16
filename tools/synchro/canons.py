@@ -500,6 +500,7 @@ def destroy(mem, expect: dict, puff=None, appel=None) -> str:
 
 class CanonSync:
     ROOM_SETTLE = 2.0       # s dans la salle avant toute écriture
+    WATCH_RELIRE = 1.0      # s : un ennemi lu sans switch de mort n'est relu qu'après ce délai
     TTL = 10.0              # s : canon reçu non appliqué -> abandonné
     ECHO = 30.0             # s : canon détruit par nous sur ordre reçu -> jamais renvoyé
     VERIFY = 2.0            # s pendant lesquelles un canon détruit par nous est relu (mode 2 tenu)
@@ -524,6 +525,9 @@ class CanonSync:
         self.recall: dict | None = None
         self.watch: set[int] = set()          # switches de mort des ennemis vus dans la salle
         self.watch_pids: set[int] = set()     # ennemis déjà lus
+        # ennemis lus sans switch de mort (la plupart des Bokoblins) : relus au plus une fois par WATCH_RELIRE s, pas
+        # à chaque tick (3 lectures chacun : ~120 appels par tick pour 40 Bokoblins, docs/etudes/rollback_netcode.md §4 ter)
+        self.watch_vus: dict[int, float] = {}
         self.sw_sent: set[int] = set()        # switches de mort déjà annoncés pour la salle
 
     # --- files ----------------------------------------------------------------------------------------
@@ -646,14 +650,21 @@ class CanonSync:
         dan = mem.try_read(gi + prog.GI_DAN + prog.DAN_STAGE_NO, 1)
         if dan is None or struct.unpack(">b", dan)[0] in prog.TSW_DUNGEON_SAVE_NOS:
             return                            # donjon : A7 relaie déjà les switches de salle
+        now = time.monotonic()
         for a in morts or ():
             pid, base, proc, hroom = a[0], a[1], a[2], a[3]
             if proc not in PROCS_MORT or hroom != room or pid in self.watch_pids:
+                continue
+            if now - self.watch_vus.get(pid, -1e9) < self.WATCH_RELIRE:
                 continue
             d = death_switch(mem, base)
             if d is not None and d[0] == proc and d[2] == room and SW_FIRST <= d[1] < SW_END:
                 self.watch.add(d[1])
                 self.watch_pids.add(pid)
+            else:
+                self.watch_vus[pid] = now
+        if len(self.watch_vus) > 512:
+            self.watch_vus = {p: t for p, t in self.watch_vus.items() if now - t < self.WATCH_RELIRE}
         if not self.watch:
             return
         zb = prog._zone_base(mem, gi, room)
@@ -683,6 +694,7 @@ class CanonSync:
             self.verify.clear()
             self.watch.clear()
             self.watch_pids.clear()
+            self.watch_vus.clear()
             self.sw_sent.clear()
             self.pending = [e for e in self.pending if e["zone"] == zone]
             if self.recall is not None and self.recall["zone"] != zone:

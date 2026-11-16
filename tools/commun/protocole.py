@@ -287,6 +287,10 @@ Messages cycle / rare (synchro v3, mécanismes rares, synchro/rares.py) : cycle 
 (horloge des cycles du stage, 1 Hz ; le serveur ne relaie que celle du propriétaire du stage, aux autres
 joueurs du même stage) ; rare {zone, ev: pillar, key, yaw} (pilier Hcbh cassé, relayé à la zone). Un
 serveur ancien et un client ancien les ignorent (chacun son horloge et ses piliers, comme avant).
+Message signal (mod natif 0.33.0, client/reperes.py, « viens ici ») : signal {stage, room, pos} d'un joueur (double
+clic du stick gauche ou touche Inser) ; le serveur le relaie avec « from » à tous les autres joueurs (un Hanteur : aux
+seuls Hanteurs, il est invisible des Link), au plus un toutes les SIGNAL_ENTRE s par joueur ; chacun le montre 8 s
+s'il est dans la même stage. Un serveur ancien l'ignore, un client ancien aussi.
 """
 from __future__ import annotations
 
@@ -452,6 +456,29 @@ def valid_inv(msg) -> dict | None:
     elif isinstance(sac, dict):
         out["add"], out["del"] = items(sac.get("add")), items(sac.get("del"))
     return out
+
+
+SIGNAL_ENTRE = 3.0              # s : un signal « viens ici » au plus toutes les 3 s par joueur (serveur, client, mod)
+SIGNAL_POS_MAX = 2.0e6           # |coordonnée| d'un signal (la mer : ±350000)
+
+
+def valid_signal(msg) -> dict | None:
+    """Message signal bien formé -> {stage, room, pos} (positions arrondies au dixième) ; None sinon."""
+    if not isinstance(msg, dict):
+        return None
+    stage, room, pos = msg.get("stage"), msg.get("room"), msg.get("pos")
+    if not isinstance(stage, str) or not 0 < len(stage) <= 16:
+        return None
+    if isinstance(room, bool) or not isinstance(room, int) or not -1 <= room <= 255:
+        return None
+    if not isinstance(pos, (list, tuple)) or len(pos) != 3:
+        return None
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) for v in pos):
+        return None
+    p = [float(v) for v in pos]
+    if any(not math.isfinite(v) or abs(v) > SIGNAL_POS_MAX for v in p):
+        return None
+    return {"stage": stage, "room": room, "pos": [round(v, 1) for v in p]}
 
 
 def zone_of(stage: str, room: int) -> str:

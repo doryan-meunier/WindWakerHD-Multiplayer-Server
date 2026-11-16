@@ -57,8 +57,9 @@ import threading
 import time
 
 from commun import difficulte as _dif
-from synchro import laisse, ordres, pilotage, potion, victoire
+from synchro import capacites, enfermement, laisse, ordres, pilotage, potion, victoire
 from synchro import effets_pack
+from commun import commandes as cmdes
 from commun.protocole import enemy_key, zone_of
 
 ROLE_LINK, ROLE_HANTEUR = "link", "hanteur"
@@ -189,7 +190,7 @@ def config_par_defaut() -> dict:
             "influence": True, "pilotage": True, "recharge_attaques": 1.0, "pilotage_essai": [],
             "crawl_sans_tueur": "aucun", "crawl_immunite": IMMUNITE_ECHANGE, "crawl_fin_ganon": True,
             "effets": "tous",
-            **victoire.DEFAUT}
+            **capacites.defauts(), **enfermement.DEFAUT, **victoire.DEFAUT}
 
 
 def _entier(v, lo: int, hi: int, defaut: int) -> int:
@@ -252,7 +253,11 @@ def valider_config(d) -> dict:
     # liste triée de process (wwmp/pilotage.essais). Désactivé par défaut : elles restent hors de la possession.
     c["pilotage_essai"] = pilotage.essais(d.get("pilotage_essai"))
     c["effets"] = lire_effets(d.get("effets"), c["effets"])   # fumées : tous / hanteurs / coupes
+    # capacité propre de chaque espèce possédée (synchro/capacites.py) : activée, espèces coupées, recharge, garde
+    # du Darknut, durée des frénésies ; la durée de possession reste ``possession_max`` (durée fixe)
+    capacites.valider(d, c)
     victoire.valider(d, c, _entier)                           # conditions de victoire (synchro/victoire.py)
+    enfermement.valider(d, c, _entier)                        # enfermement des Link (synchro/enfermement.py)
     return c
 
 
@@ -304,7 +309,7 @@ def parse_key(key) -> tuple[int, int, tuple[int, int, int]] | None:
 # Serveur : partie (rôles, points, invocations, rotation). Aucune entrée/sortie : les messages à envoyer sont
 # rangés dans ``sortie`` [(destinataire, message)] ; destinataire = id d'un joueur, ou ("zone", zone).
 # =========================================================================================================
-class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoirePartie):
+class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoirePartie, enfermement.EnfermementPartie):
     def __init__(self, cfg=None, rng=None, clock=time.monotonic, log=None):
         self.cfg = valider_config(cfg)
         self.rng = rng or random.Random()
@@ -342,6 +347,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         # vraiment (hors cinématique, bonne salle, téléportation faite). Nouveau Link -> {t, fin, zone, pos}
         self.apparitions: dict[int, dict] = {}
         self.n_echanges_refuses = 0
+        self.n_capacites = 0                        # capacités acceptées (synchro/capacites.py)
         self.n_gestes_refuses = 0                   # gestes refusés pendant leur recharge (synchro/pilotage.py)
         # phase 1 : possession par laisse (synchro/laisse.py). Hanteur -> {key, zone, stage, proc, t0, fin, atk, t_atk,
         # vu} ; une clé n'est possédée que par un Hanteur à la fois
@@ -353,6 +359,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         self._potion_init()                        # phase 2 : potion de possession d'un Link (synchro/potion.py)
         self._influence_init()                     # phase 4 : influence sur les boss (synchro/ordres.py)
         self._victoire_init()                      # conditions de victoire (synchro/victoire.py)
+        self._enfermement_init()                   # enfermement des Link (synchro/enfermement.py)
 
     # --- rôles ------------------------------------------------------------------------------------------
     def role(self, pid) -> str:
@@ -388,6 +395,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         self.apparitions.pop(pid, None)     # rôle changé encore : l'ancienne apparition ne veut plus rien dire
         self.lacher(pid, "changement de rôle", now)
         self.potion_fin_joueur(pid, "changement de rôle", now)
+        self.enf_fin_joueur(pid, "changement de rôle", now)
         self.roles[pid] = role
         self.depuis_role[pid] = now
         if role == ROLE_LINK:
@@ -419,6 +427,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         for pid in [p for p in self.roles if p not in presents]:
             self.lacher(pid, "départ", now)
             self.potion_fin_joueur(pid, "départ", now)
+            self.enf_fin_joueur(pid, "départ", now)
             for d in (self.roles, self.depuis_role, self.quarantaine, self.etat, self.vie, self.dernier_degat,
                       self.coups, self.summon_t, self.poss_t, self.manif_t, self.exo_t, self.resist_t,
                       self.potion_t, self.vie_ignore, self.immunite, self.v_ganon, self.apparitions):
@@ -477,6 +486,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         if ancien not in self.roles or nouveau == ancien:
             return
         self.potion_fin_joueur(ancien, "reconnexion", self.clock())   # potion : le clone ou le possédé est parti
+        self.enf_heriter(nouveau, ancien)          # enfermement : son Hanteur ou ses Link suivent la reconnexion
         self.roles[nouveau] = self.roles[ancien]
         for d in (self.points, self.depuis_role, self.quarantaine, self.v_scores, self.immunite):
             if ancien in d:
@@ -828,6 +838,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         """Un joueur entre dans une zone : les monstres invoqués encore là lui sont renvoyés (création chez lui)."""
         if zone is None:
             return
+        self.entree_zone_enf(pid, zone)
         for key, inv in self.invoques.items():
             if inv["zone"] == zone:
                 # « rappel » : le monstre est déjà là pour les autres, pas de fumée d'invocation chez l'arrivant
@@ -911,6 +922,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
                     and math.dist(e["pos"], ps["mpos"]) > laisse.LAISSE_MAX:
                 self.lacher(h, "trop loin de ton monstre", now)
         self.potion_tick(now)
+        self._enfermement_tick(now)                # enfermements : durée, Hanteur parti, Link sortis, monstres battus
         self._influence_tick(now)                  # phase 4 : ordres de boss sans réponse (remboursés si personne)
         self._ko_tick(now, p)                      # K.O. des Link : points, victoire, échange « comme dans Crawl »
         self._echanges_tick(now)
@@ -1167,10 +1179,13 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
                 "possedes": [str(p) for p in self.possedes()],
                 "pilotage": int(self.cfg["pilotage"]), "recharge_attaques": self.cfg["recharge_attaques"],
                 "pilotage_essai": list(self.cfg["pilotage_essai"]),
+                "capacites": int(bool(self.cfg["capacites"])), "recharge_capacites": self.cfg["recharge_capacites"],
+                "capacites_coupees": list(self.cfg["capacites_coupees"]), "garde_fer": self.cfg["garde_fer"],
+                "rage_duree": self.cfg["rage_duree"],
                 "crawl": {"sans_tueur": self.cfg["crawl_sans_tueur"], "immunite": self.cfg["crawl_immunite"],
                           "fin_ganon": int(self.fin_ganon_active())},
                 "effets": self.cfg["effets"],
-                **self.vue_influence(now), **self.vue_victoire(now)}
+                **self.vue_influence(now), **self.vue_victoire(now), **self.vue_enfermement(now)}
 
     def diffuser(self, now: float | None = None) -> None:
         now = self.clock() if now is None else now
@@ -1191,6 +1206,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
                                         if ps else {})}
             moi.update(self.vue_potion(pid, now))
             moi.update(self.moi_influence(pid, now))
+            moi.update(self.moi_enfermement(pid, now))
             self.sortie.append((pid, dict(pub, moi=moi)))
 
     # --- phase 1 : possession par laisse (synchro/laisse.py) -----------------------------------------------
@@ -1243,7 +1259,16 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
                 # possession complète : le serveur accepte le pilotage de cette espèce ; recharge de chaque geste
                 "pilotage": int(bool(self.cfg["pilotage"]
                                      and pilotage.pilotable(ps["proc"], self.cfg["pilotage_essai"]))),
-                "recharges": {g: pilotage.recharge(ps["proc"], g, mult) for g in ordres.GESTES}}
+                "recharges": {g: pilotage.recharge(ps["proc"], g, mult) for g in ordres.GESTES},
+                # capacité propre de l'espèce (synchro/capacites.py) : nom et ce qu'elle fait, ou absente
+                "capacite": self._vue_capacite(ps["proc"])}
+
+    def _vue_capacite(self, proc) -> dict | None:
+        c = capacites.capacite(proc, self.cfg)
+        if c is None:
+            return None
+        return {"cle": c.cle, "nom": c.nom, "en": c.en, "aide": c.aide, "genre": c.genre,
+                "recharge": capacites.recharge(proc, self.cfg)}
 
     def _refus_possession(self, pid: int, msg: dict, autorite, now: float) -> tuple[str, str | None]:
         if not self.repartie:
@@ -1337,7 +1362,11 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         now = self.clock() if now is None else now
         ps = self.possessions.get(pid)
         g = msg.get("ordre")
-        if ps is None or g not in ordres.GESTES or now - ps["t_atk"] < laisse.ORDRE_PERIODE:
+        if ps is None or (g not in ordres.GESTES and g != capacites.GESTE) \
+                or now - ps["t_atk"] < laisse.ORDRE_PERIODE:
+            return
+        if g == capacites.GESTE:
+            self._capacite(pid, ps, now)
             return
         # espèce sans coup lourd : la tournoyante du Hanteur joue SON attaque chez l'autorité (``ordres.choisir``
         # retombe sur « attaque », l'appât prend les deux) ; c'est donc le geste « attaque », avec SA recharge.
@@ -1356,6 +1385,8 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
                                           "raison": f"{g} : recharge, encore {reste:.1f} s"}))
             return
         duree = pilotage.recharge(ps["proc"], g, self.cfg["recharge_attaques"])
+        # frénésie en cours (capacité du Bokoblin, du Keese) : ses attaques natives reviennent plus vite
+        duree = capacites.frenesie(ps["proc"], g, duree, now < ps.get("frenesie_fin", float("-inf")))
         if duree > 0:
             rech[g] = now + duree
             self.sortie.append((pid, {"type": "hrecharge", "key": ps["key"], "geste": g, "duree": duree,
@@ -1367,6 +1398,52 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         ps["ord"] = [seq, g]
         # lot L3 (A6, docs/etudes/rollback_netcode.md §4) : l'ordre part tout de suite à l'autorité, dans un
         # ``hlaisse`` refait depuis le dernier état du Hanteur (avant : au prochain ``state``, 0 à 50 ms plus tard)
+        e = ps.get("e_laisse")
+        if e is not None and pid in self.possessions:
+            self._laisse(pid, e, now)
+
+    def _capacite(self, pid: int, ps: dict, now: float) -> None:
+        """``hordre {ordre: "capacite"}`` : la capacité propre de l'espèce possédée (synchro/capacites.py), avec sa
+        recharge (tenue ici, × « recharge des capacités »). Genre « jeu » : part à l'autorité de la salle dans le
+        ``hlaisse`` (CALL 20 chez elle) ; genre « frenesie » : les recharges des attaques natives sont réduites ici
+        pendant ``rage_duree`` s. Aucune trace chez les Link (le Hanteur reste caché) ; la possession garde sa durée."""
+        c = capacites.capacite(ps["proc"], self.cfg)
+        rech = ps.setdefault("rech", {})
+        if c is None:
+            if now - ps.get("t_refus", float("-inf")) >= 0.5:
+                ps["t_refus"] = now
+                if not self.cfg["capacites"]:
+                    raison = "capacités coupées dans cette partie"
+                elif ps["proc"] in self.cfg["capacites_coupees"]:
+                    raison = "capacité de cette espèce coupée dans cette partie"
+                elif ps["proc"] in capacites.CAPACITES:
+                    raison = "espèce à l'essai : sa capacité demande le réglage « espèces à l'essai »"
+                else:
+                    raison = capacites.raison_absente(ps["proc"])
+                self.sortie.append((pid, {"type": "hrefus", "quoi": "geste", "geste": capacites.GESTE, "reste": 0,
+                                          "raison": f"capacité : {raison}"[:160]}))
+            return
+        reste = rech.get(capacites.GESTE, float("-inf")) - now
+        if reste > 0:
+            self.n_gestes_refuses += 1
+            if now - ps.get("t_refus", float("-inf")) >= 0.5:
+                ps["t_refus"] = now
+                self.sortie.append((pid, {"type": "hrefus", "quoi": "geste", "geste": capacites.GESTE,
+                                          "reste": round(reste, 1),
+                                          "raison": f"{c.nom} : recharge, encore {reste:.1f} s"}))
+            return
+        duree = capacites.recharge(ps["proc"], self.cfg)
+        rech[capacites.GESTE] = now + duree
+        ps["t_atk"] = now
+        self.n_capacites += 1
+        self.sortie.append((pid, {"type": "hrecharge", "key": ps["key"], "geste": capacites.GESTE, "duree": duree,
+                                  "gestes": {k: round(t - now, 1) for k, t in rech.items() if t > now}}))
+        if c.genre == "frenesie":
+            ps["frenesie_fin"] = now + self.cfg["rage_duree"]
+            self.sortie.append((pid, {"type": "hnote", "msg": f"{c.nom} : {self.cfg['rage_duree']:g} s"}))
+            return
+        seq = ((ps["ord"][0] if ps.get("ord") else 0) + 1) & 0xFFFF
+        ps["ord"] = [seq, capacites.GESTE]
         e = ps.get("e_laisse")
         if e is not None and pid in self.possessions:
             self._laisse(pid, e, now)
@@ -1461,6 +1538,8 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         m = {"type": "hlaisse", "key": ps["key"], "zone": ps["zone"], "owner": pid,
              "pos": [round(v, 1) for v in e["pos"]], "rotY": int(e.get("rot", 0)), "atk": ps["atk"],
              "cible": ps.get("cible"), "ord": ps.get("ord")}
+        if ps.get("ord") and ps["ord"][1] == capacites.GESTE:   # réglages de la capacité, lus par le mod (CALL 20)
+            m["cap"] = [capacites.masque_coupees(self.cfg), capacites.garde_images(self.cfg)]
         if ps.get("vit") is not None:              # possession complète : l'autorité pilote au lieu de tirer
             m["pil"] = 1
             m["vit"] = [round(v, 1) for v in ps["vit"]]
@@ -1641,19 +1720,20 @@ def remonter_vie(mem, cible: int | None = None) -> bool:
 # potion = l'arrêter ; Link possédé : F4 = résister. Phase 3 (synchro/ordres.py) : F3 pendant une possession = « garde »
 # (les coups d'épée du Link caché donnent déjà « attaque » et « lourde »).
 # Possession complète, étape 2 : PagePréc / PageSuiv = monter / descendre (volant piloté : Peahat, Keese, Kargaroc).
-VK = {"F3": 0x72, "F4": 0x73, "F5": 0x74, "F6": 0x75, "F7": 0x76, "F8": 0x77, "F9": 0x78,
-      "PGDN": 0x22, "PGUP": 0x21}
-TOUCHES = {"F3": "garde", "F4": "posseder", "F5": "suivre", "F6": "invoquer", "F7": "espece", "F8": "suivi",
-           "F9": "manifester", "PGUP": "monter", "PGDN": "descendre"}
+VK = {"F2": 0x71, "F3": 0x72, "F4": 0x73, "F5": 0x74, "F6": 0x75, "F7": 0x76, "F8": 0x77, "F9": 0x78,
+      "PGDN": 0x22, "PGUP": 0x21, "FIN": 0x23}
+TOUCHES = {"F2": "capacite", "F3": "garde", "F4": "posseder", "F5": "suivre", "F6": "invoquer",
+           "F7": "espece", "F8": "suivi", "F9": "manifester", "PGUP": "monter", "PGDN": "descendre",
+           "FIN": "enfermer"}                 # Fin : enfermement (synchro/enfermement.py)
 # Portage natif (audit du 2026-11-16) : F2-F6 SEULES y chargent un état de sauvegarde (raccourcis par défaut du
 # portage, runtime/src/input_map.cpp kShortcuts : Load1 F6, Load2 F2, Load3 F3, Load4 F4, Load5 F5 ; Maj+F1-F5
 # l'enregistrent), même en pleine partie (overlay.cpp activate_shortcut -> ss::request_load). Sur le natif, ces
 # touches ne comptent donc qu'avec Ctrl (Ctrl+F3…F6 : aucun raccourci du portage, qui exige les mêmes modificateurs ;
 # Ctrl n'est lié à aucun bouton par défaut). F7-F9 et PagePréc / PageSuiv restent seules.
-CONFLITS_NATIF = frozenset({"F3", "F4", "F5", "F6"})
+CONFLITS_NATIF = frozenset({"F2", "F3", "F4", "F5", "F6"})
 VK_CTRL = 0x11
-RAISON_NATIF = ("portage natif : Ctrl+F3, Ctrl+F4, Ctrl+F5, Ctrl+F6 (F3-F6 seules y chargent un état de sauvegarde "
-                "du portage) ; F7, F8, F9, PagePréc et PageSuiv inchangées")
+RAISON_NATIF = ("portage natif : Ctrl+F2, Ctrl+F3, Ctrl+F4, Ctrl+F5, Ctrl+F6 (F2-F6 seules y chargent un état de "
+                "sauvegarde du portage) ; F7, F8, F9, PagePréc et PageSuiv inchangées")
 
 
 def nom_touche(k: str, natif: bool = False) -> str:
@@ -1672,14 +1752,18 @@ RAISONS_PILOTAGE = {
 
 
 class Touches:
-    """Fronts montants de F5-F8 (``GetAsyncKeyState``), seulement si la fenêtre au premier plan appartient au
-    processus ``pid`` (Cemu). ``lire(vk) -> bool`` et ``premier_plan() -> pid`` injectables (tests)."""
+    """Commandes du mode Hanteurs au clavier (fronts montants, seulement si la fenêtre au premier plan appartient au
+    processus ``pid`` du jeu) et à la manette (mod natif, zone WWMPMAN1 : ``lire_manette``). Touches et
+    combinaisons : table de ``commun/commandes.py``, réglée dans l'onglet Commandes du lanceur et reçue à chaud
+    (``regler``) ; sans table, ses défauts (Cemu : F3-F9, PagePréc / PageSuiv ; natif : Ctrl+F3-F6). ``lire(vk) ->
+    bool`` et ``premier_plan() -> pid`` injectables (tests)."""
 
-    def __init__(self, pid: int | None, lire=None, premier_plan=None, natif: bool = False):
+    def __init__(self, pid: int | None, lire=None, premier_plan=None, natif: bool = False, table=None):
         self.pid = pid
-        self.natif = bool(natif)         # portage natif : F3-F6 seulement avec Ctrl (CONFLITS_NATIF)
+        self.natif = bool(natif)         # portage natif : F3-F6 seulement avec Ctrl (CONFLITS_NATIF) par défaut
         self.lire, self.premier_plan = lire, premier_plan
         self.raison = ""                 # Linux : pourquoi les touches sont inactives (Wayland, python-xlib absent)
+        vk_de = None
         if (lire is None or premier_plan is None) and sys.platform != "win32":
             # Linux : X11 / XWayland par python-xlib, sinon rien (boutons du lanceur) : synchro/touches_linux.py
             try:
@@ -1689,6 +1773,7 @@ class Touches:
                 l2, p2, self.raison = (lambda vk: False), (lambda: None), f"touches inactives ({e})"
             self.lire = self.lire or l2
             self.premier_plan = self.premier_plan or p2
+            vk_de = (lambda nom: cmdes.TOUCHES[nom][0] if nom in cmdes.TOUCHES else None)
         elif lire is None or premier_plan is None:
             try:
                 import ctypes
@@ -1705,19 +1790,63 @@ class Touches:
             except (AttributeError, OSError):
                 self.lire = self.lire or (lambda vk: False)
                 self.premier_plan = self.premier_plan or (lambda: None)
-        self.avant: set[str] = set()
+        elif lire is not None:
+            vk_de = (lambda nom: cmdes.TOUCHES[nom][0] if nom in cmdes.TOUCHES else None)   # essais : codes fixes
+        self.lecteur = cmdes.Lecteur(self.lire, cmdes.du_groupe(table or cmdes.table_defaut(self.natif), "hanteur"),
+                                     vk_de)
+        # manette (mod natif) : combinaisons écrites au mod, commande de chacune, derniers compteurs de fronts
+        self.masques_ecrits: tuple | None = None
+        self.ids_manette: list[str] = []
+        self.fronts: list[int] | None = None
+
+    @property
+    def table(self) -> dict:
+        return self.lecteur.table
+
+    def regler(self, table: dict | None) -> None:
+        """Nouvelle table (lanceur, à chaud) ; None : les défauts."""
+        self.lecteur.regler(cmdes.du_groupe(table or cmdes.table_defaut(self.natif), "hanteur"))
+        self.masques_ecrits = None       # combinaisons réécrites au prochain ``lire_manette``
 
     def lire_commandes(self) -> list[str]:
         try:
             actif = self.pid is not None and self.premier_plan() == self.pid
-            bas = {k for k, vk in VK.items() if actif and self.lire(vk)}
-            if self.natif and bas & CONFLITS_NATIF and not self.lire(VK_CTRL):
-                bas -= CONFLITS_NATIF        # F3-F6 seules : état de sauvegarde du portage, pas une commande
-        except Exception:
-            bas = set()
-        nouveaux = bas - self.avant
-        self.avant = bas
-        return [TOUCHES[k] for k in sorted(nouveaux)]
+        except Exception:                # noqa: BLE001
+            actif = False
+        return self.lecteur.lire_commandes(actif)
+
+    def lire_manette(self, mb, actif: bool = True) -> list[str]:
+        """Combinaisons de manette (mod natif 0.37.0, zone WWMPMAN1) : écrit au mod les masques de la table quand
+        ``actif`` (Hanteur, ou Link possédé), des zéros sinon (le jeu reçoit alors tout) ; rend les commandes dont
+        la combinaison a été COMPLÉTÉE depuis le dernier appel (compteurs de fronts tenus par le mod : aucun appui
+        perdu entre deux tours). Sans la zone (Cemu, mod plus ancien) : rien."""
+        if mb is None or not getattr(mb, "manette_ok", False):
+            return []
+        combos = []
+        if actif:
+            for k, (_cl, ma) in self.lecteur.table.items():
+                m = cmdes.compact(cmdes.bits_manette(ma))
+                if m and len(combos) < cmdes.N_COMBOS:
+                    combos.append((k, m))
+        masques = tuple(m for _k, m in combos)
+        if masques != self.masques_ecrits:
+            mb.manette_masques(list(masques))
+            self.masques_ecrits = masques
+            self.ids_manette = [k for k, _m in combos]
+            self.fronts = None
+        if not combos:
+            return []
+        fronts = mb.manette_fronts()
+        avant, self.fronts = self.fronts, fronts
+        if avant is None:
+            return []
+        return [self.ids_manette[i] for i in range(len(self.ids_manette)) if (fronts[i] - avant[i]) & 0xFF]
+
+
+def _boite(c):
+    """Boîte aux lettres du client ``c`` (None : pas de mod, lecture seule)."""
+    get = getattr(getattr(c, "sampler", None), "_mailbox", None)
+    return get() if callable(get) else None
 
 
 def _proc_cle(key) -> int | None:
@@ -1760,6 +1889,7 @@ class HanteurSync:
         self.out: list[dict] = []
         self.notes: list[str] = []
         self.touches: Touches | None = None
+        self.table_commandes: dict | None = None    # touches et manette réglées dans le lanceur (onglet Commandes)
         self.hist: dict[int, list[tuple[float, float]]] = {}   # joueur -> [(heure, y)]
         self.n_cache = self.n_vie = self.n_sauts = self.n_crees = 0
         self.a_montrer = False              # NO_DRAW posé par nous : à effacer quand on redevient Link
@@ -1839,6 +1969,12 @@ class HanteurSync:
         self.effets_pack_on = False         # --effets-pack (posé par le client)
         self.effets_pack_son = True         # --effets-pack-muet : particules seules
         self.n_fx_pack = self.n_fx_pack_refus = 0
+        # enfermement (synchro/enfermement.py) : réglages du serveur (ancien serveur : champs absents = coupé)
+        self.enf_on = False
+        self.enf_duree = self.enf_rayon = 0
+        self.recharge_enf = 0.0             # heure locale de fin de recharge (état du serveur)
+        self.enfermements: list[dict] = []  # en cours (état du serveur) : {id, par, zone, reste, liens, monstres}
+        self.n_enfermer = 0
 
     # --- réseau -----------------------------------------------------------------------------------------
     def receive(self, msg: dict, me) -> None:
@@ -1876,6 +2012,20 @@ class HanteurSync:
                 self.potion_depense = dep if dep in potion.DEPENSES else "rien"
                 self.potion_resister = msg.get("potion_resister") in (1, True)
                 self.effets_regle = lire_effets(msg.get("effets"))      # ancien serveur : champ absent = « tous »
+                # enfermement : ancien serveur, champs absents (coupé)
+                self.enf_on = msg.get("enfermement") in (1, True)
+                for champ in ("enf_duree", "enf_rayon"):
+                    v = msg.get(champ)
+                    setattr(self, champ, v if isinstance(v, int) and not isinstance(v, bool) else 0)
+                enfs = []
+                for d in (msg.get("enfermements") or [])[:16]:
+                    try:
+                        enfs.append({"id": int(d["id"]), "par": int(d["par"]), "zone": str(d["zone"])[:64],
+                                     "reste": float(d["reste"]), "liens": [int(x) for x in d["liens"]][:8],
+                                     "monstres": int(d.get("monstres", 0)), "t": now})
+                    except (KeyError, TypeError, ValueError, OverflowError):
+                        continue
+                self.enfermements = enfs
                 self.possedes = {int(x) for x in (msg.get("possedes") or []) if str(x).isdigit()}
                 # phase 4 : influence sur les boss
                 self.influence_on = msg.get("influence") in (1, True)
@@ -1904,6 +2054,8 @@ class HanteurSync:
                     self._nouveau_role(moi["role"], {"raison": "état du serveur"}, now)
                 c = moi.get("cible_laisse")
                 self.cible_laisse = c if isinstance(c, int) and not isinstance(c, bool) else None
+                ren = moi.get("recharge_enf")
+                self.recharge_enf = now + (float(ren) if pilotage._nombre(ren) else 0.0)
                 rpo = moi.get("recharge_potion")
                 self.recharge_potion = now + (float(rpo) if pilotage._nombre(rpo)
                                               else 0.0)
@@ -1941,6 +2093,14 @@ class HanteurSync:
                                          "recu_mur": time.time()}
             elif t == "hfx":
                 self._recevoir_fx(msg, now)
+            elif t == "henf" and self.role == ROLE_HANTEUR and isinstance(msg.get("liens"), list):
+                # enfermement (synchro/enfermement.py) : le Link enfermé est réglé par EnfermementSync ; ici les notes
+                noms = ", ".join(self.noms.get(x, "?") for x in msg["liens"][:8] if isinstance(x, int))
+                qui = "tu enfermes" if msg.get("par") == me else f"{self.noms.get(msg.get('par'), 'un Hanteur')} enferme"
+                self._note(f"{qui} {noms or 'personne'} : invoque tes monstres dans le cercle !")
+            elif t == "henf_fin" and self.role == ROLE_HANTEUR:
+                self.enfermements = [d for d in self.enfermements if d["id"] != msg.get("id")]
+                self._note(f"enfermement fini ({str(msg.get('raison') or '?')[:80]})")
             elif t == "hrefus" and msg.get("quoi") == "geste":
                 # geste en recharge (serveur) : message clair, et l'heure de fin recalée
                 self.recharges_gestes.update(self._gestes({msg.get("geste"): msg.get("reste")}, now))
@@ -1952,7 +2112,8 @@ class HanteurSync:
             elif t == "hpilote":
                 self._recevoir_pilote(msg, now)
             elif t == "hrefus":
-                quoi = msg.get("quoi") if msg.get("quoi") in ("possession", "potion", "influence") else "invocation"
+                quoi = msg.get("quoi") if msg.get("quoi") in ("possession", "potion", "influence",
+                                                              "enfermement") else "invocation"
                 self._note(f"{quoi} refusée : {str(msg.get('raison'))[:120]}")
             elif t == "hpossede" and isinstance(msg.get("key"), str):
                 duree = msg.get("duree")
@@ -1964,6 +2125,13 @@ class HanteurSync:
                 self.manifeste = True
                 self._fin_pilotage()
                 self.durees_gestes = self._gestes(msg.get("recharges"), 0.0)
+                cap = msg.get("capacite")
+                if isinstance(cap, dict) and isinstance(cap.get("nom"), str):
+                    self.possede["capacite"] = {"nom": cap["nom"][:24], "en": str(cap.get("en") or "")[:24],
+                                                "aide": str(cap.get("aide") or "")[:160],
+                                                "genre": cap.get("genre") if cap.get("genre") in ("jeu", "frenesie")
+                                                else "jeu"}
+                    self.durees_gestes.update(self._gestes({capacites.GESTE: cap.get("recharge")}, 0.0))
                 autre = pilotage.AUTRES.get(_proc_cle(msg["key"]))
                 if pil and autre is not None and autre.forme == "cible":
                     quoi = "il vise l'endroit où TU te tiens : place-toi sur ta cible"
@@ -2274,7 +2442,7 @@ class HanteurSync:
         out = {}
         if isinstance(d, dict):
             for g, v in d.items():
-                if g in ordres.GESTES and pilotage._nombre(v) and v > 0:
+                if (g in ordres.GESTES or g == capacites.GESTE) and pilotage._nombre(v) and v > 0:
                     out[g] = now + min(600.0, float(v))
         return out
 
@@ -2485,6 +2653,24 @@ class HanteurSync:
         return [p for p in sorted(self.especes) if p in self.vues.get(stage, [])]
 
     # --- commandes (touches, lanceur) -------------------------------------------------------------------
+    def regler_commandes(self, d) -> bool:
+        """Table des commandes reçue du lanceur (fichier de contrôle, clé ``commandes`` : ``commun/commandes``
+        ``table_client``), appliquée à chaud. Rend True si elle a changé."""
+        t = cmdes.lire_table_client(d)
+        if t is None or t == self.table_commandes:
+            return False
+        self.table_commandes = t
+        if self.touches is not None:
+            self.touches.regler(t)
+        try:
+            from synchro import barre
+            barre.regler_touches({k: v[0] for k, v in t.items()})
+        except Exception:                # noqa: BLE001 : affichage seulement
+            pass
+        self._note("commandes du lanceur appliquées : " + ", ".join(
+            f"{k} {v[0] or '-'}{' / ' + v[1] if v[1] else ''}" for k, v in t.items()))
+        return True
+
     def commande(self, action: str, arg=None, me=None, stage=None) -> None:
         if action == "resister":
             if self.actif() and self.role == ROLE_LINK and self.envoute is not None \
@@ -2513,6 +2699,13 @@ class HanteurSync:
                 return
             if action == "garde":                                # F3 (phase 3) : ordre « garde »
                 action, arg = "ordre", ordres.GESTES.index("garde")
+            if action == capacites.GESTE:                        # F2 : capacité propre de l'espèce possédée
+                if self.possede is None:
+                    self._note("la capacité (F2) se joue pendant une possession")
+                    return
+                self.n_gestes[capacites.GESTE] = self.n_gestes.get(capacites.GESTE, 0) + 1
+                self._sortir({"type": "hordre", "ordre": capacites.GESTE})
+                return
             if action == "ordre":
                 # phase 3 : bouton du lanceur (0 attaque, 1 lourde, 2 garde) ; seulement pendant une possession
                 if self.possede is None or not isinstance(arg, int) or isinstance(arg, bool) \
@@ -2532,6 +2725,15 @@ class HanteurSync:
                     return
                 self.n_influences += 1
                 self._sortir({"type": "hinfluence", "ordre": ordres.ORDRES[arg].cle})
+                return
+            if action == "enfermer":
+                # enfermement (synchro/enfermement.py) : le serveur choisit le Link le plus proche (ou ``arg``)
+                if not self.enf_on:
+                    self._note("l'enfermement est coupé dans cette partie (ou serveur pas à jour)")
+                    return
+                self.n_enfermer += 1
+                self._sortir({"type": "henfermer", "cible": arg} if isinstance(arg, int) and not isinstance(arg, bool)
+                             else {"type": "henfermer"})
                 return
             if action == "potion":
                 if not self.potion_on:
@@ -2706,18 +2908,28 @@ class HanteurSync:
         if role == ROLE_HANTEUR or envoute is not None:
             if self.touches is None and hasattr(mem, "proc"):
                 natif = getattr(mem, "hote", None) == "natif"
-                self.touches = Touches(getattr(mem.proc, "pid", None), natif=natif)
+                self.touches = Touches(getattr(mem.proc, "pid", None), natif=natif, table=self.table_commandes)
                 if self.touches.raison:
                     self._note(self.touches.raison)       # Linux : touches inactives, et pourquoi (une fois)
-                if natif:
+                if natif and self.table_commandes is None:
                     self._note(RAISON_NATIF)
             if self.touches is not None:
-                for action in self.touches.lire_commandes():
+                actions = self.touches.lire_commandes()
+                try:                                      # combinaisons de manette (mod natif 0.37.0)
+                    actions += self.touches.lire_manette(_boite(c), True)
+                except Exception as exc:                  # noqa: BLE001 : boîte occupée ou illisible
+                    self._note(f"manette : lecture ignorée ({type(exc).__name__}: {exc})")
+                for action in actions:
                     if role != ROLE_HANTEUR:
                         if action == "posseder":     # Link possédé : F4 = résister
                             self.commande("resister")
                         continue
                     self.commande(action, me=c.me, stage=st["stage"] if st else None)
+        elif self.touches is not None and self.touches.masques_ecrits:
+            try:                                          # redevenu Link : la manette entière rendue au jeu
+                self.touches.lire_manette(_boite(c), False)
+            except Exception:                             # noqa: BLE001
+                pass
         if role == ROLE_HANTEUR:
             if clone is not None:
                 self.ctx_ordres = None
@@ -3094,7 +3306,11 @@ class HanteurSync:
                 "pilotage": self._vue_pilotage(now),
                 "recharges_gestes": ({g: {"reste": round(max(0.0, self.recharges_gestes.get(g, now) - now), 1),
                                           "duree": round(self.durees_gestes.get(g, 0.0), 1)}
-                                      for g in ordres.GESTES} if self.possede is not None else {}),
+                                      for g in ordres.GESTES + ((capacites.GESTE,) if self.possede.get("capacite")
+                                                                 else ())}
+                                     if self.possede is not None else {}),
+                # capacité propre de l'espèce possédée (synchro/capacites.py) : nom, aide, genre ; None sans elle
+                "capacite": self.possede.get("capacite") if self.possede is not None else None,
                 # phase 2 : Link visé par le monstre possédé ; potion
                 "cible_laisse": self.cible_laisse,
                 "potion_on": self.potion_on, "potion_cout": self.potion_cout, "potion_duree": self.potion_duree,
@@ -3115,6 +3331,12 @@ class HanteurSync:
                                 if self.possede.get("pilotage") else []))
                            if self.possede is not None else []),
                 "vol": round(self._vol()),
+                "enf_on": self.enf_on, "enf_duree": self.enf_duree, "enf_rayon": self.enf_rayon,
+                "recharge_enf": round(max(0.0, self.recharge_enf - now), 1),
+                "enfermements": [{"id": d["id"], "par": d["par"], "par_nom": self.noms.get(d["par"], "?"),
+                                  "reste": round(max(0.0, d["reste"] - (now - d["t"])), 1),
+                                  "liens": [self.noms.get(x, "?") for x in d["liens"]], "monstres": d["monstres"]}
+                                 for d in self.enfermements],
                 "influence_on": self.influence_on,
                 "influences": [dict(d, reste=round(max(0.0, self.recharges_infl.get(d["cle"], now) - now), 1),
                                     combattants=len(self.combats.get(d["boss"], [])))

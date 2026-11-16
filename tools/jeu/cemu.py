@@ -110,14 +110,48 @@ class GuestMemory:
         """Accès groupés possibles (linmem en mode léger) ? Toujours False sous Windows (winmem) : rien n'y change."""
         return bool(getattr(self.proc, "leger", False)) and hasattr(self.proc, "read_lot")
 
+    # Sans mode léger (Windows : ReadProcessMemory, un appel par lecture) : les morceaux proches sont lus d'un bloc.
+    # Mesuré sous Windows 11 (docs/etudes/rollback_netcode.md §4 ter) : ~2,2 µs l'appel pour 4 octets, ~3 µs pour
+    # 8 Kio, ~6 µs pour 64 Kio : relire 16 Kio de trop coûte moins qu'un appel de plus.
+    LOT_ECART = 0x4000          # octets au plus entre deux morceaux lus du même bloc
+    LOT_BLOC = 0x40000          # taille au plus d'un bloc
+    lecture_groupee = True      # read_lot regroupe (ActorScanner.read_all s'en sert, même sans mode léger)
+
     def read_lot(self, morceaux: list[tuple[int, int]]) -> list[bytes | None]:
-        """Plusieurs (va, taille) d'un coup (un seul appel système en mode léger) ; None pour un morceau illisible
-        ou hors plage. Sans mode léger : une lecture par morceau (try_read), comme avant."""
+        """Plusieurs (va, taille) d'un coup ; None pour un morceau illisible ou hors plage. Mode léger (Linux) : un
+        seul appel système. Sinon : les morceaux à moins de LOT_ECART octets l'un de l'autre sont lus en un bloc (au plus
+        LOT_BLOC octets) ; un bloc illisible est relu morceau par morceau (même résultat qu'une lecture par morceau)."""
         if not self.leger:
-            return [self.try_read(va, n) for va, n in morceaux]
+            return self._read_lot_blocs(morceaux)
         ok = [0 <= va and va + n <= GUEST_SPACE for va, n in morceaux]
         lus = iter(self.proc.read_lot([(self.base + va, n) for (va, n), b in zip(morceaux, ok) if b]))
         return [next(lus) if b else None for b in ok]
+
+    def _read_lot_blocs(self, morceaux: list[tuple[int, int]]) -> list[bytes | None]:
+        out: list[bytes | None] = [None] * len(morceaux)
+        ordre = sorted((i for i, (va, n) in enumerate(morceaux) if n > 0 and 0 <= va and va + n <= GUEST_SPACE),
+                       key=lambda i: morceaux[i][0])
+        for i, (va, n) in enumerate(morceaux):
+            if n <= 0 and 0 <= va <= GUEST_SPACE:
+                out[i] = b""
+        k = 0
+        while k < len(ordre):
+            debut = morceaux[ordre[k]][0]
+            fin = debut + morceaux[ordre[k]][1]
+            j = k + 1
+            while j < len(ordre):
+                va, n = morceaux[ordre[j]]
+                if va - fin > self.LOT_ECART or max(fin, va + n) - debut > self.LOT_BLOC:
+                    break
+                fin = max(fin, va + n)
+                j += 1
+            groupe = ordre[k:j]
+            bloc = self.try_read(debut, fin - debut) if len(groupe) > 1 else None
+            for i in groupe:
+                va, n = morceaux[i]
+                out[i] = bloc[va - debut:va - debut + n] if bloc is not None else self.try_read(va, n)
+            k = j
+        return out
 
     def lot(self):
         """``with mem.lot():`` écritures regroupées (mode léger) ; sans effet sinon."""
