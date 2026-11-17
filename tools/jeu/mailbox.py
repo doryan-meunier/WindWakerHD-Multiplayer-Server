@@ -527,6 +527,24 @@ TAC_MORCEAUX = (6, 7)              # morceaux inutilisés du jeu (6 : 3/4 haut, 
 OFFL_CFG, OFFL_MORCEAU, OFFL_DEMANDES, OFFL_POS, OFFL_ETAPE, OFFL_SALLE = 0x0C, 0x10, 0x14, 0x18, 0x24, 0x2C
 OFFL_JUGES, OFFL_IGNORES, OFFL_ANGLE = 0x30, 0x38, 0x3C
 TAC_MOD = 45                       # NATIF_VERSION_MOD qui a la zone
+# relever un coéquipier (MOD NATIF SEULEMENT, 0.48.0 ; natif/mod_wwmp/releve.c, client/releve.py ;
+# docs/etudes/autres_zelda.md §5 ; décalages OFFRL_* : OFFR_* est pris par le randomizer et le robot) : SANS bit : la zone wwmp_rel (magie « WWMPREL1 », format 1), 0x80 octets à 0x7200, EST
+# la capacité. Le PC écrit cfg (REL_ALLUME, seulement avec le deathlink), le délai, « possible » (rechargé) et air_max ;
+# le jeu tient Link À TERRE au lieu de la mort (changeDeadProc remplacé), CALL 19 : 0 ÉTAT, 1 RELEVER(vie), 2 ABANDON.
+MAGIC_REL = b"WWMPREL1"
+REL_FORMAT = 1
+REL_ALLUME = 0x1
+CALL_REL = 19
+REL_DELAI_MIN, REL_DELAI_MAX = 90, 1800      # pas (bornes du mod)
+REL_POSSIBLE_MAX = 300
+REL_AIR_MAX = 150
+REL_DEBOUT, REL_CHUTE, REL_A_TERRE, REL_RELEVE, REL_MORT = range(5)
+REL_RAISONS = {1: "fée en flacon", 2: "personne pour te relever", 3: "à la nage", 4: "à bord", 5: "accroché, échelle, "
+               "escalade ou corde", 6: "chute trop longue", 7: "pas le joueur (robot)", 8: "délai écoulé",
+               9: "abandon (serveur)", 10: "règle coupée", 11: "étape rechargée"}
+OFFRL_CFG, OFFRL_DELAI, OFFRL_POSSIBLE, OFFRL_ETAT, OFFRL_RESTE, OFFRL_CHUTES = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
+OFFRL_POS, OFFRL_TERRE, OFFRL_AIR_MAX, OFFRL_SECONDES, OFFRL_AUTRES = 0x4C, 0x58, 0x59, 0x5C, 0x64
+REL_MOD = 48                       # NATIF_VERSION_MOD qui a la zone
 # tenues à pouvoir, partie A (MOD NATIF SEULEMENT, 0.46.0 ; natif/mod_wwmp/tenues.c, client/tenues.py ;
 # docs/etudes/autres_zelda.md §6) : SANS bit : la zone wwmp_ten (magie « WWMPTEN1 », format 1), 0x40 octets à 0x72C0, EST
 # la capacité. Le PC écrit les facteurs (huitièmes, 8 = x1, 0 lu comme 8 ; le mod les borne), la couleur et le duo, puis
@@ -1907,6 +1925,94 @@ class Mailbox:
         ig, ang = struct.unpack(">Ii", bytes(self.mem.read(a + OFFL_IGNORES, 8)))
         return {"cfg": cfg, "morceau": mo, "demandes": n, "pos": (x, y, z), "etape": etape, "salle": salle,
                 "juges": juges, "ignores": ig, "angle": ang}
+    # --- relever un coéquipier (0.48.0, mod natif seulement, sans bit : la zone est la capacité) ---------------------
+    def rel_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_rel`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_rel", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_REL, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != REL_FORMAT:
+                return None
+            a = self._rel = hits[0]
+        return a
+
+    def rel_regler(self, on: bool, delai: int = 600, possible: int = 0, air_max: int = 45) -> bool:
+        """Relever : délai (pas), air_max (pas), « possible » (pas, rechargé par le PC), puis cfg EN DERNIER ; tout est
+        borné ici comme par le mod. False sans la zone."""
+        a = self.rel_addr()
+        if a is None:
+            return False
+        d = max(REL_DELAI_MIN, min(REL_DELAI_MAX, int(delai)))
+        p = max(0, min(REL_POSSIBLE_MAX, int(possible)))
+        am = max(0, min(REL_AIR_MAX, int(air_max)))
+        self.mem.write(a + OFFRL_DELAI, struct.pack(">Ii", d, p))
+        self.mem.write(a + OFFRL_AIR_MAX, bytes([am]))
+        self.mem.write(a + OFFRL_CFG, struct.pack(">I", REL_ALLUME if on else 0))
+        return True
+
+    def rel_possible(self, pas: int) -> bool:
+        """« Relève possible » rechargé pour ``pas`` pas (0 : plus possible, la prochaine chute est une vraie mort)."""
+        a = self.rel_addr()
+        if a is None:
+            return False
+        self.mem.write(a + OFFRL_POSSIBLE, struct.pack(">i", max(0, min(REL_POSSIBLE_MAX, int(pas)))))
+        return True
+
+    def rel_noms(self, terre: dict) -> bool:
+        """« À TERRE » au-dessus des fantômes : {emplacement 0..6: secondes restantes (0 : sans nombre)}."""
+        a = self.rel_addr()
+        if a is None:
+            return False
+        bits, sec = 0, bytearray(8)
+        for k, v in (terre or {}).items():
+            if isinstance(k, int) and 0 <= k <= 6:
+                bits |= 1 << k
+                sec[k] = max(0, min(99, int(v or 0)))
+        self.mem.write(a + OFFRL_SECONDES, bytes(sec))
+        self.mem.write(a + OFFRL_TERRE, bytes([bits]))
+        return True
+
+    def rel_counters(self) -> dict:
+        """Zone du relevé : réglages, état, compteurs ; zéros sans la zone. « chutes » est lu D'ABORD."""
+        a = self.rel_addr()
+        if a is None:
+            return {"cfg": 0, "delai": 0, "possible": 0, "etat": 0, "reste": 0, "chutes": 0, "releves": 0,
+                    "expires": 0, "abandons": 0, "normales": 0, "raison": 0, "appels": 0, "refus": 0, "dernier": 0,
+                    "gelees": 0, "air": 0, "pos": (0.0, 0.0, 0.0), "air_max": 0, "autres": 0}
+        ch, = struct.unpack(">I", bytes(self.mem.read(a + OFFRL_CHUTES, 4)))
+        cfg, de, po, et, re = struct.unpack(">IIiIi", bytes(self.mem.read(a + OFFRL_CFG, 20)))
+        rv, ex, ab, no, ra, ap, rf, dr, ge, ai = struct.unpack(">7IiII", bytes(self.mem.read(a + 0x24, 40)))
+        x, y, z = struct.unpack(">3f", bytes(self.mem.read(a + OFFRL_POS, 12)))
+        am = bytes(self.mem.read(a + OFFRL_AIR_MAX, 1))[0]
+        au, = struct.unpack(">I", bytes(self.mem.read(a + OFFRL_AUTRES, 4)))
+        return {"cfg": cfg, "delai": de, "possible": po, "etat": et, "reste": re, "chutes": ch, "releves": rv,
+                "expires": ex, "abandons": ab, "normales": no, "raison": ra, "appels": ap, "refus": rf, "dernier": dr,
+                "gelees": ge, "air": ai, "pos": (x, y, z), "air_max": am, "autres": au}
+
+    def _rel_call(self, sous: int, vie: int = 0, timeout: float = TIMEOUT_V19) -> int:
+        if self.rel_addr() is None:
+            raise MailboxError("relever un coéquipier : seulement le mod natif du portage à jour (0.48.0 ou plus)")
+        return self._call(CMD_CALL, CALL_REL, sous, vie, timeout=timeout, cancel=True)
+
+    def releve_etat(self, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 19 ÉTAT : 0 debout, 1 chute, 2 à terre, 3 relevé, 4 mort demandée."""
+        return self._rel_call(0, timeout=timeout)
+
+    def relever(self, vie: int, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 19 RELEVER : ``vie`` quarts (1..80) ; la vie écrite (bornée à la vie max) ou un refus (< 0 : rien écrit ;
+        -3 événement, -4 pas à terre, -7 changement d'étape, -8 Link absent, -9 message ou menu, -11 variation de vie en
+        attente : à retenter). ValueError avant tout envoi hors bornes."""
+        if isinstance(vie, bool) or not isinstance(vie, int) or not 1 <= vie <= 80:
+            raise ValueError(f"RELEVER : vie {vie!r} hors 1..80")
+        return self._rel_call(1, vie, timeout=timeout)
+
+    def releve_abandon(self, timeout: float = TIMEOUT_V19) -> int:
+        """CALL 19 ABANDON : la vraie mort à l'image suivante (1) ; -4 pas à terre."""
+        return self._rel_call(2, timeout=timeout)
     # --- tenues à pouvoir, partie A (0.46.0, mod natif seulement, sans bit : la zone est la capacité) ----------------
     def ten_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_ten`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""

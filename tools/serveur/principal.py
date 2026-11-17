@@ -350,6 +350,7 @@ from serveur import bonheur as bon_mod  # noqa: E402  (Fragments du Bonheur : do
 from serveur import tenues as ten_mod  # noqa: E402  (tenues à pouvoir : docs/etudes/autres_zelda.md §6)
 from commun import tenues as ten_commun  # noqa: E402
 from serveur import fusions as fus_mod  # noqa: E402  (tenues à pouvoir, partie B : les fusions)
+from serveur import releve as rel_mod  # noqa: E402  (relever un coéquipier : docs/etudes/autres_zelda.md §5)
 from commun import fusions as fus_commun  # noqa: E402
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
@@ -539,8 +540,16 @@ class Server:
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
                  essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE,
-                 essai_fusions: bool = False):
+                 essai_fusions: bool = False, releve: bool = True, essai_relever: bool = False):
         self.players: dict[int, Player] = {}
+        # relever un coéquipier (serveur/releve.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-releve), qui ne JOUE
+        # qu'avec le deathlink (jamais avec la vie partagée ni en mode Hanteurs). ESSAI (--essai-relever, Réglages ›
+        # Essais) : faux coéquipier « Essai Secours » d'un client d'essai ; à retirer après validation
+        self.releve = rel_mod.ReleveServeur(on=releve, essai=essai_relever and not mode_hanteurs)
+        self._releve_t = 0.0
+        if self.releve.essai:
+            log("relever un coéquipier : ESSAI allumé (--essai-relever) : faux coéquipier « Essai Secours » d'un client "
+                "d'essai qui te relève ou tombe (Réglages › Essais du lanceur)")
         # tenues à pouvoir, partie B : les FUSIONS (serveur/fusions.py) : avec la règle des tenues, jamais en mode
         # Hanteurs ni avec le robot. ESSAI (--essai-fusions, Réglages › Essais) : faux coéquipier d'un client d'essai ;
         # à retirer après validation
@@ -2479,6 +2488,7 @@ class Server:
                 self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
             self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
             self.fusions_tick()                  # fusions (partie B) : débuts et fins (au plus 5 fois par seconde)
+            self.releve_tick()                   # relever un coéquipier : délais, releveurs proches (5 fois par s)
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -2916,6 +2926,7 @@ class Server:
                     "bonheur": int(self.bonheur.on),      # Fragments du Bonheur : règle de la partie (absent = non)
                     "bonheur_poche": self.bonheur.poche(p.name),   # Fragments du Bonheur : ses moitiés (monde)
                     "tenues": int(self.tenues.on),        # tenues à pouvoir : règle de la partie (absent = non)
+                    "releve": int(self.releve.on),        # relever un coéquipier : option (joue avec le deathlink)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -3163,6 +3174,8 @@ class Server:
             self.handle_tenue(p, msg)            # tenues à pouvoir : ESSAI seulement (couleur, faux coéquipier)
         elif t == "fusion":
             self.handle_fusion(p, msg)           # fusions (partie B) : charge, bombe, lancer, fin ; ESSAI
+        elif t == "releve":
+            self.handle_releve(p, msg)           # relever un coéquipier : à terre, debout, mort, commande ; ESSAI
         elif t == "ralliement_rep":
             self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
@@ -3251,7 +3264,7 @@ class Server:
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
                "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
                "ralliement": self.ralliement.on, "bonheur": self.bonheur.on, "tenues": self.tenues.on,
-               "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
+               "releve": self.releve.on, "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.bonheur.actif() or self.bonheur.poches:
             # Fragments du Bonheur : poches, derniers assemblages, plafond des quarts (trackeur ; ancien : ignoré)
@@ -4032,6 +4045,62 @@ class Server:
             return
         self.tenues_tick(force=True)
 
+    # --- relever un coéquipier (serveur/releve.py, docs/etudes/autres_zelda.md §5) ----------------------------------
+    def releve_joueur(self, pid) -> dict | None:
+        """Ce que le relevé sait d'un joueur (serveur/releve.ReleveServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        h = self.hanteurs
+        return {"nom": o.name, "joueur": o.joueur and not self.robot_est(o), "zone": o.zone, "pos": o.pos,
+                "t": o.state_t, "feat": o.feat, "hanteur": bool(h is not None and h.est_hanteur(o.id))}
+
+    def releve_actif(self) -> bool:
+        return self.releve.actif(self.morts.on, self.vies.on, self.hanteurs is not None)
+
+    def releve_envoyer(self, envois) -> None:
+        for dest, m in envois:
+            if dest == "tous":
+                src = m.get("id")
+                for o in self.players.values():
+                    if o.joueur and o.id != src and rel_mod.FEAT in o.feat:
+                        o.send(m)
+                continue
+            o = self.players.get(dest)
+            if o is not None:
+                o.send(m)
+        for ligne in self.releve.journal:
+            log(ligne)
+        self.releve.journal.clear()
+
+    def releve_tick(self, force: bool = False) -> None:
+        now = time.monotonic()
+        if not force and now - self._releve_t < 0.2:
+            return
+        self._releve_t = now
+        rv = self.releve
+        # ESSAI (--essai-relever) : le serveur d'essai suit aussi sans deathlink (le client d'essai force la règle chez
+        # lui seulement ; un client sans l'essai garde sa règle effective et ignore « possible »)
+        if not self.releve_actif() and not (rv.essai and self.hanteurs is None):
+            if rv.terre or rv.faux or rv.possibles:
+                self.releve_envoyer(rv.couper())
+            return
+        ids = [pid for pid, o in self.players.items() if o.joueur]
+        self.releve_envoyer(rv.tick(lambda: ids, self.releve_joueur, now))
+
+    def handle_releve(self, p: Player, msg: dict) -> None:
+        """« releve » d'un client : à terre, debout, mort, vivant, commande « Relever » ; ESSAI (mode, faux coéquipier)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        essai = self.releve.essai and msg.get("essai") in (1, True) and self.hanteurs is None
+        if not self.releve_actif() and not essai:
+            if msg.get("e") == "terre":
+                # règle coupée entre-temps : sa vraie mort (le client coupe aussi cfg ; le mod le tue de lui-même)
+                p.send({"type": "releve_ordre", "e": "abandon", "raison": "règle coupée"})
+            return
+        self.releve_envoyer(self.releve.message(p.id, msg, self.releve_joueur, time.monotonic()))
+        self.releve_tick(force=True)
+
     # --- fusions des tenues, partie B (serveur/fusions.py, docs/etudes/autres_zelda.md §6) ----------------------------
     def fusions_joueur(self, pid) -> dict | None:
         """Ce que les fusions savent d'un joueur : celui des tenues, plus cinématique, menu ou port (nc), course, et la
@@ -4290,6 +4359,14 @@ class Server:
                 self.ralliement.vu = True
                 log(f"chant de ralliement {'activé' if on else 'désactivé'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "releve" in msg:
+            on = msg.get("releve") in (1, True)
+            if on != self.releve.on:
+                self.releve.on = on
+                self.releve.vu = True
+                log(f"relever un coéquipier {'activé' if on else 'désactivé'} par l'hôte"
+                    + (" (ne joue qu'avec le deathlink, sans la vie partagée)" if on else ""))
+                self.broadcast(self.regles_msg())
         if "bonheur" in msg:
             on = msg.get("bonheur") in (1, True)
             if on and self.hanteurs is not None:
@@ -4344,7 +4421,8 @@ class Server:
     def regles_rep(self) -> dict:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
                 "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
-                "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "difficulte": self.dif_vue()}
+                "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "releve": int(self.releve.on),
+                "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -4358,6 +4436,8 @@ class Server:
             m["bonheur"] = int(self.bonheur.on)        # Fragments du Bonheur, dès qu'ils ont changé (welcome sinon)
         if self.tenues.vu:
             m["tenues"] = int(self.tenues.on)          # tenues à pouvoir, dès qu'elles ont changé (welcome sinon)
+        if self.releve.vu:
+            m["releve"] = int(self.releve.on)          # relever un coéquipier, dès qu'il a changé (welcome sinon)
         if self.coups.vu:
             m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
@@ -5554,6 +5634,7 @@ class Server:
             self.bonheur_envoyer(self.bonheur.oublier(p.id))   # Fragments du Bonheur : propositions annulées
             self.tenues.oublier(p.id)           # tenues à pouvoir : partage et essai oubliés (le duo est recalculé)
             self.fusions_envoyer(self.fusions.oublier(p.id))   # fusions : celle du partant finie pour les deux
+            self.releve_envoyer(self.releve.oublier(p.id))     # relever : plus à terre, plus releveur
             self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
             self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
@@ -6154,6 +6235,15 @@ def main(argv=None) -> int:
     ap.add_argument("--coups-joueurs", action="store_true",
                     help="règle de la partie : un coup d'épée sur un coéquipier le fait reculer (aucun dégât, 1 s "
                          "d'invincibilité) ; jamais avec le mode Hanteurs. Désactivée par défaut")
+    ap.add_argument("--no-releve", action="store_true",
+                    help="règle de la partie : relever un coéquipier coupé (allumé par défaut, mais seulement avec le "
+                         "deathlink et sans la vie partagée : un Link à 0 cœur reste à terre 20 s ; un coéquipier qui "
+                         "reste 2 s à moins de 1,5 m le relève avec 2 cœurs, sinon sa vraie mort ; jamais en mode "
+                         "Hanteurs)")
+    ap.add_argument("--essai-relever", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-relever a un faux coéquipier "
+                         "« Essai Secours » qui vient le relever (ou pas) et qui peut tomber à son tour ; pour essayer "
+                         "seul, jamais dans une vraie partie")
     ap.add_argument("--no-ralliement", action="store_true",
                     help="règle de la partie : chant de ralliement coupé (allumé par défaut : le morceau 6 de la "
                          "Baguette, 3/4 haut, bas, droite, appelle l'équipe ; une fois toutes les 5 min ; jamais avec "
@@ -6489,7 +6579,8 @@ def main(argv=None) -> int:
                           bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
                           bonheur_quarts_partie=max(0, args.bonheur_quarts_partie),
                           tenues=not args.no_tenues, essai_tenues=args.essai_tenues,
-                          tenues_distance=args.tenues_distance, essai_fusions=args.essai_fusions))
+                          tenues_distance=args.tenues_distance, essai_fusions=args.essai_fusions,
+                          releve=not args.no_releve, essai_relever=args.essai_relever))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

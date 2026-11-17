@@ -110,6 +110,13 @@ COMMANDES: tuple[Commande, ...] = (
              "Pendant une course en bateau : tu sors du classement (quitter la mer fait de même).",
              "During a boat race: you leave the ranking (leaving the sea does the same).",
              "pas de manette : la touche seulement", "no controller: the key only"),
+    # relever un coéquipier (client/releve.py) : relever tout de suite un coéquipier à terre à moins de 1,5 m ; touche
+    Commande("relever", "multi", "Relever un coéquipier", "Revive a teammate", "Ctrl+End", None, "",
+             "Deathlink : un coéquipier tombé à 0 cœur reste à terre 20 s ; à moins de 1,5 m de lui, la touche le relève "
+             "tout de suite (sinon reste 2 s près de lui).",
+             "Deathlink: a teammate at 0 hearts stays down for 20 s; within 1.5 m of them, the key revives them right "
+             "away (otherwise stay 2 s next to them).",
+             "pas de manette : la touche, ou reste 2 s près de lui", "no controller: the key, or stay 2 s next to them"),
 )
 # Commandes visibles mais pas configurables ici (pourquoi : ``aide``)
 LECTURE_SEULE: tuple[dict, ...] = (
