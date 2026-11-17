@@ -688,6 +688,8 @@ class Monde:
         self.medailles_doc = doc.get("medailles") if isinstance(doc.get("medailles"), dict) else None
         # records des courses en bateau (serveur/courses.py) : relus tels quels, validés par le serveur
         self.courses_doc = doc.get("courses") if isinstance(doc.get("courses"), dict) else None
+        # Fragments du Bonheur (serveur/bonheur.py) : poches et quarts donnés, relus tels quels, validés par le serveur
+        self.bonheur_doc = doc.get("bonheur") if isinstance(doc.get("bonheur"), dict) else None
         # salles retenues (canons détruits, switches de mort ; synchro/canons.py §3), validées par SallesDetruites
         self.salles_doc = doc.get("salles") if isinstance(doc.get("salles"), dict) else None
         self.ignores = 0
@@ -765,6 +767,9 @@ class Monde:
         if getattr(self, "courses_doc", None) is not None and hasattr(srv, "courses"):
             self.ignores += srv.courses.restaurer(self.courses_doc)
             self.courses_doc = None
+        if getattr(self, "bonheur_doc", None) is not None and hasattr(srv, "bonheur"):
+            self.ignores += srv.bonheur.restaurer(self.bonheur_doc)
+            self.bonheur_doc = None
         if getattr(self, "salles_doc", None) is not None and hasattr(srv, "salles"):
             ok, bad = srv.salles.restaurer(self.salles_doc)
             self.ignores += bad
@@ -825,6 +830,11 @@ class Monde:
             doc["courses"] = crs       # records des courses en bateau (un ancien serveur l'ignore sans erreur)
         elif getattr(self, "courses_doc", None):
             doc["courses"] = self.courses_doc         # relue mais pas encore rendue au serveur : jamais perdue
+        bon = srv.bonheur.exporter() if hasattr(srv, "bonheur") else None
+        if bon and (bon.get("poches") or bon.get("historique") or (bon.get("quarts") or {}).get("total")):
+            doc["bonheur"] = bon       # Fragments du Bonheur : poches, quarts (un ancien serveur l'ignore sans erreur)
+        elif getattr(self, "bonheur_doc", None):
+            doc["bonheur"] = self.bonheur_doc         # relue mais pas encore rendue au serveur : jamais perdue
         salles = srv.salles.document() if hasattr(srv, "salles") else {}
         if salles:
             doc["salles"] = salles     # canons détruits, switches de mort par salle (un ancien serveur l'ignore)

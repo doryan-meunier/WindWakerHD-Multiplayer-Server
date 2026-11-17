@@ -346,6 +346,7 @@ from serveur import maj as maj_serveur  # noqa: E402
 from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de donjon : docs/etudes/autres_zelda.md §2)
 from serveur import ralliement as ral_mod  # noqa: E402  (chant de ralliement : docs/etudes/autres_zelda.md §7)
 from serveur import courses as crs_mod  # noqa: E402  (courses en bateau : docs/etudes/autres_zelda.md §3)
+from serveur import bonheur as bon_mod  # noqa: E402  (Fragments du Bonheur : docs/etudes/autres_zelda.md §4)
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -530,8 +531,22 @@ class Server:
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
                  essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False,
                  ralliement: bool = True, essai_ralliement: bool = False, courses: bool = True,
-                 essai_course: bool = False):
+                 essai_course: bool = False, bonheur: bool = True, essai_bonheur: bool = False,
+                 bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
+                 bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE):
         self.players: dict[int, Player] = {}
+        # Fragments du Bonheur (serveur/bonheur.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-bonheur), toujours
+        # coupée en mode Hanteurs ; poches gardées dans le monde persistant. ESSAI (--essai-bonheur, Réglages › Essais) :
+        # tirage à 1 sur 2, faux coéquipier assorti d'un client d'essai, récompenses forcées ; à retirer après validation
+        if (bonheur or essai_bonheur) and mode_hanteurs:
+            log("fragments du Bonheur : coupés avec le mode Hanteurs")
+        self.bonheur = bon_mod.BonheurServeur(on=bonheur and not mode_hanteurs,
+                                              essai=essai_bonheur and not mode_hanteurs,
+                                              quarts_donjon=bonheur_quarts_donjon,
+                                              quarts_partie=bonheur_quarts_partie)
+        if self.bonheur.essai:
+            log("fragments du Bonheur : ESSAI allumé (--essai-bonheur) : 1 chance sur 2 par monstre, faux coéquipier "
+                "« Essai Assorti » d'un client d'essai, récompenses forcées (Réglages › Essais du lanceur)")
         # courses en bateau (serveur/courses.py) : lancées par le lanceur de l'hôte (« course_cmd »), jamais en mode
         # Hanteurs. ESSAI (--essai-course, Réglages › Essais) : course d'essai d'un client contre de faux concurrents ;
         # à retirer après validation
@@ -2437,6 +2452,8 @@ class Server:
                 self.h_flush()
             if self.courses.course is not None:
                 self.courses_tick()              # courses en bateau : phases, faux concurrents (aussi courses_boucle)
+            if self.bonheur.props:
+                self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -2871,6 +2888,8 @@ class Server:
                     "vie_partagee": int(self.vies.on),    # vie partagée : règle de la partie (absent = non)
                     "coups_joueurs": int(self.coups.on),  # coups entre joueurs : règle de la partie (absent = non)
                     "ralliement": int(self.ralliement.on),  # chant de ralliement : règle de la partie (absent = non)
+                    "bonheur": int(self.bonheur.on),      # Fragments du Bonheur : règle de la partie (absent = non)
+                    "bonheur_poche": self.bonheur.poche(p.name),   # Fragments du Bonheur : ses moitiés (monde)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -2994,6 +3013,8 @@ class Server:
                 self.hanteurs.snapshot(zone, out["list"], bool(out.get("full")))
             if self.medailles.on and self.medailles_compte(p):
                 self.medailles.ennemis(zone, p.name, out["list"])   # médailles : monstres vaincus (dernier coup)
+            if self.bonheur.actif():
+                self.bonheur_ennemis(zone, p, out["list"])          # Fragments du Bonheur : tirage d'une moitié
             for o in self.members(zone):
                 if o.id != p.id:
                     o.send(out)
@@ -3029,6 +3050,8 @@ class Server:
                 return                           # S2, mode « refus » : coup de trop loin du monstre
             if p.zone == zone and self.medailles.on and self.medailles_compte(p):
                 self.medailles.coup(zone, msg.get("key"), p.name)    # médailles : le dernier coup compte (3 s)
+            if p.zone == zone and p.joueur:
+                self.bonheur.coup(zone, msg.get("key"), p.id)        # Fragments du Bonheur : même attribution
             if holder is not None and holder != p.id and holder in self.players and p.zone == zone \
                     and self.players[holder].zone == zone:
                 # lot L4 (A4) : « inj » (de quoi rejouer le coup chez l'autorité : synchro/coups_monstres.py), validé
@@ -3104,6 +3127,8 @@ class Server:
             self.handle_course(p, msg)           # courses en bateau : passages, faux départ, disqualification…
         elif t == "ralliement":
             self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
+        elif t == "bonheur":
+            self.handle_bonheur(p, msg)          # Fragments du Bonheur : assembler, annuler (menu), ESSAI
         elif t == "ralliement_rep":
             self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
@@ -3189,9 +3214,13 @@ class Server:
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
                "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
-               "ralliement": self.ralliement.on,
+               "ralliement": self.ralliement.on, "bonheur": self.bonheur.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
+        if self.bonheur.actif() or self.bonheur.poches:
+            # Fragments du Bonheur : poches, derniers assemblages, plafond des quarts (trackeur ; ancien : ignoré)
+            out["fragments"] = self.bonheur.vue(o.name for o in self.players.values()
+                                                if o.joueur and not self.robot_est(o))
         if self.medailles.on:
             out["medailles"] = self.medailles.vue()   # trackeur du lanceur : donjons FINIS seulement (ancien : ignoré)
         if self.courses.on:
@@ -3874,6 +3903,59 @@ class Server:
             if o is not None:
                 o.send(out[1])
 
+    # --- Fragments du Bonheur (serveur/bonheur.py, docs/etudes/autres_zelda.md §4) ---------------------------------
+    def bonheur_joueur(self, pid) -> dict | None:
+        """Ce que les Fragments du Bonheur savent d'un joueur (serveur/bonheur.BonheurServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        h = self.hanteurs
+        return {"nom": o.name, "joueur": o.joueur and not self.robot_est(o), "zone": o.zone, "busy": o.busy,
+                "pos": o.pos, "t": o.state_t, "feat": o.feat,
+                "hanteur": bool(h is not None and (h.est_hanteur(o.id) or h.possede_par(o.id) is not None))}
+
+    def bonheur_envoyer(self, envois) -> None:
+        for dest, m in envois or ():
+            o = self.players.get(dest)
+            if o is not None:
+                o.send(m)
+        for ligne in self.bonheur.prendre_journal():
+            log(ligne)
+        if self.bonheur.changes:
+            self.bonheur.changes = False
+            self.mp_marquer()                         # monde persistant : poches, quarts donnés
+
+    def bonheur_ennemis(self, zone: str, p: Player, lst) -> None:
+        """Instantané « enemies » de l'autorité ``p`` : un monstre vaincu peut donner une moitié (1 sur 12)."""
+        h = self.hanteurs
+        # monstres possédés de la zone (mode Hanteurs : les Fragments y sont déjà coupés ; garde de principe)
+        poss = [ps.get("key") for ps in (getattr(h, "possessions", None) or {}).values()
+                if ps.get("zone") == zone] if h is not None else ()
+        self.bonheur_envoyer(self.bonheur.ennemis(zone, p.id, lst, self.bonheur_joueur, possedes=poss))
+
+    def handle_bonheur(self, p: Player, msg: dict) -> None:
+        """« bonheur » d'un client : ``assembler`` (proposer ou accepter), ``annule`` (menu ouvert) ; ESSAI
+        (--essai-bonheur seulement) : ``essai_propose`` (le faux coéquipier propose), ``essai_forcer`` (récompense)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        ev, bh, now = msg.get("ev"), self.bonheur, time.monotonic()
+        raison, envois = "", []
+        if ev == "assembler":
+            raison, envois = bh.assembler(p.id, msg, self.bonheur_joueur, lambda: list(self.players), now,
+                                          hanteurs=self.hanteurs is not None)
+        elif ev == "annule":
+            envois = bh.annuler(p.id, "menu ouvert" if msg.get("raison") == "menu" else "annulé")
+        elif ev == "essai_propose" and bh.essai:
+            raison, envois = bh.essai_proposer(p.id, msg, self.bonheur_joueur, now)
+        elif ev == "essai_forcer" and bh.essai:
+            raison, envois = bh.essai_forcer(p.id, msg, self.bonheur_joueur, now)
+        else:
+            return
+        if raison:
+            log(f"fragments du Bonheur : {p.name} ({ev}) refusé ({raison})")
+            envois = list(envois) + [(p.id, {"type": "bonheur", "ev": "refus", "raison": raison[:120]})]
+        self.bonheur_envoyer(envois)
+
     # --- courses en bateau (serveur/courses.py, docs/etudes/autres_zelda.md §3) ----------------------------------------
     def courses_joueur(self, pid) -> dict | None:
         """Ce que les courses savent d'un joueur (serveur/courses.CoursesServeur)."""
@@ -4084,6 +4166,17 @@ class Server:
                 self.ralliement.vu = True
                 log(f"chant de ralliement {'activé' if on else 'désactivé'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "bonheur" in msg:
+            on = msg.get("bonheur") in (1, True)
+            if on and self.hanteurs is not None:
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
+                        "msg": "Fragments du Bonheur impossibles avec le mode Hanteurs"})
+                return
+            if on != self.bonheur.on:
+                self.bonheur.on = on
+                self.bonheur.vu = True
+                log(f"fragments du Bonheur {'activés' if on else 'désactivés'} par l'hôte")
+                self.broadcast(self.regles_msg())
         if "coups_joueurs" in msg:
             on = msg.get("coups_joueurs") in (1, True)
             if on and self.hanteurs is not None:
@@ -4116,7 +4209,7 @@ class Server:
     def regles_rep(self) -> dict:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
                 "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
-                "difficulte": self.dif_vue()}
+                "bonheur": int(self.bonheur.on), "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -4126,6 +4219,8 @@ class Server:
             m["vie_partagee"] = int(self.vies.on)
         if self.ralliement.vu:
             m["ralliement"] = int(self.ralliement.on)  # chant de ralliement, dès qu'il a changé une fois (welcome sinon)
+        if self.bonheur.vu:
+            m["bonheur"] = int(self.bonheur.on)        # Fragments du Bonheur, dès qu'ils ont changé (welcome sinon)
         if self.coups.vu:
             m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
@@ -5319,6 +5414,7 @@ class Server:
             self.carry.left(p.id)
             self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
             self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
+            self.bonheur_envoyer(self.bonheur.oublier(p.id))   # Fragments du Bonheur : propositions annulées
             self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
             self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
@@ -5925,6 +6021,19 @@ def main(argv=None) -> int:
                          "le mode Hanteurs)")
     ap.add_argument("--no-courses", action="store_true",
                     help="pas de courses en bateau (lancées par le lanceur de l'hôte : parcours tracés en jeu)")
+    ap.add_argument("--no-bonheur", action="store_true",
+                    help="règle de la partie : Fragments du Bonheur coupés (allumés par défaut : un monstre vaincu donne "
+                         "parfois une moitié de médaillon ; deux joueurs à moins de 3 m avec des moitiés assorties les "
+                         "assemblent pour une récompense ; jamais avec le mode Hanteurs)")
+    ap.add_argument("--bonheur-quarts-donjon", type=int, default=bon_mod.QUARTS_DONJON,
+                    help="Fragments du Bonheur : plafond de sécurité des quarts de cœur par donjon (mer et îles : un "
+                         "seul « donjon » à part) ; au-delà, le quart tiré devient une pluie de rubis (défaut 1)")
+    ap.add_argument("--bonheur-quarts-partie", type=int, default=bon_mod.QUARTS_PARTIE,
+                    help="Fragments du Bonheur : plafond de sécurité des quarts de cœur par partie (défaut 4)")
+    ap.add_argument("--essai-bonheur", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : 1 chance sur 2 par monstre ; le faux coéquipier d'un "
+                         "client --essai-bonheur a toujours la moitié assortie, accepte et propose ; récompenses "
+                         "forcées ; quart de cœur simulé ; pour essayer seul, jamais dans une vraie partie")
     ap.add_argument("--essai-course", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
                          "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
@@ -6223,7 +6332,10 @@ def main(argv=None) -> int:
                           medailles=not args.no_medailles, essai_medailles=args.essai_medailles,
                           coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups,
                           ralliement=not args.no_ralliement, essai_ralliement=args.essai_ralliement,
-                          courses=not args.no_courses, essai_course=args.essai_course))
+                          courses=not args.no_courses, essai_course=args.essai_course,
+                          bonheur=not args.no_bonheur, essai_bonheur=args.essai_bonheur,
+                          bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
+                          bonheur_quarts_partie=max(0, args.bonheur_quarts_partie)))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

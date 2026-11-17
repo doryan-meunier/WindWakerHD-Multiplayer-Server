@@ -91,6 +91,13 @@ COMMANDES: tuple[Commande, ...] = (
              "During the 10 s of a teammate's rally song: you stay where you are.",
              "pas de manette : la touche, ou ouvre le menu du jeu (un joueur au menu n'est pas déplacé)",
              "no controller: the key, or open the game menu (a player in the menu is not moved)"),
+    # Fragments du Bonheur (client/bonheur.py) : proposer d'assembler deux moitiés, ou accepter ; touche seulement
+    Commande("assembler", "multi", "Assembler (Fragments du Bonheur)", "Fuse (Kinstones)", "Ctrl+Insert", None, "",
+             "À moins de 3 m d'un coéquipier qui a la moitié assortie : propose d'assembler ; il appuie à son tour "
+             "dans les 10 s pour accepter. Une récompense tombe pour les deux.",
+             "Within 3 m of a teammate who has the matching half: offer to fuse; they press it too within 10 s to "
+             "accept. A reward drops for both.",
+             "pas de manette : la touche seulement", "no controller: the key only"),
     # courses en bateau (client/courses.py) : tracer un parcours en naviguant, abandonner ; touches seulement
     Commande("poser_balise", "multi", "Poser une balise (tracé d'une course)", "Drop a buoy (race layout)", "HomeKey",
              None, "",
