@@ -36,9 +36,9 @@ MIN_CONFIRM = 0.05     # s : écart minimal entre deux lectures de la sauvegarde
 IMAGE = 0.033          # s : une image du jeu (30 images/s), comptée dans l'estimation
 # messages dont l'application attend le prochain tick de la boucle : leur arrivée la réveille
 REVEIL_TYPES = frozenset({"break", "drop", "herbe", "tsw", "progress", "magma", "hit",
-                          "player_hit", "saisie", "pvp_coup", "hlaisse"})
+                          "player_hit", "saisie", "pvp_coup", "coup_joueur", "hlaisse"})
 # … parmi eux, les coups et les ordres (lot L1, A2) : budget de réveils à part, ``hlaisse`` filtré (ordre nouveau)
-COUPS_TYPES = frozenset({"player_hit", "saisie", "pvp_coup", "hlaisse"})
+COUPS_TYPES = frozenset({"player_hit", "saisie", "pvp_coup", "coup_joueur", "hlaisse"})   # coup_joueur : coups entre joueurs
 REVEILS_COUPS_MAX = 4  # réveils « coup » au plus par seconde (au pire : hz + REVEILS_MAX + REVEILS_COUPS_MAX ticks/s)
 HLAISSE_MEMO = 16      # monstres possédés retenus pour reconnaître un ordre nouveau
 AGES_GARDE = 5.0       # s : âges mesurés (fantôme, marionnettes) gardés au plus ; au-delà, « pas de mesure »

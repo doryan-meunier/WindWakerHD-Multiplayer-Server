@@ -329,6 +329,7 @@ from synchro.herbe import HerbeTable, valid_herbe  # noqa: E402
 from synchro.pnj import filtre_serveur as pnj_filtre, valid_pnj  # noqa: E402
 from synchro.deathlink import MortsServeur  # noqa: E402
 from synchro.vie_partagee import VieServeur, valid_vie  # noqa: E402
+from synchro import coups_joueurs as cj_mod  # noqa: E402  (coups entre joueurs : docs/etudes/autres_zelda.md §8)
 from synchro import pause_vivante as pvmod  # noqa: E402
 from commun import difficulte as dif_mod  # noqa: E402
 from synchro.portage import CarryTable, valid_carry  # noqa: E402
@@ -424,6 +425,7 @@ class Player:
         self.skipped = 0
         self.group: str | None = None     # étape 8 : groupe de progression
         self.busy = False                 # A11 : en cinématique (champ optionnel « busy » de state)
+        self.nc = False                   # coups entre joueurs : intouchable (champ « nc » de state : menu, porté, porteur)
         self.tsw_group: str | None = None  # A7 : groupe des switches temporaires (None = pas inscrit)
         self.pos: list | None = None      # A3 : dernière position de Link (state), pour lâcher son bâton
         self.carried: list = []           # A3 : bâtons tenus pendant un passage sans zone
@@ -524,8 +526,18 @@ class Server:
                  robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
-                 essai_medailles: bool = False):
+                 essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False):
         self.players: dict[int, Player] = {}
+        # coups entre joueurs (synchro/coups_joueurs.py) : règle de la PARTIE, coupée par défaut, jamais en mode
+        # Hanteurs (son PvP reste le sien) ; recul seul (aucun dégât). ESSAI (--essai-coups, Réglages › Essais) : faux
+        # coéquipier d'un client d'essai ; à retirer après validation
+        if (coups_joueurs or essai_coups) and mode_hanteurs:
+            log("coups entre joueurs : désactivés avec le mode Hanteurs (son PvP reste le sien)")
+        self.coups = cj_mod.CoupsServeur(on=coups_joueurs and not mode_hanteurs,
+                                         essai=essai_coups and not mode_hanteurs)
+        if self.coups.essai:
+            log("coups entre joueurs : ESSAI allumé (--essai-coups) : le faux coéquipier d'un client d'essai peut être "
+                "frappé et frapper (Réglages › Essais du lanceur)")
         # médailles de fin de donjon (serveur/medailles.py) : pour la gloire seule, classement montré à la fin du donjon
         # (bandeau des clients, trackeur du lanceur). ESSAI (--essai-medailles, Réglages › Essais) : faux coéquipiers et
         # fin simulée, pour essayer seul ; à retirer après validation
@@ -2833,6 +2845,7 @@ class Server:
                                 for o in self.players.values() if o.id != p.id and o.joueur],
                     "deathlink": int(self.morts.on),      # synchro v3 : règle de la partie (absent = non)
                     "vie_partagee": int(self.vies.on),    # vie partagée : règle de la partie (absent = non)
+                    "coups_joueurs": int(self.coups.on),  # coups entre joueurs : règle de la partie (absent = non)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -2879,6 +2892,7 @@ class Server:
             if busy != p.busy:
                 p.busy = busy
                 log(f"{p.name} : {'en cinématique' if busy else 'fin de cinématique'}")
+            p.nc = msg.get("nc") in (1, True)    # coups entre joueurs : menu, porté ou porteur chez lui
             t_state = time.monotonic()
             if p.state_t is None or t_state - p.state_t > autorite.PREF_SILENCE:
                 p.frais_depuis = t_state     # S1 : il répond de nouveau (ou pour la première fois)
@@ -3059,6 +3073,8 @@ class Server:
             self.handle_hpilote(p, msg)
         elif t in ("hinfluence", "hboss_res"):
             self.handle_influence(p, msg)
+        elif t == "pvp" and self.hanteurs is None:
+            self.handle_coups(p, msg)            # coups entre joueurs (hors mode Hanteurs)
         elif t in ("hpotion", "hpotion_stop", "hresister", "pvp", "hviser"):
             self.handle_potion(p, msg)
         elif t == "hanteurs_cmd":
@@ -3139,7 +3155,7 @@ class Server:
             lst.append(d)
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
-               "deathlink": self.morts.on, "vie_partagee": self.vies.on,
+               "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.medailles.on:
@@ -3738,6 +3754,41 @@ class Server:
             return
         self.medailles_diffuser(res, f"ESSAI : fin simulée par {p.name}")
 
+    def coups_joueur(self, pid) -> dict | None:
+        """Ce que les coups entre joueurs savent d'un joueur (synchro/coups_joueurs.CoupsServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        return {"joueur": o.joueur, "zone": o.zone, "busy": o.busy, "nc": o.nc, "pos": o.pos, "t": o.state_t,
+                "feat": o.feat}
+
+    def handle_coups(self, p: Player, msg: dict) -> None:
+        """« pvp » hors mode Hanteurs : coup d'épée d'un Link sur un coéquipier (règle de la partie), ou ESSAI (faux
+        coéquipier). Accepté : « coup_joueur » à la victime (recul par CALL 9, aucun dégât) ; essai : « coup_rep »."""
+        if not p.joueur:
+            return
+        now = time.monotonic()
+        raison, dest, out = self.coups.pvp(p.id, msg, self.coups_joueur, now, hanteurs=self.hanteurs is not None,
+                                           robot_essai=bool(self.robot.essai))
+        essai = msg.get("essai") in (1, True) and self.coups.essai
+        if raison:
+            if essai or (self.coups.on and raison != "trop de coups" and "invincible" not in raison):
+                log(f"coups entre joueurs{' (ESSAI)' if essai else ''} : {p.name} -> {msg.get('to')} refusé "
+                    f"({raison})")
+            if essai:
+                p.send({"type": "coup_rep", "ok": 0, "to": msg.get("to"), "raison": raison[:80], "essai": 1})
+            return
+        o = self.players.get(dest)
+        if o is None:
+            return
+        self.pref_combat(p.zone)
+        o.send(out)
+        if out.get("type") == "coup_joueur":
+            qui = cj_mod.NOM_ESSAI if out["from"] == cj_mod.ID_ESSAI else p.name
+            log(f"coups entre joueurs{' (ESSAI)' if essai else ''} : {qui} frappe {o.name} : accepté, recul envoyé")
+        else:
+            log(f"coups entre joueurs (ESSAI) : {p.name} frappe le faux coéquipier « {cj_mod.NOM_ESSAI} » : accepté")
+
     def handle_signal(self, p: Player, msg: dict) -> None:
         """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
         les SIGNAL_ENTRE s par joueur. Un Hanteur est invisible des Link : son signal ne part qu'aux autres Hanteurs."""
@@ -3860,6 +3911,17 @@ class Server:
                 self.mp_marquer(rapide=True)
                 log(f"vie partagée {'activée' if on else 'désactivée'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "coups_joueurs" in msg:
+            on = msg.get("coups_joueurs") in (1, True)
+            if on and self.hanteurs is not None:
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
+                        "msg": "coups entre joueurs impossibles avec le mode Hanteurs (son PvP reste le sien)"})
+                return
+            if on != self.coups.on:
+                self.coups.on = on
+                self.coups.vu = self.coups.vu or on
+                log(f"coups entre joueurs {'activés' if on else 'désactivés'} par l'hôte (recul seul, aucun dégât)")
+                self.broadcast(self.regles_msg())
         if "difficulte" in msg:
             if not self.difficulte_on:
                 p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
@@ -3879,7 +3941,8 @@ class Server:
         p.send({"type": "regles_rep", "ok": 1, **self.regles_rep()})
 
     def regles_rep(self) -> dict:
-        return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on), "difficulte": self.dif_vue()}
+        return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
+                "coups_joueurs": int(self.coups.on), "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -3887,6 +3950,8 @@ class Server:
         m = {"type": "regles", "deathlink": int(self.morts.on)}
         if self.vies.vu:
             m["vie_partagee"] = int(self.vies.on)
+        if self.coups.vu:
+            m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
             m["difficulte"] = self.dif_vue()
         return m
@@ -5066,6 +5131,7 @@ class Server:
             self.sticks_left(p)
             self.mob.left(p.id)
             self.carry.left(p.id)
+            self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
             sorties = self.cache.depart(p.id)   # cache-cache : sa partie s'arrête pour les autres
             if sorties:
@@ -5649,6 +5715,12 @@ def main(argv=None) -> int:
                          "sinon --donnees ; jamais envoyé aux joueurs)")
     ap.add_argument("--no-medailles", action="store_true",
                     help="médailles de fin de donjon coupées (docs/etudes/autres_zelda.md §2 : rien n'est compté)")
+    ap.add_argument("--coups-joueurs", action="store_true",
+                    help="règle de la partie : un coup d'épée sur un coéquipier le fait reculer (aucun dégât, 1 s "
+                         "d'invincibilité) ; jamais avec le mode Hanteurs. Désactivée par défaut")
+    ap.add_argument("--essai-coups", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-coups peut "
+                         "être frappé et frapper ; pour essayer seul, jamais dans une vraie partie")
     ap.add_argument("--essai-medailles", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : deux faux coéquipiers dans chaque donjon, la mer et "
                          "les îles comptées comme un « Donjon d'essai », fin de donjon simulable par le client ; "
@@ -5933,7 +6005,8 @@ def main(argv=None) -> int:
                           robot_cle=args.robot_cle or os.environ.get("WWMP_ROBOT_CLE") or None,
                           robot_repos=args.robot_repos, robot_journal=args.robot_journal,
                           robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
-                          medailles=not args.no_medailles, essai_medailles=args.essai_medailles))
+                          medailles=not args.no_medailles, essai_medailles=args.essai_medailles,
+                          coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")
