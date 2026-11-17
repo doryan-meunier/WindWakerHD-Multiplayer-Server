@@ -345,6 +345,7 @@ from serveur import robot as robot_mod  # noqa: E402  (joueur robot : docs/etude
 from serveur import maj as maj_serveur  # noqa: E402
 from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de donjon : docs/etudes/autres_zelda.md §2)
 from serveur import ralliement as ral_mod  # noqa: E402  (chant de ralliement : docs/etudes/autres_zelda.md §7)
+from serveur import courses as crs_mod  # noqa: E402  (courses en bateau : docs/etudes/autres_zelda.md §3)
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -528,8 +529,17 @@ class Server:
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
                  essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False,
-                 ralliement: bool = True, essai_ralliement: bool = False):
+                 ralliement: bool = True, essai_ralliement: bool = False, courses: bool = True,
+                 essai_course: bool = False):
         self.players: dict[int, Player] = {}
+        # courses en bateau (serveur/courses.py) : lancées par le lanceur de l'hôte (« course_cmd »), jamais en mode
+        # Hanteurs. ESSAI (--essai-course, Réglages › Essais) : course d'essai d'un client contre de faux concurrents ;
+        # à retirer après validation
+        self.courses = crs_mod.CoursesServeur(on=courses and not mode_hanteurs,
+                                              essai=essai_course and not mode_hanteurs)
+        if self.courses.essai:
+            log("courses en bateau : ESSAI allumé (--essai-course) : course d'essai d'un client autour de son bateau, "
+                "contre de faux concurrents (Réglages › Essais du lanceur)")
         # chant de ralliement (serveur/ralliement.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-ralliement),
         # toujours coupée en mode Hanteurs. ESSAI (--essai-ralliement, Réglages › Essais) : faux coéquipier d'un client
         # d'essai appelé et appelant, délai court ; à retirer après validation
@@ -2425,6 +2435,8 @@ class Server:
                 self.cnt_degeler()
             if self.hanteurs is not None:
                 self.h_flush()
+            if self.courses.course is not None:
+                self.courses_tick()              # courses en bateau : phases, faux concurrents (aussi courses_boucle)
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -3086,6 +3098,10 @@ class Server:
             self.handle_hpilote(p, msg)
         elif t in ("hinfluence", "hboss_res"):
             self.handle_influence(p, msg)
+        elif t == "course_cmd":
+            self.handle_course_cmd(p, msg)       # courses en bateau : lancer / annuler (lanceur de l'hôte)
+        elif t in ("course_passage", "course_faux", "course_dq", "course_abandon", "course_essai"):
+            self.handle_course(p, msg)           # courses en bateau : passages, faux départ, disqualification…
         elif t == "ralliement":
             self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
         elif t == "ralliement_rep":
@@ -3178,6 +3194,8 @@ class Server:
                "rando": self.rando_lobby()}
         if self.medailles.on:
             out["medailles"] = self.medailles.vue()   # trackeur du lanceur : donjons FINIS seulement (ancien : ignoré)
+        if self.courses.on:
+            out["courses"] = self.courses.vue()       # courses en bateau : en cours, dernières, records (trackeur)
         if self.mp is not None:
             out["monde"] = self.mp.lobby(self)        # onglet « Mon monde » du lanceur
         if self.hanteurs is not None:
@@ -3823,7 +3841,8 @@ class Server:
         now = time.monotonic()
         raison, rep, envois = self.ralliement.chant(p.id, msg, self.ralliement_joueur, lambda: list(self.players),
                                                     now, hanteurs=self.hanteurs is not None,
-                                                    cache=bool(self.cache.parties))
+                                                    cache=bool(self.cache.parties),
+                                                    course=self.courses.en_cours())
         essai = msg.get("essai") in (1, True) and self.ralliement.essai
         quoi = "ESSAI, le faux coéquipier appelle " + p.name if msg.get("faux") in (1, True) and essai else p.name
         if raison:
@@ -3854,6 +3873,83 @@ class Server:
             o = self.players.get(out[0])
             if o is not None:
                 o.send(out[1])
+
+    # --- courses en bateau (serveur/courses.py, docs/etudes/autres_zelda.md §3) ----------------------------------------
+    def courses_joueur(self, pid) -> dict | None:
+        """Ce que les courses savent d'un joueur (serveur/courses.CoursesServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        return {"nom": o.name, "joueur": o.joueur and not self.robot_est(o), "zone": o.zone, "pos": o.pos,
+                "t": o.state_t, "feat": o.feat}
+
+    def courses_envoyer(self) -> None:
+        """Messages et journal des courses : à un joueur, ou à tous les joueurs de jeu (None)."""
+        cs = self.courses
+        for dest, m in cs.prendre_envois():
+            if dest is None:
+                for o in list(self.players.values()):
+                    if o.joueur and not self.robot_est(o):
+                        o.send(m)
+            else:
+                o = self.players.get(dest)
+                if o is not None:
+                    o.send(m)
+        for ligne in cs.prendre_journal():
+            log(ligne)
+        if cs.records_changes:
+            cs.records_changes = False
+            self.mp_marquer()                         # monde persistant : un record de plus à garder
+
+    def courses_tick(self) -> None:
+        self.courses.tick(self.courses_joueur, time.monotonic())
+        self.courses_envoyer()
+
+    def handle_course_cmd(self, p: Player, msg: dict) -> None:
+        """« course_cmd » du lanceur de l'hôte (comme « regles_cmd ») : {action: "lancer", parcours} ou "annuler"."""
+        if not self.lanceur_hote(p):
+            log(f"{p.name} ({p.peer}) : course refusée (seul le lanceur de l'hôte peut)")
+            p.send({"type": "course_rep", "ok": 0, "raison": "seul le lanceur de l'hôte peut lancer une course"})
+            return
+        action = msg.get("action")
+        if action == "annuler":
+            ok = self.courses.annuler("annulée par l'hôte")
+            p.send({"type": "course_rep", "ok": int(ok), "raison": "" if ok else "pas de course en cours"})
+        elif action == "lancer":
+            cand = [o.id for o in self.players.values() if o.joueur and not self.robot_est(o)
+                    and crs_mod.FEAT in (o.feat or ())]
+            raison = self.courses.lancer(msg.get("parcours"), "l'hôte", cand, time.monotonic(),
+                                         hanteurs=self.hanteurs is not None, cache=bool(self.cache.parties))
+            if raison:
+                log(f"course refusée : {raison}")
+            p.send({"type": "course_rep", "ok": 0 if raison else 1, "raison": raison[:120]})
+        else:
+            p.send({"type": "course_rep", "ok": 0, "raison": "action inconnue"})
+        self.courses_envoyer()
+
+    def handle_course(self, p: Player, msg: dict) -> None:
+        """Messages d'un coureur : ``course_passage``, ``course_faux``, ``course_dq``, ``course_abandon`` ; ESSAI :
+        ``course_essai {parcours}`` (serveur --essai-course seulement)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        cs, t, now = self.courses, msg.get("type"), time.monotonic()
+        if t == "course_essai":                   # ESSAI : boucle générée autour du bateau de ce client
+            raison = cs.lancer(msg.get("parcours"), p.name, [], now, hanteurs=self.hanteurs is not None,
+                               cache=bool(self.cache.parties), essai_de=p.id)
+            if raison:
+                log(f"course (ESSAI) de {p.name} refusée : {raison}")
+                p.send({"type": "course_rep", "ok": 0, "raison": raison[:120], "essai": 1})
+        elif t == "course_passage":
+            raison = cs.passage(p.id, msg, p.rtt, now)
+            if raison and raison not in ("déjà passée", "pas de course", "autre course"):
+                log(f"course : passage de {p.name} refusé ({raison})")
+        elif t == "course_faux":
+            cs.faux_depart(p.id, msg, now)
+        elif t == "course_dq":
+            cs.disqualifier(p.id, msg, now)
+        elif t == "course_abandon":
+            cs.abandon(p.id, msg, now)
+        self.courses_envoyer()
 
     def handle_signal(self, p: Player, msg: dict) -> None:
         """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
@@ -4127,6 +4223,16 @@ class Server:
             if self.monde.horloges.get(groupe, {}).get("seq") != seq:
                 log(f"heure : saut de {p.name} (Chant du temps qui passe) repris par l'heure commune")
         else:
+            interdit, remettre = self.courses.requiem(p.id) if msg.get("init") is not True else (False, False)
+            if interdit:
+                # courses en bateau : Requiem interdit à un coureur ; rien n'est relayé, et le vent du groupe lui est
+                # renvoyé avec un numéro plus grand (son client le reprend : synchro/monde.py garde le plus grand)
+                reg = self.monde.vent.get(groupe)
+                if reg is not None and remettre:
+                    reg["seq"] += 1
+                    p.send(self.monde._out(reg))
+                self.courses_envoyer()
+                return
             out, dest, reply = self.monde.vent_msg(p.id, self.prio_hote(p), msg)
             if out is not None:
                 self.mp_marquer()
@@ -5213,6 +5319,8 @@ class Server:
             self.carry.left(p.id)
             self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
             self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
+            self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
+            self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
             sorties = self.cache.depart(p.id)   # cache-cache : sa partie s'arrête pour les autres
             if sorties:
@@ -5284,6 +5392,17 @@ async def robot_boucle(srv: Server, pas: float = 0.5) -> None:
             srv.robot_tick()
         except Exception as e:                 # jamais fatal : le serveur continue de relayer
             log(f"robot : erreur ignorée ({type(e).__name__}: {e})")
+
+
+async def courses_boucle(srv: Server, pas: float = 0.25) -> None:
+    """Courses en bateau : décompte, faux concurrents de l'essai, fin de course, même sans message reçu."""
+    while True:
+        await asyncio.sleep(pas)
+        try:
+            if srv.courses.course is not None:
+                srv.courses_tick()
+        except Exception as e:                 # jamais fatal : le serveur continue de relayer
+            log(f"courses : erreur ignorée ({type(e).__name__}: {e})")
 
 
 async def monde_boucle(srv: Server, pas: float = 1.0) -> None:
@@ -5540,6 +5659,7 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
                else "aucune --robot-commande : le serveur attend un robot lancé à part (clé : --robot-cle)"))
     # toujours : le robot peut être allumé à chaud depuis « Administrer le serveur » (robot_tick ne fait rien sur off)
     robot_task = asyncio.create_task(robot_boucle(srv))  # noqa: F841 (référence gardée)
+    courses_task = asyncio.create_task(courses_boucle(srv))  # noqa: F841 (courses en bateau : phases, faux rivaux)
     # A16 : on n'utilise pas serve_forever() : annulé, il attend la fermeture de TOUTES les
     # connexions (Python ≥ 3.12) avant qu'on puisse envoyer « bye ». Le serveur écoute déjà.
     try:
@@ -5803,6 +5923,12 @@ def main(argv=None) -> int:
                     help="règle de la partie : chant de ralliement coupé (allumé par défaut : le morceau 6 de la "
                          "Baguette, 3/4 haut, bas, droite, appelle l'équipe ; une fois toutes les 5 min ; jamais avec "
                          "le mode Hanteurs)")
+    ap.add_argument("--no-courses", action="store_true",
+                    help="pas de courses en bateau (lancées par le lanceur de l'hôte : parcours tracés en jeu)")
+    ap.add_argument("--essai-course", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
+                         "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
+                         "partie")
     ap.add_argument("--essai-ralliement", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-ralliement est "
                          "appelé et peut appeler, 15 s entre deux chants ; pour essayer seul, jamais dans une vraie "
@@ -6096,7 +6222,8 @@ def main(argv=None) -> int:
                           robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
                           medailles=not args.no_medailles, essai_medailles=args.essai_medailles,
                           coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups,
-                          ralliement=not args.no_ralliement, essai_ralliement=args.essai_ralliement))
+                          ralliement=not args.no_ralliement, essai_ralliement=args.essai_ralliement,
+                          courses=not args.no_courses, essai_course=args.essai_course))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

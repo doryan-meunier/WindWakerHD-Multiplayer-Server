@@ -91,6 +91,18 @@ COMMANDES: tuple[Commande, ...] = (
              "During the 10 s of a teammate's rally song: you stay where you are.",
              "pas de manette : la touche, ou ouvre le menu du jeu (un joueur au menu n'est pas déplacé)",
              "no controller: the key, or open the game menu (a player in the menu is not moved)"),
+    # courses en bateau (client/courses.py) : tracer un parcours en naviguant, abandonner ; touches seulement
+    Commande("poser_balise", "multi", "Poser une balise (tracé d'une course)", "Drop a buoy (race layout)", "HomeKey",
+             None, "",
+             "En mer : la position du bateau. Le premier point est le départ, les suivants les balises (lanceur : "
+             "Réglages › Courses en bateau).",
+             "At sea: the boat's position. The first point is the start, the next ones the buoys (launcher: "
+             "Settings › Boat races).",
+             "pas de manette : la touche seulement", "no controller: the key only"),
+    Commande("abandon_course", "multi", "Abandonner la course", "Give up the race", "Ctrl+HomeKey", None, "",
+             "Pendant une course en bateau : tu sors du classement (quitter la mer fait de même).",
+             "During a boat race: you leave the ranking (leaving the sea does the same).",
+             "pas de manette : la touche seulement", "no controller: the key only"),
 )
 # Commandes visibles mais pas configurables ici (pourquoi : ``aide``)
 LECTURE_SEULE: tuple[dict, ...] = (

@@ -23,6 +23,7 @@ Lot L1 (docs/etudes/rollback_netcode.md §4, A1 et A2) :
 """
 from __future__ import annotations
 
+import math
 import statistics
 import sys
 import time
@@ -57,6 +58,22 @@ def ordre_hlaisse(msg) -> tuple | None:
     o = msg.get("ord")
     seq = o[0] if isinstance(o, (list, tuple)) and len(o) == 2 and isinstance(o[0], int) else None
     return (atk if isinstance(atk, int) and not isinstance(atk, bool) else None, seq)
+
+
+AGE_MAX = 2.0          # s : âge d'un événement daté par l'émetteur, au-delà : borné (horloge ou file suspectes)
+
+
+def instant_emetteur(recu: float, rtt_ms, age, age_max: float = AGE_MAX) -> float:
+    """Heure (horloge de celui qui REÇOIT, ``recu`` = heure de réception) où l'émetteur a vu un événement : réception,
+    moins l'aller simple (moitié de l'aller-retour ``rtt_ms`` que le client annonce dans ses « ping » ; 0 s'il est
+    inconnu), moins ``age`` (s écoulées chez l'émetteur entre l'événement et l'envoi, borné à 0..``age_max``). Sert aux
+    courses en bateau (serveur/courses.py) : un passage de balise daté par le serveur sans dépendre de l'horloge du
+    PC du coureur."""
+    a = float(age) if isinstance(age, (int, float)) and not isinstance(age, bool) and math.isfinite(age) else 0.0
+    a = min(max(a, 0.0), age_max)
+    r = float(rtt_ms) if isinstance(rtt_ms, (int, float)) and not isinstance(rtt_ms, bool) and 0 <= rtt_ms < 60000 \
+        else 0.0
+    return recu - r / 2000.0 - a
 
 
 def sans_delai(writer) -> bool:
