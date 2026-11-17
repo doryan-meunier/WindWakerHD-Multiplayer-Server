@@ -581,6 +581,23 @@ OFFF_CFG, OFFF_GENRE, OFFF_BOUTONS, OFFF_STICKS, OFFF_BOUCLIER, OFFF_BONNET, OFF
 OFFF_COMPTEURS = 0x34
 FUS_COMPTEURS = ("pas", "filtres", "caches_vus", "bouclier_pas", "bonnets", "fins", "soi_caches", "coups",
                  "coups_magie", "distants", "etat", "retenus")
+# camouflage de la tenue jaune (MOD NATIF SEULEMENT, 0.49.0 ; natif/mod_wwmp/camouflage.c, client/camouflage.py ;
+# docs/dev/PORTAGE_NATIF.md §3.53 ; décalages OFFCM_*, noms CAM_* : propres à cette zone) : SANS bit : la zone wwmp_cam
+# (magie « WWMPCAM1 », format 1), 0x80 octets à 0x6D00, EST la capacité. Le PC écrit cfg (CAM_ALLUME), « duree » (images)
+# puis un numéro NOUVEAU EN DERNIER : le jeu arme le camouflage de notre Link ; « transparents » : fantômes camouflés
+# dessinés une image sur deux. Le jeu décompte, finit au premier coup porté (révélé) et compte.
+MAGIC_CAM = b"WWMPCAM1"
+CAM_FORMAT = 1
+CAM_OFF = 0x6D00
+CAM_ALLUME = 0x1
+CAM_DUREE_MIN, CAM_DUREE_MAX = 15, 600       # images (bornes du mod)
+CAM_AUCUN, CAM_ACTIF, CAM_REVELE, CAM_EXPIRE, CAM_COUPE = range(5)
+OFFCM_CFG, OFFCM_DUREE, OFFCM_NUMERO, OFFCM_TRANSPARENTS, OFFCM_VU, OFFCM_RESTE, OFFCM_ETAT = (0x0C, 0x10, 0x14, 0x18,
+                                                                                              0x1C, 0x20, 0x24)
+OFFCM_COMPTEURS = 0x28
+CAM_COMPTEURS = ("debuts", "revelations", "expirations", "masques", "laisses", "pas", "evt", "cc_rendus", "sautes",
+                 "dessines", "coupes", "dernier_proc")
+CAM_MOD = 49                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
@@ -2013,6 +2030,58 @@ class Mailbox:
     def releve_abandon(self, timeout: float = TIMEOUT_V19) -> int:
         """CALL 19 ABANDON : la vraie mort à l'image suivante (1) ; -4 pas à terre."""
         return self._rel_call(2, timeout=timeout)
+    # --- camouflage de la tenue jaune (0.49.0, mod natif seulement, sans bit : la zone est la capacité) -----------------
+    def cam_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_cam`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_cam", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_CAM, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != CAM_FORMAT:
+                return None
+            a = self._cam = hits[0]
+        return a
+
+    def cam_regler(self, on: bool, transparents: int = 0) -> bool:
+        """Règle du camouflage sur ce PC (cfg ; coupée : le camouflage en cours finit) et fantômes transparents (bits
+        0..6). False sans la zone."""
+        a = self.cam_addr()
+        if a is None:
+            return False
+        t = transparents if isinstance(transparents, int) and not isinstance(transparents, bool) else 0
+        self.mem.write(a + OFFCM_TRANSPARENTS, bytes([t & 0x7F]))
+        self.mem.write(a + OFFCM_CFG, struct.pack(">I", CAM_ALLUME if on else 0))
+        return True
+
+    def cam_armer(self, numero: int, duree: int) -> bool:
+        """Camouflage de notre Link : ``duree`` images (bornées comme par le mod), puis ``numero`` EN DERNIER (un numéro
+        nouveau l'arme ; cfg doit être allumé AVANT). False sans la zone."""
+        a = self.cam_addr()
+        if a is None:
+            return False
+        d = max(CAM_DUREE_MIN, min(CAM_DUREE_MAX, int(duree)))
+        self.mem.write(a + OFFCM_DUREE, struct.pack(">I", d))
+        self.mem.write(a + OFFCM_NUMERO, struct.pack(">I", int(numero) & 0xFFFFFFFF))
+        return True
+
+    def cam_counters(self) -> dict:
+        """{"cfg", "duree", "numero", "transparents", "vu", "reste", "etat", compteurs...} ; zéros sans la zone."""
+        a = self.cam_addr()
+        vide = {"cfg": 0, "duree": 0, "numero": 0, "transparents": 0, "vu": 0, "reste": 0, "etat": 0,
+                **{k: 0 for k in CAM_COMPTEURS}}
+        if a is None:
+            return vide
+        b = bytes(self.mem.read(a, 0x58))
+        cfg, du, nu = struct.unpack_from(">III", b, OFFCM_CFG)
+        vu, re, et = struct.unpack_from(">IiI", b, OFFCM_VU)
+        out = {"cfg": cfg, "duree": du, "numero": nu, "transparents": b[OFFCM_TRANSPARENTS], "vu": vu, "reste": re,
+               "etat": et}
+        for k, nom in enumerate(CAM_COMPTEURS):
+            out[nom], = struct.unpack_from(">i" if nom == "dernier_proc" else ">I", b, OFFCM_COMPTEURS + 4 * k)
+        return out
     # --- tenues à pouvoir, partie A (0.46.0, mod natif seulement, sans bit : la zone est la capacité) ----------------
     def ten_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_ten`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""

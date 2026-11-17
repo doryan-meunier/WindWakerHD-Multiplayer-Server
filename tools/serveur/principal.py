@@ -351,6 +351,8 @@ from serveur import tenues as ten_mod  # noqa: E402  (tenues à pouvoir : docs/e
 from commun import tenues as ten_commun  # noqa: E402
 from serveur import fusions as fus_mod  # noqa: E402  (tenues à pouvoir, partie B : les fusions)
 from serveur import releve as rel_mod  # noqa: E402  (relever un coéquipier : docs/etudes/autres_zelda.md §5)
+from serveur import camouflage as cam_mod  # noqa: E402  (camouflage de la tenue jaune : autres_zelda §6)
+from commun import camouflage as cam_commun  # noqa: E402
 from commun import fusions as fus_commun  # noqa: E402
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
@@ -540,8 +542,17 @@ class Server:
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
                  essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE,
-                 essai_fusions: bool = False, releve: bool = True, essai_relever: bool = False):
+                 essai_fusions: bool = False, releve: bool = True, essai_relever: bool = False,
+                 camouflage: bool = True, camouflage_duree: float = cam_commun.DUREE, essai_camouflage: bool = False):
         self.players: dict[int, Player] = {}
+        # camouflage de la tenue jaune (serveur/camouflage.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-camouflage),
+        # qui ne joue qu'avec les tenues à pouvoir ; durée --camouflage-duree (4 s). ESSAI (--essai-camouflage,
+        # Réglages › Essais) : un client d'essai est traité en jaune ; à retirer après validation
+        self.camouflage = cam_mod.CamouflageServeur(on=camouflage, essai=essai_camouflage, duree=camouflage_duree)
+        self._camouflage_t = 0.0
+        if self.camouflage.essai:
+            log("camouflage de la tenue jaune : ESSAI allumé (--essai-camouflage) : un client d'essai est traité en "
+                "jaune et peut se camoufler à la demande (Réglages › Essais du lanceur)")
         # relever un coéquipier (serveur/releve.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-releve), qui ne JOUE
         # qu'avec le deathlink (jamais avec la vie partagée ni en mode Hanteurs). ESSAI (--essai-relever, Réglages ›
         # Essais) : faux coéquipier « Essai Secours » d'un client d'essai ; à retirer après validation
@@ -2489,6 +2500,7 @@ class Server:
             self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
             self.fusions_tick()                  # fusions (partie B) : débuts et fins (au plus 5 fois par seconde)
             self.releve_tick()                   # relever un coéquipier : délais, releveurs proches (5 fois par s)
+            self.camouflage_tick()               # camouflage de la tenue jaune : entrées de zone, fins (5 fois par s)
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -2927,6 +2939,9 @@ class Server:
                     "bonheur_poche": self.bonheur.poche(p.name),   # Fragments du Bonheur : ses moitiés (monde)
                     "tenues": int(self.tenues.on),        # tenues à pouvoir : règle de la partie (absent = non)
                     "releve": int(self.releve.on),        # relever un coéquipier : option (joue avec le deathlink)
+                    # camouflage de la tenue jaune : règle, durée, camouflés en ce moment
+                    "camouflage": int(self.camouflage.on), "camouflage_duree": self.camouflage.duree,
+                    "camoufles": self.camouflage.liste(),
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -3089,6 +3104,7 @@ class Server:
                 self.medailles.coup(zone, msg.get("key"), p.name)    # médailles : le dernier coup compte (3 s)
             if p.zone == zone and p.joueur:
                 self.bonheur.coup(zone, msg.get("key"), p.id)        # Fragments du Bonheur : même attribution
+                self.camouflage_envoyer(self.camouflage.coup(p.id, p.name))   # camouflage : frapper le révèle
             if holder is not None and holder != p.id and holder in self.players and p.zone == zone \
                     and self.players[holder].zone == zone:
                 # lot L4 (A4) : « inj » (de quoi rejouer le coup chez l'autorité : synchro/coups_monstres.py), validé
@@ -3176,6 +3192,8 @@ class Server:
             self.handle_fusion(p, msg)           # fusions (partie B) : charge, bombe, lancer, fin ; ESSAI
         elif t == "releve":
             self.handle_releve(p, msg)           # relever un coéquipier : à terre, debout, mort, commande ; ESSAI
+        elif t == "camouflage":
+            self.handle_camouflage(p, msg)       # camouflage de la tenue jaune : fin dite par le client ; ESSAI
         elif t == "ralliement_rep":
             self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
@@ -4149,6 +4167,45 @@ class Server:
         self.fusions.hanteurs = self.hanteurs is not None
         self.fusions_envoyer(self.fusions.message(p.id, msg, self.fusions_joueur, self.fusions_autorite))
 
+    # --- camouflage de la tenue jaune (serveur/camouflage.py, docs/etudes/autres_zelda.md §6) ---------------------------
+    def camouflage_joueur(self, pid) -> dict | None:
+        """Ce que le camouflage sait d'un joueur : celui des tenues, avec la couleur de POUVOIR (ESSAI des tenues
+        compris)."""
+        i = self.tenues_joueur(pid)
+        if i is None:
+            return None
+        i["couleur"] = self.tenues.couleur_de(pid, i)
+        return i
+
+    def camouflage_envoyer(self, envois) -> None:
+        """« camouflage » au joueur concerné ; « camoufles » (liste) à tous les joueurs."""
+        for dest, m in envois:
+            if dest == "tous":
+                for o in self.players.values():
+                    if o.joueur:
+                        o.send(m)
+                continue
+            o = self.players.get(dest)
+            if o is not None and cam_commun.FEAT in o.feat:
+                o.send(m)
+        for ligne in self.camouflage.journal:
+            log(ligne)
+        self.camouflage.journal.clear()
+
+    def camouflage_tick(self, force: bool = False) -> None:
+        now = time.monotonic()
+        if not force and now - self._camouflage_t < 0.2:
+            return
+        self._camouflage_t = now
+        ids = [pid for pid, o in self.players.items() if o.joueur]
+        self.camouflage_envoyer(self.camouflage.tick(ids, self.camouflage_joueur, self.tenues.actif(), now))
+
+    def handle_camouflage(self, p: Player, msg: dict) -> None:
+        """« camouflage » d'un client : fin (expiré, révélé chez lui) ; ESSAI (traité en jaune, camouflage demandé)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        self.camouflage_envoyer(self.camouflage.message(p.id, msg, self.camouflage_joueur, self.tenues.actif()))
+
     # --- courses en bateau (serveur/courses.py, docs/etudes/autres_zelda.md §3) ----------------------------------------
     def courses_joueur(self, pid) -> dict | None:
         """Ce que les courses savent d'un joueur (serveur/courses.CoursesServeur)."""
@@ -4367,6 +4424,16 @@ class Server:
                 log(f"relever un coéquipier {'activé' if on else 'désactivé'} par l'hôte"
                     + (" (ne joue qu'avec le deathlink, sans la vie partagée)" if on else ""))
                 self.broadcast(self.regles_msg())
+        if "camouflage" in msg:
+            on = msg.get("camouflage") in (1, True)
+            if on != self.camouflage.on:
+                self.camouflage.on = on
+                self.camouflage.vu = True
+                if not on:
+                    self.camouflage_envoyer(self.camouflage.couper())
+                log(f"camouflage de la tenue jaune {'activé' if on else 'désactivé'} par l'hôte"
+                    + (" (joue avec les tenues à pouvoir)" if on else ""))
+                self.broadcast(self.regles_msg())
         if "bonheur" in msg:
             on = msg.get("bonheur") in (1, True)
             if on and self.hanteurs is not None:
@@ -4422,7 +4489,7 @@ class Server:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
                 "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
                 "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "releve": int(self.releve.on),
-                "difficulte": self.dif_vue()}
+                "camouflage": int(self.camouflage.on), "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -4438,6 +4505,8 @@ class Server:
             m["tenues"] = int(self.tenues.on)          # tenues à pouvoir, dès qu'elles ont changé (welcome sinon)
         if self.releve.vu:
             m["releve"] = int(self.releve.on)          # relever un coéquipier, dès qu'il a changé (welcome sinon)
+        if self.camouflage.vu:
+            m["camouflage"] = int(self.camouflage.on)  # camouflage de la tenue jaune, dès qu'il a changé (welcome sinon)
         if self.coups.vu:
             m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
@@ -5635,6 +5704,7 @@ class Server:
             self.tenues.oublier(p.id)           # tenues à pouvoir : partage et essai oubliés (le duo est recalculé)
             self.fusions_envoyer(self.fusions.oublier(p.id))   # fusions : celle du partant finie pour les deux
             self.releve_envoyer(self.releve.oublier(p.id))     # relever : plus à terre, plus releveur
+            self.camouflage_envoyer(self.camouflage.oublier(p.id))     # camouflage : plus camouflé
             self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
             self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
@@ -6240,6 +6310,16 @@ def main(argv=None) -> int:
                          "deathlink et sans la vie partagée : un Link à 0 cœur reste à terre 20 s ; un coéquipier qui "
                          "reste 2 s à moins de 1,5 m le relève avec 2 cœurs, sinon sa vraie mort ; jamais en mode "
                          "Hanteurs)")
+    ap.add_argument("--no-camouflage", action="store_true",
+                    help="règle de la partie : camouflage de la tenue jaune coupé (allumé par défaut, avec les tenues à "
+                         "pouvoir : un Link en tenue jaune qui entre dans une zone est invisible pour les monstres "
+                         "--camouflage-duree secondes, ou jusqu'à son premier coup)")
+    ap.add_argument("--camouflage-duree", type=float, default=cam_commun.DUREE,
+                    help=f"durée du camouflage de la tenue jaune, en secondes (défaut {cam_commun.DUREE:g}, bornée "
+                         f"{cam_commun.DUREE_MIN:g} à {cam_commun.DUREE_MAX:g})")
+    ap.add_argument("--essai-camouflage", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-camouflage est traité en tenue jaune "
+                         "et peut se camoufler à la demande ; pour essayer seul, jamais dans une vraie partie")
     ap.add_argument("--essai-relever", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-relever a un faux coéquipier "
                          "« Essai Secours » qui vient le relever (ou pas) et qui peut tomber à son tour ; pour essayer "
@@ -6580,7 +6660,9 @@ def main(argv=None) -> int:
                           bonheur_quarts_partie=max(0, args.bonheur_quarts_partie),
                           tenues=not args.no_tenues, essai_tenues=args.essai_tenues,
                           tenues_distance=args.tenues_distance, essai_fusions=args.essai_fusions,
-                          releve=not args.no_releve, essai_relever=args.essai_relever))
+                          releve=not args.no_releve, essai_relever=args.essai_relever,
+                          camouflage=not args.no_camouflage, camouflage_duree=args.camouflage_duree,
+                          essai_camouflage=args.essai_camouflage))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

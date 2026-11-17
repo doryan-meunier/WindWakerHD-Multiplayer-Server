@@ -1881,6 +1881,9 @@ class HanteurSync:
         self.t_victoire = 0.0
         self.choix = 0                      # indice de l'espèce choisie (F7)
         self.cible: int | None = None       # Link suivi
+        # camouflage de la tenue jaune (client/camouflage.py, serveur/camouflage.py) : Link camouflés en ce moment ;
+        # un Hanteur ne les voit pas du tout (pas de fantôme) et ne peut pas les suivre en spectateur
+        self.camoufles: frozenset = frozenset()
         self.suivi = True                   # suivi continu (F8)
         self.saut_demande = False           # téléportation demandée (F5, bouton)
         self.t_saut = float("-inf")
@@ -2619,13 +2622,16 @@ class HanteurSync:
         serveur les relaie sous l'identité du Link possédé) et, parmi les autres Hanteurs, seulement ceux qui sont
         MANIFESTÉS (``hv`` dans leur ``state``, voir ``champ_hv``) : ni spectateur, ni pilote d'un monstre, ni
         ancien client. Un Hanteur gardé est rendu en COPIE sans ``car`` ni ``stk`` : pas de marionnette d'objet
-        porté ni de bâton pour un spectre."""
+        porté ni de bâton pour un spectre. Camouflage de la tenue jaune : un Hanteur ne voit pas du tout un Link
+        camouflé (``camoufles``)."""
         if not self.actif():
             return others
         if self.role != ROLE_HANTEUR:
             return {pid: o for pid, o in others.items() if self.roles.get(pid) != ROLE_HANTEUR or o.get("clone")}
         out = {}
         for pid, o in others.items():
+            if pid in self.camoufles and self.roles.get(pid) != ROLE_HANTEUR:
+                continue                            # camouflé : invisible pour les Hanteurs
             if self.roles.get(pid) != ROLE_HANTEUR or o.get("clone"):
                 out[pid] = o
             elif o.get("hv") in (1, True):
@@ -2761,9 +2767,9 @@ class HanteurSync:
             if action == "suivre":
                 if self.manifeste:                  # suivre = redevenir spectateur (possession relâchée)
                     self._manifester(False)
-                liens = [p for p in self.liens() if p != me]
+                liens = [p for p in self.liens() if p != me and p not in self.camoufles]   # camouflés : jamais
                 if not liens:
-                    self._note("aucun Link à suivre")
+                    self._note("aucun Link à suivre" + (" (camouflé)" if self.camoufles else ""))
                     return
                 if isinstance(arg, int) and arg in liens:
                     self.cible = arg
@@ -2973,6 +2979,9 @@ class HanteurSync:
             return False
         if not (self.colle and self.suivi) or self.cible is None or self.roles.get(self.cible) != ROLE_LINK:
             return False
+        if self.cible in self.camoufles:
+            return False                            # camouflé (tenue jaune) : pas de caméra collée sur lui
+
         o = others.get(self.cible)
         return bool(o is not None and o.get("stage") == st.get("stage") and o.get("room") == st.get("room")
                     and _pos3(o.get("pos")) is not None and not o.get("ship"))
@@ -3203,6 +3212,11 @@ class HanteurSync:
 
     def _suivre(self, st, others, mem, base, pid, can, busy, now) -> None:
         if self.cible is None or st is None or not self.teleport:
+            return
+        if self.cible in self.camoufles:            # camouflé (tenue jaune) : pas suivi tant que ça dure
+            if self.saut_demande:
+                self._note(f"{self.noms.get(self.cible, '?')} est camouflé : impossible de le suivre pour l'instant")
+                self.saut_demande = False
             return
         o = others.get(self.cible)
         if o is None or self.roles.get(self.cible) != ROLE_LINK:
