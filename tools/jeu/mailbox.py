@@ -542,6 +542,27 @@ TEN_FACTEURS = ("recu", "epee", "gadget", "dos", "sol", "nage", "bateau", "rubis
 TEN_COMPTEURS = ("esquives", "jets", "coups", "dans_dos", "rubis_plus", "rubis_rendus", "magie_gardee",
                  "munitions_gardees", "recus", "pas_vite", "pas_bateau", "distants")
 TEN_MOD = 46                       # NATIF_VERSION_MOD qui a la zone
+# tenues à pouvoir, partie B : les FUSIONS (0.47.0 ; natif/mod_wwmp/fusions.c, client/fusions.py) : champs réservés de
+# WWMPTEN1 (+0x12 fusion en cours, +0x13 rôle, +0x1E facteur de fusion de tous nos coups, +0x1F des objets à magie ;
+# avant CALL 14 : +0x23 et +0x3C pour l'attaquant distant) ; zone wwmp_fus (magie « WWMPFUS1 », format 1), 0x80 octets
+# à 0x6F00 : manette partagée, fantôme caché, Link caché, bouclier, bonnet ; « vie » rechargée, cfg EN DERNIER.
+OFFU_FUSION, OFFU_ROLE, OFFU_F_FUSION, OFFU_F_MAGIE, OFFU_D_FUSION, OFFU_D_MAGIE = 0x12, 0x13, 0x1E, 0x1F, 0x23, 0x3C
+TEN_FUS_TOURNOYANTE, TEN_FUS_MEGA_BOMBE = 1, 2
+TEN_FUS_MOD = 47
+MAGIC_FUS = b"WWMPFUS1"
+FUS_FORMAT = 1
+FUS_OFF = 0x6F00
+FUS_ALLUME = 0x1
+FUS_VIE_MAX = 300                  # images (10 s), borne du mod
+FUS_BOUTONS_PERMIS = 0x7050        # B, X, Y, R, ZR : seuls boutons que le mod accepte de retirer
+FUS_STICK_G, FUS_STICK_D = 0x1, 0x2
+FUS_BOUCLIER_MAX = 90
+FUS_BONNET = 0x4                   # matériau 2 (bonnet) de notre Link
+OFFF_CFG, OFFF_GENRE, OFFF_BOUTONS, OFFF_STICKS, OFFF_BOUCLIER, OFFF_BONNET, OFFF_VIE = (0x0C, 0x10, 0x14, 0x18, 0x1C,
+                                                                                       0x20, 0x30)
+OFFF_COMPTEURS = 0x34
+FUS_COMPTEURS = ("pas", "filtres", "caches_vus", "bouclier_pas", "bonnets", "fins", "soi_caches", "coups",
+                 "coups_magie", "distants", "etat", "retenus")
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
@@ -1917,16 +1938,113 @@ class Mailbox:
         self.mem.write(a + OFFU_CFG, struct.pack(">I", cfg & (TEN_ALLUME | TEN_MAGIE | TEN_MUNITIONS)))
         return True
 
-    def ten_distant(self, epee: int = 0, gadget: int = 0, dos: int = 0) -> bool:
-        """Avant un CALL 14 : facteurs de l'attaquant distant (huitièmes ; 0 = x1) ; False sans la zone."""
+    def ten_distant(self, epee: int = 0, gadget: int = 0, dos: int = 0, fusion: int = 0, magie: int = 0) -> bool:
+        """Avant un CALL 14 : facteurs de l'attaquant distant (huitièmes ; 0 = x1), et (0.47.0) ses facteurs de fusion
+        (tous les coups, objets à magie) ; False sans la zone."""
         a = self.ten_addr()
         if a is None:
             return False
 
         def octet(v):
             return v if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 else 0
-        self.mem.write(a + OFFU_DISTANT, bytes([octet(epee), octet(gadget), octet(dos), 0]))
+        self.mem.write(a + OFFU_DISTANT, bytes([octet(epee), octet(gadget), octet(dos), octet(fusion)]))
+        self.mem.write(a + OFFU_D_MAGIE, bytes([octet(magie)]))
         return True
+
+    def ten_fusion(self, genre: int = 0, role: int = 0, f_fusion: int = 0, f_magie: int = 0) -> bool:
+        """0.47.0 : fusion en cours chez nous (genre TEN_FUS_*, 0 : aucune ; rôle 1 déplace, 2 attaque) et ses
+        facteurs (huitièmes : tous nos coups, nos objets à magie ; 0 = x1). Facteurs d'abord, genre EN DERNIER (le mod
+        ne lit les facteurs que si le genre est non nul). False sans la zone."""
+        a = self.ten_addr()
+        if a is None:
+            return False
+
+        def octet(v):
+            return v if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 else 0
+        g = octet(genre) if octet(genre) in (0, TEN_FUS_TOURNOYANTE, TEN_FUS_MEGA_BOMBE) else 0
+        if not g:
+            self.mem.write(a + OFFU_FUSION, bytes([0, 0]))
+        self.mem.write(a + OFFU_F_FUSION, bytes([octet(f_fusion), octet(f_magie)]))
+        self.mem.write(a + OFFU_FUSION, bytes([g, octet(role) if octet(role) <= 2 else 0]))
+        return True
+
+    # --- fusions des tenues, partie B (0.47.0, mod natif seulement, sans bit : la zone est la capacité) --------------
+    def fus_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_fus`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_fus", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_FUS, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != FUS_FORMAT:
+                return None
+            a = self._fus = hits[0]
+        return a
+
+    def fus_regler(self, on: bool, vie: int = 0, genre: int = 0, role: int = 0, caches: int = 0,
+                   soi_cache: bool = False, boutons: int = 0, sticks: int = 0, bonnet=None) -> bool:
+        """Fusion chez nous : ``vie`` (images, 1..300 ; le jeu la décompte et éteint tout à 0 : à recharger),
+        ``caches`` (bits 0..6 : fantômes non dessinés), ``soi_cache`` (notre Link caché), ``boutons`` (bits VPAD
+        retirés, bornés à FUS_BOUTONS_PERMIS), ``sticks`` (FUS_STICK_*), ``bonnet`` (None, ou (R, G, B) : facteurs de
+        la couleur du bonnet de notre Link) ; cfg EN DERNIER. ``on`` faux : cfg 0, vie 0, tout à zéro. False sans la
+        zone."""
+        a = self.fus_addr()
+        if a is None:
+            return False
+        if not on:
+            self.mem.write(a + OFFF_CFG, struct.pack(">I", 0))
+            self.mem.write(a + OFFF_GENRE, bytes(0x0C))
+            self.mem.write(a + OFFF_BONNET, bytes(0x14))
+            return True
+
+        def entier(v, lo, hi):
+            return v if isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi else 0
+        if bonnet is not None:
+            try:
+                r, g, b = (float(v) for v in bonnet)
+            except (TypeError, ValueError):
+                r = g = b = float("nan")
+            ok = all(v == v and 0.0 <= v <= 8.0 for v in (r, g, b))
+        else:
+            ok = False
+        bloc = struct.pack(">I3f", FUS_BONNET, r, g, b) if ok else bytes(16)
+        self.mem.write(a + OFFF_GENRE, bytes([entier(genre, 0, 2), entier(role, 0, 2), entier(caches, 0, 0x7F),
+                                              1 if soi_cache else 0]))
+        self.mem.write(a + OFFF_BOUTONS, struct.pack(">II", entier(boutons, 0, 0xFFFFFFFF) & FUS_BOUTONS_PERMIS,
+                                                     entier(sticks, 0, 3)))
+        self.mem.write(a + OFFF_BONNET, bloc)
+        self.mem.write(a + OFFF_VIE, struct.pack(">i", entier(vie, 0, FUS_VIE_MAX)))
+        self.mem.write(a + OFFF_CFG, struct.pack(">I", FUS_ALLUME))
+        return True
+
+    def fus_bouclier(self, images: int) -> bool:
+        """Invincibilité de notre Link pendant ``images`` (1..90) pas, seulement fusion allumée ; False sans zone."""
+        a = self.fus_addr()
+        if a is None:
+            return False
+        n = images if isinstance(images, int) and not isinstance(images, bool) and 0 <= images <= FUS_BOUCLIER_MAX \
+            else 0
+        self.mem.write(a + OFFF_BOUCLIER, struct.pack(">i", n))
+        return True
+
+    def fus_counters(self) -> dict:
+        """{"cfg", "genre", "role", "caches", "soi_cache", "boutons", "sticks", "bouclier", "vie", compteurs...} ;
+        zéros sans la zone."""
+        a = self.fus_addr()
+        vide = {"cfg": 0, "genre": 0, "role": 0, "caches": 0, "soi_cache": 0, "boutons": 0, "sticks": 0,
+                "bouclier": 0, "vie": 0, **{k: 0 for k in FUS_COMPTEURS}}
+        if a is None:
+            return vide
+        b = bytes(self.mem.read(a, 0x64))
+        out = {"cfg": struct.unpack_from(">I", b, OFFF_CFG)[0], "genre": b[0x10], "role": b[0x11], "caches": b[0x12],
+               "soi_cache": b[0x13]}
+        out["boutons"], out["sticks"], out["bouclier"] = struct.unpack_from(">IIi", b, OFFF_BOUTONS)
+        out["vie"], = struct.unpack_from(">i", b, OFFF_VIE)
+        for k, nom in enumerate(FUS_COMPTEURS):
+            out[nom], = struct.unpack_from(">I", b, OFFF_COMPTEURS + 4 * k)
+        return out
 
     def ten_counters(self) -> dict:
         """{"cfg", "couleur", "duo", facteurs..., compteurs du jeu...} ; zéros sans la zone."""

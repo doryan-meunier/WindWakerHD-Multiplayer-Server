@@ -349,6 +349,8 @@ from serveur import courses as crs_mod  # noqa: E402  (courses en bateau : docs/
 from serveur import bonheur as bon_mod  # noqa: E402  (Fragments du Bonheur : docs/etudes/autres_zelda.md §4)
 from serveur import tenues as ten_mod  # noqa: E402  (tenues à pouvoir : docs/etudes/autres_zelda.md §6)
 from commun import tenues as ten_commun  # noqa: E402
+from serveur import fusions as fus_mod  # noqa: E402  (tenues à pouvoir, partie B : les fusions)
+from commun import fusions as fus_commun  # noqa: E402
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -536,8 +538,17 @@ class Server:
                  essai_course: bool = False, bonheur: bool = True, essai_bonheur: bool = False,
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
-                 essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE):
+                 essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE,
+                 essai_fusions: bool = False):
         self.players: dict[int, Player] = {}
+        # tenues à pouvoir, partie B : les FUSIONS (serveur/fusions.py) : avec la règle des tenues, jamais en mode
+        # Hanteurs ni avec le robot. ESSAI (--essai-fusions, Réglages › Essais) : faux coéquipier d'un client d'essai ;
+        # à retirer après validation
+        self.fusions = fus_mod.FusionsServeur(on=tenues, essai=essai_fusions)
+        self._fusions_t = 0.0
+        if self.fusions.essai:
+            log("fusions de tenues : ESSAI allumé (--essai-fusions) : faux coéquipier d'un client d'essai qui charge sa "
+                "tournoyante ou tient une bombe (Réglages › Essais du lanceur)")
         # tenues à pouvoir (serveur/tenues.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-tenues) ; aussi en mode
         # Hanteurs (un Hanteur n'a pas de tenue, un Link possédé garde la sienne) ; jamais le robot. ESSAI
         # (--essai-tenues, Réglages › Essais) : couleur de pouvoir changée à chaud, faux coéquipier de duo d'un client
@@ -1956,7 +1967,7 @@ class Server:
             ancien.writer.close()
         p.role, p.hello, p.name = robot_mod.ROLE, True, robot_mod.NOM
         feat = msg.get("feat")
-        p.feat = {str(f)[:24] for f in feat[:16]} if isinstance(feat, list) else set()
+        p.feat = {str(f)[:24] for f in feat[:32]} if isinstance(feat, list) else set()
         r.pid = p.id
         r.zone_autorite = None
         r.changer_cible(None)
@@ -2467,6 +2478,7 @@ class Server:
             if self.bonheur.props:
                 self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
             self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
+            self.fusions_tick()                  # fusions (partie B) : débuts et fins (au plus 5 fois par seconde)
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -2788,7 +2800,7 @@ class Server:
             p.pause = pvmod.normaliser(msg.get("pause"))
             p.pause_fmt = pvmod.normaliser_format(msg.get("pause_fmt"))
             feat = msg.get("feat")
-            p.feat = {str(f)[:24] for f in feat[:16]} if isinstance(feat, list) else set()
+            p.feat = {str(f)[:24] for f in feat[:32]} if isinstance(feat, list) else set()
             p.hote = msg.get("hote") in (1, True)
             if p.hote and not self.acces.hote_permis(p.ip):
                 log(f"{p.name} ({p.peer}) se dit hôte depuis Internet sans mot de passe de partie : refusé "
@@ -3074,6 +3086,8 @@ class Server:
                                            **coups_monstres.champs_hit(msg),
                                            # tenues à pouvoir : épée, gadgets, dos de celui qui frappe (CALL 14)
                                            **self.tenues.champ_hit(p.id),
+                                           # fusions (partie B) : x3 de celui qui frappe s'il est fusionné (CALL 14)
+                                           **self.fusions.champ_hit(p.id),
                                            # bit 26 : coup d'un projectile, seulement à une autorité qui le rejoue
                                            **coups_projectiles.champ_serveur(msg, self.coups_proj_ok(holder))})
                 log(f"{p.name} touche {msg.get('key')} ({zone}) -> autorité {self.players[holder].name}")
@@ -3147,6 +3161,8 @@ class Server:
             self.handle_bonheur(p, msg)          # Fragments du Bonheur : assembler, annuler (menu), ESSAI
         elif t == "tenue":
             self.handle_tenue(p, msg)            # tenues à pouvoir : ESSAI seulement (couleur, faux coéquipier)
+        elif t == "fusion":
+            self.handle_fusion(p, msg)           # fusions (partie B) : charge, bombe, lancer, fin ; ESSAI
         elif t == "ralliement_rep":
             self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
@@ -4016,6 +4032,54 @@ class Server:
             return
         self.tenues_tick(force=True)
 
+    # --- fusions des tenues, partie B (serveur/fusions.py, docs/etudes/autres_zelda.md §6) ----------------------------
+    def fusions_joueur(self, pid) -> dict | None:
+        """Ce que les fusions savent d'un joueur : celui des tenues, plus cinématique, menu ou port (nc), course, et la
+        couleur de POUVOIR (ESSAI des tenues compris)."""
+        i = self.tenues_joueur(pid)
+        if i is None:
+            return None
+        o = self.players.get(pid)
+        i["couleur"] = self.tenues.couleur_de(pid, i)
+        i["busy"], i["nc"] = bool(o.busy), bool(o.nc)
+        i["course"] = self.courses.coureur(pid) is not None
+        return i
+
+    def fusions_envoyer(self, envois) -> None:
+        for pid, m in envois:
+            o = self.players.get(pid)
+            if o is not None and fus_commun.FEAT in o.feat:
+                o.send(m)
+        for ligne in self.fusions.journal:
+            log(ligne)
+        self.fusions.journal.clear()
+
+    def fusions_autorite(self, zone):
+        return self.authority.get(zone, (None, 0))[0]
+
+    def fusions_tick(self, force: bool = False) -> None:
+        now = time.monotonic()
+        if not force and now - self._fusions_t < 0.2:
+            return
+        self._fusions_t = now
+        fs = self.fusions
+        hanteurs = self.hanteurs is not None
+        if hanteurs and not fs.hanteurs:
+            fs.hanteurs = True
+            self.fusions_envoyer(fs.couper())
+        fs.hanteurs = hanteurs
+        if not fs.fusions and not fs.etats:
+            return
+        ids = [pid for pid, o in self.players.items() if o.joueur]
+        self.fusions_envoyer(fs.tick(ids, self.fusions_joueur, self.fusions_autorite, now))
+
+    def handle_fusion(self, p: Player, msg: dict) -> None:
+        """« fusion » d'un client : état (charge, bombe), lancer, fin ; ESSAI (faux coéquipier, boutons)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        self.fusions.hanteurs = self.hanteurs is not None
+        self.fusions_envoyer(self.fusions.message(p.id, msg, self.fusions_joueur, self.fusions_autorite))
+
     # --- courses en bateau (serveur/courses.py, docs/etudes/autres_zelda.md §3) ----------------------------------------
     def courses_joueur(self, pid) -> dict | None:
         """Ce que les courses savent d'un joueur (serveur/courses.CoursesServeur)."""
@@ -4243,6 +4307,9 @@ class Server:
                 self.tenues.on = on
                 self.tenues.vu = True
                 self.tenues.reemettre()
+                self.fusions.on = on            # fusions (partie B) : même règle
+                if not on:
+                    self.fusions_envoyer(self.fusions.couper())
                 log(f"tenues à pouvoir {'activées' if on else 'désactivées'} par l'hôte")
                 self.broadcast(self.regles_msg())
         if "coups_joueurs" in msg:
@@ -5486,6 +5553,7 @@ class Server:
             self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
             self.bonheur_envoyer(self.bonheur.oublier(p.id))   # Fragments du Bonheur : propositions annulées
             self.tenues.oublier(p.id)           # tenues à pouvoir : partage et essai oubliés (le duo est recalculé)
+            self.fusions_envoyer(self.fusions.oublier(p.id))   # fusions : celle du partant finie pour les deux
             self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
             self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
@@ -6114,6 +6182,10 @@ def main(argv=None) -> int:
     ap.add_argument("--essai-tenues", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-tenues change sa couleur de pouvoir à "
                          "chaud et pose un faux coéquipier de duo ; pour essayer seul, jamais dans une vraie partie")
+    ap.add_argument("--essai-fusions", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-fusions pose un faux coéquipier qui "
+                         "charge sa tournoyante ou tient une bombe, pour essayer seul les deux fusions des tenues ; "
+                         "jamais dans une vraie partie")
     ap.add_argument("--essai-course", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
                          "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
@@ -6417,7 +6489,7 @@ def main(argv=None) -> int:
                           bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
                           bonheur_quarts_partie=max(0, args.bonheur_quarts_partie),
                           tenues=not args.no_tenues, essai_tenues=args.essai_tenues,
-                          tenues_distance=args.tenues_distance))
+                          tenues_distance=args.tenues_distance, essai_fusions=args.essai_fusions))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

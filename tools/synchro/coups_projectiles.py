@@ -193,6 +193,16 @@ class Detecteur:
         self.tailles: dict[int, tuple] = {}
         self.dernier: dict[tuple, float] = {}
         self.vus = self.ignores = self.perdus = self.inconnus = 0
+        self.sans_relais: dict[int, float] = {}     # id d'acteur -> heure limite : coups jamais relayés (fusions)
+        self.non_relayes = 0
+
+    def ignorer(self, pid, duree: float = 10.0) -> None:
+        """Partie B des tenues (client/fusions.py, méga bombe) : les coups de l'acteur ``pid`` (une Bomb2 créée par le
+        client) sur les marionnettes ne sont pas relayés pendant ``duree`` s : l'autorité a sa propre explosion."""
+        if isinstance(pid, int) and not isinstance(pid, bool):
+            now = self.clock()
+            self.sans_relais = {k: t for k, t in self.sans_relais.items() if t > now}
+            self.sans_relais[pid] = now + duree
 
     def _armer(self, mb, cfg: int) -> None:
         if self.cfg_ecrit != (cfg, MASQUE):
@@ -241,6 +251,9 @@ class Detecteur:
                 self.inconnus += 1          # marionnette changée entre le coup et la lecture
                 continue
             key, _pid, pos = k
+            if self.sans_relais.get(e.get("apid"), -1.0) > now:
+                self.non_relayes += 1       # explosion de la méga bombe : l'autorité a déjà la sienne
+                continue
             info = info_coup(e, pos, pos_link)
             if info is None:
                 self.ignores += 1
