@@ -516,6 +516,17 @@ BAN_DUREE_MAX = 9000               # pas (5 min), borne du mod
 OFFN_CFG, OFFN_SEQ, OFFN_DUREE, OFFN_ANCRE, OFFN_VU, OFFN_RESTE = 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20
 OFFN_MONTRES, OFFN_DESSINS, OFFN_ATTENTES, OFFN_LIGNES = 0x24, 0x28, 0x2C, 0x30
 BAN_MOD = 44                       # NATIF_VERSION_MOD qui a la zone
+# chant de ralliement (MOD NATIF SEULEMENT, 0.45.0 ; natif/mod_wwmp/ralliement.c, client/ralliement.py ;
+# docs/etudes/autres_zelda.md §7) : SANS bit : la zone wwmp_tac (magie « WWMPTAC1 », format 1), 0x40 octets à 0x7280, EST
+# la capacité. Le PC écrit cfg (TAC_ALLUME) et le morceau (6 ou 7) ; le jeu compte chaque morceau voulu joué (position,
+# étape, salle, angle, puis « demandes » EN DERNIER) et rend le résultat du jugement INCHANGÉ (le jeu le refuse).
+MAGIC_TAC = b"WWMPTAC1"
+TAC_FORMAT = 1
+TAC_ALLUME = 0x1
+TAC_MORCEAUX = (6, 7)              # morceaux inutilisés du jeu (6 : 3/4 haut, bas, droite ; 7 : 4/4)
+OFFL_CFG, OFFL_MORCEAU, OFFL_DEMANDES, OFFL_POS, OFFL_ETAPE, OFFL_SALLE = 0x0C, 0x10, 0x14, 0x18, 0x24, 0x2C
+OFFL_JUGES, OFFL_IGNORES, OFFL_ANGLE = 0x30, 0x38, 0x3C
+TAC_MOD = 45                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
@@ -1818,6 +1829,48 @@ class Mailbox:
             return {"cfg": 0, "seq": 0, "vu": 0, "reste": 0, "montres": 0, "dessins": 0, "attentes": 0}
         cfg, seq, _d, _a, vu, reste, mo, de, at = struct.unpack(">9I", bytes(self.mem.read(a + OFFN_CFG, 36)))
         return {"cfg": cfg, "seq": seq, "vu": vu, "reste": reste, "montres": mo, "dessins": de, "attentes": at}
+    # --- chant de ralliement (0.45.0, mod natif seulement, sans bit : la zone est la capacité) ----------------------
+    def tac_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_tac`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_tac", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_TAC, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != TAC_FORMAT:
+                return None
+            a = self._tac = hits[0]
+        return a
+
+    def tac_regler(self, on: bool, morceau: int = 6) -> bool:
+        """Chant de ralliement : morceau (6 ou 7) puis cfg ; False sans la zone."""
+        a = self.tac_addr()
+        if a is None:
+            return False
+        m = morceau if morceau in TAC_MORCEAUX else TAC_MORCEAUX[0]
+        self.mem.write(a + OFFL_MORCEAU, struct.pack(">I", m))
+        self.mem.write(a + OFFL_CFG, struct.pack(">I", TAC_ALLUME if on else 0))
+        return True
+
+    def tac_counters(self) -> dict:
+        """{"cfg", "morceau", "demandes", "pos", "etape", "salle", "juges", "ignores", "angle"} ; zéros sans la zone.
+        « demandes » est lu D'ABORD (le jeu l'écrit en dernier)."""
+        a = self.tac_addr()
+        if a is None:
+            return {"cfg": 0, "morceau": 0, "demandes": 0, "pos": (0.0, 0.0, 0.0), "etape": "", "salle": -1,
+                    "juges": [0] * 8, "ignores": 0, "angle": 0}
+        n, = struct.unpack(">I", bytes(self.mem.read(a + OFFL_DEMANDES, 4)))
+        cfg, mo = struct.unpack(">2I", bytes(self.mem.read(a + OFFL_CFG, 8)))
+        x, y, z = struct.unpack(">3f", bytes(self.mem.read(a + OFFL_POS, 12)))
+        brut = bytes(self.mem.read(a + OFFL_ETAPE, 8))
+        etape = brut.split(b"\0", 1)[0].decode("latin-1", "replace")
+        salle, = struct.unpack(">i", bytes(self.mem.read(a + OFFL_SALLE, 4)))
+        juges = list(bytes(self.mem.read(a + OFFL_JUGES, 8)))
+        ig, ang = struct.unpack(">Ii", bytes(self.mem.read(a + OFFL_IGNORES, 8)))
+        return {"cfg": cfg, "morceau": mo, "demandes": n, "pos": (x, y, z), "etape": etape, "salle": salle,
+                "juges": juges, "ignores": ig, "angle": ang}
     # --- enfermement des Hanteurs (0.35.0, mod natif seulement, sans bit : la zone est la capacité) ------------------
     def enf_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_enf`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""

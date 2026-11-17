@@ -85,6 +85,12 @@ COMMANDES: tuple[Commande, ...] = (
              "A signal at your position, seen by the others for 8 s (native port: on their maps too).",
              "double clic du stick gauche (relevé par le mod, pas réglable ici)",
              "double click of the left stick (read by the mod, not set here)"),
+    # chant de ralliement (client/ralliement.py) : refuser un appel pendant ses 10 s ; touche seulement
+    Commande("refuser_ralliement", "multi", "Refuser le ralliement", "Refuse the rally call", "ForwardDelete", None, "",
+             "Pendant les 10 s d'un chant de ralliement d'un coéquipier : tu restes où tu es.",
+             "During the 10 s of a teammate's rally song: you stay where you are.",
+             "pas de manette : la touche, ou ouvre le menu du jeu (un joueur au menu n'est pas déplacé)",
+             "no controller: the key, or open the game menu (a player in the menu is not moved)"),
 )
 # Commandes visibles mais pas configurables ici (pourquoi : ``aide``)
 LECTURE_SEULE: tuple[dict, ...] = (

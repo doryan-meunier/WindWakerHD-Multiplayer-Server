@@ -344,6 +344,7 @@ from serveur import validation as valid_mod  # noqa: E402  (lot S2 : validation 
 from serveur import robot as robot_mod  # noqa: E402  (joueur robot : docs/etudes/joueur_robot.md)
 from serveur import maj as maj_serveur  # noqa: E402
 from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de donjon : docs/etudes/autres_zelda.md §2)
+from serveur import ralliement as ral_mod  # noqa: E402  (chant de ralliement : docs/etudes/autres_zelda.md §7)
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -526,8 +527,19 @@ class Server:
                  robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
-                 essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False):
+                 essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False,
+                 ralliement: bool = True, essai_ralliement: bool = False):
         self.players: dict[int, Player] = {}
+        # chant de ralliement (serveur/ralliement.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-ralliement),
+        # toujours coupée en mode Hanteurs. ESSAI (--essai-ralliement, Réglages › Essais) : faux coéquipier d'un client
+        # d'essai appelé et appelant, délai court ; à retirer après validation
+        if (ralliement or essai_ralliement) and mode_hanteurs:
+            log("chant de ralliement : coupé avec le mode Hanteurs")
+        self.ralliement = ral_mod.RalliementServeur(on=ralliement and not mode_hanteurs,
+                                                    essai=essai_ralliement and not mode_hanteurs)
+        if self.ralliement.essai:
+            log("chant de ralliement : ESSAI allumé (--essai-ralliement) : le faux coéquipier d'un client d'essai est "
+                f"appelé et peut appeler ; {ral_mod.ESSAI_DELAI:.0f} s entre deux chants (Réglages › Essais du lanceur)")
         # coups entre joueurs (synchro/coups_joueurs.py) : règle de la PARTIE, coupée par défaut, jamais en mode
         # Hanteurs (son PvP reste le sien) ; recul seul (aucun dégât). ESSAI (--essai-coups, Réglages › Essais) : faux
         # coéquipier d'un client d'essai ; à retirer après validation
@@ -2846,6 +2858,7 @@ class Server:
                     "deathlink": int(self.morts.on),      # synchro v3 : règle de la partie (absent = non)
                     "vie_partagee": int(self.vies.on),    # vie partagée : règle de la partie (absent = non)
                     "coups_joueurs": int(self.coups.on),  # coups entre joueurs : règle de la partie (absent = non)
+                    "ralliement": int(self.ralliement.on),  # chant de ralliement : règle de la partie (absent = non)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -3073,6 +3086,10 @@ class Server:
             self.handle_hpilote(p, msg)
         elif t in ("hinfluence", "hboss_res"):
             self.handle_influence(p, msg)
+        elif t == "ralliement":
+            self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
+        elif t == "ralliement_rep":
+            self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
             self.handle_coups(p, msg)            # coups entre joueurs (hors mode Hanteurs)
         elif t in ("hpotion", "hpotion_stop", "hresister", "pvp", "hviser"):
@@ -3156,6 +3173,7 @@ class Server:
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
                "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
+               "ralliement": self.ralliement.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.medailles.on:
@@ -3789,6 +3807,54 @@ class Server:
         else:
             log(f"coups entre joueurs (ESSAI) : {p.name} frappe le faux coéquipier « {cj_mod.NOM_ESSAI} » : accepté")
 
+    def ralliement_joueur(self, pid) -> dict | None:
+        """Ce que le chant de ralliement sait d'un joueur (serveur/ralliement.RalliementServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        return {"nom": o.name, "joueur": o.joueur and not self.robot_est(o), "zone": o.zone, "busy": o.busy,
+                "nc": o.nc, "pos": o.pos, "t": o.state_t, "feat": o.feat, "role": None, "possede": False}
+
+    def handle_ralliement(self, p: Player, msg: dict) -> None:
+        """« ralliement » : le morceau 6 de la Baguette joué (mod natif 0.45.0). Accepté : « ralliement_appel » à chaque
+        appelé (déplacé par son client après 10 s sans refus) et « ralliement_rep » à l'appelant ; sinon la raison."""
+        if not p.joueur or self.robot_est(p):
+            return
+        now = time.monotonic()
+        raison, rep, envois = self.ralliement.chant(p.id, msg, self.ralliement_joueur, lambda: list(self.players),
+                                                    now, hanteurs=self.hanteurs is not None,
+                                                    cache=bool(self.cache.parties))
+        essai = msg.get("essai") in (1, True) and self.ralliement.essai
+        quoi = "ESSAI, le faux coéquipier appelle " + p.name if msg.get("faux") in (1, True) and essai else p.name
+        if raison:
+            log(f"chant de ralliement{' (ESSAI)' if essai else ''} : {quoi} refusé ({raison})")
+            p.send({"type": "ralliement_rep", "ok": 0, "raison": raison[:120], **({"essai": 1} if essai else {})})
+            return
+        for dest, m in envois:
+            o = self.players.get(dest)
+            if o is not None:
+                o.send(m)
+        p.send(rep)
+        noms = [self.players[d].name for d, _m in envois if d in self.players]
+        log(f"chant de ralliement{' (ESSAI)' if essai else ''} : {quoi} appelle "
+            + (", ".join(noms) if noms else "personne") + (" et le faux coéquipier" if rep.get("faux_pos") else "")
+            + (f" ; exclus : {rep['exclus']}" if rep.get("exclus") else ""))
+
+    def handle_ralliement_rep(self, p: Player, msg: dict) -> None:
+        """« ralliement_rep » d'un appelé : refus (10 s) ou arrivée ; l'appelant est prévenu (« ralliement_info »)."""
+        if not p.joueur:
+            return
+        raison, out = self.ralliement.reponse(p.id, msg, p.name, time.monotonic())
+        quoi = "refuse" if msg.get("refus") in (1, True) else "arrive"
+        if raison:
+            log(f"chant de ralliement : {p.name} {quoi} : ignoré ({raison})")
+            return
+        log(f"chant de ralliement : {p.name} {quoi}")
+        if out is not None:
+            o = self.players.get(out[0])
+            if o is not None:
+                o.send(out[1])
+
     def handle_signal(self, p: Player, msg: dict) -> None:
         """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
         les SIGNAL_ENTRE s par joueur. Un Hanteur est invisible des Link : son signal ne part qu'aux autres Hanteurs."""
@@ -3911,6 +3977,17 @@ class Server:
                 self.mp_marquer(rapide=True)
                 log(f"vie partagée {'activée' if on else 'désactivée'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "ralliement" in msg:
+            on = msg.get("ralliement") in (1, True)
+            if on and self.hanteurs is not None:
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
+                        "msg": "chant de ralliement impossible avec le mode Hanteurs"})
+                return
+            if on != self.ralliement.on:
+                self.ralliement.on = on
+                self.ralliement.vu = True
+                log(f"chant de ralliement {'activé' if on else 'désactivé'} par l'hôte")
+                self.broadcast(self.regles_msg())
         if "coups_joueurs" in msg:
             on = msg.get("coups_joueurs") in (1, True)
             if on and self.hanteurs is not None:
@@ -3942,7 +4019,8 @@ class Server:
 
     def regles_rep(self) -> dict:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
-                "coups_joueurs": int(self.coups.on), "difficulte": self.dif_vue()}
+                "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
+                "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -3950,6 +4028,8 @@ class Server:
         m = {"type": "regles", "deathlink": int(self.morts.on)}
         if self.vies.vu:
             m["vie_partagee"] = int(self.vies.on)
+        if self.ralliement.vu:
+            m["ralliement"] = int(self.ralliement.on)  # chant de ralliement, dès qu'il a changé une fois (welcome sinon)
         if self.coups.vu:
             m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
@@ -5132,6 +5212,7 @@ class Server:
             self.mob.left(p.id)
             self.carry.left(p.id)
             self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
+            self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
             sorties = self.cache.depart(p.id)   # cache-cache : sa partie s'arrête pour les autres
             if sorties:
@@ -5718,6 +5799,14 @@ def main(argv=None) -> int:
     ap.add_argument("--coups-joueurs", action="store_true",
                     help="règle de la partie : un coup d'épée sur un coéquipier le fait reculer (aucun dégât, 1 s "
                          "d'invincibilité) ; jamais avec le mode Hanteurs. Désactivée par défaut")
+    ap.add_argument("--no-ralliement", action="store_true",
+                    help="règle de la partie : chant de ralliement coupé (allumé par défaut : le morceau 6 de la "
+                         "Baguette, 3/4 haut, bas, droite, appelle l'équipe ; une fois toutes les 5 min ; jamais avec "
+                         "le mode Hanteurs)")
+    ap.add_argument("--essai-ralliement", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-ralliement est "
+                         "appelé et peut appeler, 15 s entre deux chants ; pour essayer seul, jamais dans une vraie "
+                         "partie")
     ap.add_argument("--essai-coups", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-coups peut "
                          "être frappé et frapper ; pour essayer seul, jamais dans une vraie partie")
@@ -6006,7 +6095,8 @@ def main(argv=None) -> int:
                           robot_repos=args.robot_repos, robot_journal=args.robot_journal,
                           robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
                           medailles=not args.no_medailles, essai_medailles=args.essai_medailles,
-                          coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups))
+                          coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups,
+                          ralliement=not args.no_ralliement, essai_ralliement=args.essai_ralliement))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")
