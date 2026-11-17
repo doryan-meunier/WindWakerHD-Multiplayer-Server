@@ -17,6 +17,11 @@ finit, et dit à chacun des deux son rôle ; le client applique (client/fusions.
   vrais monstres ; ailleurs elle touche des marionnettes, dont les coups ne sont relayés que si l'autorité n'est ni l'un
   ni l'autre (et alors seulement chez celui qui déplace) : jamais deux fois.
 * Coup relayé d'un fusionné : ``champ_hit`` ajoute ``tenf`` (facteurs de fusion) que l'autorité écrit avant le CALL 14.
+* VRAIE fusion (mod 0.50.0, docs/dev/PORTAGE_NATIF.md §3.54) : un seul Link, celui du porteur (le « pilote »). Les
+  états « fen » de l'attaquant (``entrees``) sont relayés TOUT DE SUITE au pilote de SA fusion (jamais à un autre, ni
+  d'un autre que l'attaquant, ni plus de ``FEN_MAX_PAR_S`` par seconde) ; le « debut » donne ``hz``
+  (--fusion-entrees-hz) et ``peremption`` (--fusion-peremption-ms). Ces deux réglages ne changent pas à chaud : pas de
+  règle dans « regles ».
 
 ESSAI « fusions de tenues » (``--essai-fusions``, Réglages › Essais ; à retirer après validation, tout ce qui sert à
 l'essai est marqué ESSAI) : un client d'essai annonce un faux coéquipier (``essai_faux`` : position, zone) ;
@@ -45,10 +50,16 @@ class FusionsServeur:
     busy, nc, course, leaving, feat} ou None ; ``autorite(zone)`` rend l'id de l'autorité ou None ; ``hanteurs`` :
     mode Hanteurs. Chaque méthode rend la liste des messages à envoyer [(pid, msg)]."""
 
-    def __init__(self, on: bool = True, essai: bool = False, clock=time.monotonic):
+    def __init__(self, on: bool = True, essai: bool = False, clock=time.monotonic, entrees_hz: int = fu.ENTREES_HZ,
+                 peremption_ms: int = fu.PEREMPTION_MS):
         self.on = bool(on)
         self.essai = bool(essai)
         self.clock = clock
+        self.entrees_hz = fu.borne_hz(entrees_hz)
+        self.peremption_ms = fu.borne_peremption(peremption_ms)
+        self.fen_relayes = 0                  # états « fen » relayés
+        self.fen_jetes = 0                    # jetés (pas l'attaquant d'une fusion, illisibles, trop nombreux)
+        self.fen_debit: dict[int, list] = {}  # pid -> [début de la seconde, états dans la seconde]
         self.hanteurs = False
         self.etats: dict[int, dict] = {}      # pid -> {charge, charge_t, bombe, bombe_t, lancer_t, age, t}
         self.fusions: dict[int, dict] = {}    # id -> fusion
@@ -259,6 +270,7 @@ class FusionsServeur:
             envois.append((pid, {"type": "fusion", "ev": "debut", "id": f["id"], "genre": genre, "role": role,
                                  "partenaire": autre, "duree": fu.DUREE, "deplace": f["deplace"],
                                  "attaque": f["attaque"], "centre": centre, "relais": relais,
+                                 "hz": self.entrees_hz, "peremption": self.peremption_ms,
                                  **({"essai": 1} if ID_ESSAI in (porteur, passager) else {})}))
         noms = [(info(x) or {}).get("nom", NOM_ESSAI if x == ID_ESSAI else x) for x in (porteur, passager)]
         self.journal.append(f"fusions : {fu.GENRES[genre]} n° {f['id']} : {noms[0]} déplace, {noms[1]} attaque"
@@ -304,7 +316,7 @@ class FusionsServeur:
     def oublier(self, pid) -> list:
         f = self.en_fusion(pid)
         envois = self.finir(f, "depart") if f else []
-        for d in (self.etats, self.essai_faux, self.essai_role):
+        for d in (self.etats, self.essai_faux, self.essai_role, self.fen_debit):
             d.pop(pid, None)
         return envois
 
@@ -314,6 +326,26 @@ class FusionsServeur:
         for f in list(self.fusions.values()):
             envois += self.finir(f, "regle")
         return envois
+
+    # -- VRAIE fusion : entrées de l'attaquant (chemin court : relayées sans attendre le tick) -------------------------
+    def entrees(self, pid, msg: dict, now: float | None = None) -> list:
+        """Un état « fen » de ``pid`` : [(pilote, état)] s'il est l'attaquant d'une fusion en cours (numéro de fusion
+        juste, état lisible, débit borné), [] sinon. Le serveur n'en garde rien."""
+        f = self.en_fusion(pid)
+        e = fu.entrees(msg)
+        if f is None or e is None or f["passager"] != pid or f["porteur"] == ID_ESSAI or e["f"] != f["id"]:
+            self.fen_jetes += 1
+            return []
+        now = self.clock() if now is None else now
+        d = self.fen_debit.setdefault(pid, [now, 0])
+        if now - d[0] >= 1.0:
+            d[0], d[1] = now, 0
+        d[1] += 1
+        if d[1] > fu.FEN_MAX_PAR_S:
+            self.fen_jetes += 1
+            return []
+        self.fen_relayes += 1
+        return [(f["porteur"], {"type": "fen", **e})]
 
     # -- coups relayés ---------------------------------------------------------------------------------------------------
     def champ_hit(self, pid) -> dict:
@@ -327,7 +359,8 @@ class FusionsServeur:
     def vue(self) -> list[dict]:
         now = self.clock()
         return [{"id": f["id"], "genre": fu.GENRES[f["genre"]], "porteur": f["porteur"], "passager": f["passager"],
-                 "reste": round(max(0.0, f["fin"] - now), 1)} for f in self.fusions.values()]
+                 "reste": round(max(0.0, f["fin"] - now), 1), "fen_relayes": self.fen_relayes,
+                 "fen_jetes": self.fen_jetes} for f in self.fusions.values()]
 
     # -- ESSAI -----------------------------------------------------------------------------------------------------------
     def _faux(self, pid, now) -> dict | None:

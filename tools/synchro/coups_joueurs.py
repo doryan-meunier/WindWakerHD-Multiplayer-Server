@@ -49,10 +49,13 @@ CENTRE_Y = 60.0             # u : centre du corps au-dessus des pieds (comme pot
 ATP = 0                     # recul seul : AUCUN dégât (Q7.1)
 AT_EPEE, SE_EPEE, MARQUE_EPEE = 0x2, 1, 0xD     # AT de la lame de Link (COMBAT §1.2, comme potion.py)
 # ESSAI : faux coéquipier (ce PC seulement), qui frappe Link toutes les ESSAI_PERIODE s quand il est assez près
+ESSAI_SANS_REPONSE = 3      # coups d'essai sans réponse avant de dire pourquoi (serveur sans essai)
 ID_ESSAI = 96               # pas ceux des essais « porter » (98) et « être porté » (97)
 NOM_ESSAI = "Essai Cogneur"
 ESSAI_DISTANCE = 110.0      # u devant Link, reposé à chaque changement de salle
 ESSAI_PERIODE = 6.0
+ESSAI_RECUL = 70.0          # u : le faux coéquipier frappé recule (visible), puis revient à sa place
+ESSAI_RECUL_DUREE = 0.8    # s : aller et retour du recul
 ESSAI_PORTEE = 250.0        # u : Link plus loin du faux coéquipier : il ne frappe pas
 
 
@@ -223,7 +226,10 @@ class CoupsClient:
         self.notes: list[str] = []
         self.place: dict | None = None      # ESSAI : {"cle", "pos", "rotY"}
         self.essai_t = None                 # ESSAI : heure du dernier coup du faux coéquipier
+        self.recul_t = None                 # ESSAI : heure du dernier coup accepté sur lui (recul visible)
+        self.link_xz = None                 # ESSAI : dernière position de Link (sens du recul)
         self.n_envoyes = self.n_recus = self.n_appliques = self.n_refuses = self.n_acceptes_essai = 0
+        self.n_essai_envoyes = 0             # ESSAI : coups sur le faux coéquipier (sans réponse : serveur sans essai)
         self.refus_vus: set = set()
 
     # -- règle de la partie ------------------------------------------------------------------------------------------
@@ -267,10 +273,27 @@ class CoupsClient:
             self._note(f"ESSAI : faux coéquipier « {NOM_ESSAI} » posé devant Link ({x:.0f}, {y:.0f}, {z:.0f}) ; "
                        f"frappe-le à l'épée (Console : « coup accepté ») ; toutes les {ESSAI_PERIODE:.0f} s il te "
                        f"frappe (recul, 1 s d'invincibilité, aucun dégât)")
+        self.link_xz = (float(st["pos"][0]), float(st["pos"][2]))
         out = dict(others)
-        out[ID_ESSAI] = {"stage": st.get("stage"), "room": st.get("room"), "pos": list(self.place["pos"]),
+        out[ID_ESSAI] = {"stage": st.get("stage"), "room": st.get("room"), "pos": self.pos_essai(),
                          "rotY": self.place["rotY"], "_t": now_wall, "essai": True}
         return out
+
+    def pos_essai(self) -> list:
+        """Place du faux coéquipier, reculée après un coup accepté (rapport du 2026-11-17 : le coup partait bien mais
+        rien ne se voyait) : jusqu'à ESSAI_RECUL u à l'opposé de Link, aller puis retour en ESSAI_RECUL_DUREE s."""
+        pos = list(self.place["pos"])
+        if self.recul_t is None or self.link_xz is None:
+            return pos
+        t = (self.clock() - self.recul_t) / ESSAI_RECUL_DUREE
+        if not 0.0 <= t < 1.0:
+            return pos
+        dx, dz = pos[0] - self.link_xz[0], pos[2] - self.link_xz[1]
+        d = math.hypot(dx, dz)
+        if d < 1e-3:
+            return pos
+        k = ESSAI_RECUL * math.sin(math.pi * t) / d
+        return [round(pos[0] + dx * k, 2), pos[1], round(pos[2] + dz * k, 2)]
 
     def essai_frappe(self, now: float, zone, libre: bool, nc: bool, link_pos, me) -> bool:
         """ESSAI (2) : toutes les ESSAI_PERIODE s, Link libre et à moins de ESSAI_PORTEE u, le faux coéquipier frappe
@@ -322,6 +345,13 @@ class CoupsClient:
                     continue
                 m.update(essai=1, de=[round(float(v), 1) for v in self.place["pos"]])
                 self._note(f"ESSAI : coup d'épée sur « {NOM_ESSAI} » envoyé au serveur")
+                self.n_essai_envoyes += 1
+                if self.n_essai_envoyes == ESSAI_SANS_REPONSE and not self.n_acceptes_essai:
+                    # rapport du 2026-11-17 : client d'essai branché sur le serveur dédié (Docker), qui ne fait
+                    # pas tourner l'essai : les coups partaient sans réponse et sans explication
+                    self._note(f"ESSAI : le serveur n'a répondu à aucun des {ESSAI_SANS_REPONSE} coups : l'essai "
+                               "ne marche qu'avec Jouer › Héberger sur ce PC, sans le mode Hanteurs (un serveur "
+                               "dédié ou Docker ne fait pas tourner les essais)")
             with self._lock:
                 self.sortie.append(m)
             self.n_envoyes += 1
@@ -332,6 +362,7 @@ class CoupsClient:
         """``coup_rep`` du serveur (essai : faux coéquipier touché, accepté)."""
         if msg.get("ok") in (1, True) and msg.get("to") == ID_ESSAI:
             self.n_acceptes_essai += 1
+            self.recul_t = self.clock()          # recul visible du faux coéquipier (pos_essai)
             self._note(f"ESSAI : coup accepté par le serveur ({self.n_acceptes_essai})")
 
     # -- victime -----------------------------------------------------------------------------------------------------

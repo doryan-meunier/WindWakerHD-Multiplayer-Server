@@ -376,7 +376,9 @@ SNAPSHOT_KEEP = 2.0  # s : âge max du dernier snapshot renvoyé à qui entre da
 # puis on coupe. Les messages d'événements (autorité, hit, join/leave…) passent toujours.
 SLOW_SKIP = 1 << 20
 SLOW_DROP = 16 << 20
-DROPPABLE = {"state", "enemies", "epos"}   # epos : lot L2 de la latence (positions remplaçables)
+DROPPABLE = {"state", "enemies", "epos", "fen"}   # epos : lot L2 de la latence (positions remplaçables) ; fen : états
+                                                 # complets des entrées de l'attaquant d'une vraie fusion (le suivant
+                                                 # remplace, le mod du pilote relâche tout sans nouvelles)
 TSW_MAX = 256          # A7 : changements au plus par message tsw
 DROP_KEEP = 8.0        # s : A4, âge max d'un objet apparu renvoyé à qui entre dans la zone
 BREAK_MAX = 64         # A6 : jarres cassées gardées au plus par zone
@@ -543,7 +545,8 @@ class Server:
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
                  essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE,
                  essai_fusions: bool = False, releve: bool = True, essai_relever: bool = False,
-                 camouflage: bool = True, camouflage_duree: float = cam_commun.DUREE, essai_camouflage: bool = False):
+                 camouflage: bool = True, camouflage_duree: float = cam_commun.DUREE, essai_camouflage: bool = False,
+                 fusion_entrees_hz: int = fus_commun.ENTREES_HZ, fusion_peremption_ms: int = fus_commun.PEREMPTION_MS):
         self.players: dict[int, Player] = {}
         # camouflage de la tenue jaune (serveur/camouflage.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-camouflage),
         # qui ne joue qu'avec les tenues à pouvoir ; durée --camouflage-duree (4 s). ESSAI (--essai-camouflage,
@@ -564,7 +567,10 @@ class Server:
         # tenues à pouvoir, partie B : les FUSIONS (serveur/fusions.py) : avec la règle des tenues, jamais en mode
         # Hanteurs ni avec le robot. ESSAI (--essai-fusions, Réglages › Essais) : faux coéquipier d'un client d'essai ;
         # à retirer après validation
-        self.fusions = fus_mod.FusionsServeur(on=tenues, essai=essai_fusions)
+        # VRAIE fusion (mod 0.50.0) : états « fen » de l'attaquant relayés tout de suite au pilote (--fusion-entrees-hz,
+        # --fusion-peremption-ms : donnés dans le « debut », pas de changement à chaud)
+        self.fusions = fus_mod.FusionsServeur(on=tenues, essai=essai_fusions, entrees_hz=fusion_entrees_hz,
+                                              peremption_ms=fusion_peremption_ms)
         self._fusions_t = 0.0
         if self.fusions.essai:
             log("fusions de tenues : ESSAI allumé (--essai-fusions) : faux coéquipier d'un client d'essai qui charge sa "
@@ -3190,6 +3196,8 @@ class Server:
             self.handle_tenue(p, msg)            # tenues à pouvoir : ESSAI seulement (couleur, faux coéquipier)
         elif t == "fusion":
             self.handle_fusion(p, msg)           # fusions (partie B) : charge, bombe, lancer, fin ; ESSAI
+        elif t == "fen":
+            self.handle_fen(p, msg)              # vraie fusion : entrées de l'attaquant, relayées tout de suite au pilote
         elif t == "releve":
             self.handle_releve(p, msg)           # relever un coéquipier : à terre, debout, mort, commande ; ESSAI
         elif t == "camouflage":
@@ -4159,6 +4167,16 @@ class Server:
             return
         ids = [pid for pid, o in self.players.items() if o.joueur]
         self.fusions_envoyer(fs.tick(ids, self.fusions_joueur, self.fusions_autorite, now))
+
+    def handle_fen(self, p: Player, msg: dict) -> None:
+        """VRAIE fusion : un état des entrées de l'attaquant, relayé TOUT DE SUITE au pilote de sa fusion (chemin le plus
+        court : ni tick, ni journal) ; rien d'autre n'en est fait."""
+        if not p.joueur:
+            return
+        for pid, m in self.fusions.entrees(p.id, msg):
+            o = self.players.get(pid)
+            if o is not None and fus_commun.FEAT in o.feat:
+                o.send(m)
 
     def handle_fusion(self, p: Player, msg: dict) -> None:
         """« fusion » d'un client : état (charge, bombe), lancer, fin ; ESSAI (faux coéquipier, boutons)."""
@@ -6356,6 +6374,14 @@ def main(argv=None) -> int:
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-fusions pose un faux coéquipier qui "
                          "charge sa tournoyante ou tient une bombe, pour essayer seul les deux fusions des tenues ; "
                          "jamais dans une vraie partie")
+    ap.add_argument("--fusion-entrees-hz", type=int, default=fus_commun.ENTREES_HZ,
+                    help="vraie fusion des tenues : relevés par seconde des entrées de l'attaquant sur son PC (défaut "
+                         f"{fus_commun.ENTREES_HZ} ; borné à {fus_commun.ENTREES_HZ_MIN}..{fus_commun.ENTREES_HZ_MAX}) ; "
+                         "envoyées au pilote à chaque changement, et rappelées au moins toutes les 100 ms")
+    ap.add_argument("--fusion-peremption-ms", type=int, default=fus_commun.PEREMPTION_MS,
+                    help="vraie fusion des tenues : sans nouvel état de l'attaquant pendant ce temps (ms), le jeu du "
+                         f"pilote relâche ses boutons et sa caméra (défaut {fus_commun.PEREMPTION_MS} ; borné à "
+                         f"{fus_commun.PEREMPTION_MS_MIN}..{fus_commun.PEREMPTION_MS_MAX})")
     ap.add_argument("--essai-course", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
                          "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
@@ -6662,7 +6688,8 @@ def main(argv=None) -> int:
                           tenues_distance=args.tenues_distance, essai_fusions=args.essai_fusions,
                           releve=not args.no_releve, essai_relever=args.essai_relever,
                           camouflage=not args.no_camouflage, camouflage_duree=args.camouflage_duree,
-                          essai_camouflage=args.essai_camouflage))
+                          essai_camouflage=args.essai_camouflage, fusion_entrees_hz=args.fusion_entrees_hz,
+                          fusion_peremption_ms=args.fusion_peremption_ms))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

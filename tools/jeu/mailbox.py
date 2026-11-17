@@ -581,6 +581,23 @@ OFFF_CFG, OFFF_GENRE, OFFF_BOUTONS, OFFF_STICKS, OFFF_BOUCLIER, OFFF_BONNET, OFF
 OFFF_COMPTEURS = 0x34
 FUS_COMPTEURS = ("pas", "filtres", "caches_vus", "bouclier_pas", "bonnets", "fins", "soi_caches", "coups",
                  "coups_magie", "distants", "etat", "retenus")
+# VRAIE fusion (MOD NATIF SEULEMENT, 0.50.0 ; natif/mod_wwmp/fusions.c, client/fusions.py ; docs/dev/PORTAGE_NATIF.md
+# §3.54 ; décalages OFFFN_*, noms FEN_* : propres à cette zone) : SANS bit : la zone wwmp_fen (magie « WWMPFEN1 »,
+# format 1), 0x80 octets à 0x6F80, EST la capacité. PILOTE : le PC écrit l'état distant de l'attaquant (boutons, sticks)
+# puis un numéro NOUVEAU EN DERNIER, dès sa réception ; le jeu l'injecte dans la manette, le tient jusqu'au suivant et
+# relâche tout après « peremption » lectures sans état nouveau. ATTAQUANT : le jeu publie à chaque lecture ce que le
+# joueur presse (numéro EN DERNIER), que le PC lit à haute fréquence, et le retire à son Link.
+MAGIC_FEN = b"WWMPFEN1"
+FEN_FORMAT = 1
+FEN_OFF = 0x6F80
+FEN_PILOTE, FEN_ATTAQUANT = 0x1, 0x2
+FEN_BOUTONS = 0x7010                # B, X, Y, R : seuls boutons distants que le mod injecte
+FEN_NEUTRES = 0x0006FFF0            # retirés chez l'attaquant (jamais +, -, Home)
+FEN_PEREMPTION_DEF, FEN_PEREMPTION_MIN, FEN_PEREMPTION_MAX = 8, 2, 60     # lectures de la manette (bornes du mod)
+OFFFN_CFG, OFFFN_PEREMPTION, OFFFN_D, OFFFN_D_SEQ, OFFFN_M, OFFFN_M_SEQ = 0x0C, 0x10, 0x14, 0x28, 0x2C, 0x44
+OFFFN_COMPTEURS = 0x48
+FEN_COMPTEURS = ("age", "frais", "etats", "injections", "peremptions", "neutres", "visees", "appliques", "attendus")
+FEN_MOD = 50                       # NATIF_VERSION_MOD qui a la zone
 # camouflage de la tenue jaune (MOD NATIF SEULEMENT, 0.49.0 ; natif/mod_wwmp/camouflage.c, client/camouflage.py ;
 # docs/dev/PORTAGE_NATIF.md §3.53 ; décalages OFFCM_*, noms CAM_* : propres à cette zone) : SANS bit : la zone wwmp_cam
 # (magie « WWMPCAM1 », format 1), 0x80 octets à 0x6D00, EST la capacité. Le PC écrit cfg (CAM_ALLUME), « duree » (images)
@@ -2219,6 +2236,85 @@ class Mailbox:
         out["vie"], = struct.unpack_from(">i", b, OFFF_VIE)
         for k, nom in enumerate(FUS_COMPTEURS):
             out[nom], = struct.unpack_from(">I", b, OFFF_COMPTEURS + 4 * k)
+        return out
+
+    # --- VRAIE fusion (0.50.0, mod natif seulement, sans bit : la zone est la capacité) --------------------------------
+    def fen_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_fen`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_fen", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_FEN, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != FEN_FORMAT:
+                return None
+            a = self._fen = hits[0]
+        return a
+
+    def fen_regler(self, cfg: int, peremption: int = FEN_PEREMPTION_DEF) -> bool:
+        """Rôle dans la vraie fusion : FEN_PILOTE, FEN_ATTAQUANT ou 0 (rien) ; ``peremption`` en lectures (hors bornes :
+        FEN_PEREMPTION_DEF ; le mod borne aussi). cfg EN DERNIER ; à 0, l'état distant est aussi effacé (boutons et
+        sticks, pas le numéro). False sans la zone."""
+        a = self.fen_addr()
+        if a is None:
+            return False
+        c = cfg if cfg in (0, FEN_PILOTE, FEN_ATTAQUANT) else 0
+        p = peremption if isinstance(peremption, int) and not isinstance(peremption, bool) and \
+            FEN_PEREMPTION_MIN <= peremption <= FEN_PEREMPTION_MAX else FEN_PEREMPTION_DEF
+        if not c:
+            self.mem.write(a + OFFFN_CFG, struct.pack(">I", 0))
+            self.mem.write(a + OFFFN_D, bytes(0x14))
+            return True
+        self.mem.write(a + OFFFN_PEREMPTION, struct.pack(">I", p))
+        self.mem.write(a + OFFFN_CFG, struct.pack(">I", c))
+        return True
+
+    def fen_ecrire(self, boutons: int, lx: float, ly: float, rx: float, ry: float, seq: int) -> bool:
+        """PILOTE : état distant de l'attaquant (boutons bornés à FEN_BOUTONS, sticks finis bornés à ±1) et son numéro
+        EN DERNIER, en UNE écriture (le numéro est le dernier mot du bloc). False sans la zone."""
+        a = self.fen_addr()
+        if a is None:
+            return False
+
+        def st(v):
+            try:
+                f = float(v)
+            except (TypeError, ValueError):
+                return 0.0
+            return max(-1.0, min(1.0, f)) if f == f and abs(f) != float("inf") else 0.0
+        b = boutons & FEN_BOUTONS if isinstance(boutons, int) and not isinstance(boutons, bool) else 0
+        self.mem.write(a + OFFFN_D, struct.pack(">I4fI", b, st(lx), st(ly), st(rx), st(ry), int(seq) & 0xFFFFFFFF))
+        return True
+
+    def fen_lire_soi(self) -> dict | None:
+        """ATTAQUANT : ce que le joueur presse à la dernière lecture du jeu {seq, boutons, lx, ly, rx, ry, libre} (le
+        bloc en une lecture, le numéro relu après : refaite une fois s'il a bougé entre les deux) ; None sans la zone."""
+        a = self.fen_addr()
+        if a is None:
+            return None
+        for _essai in range(2):
+            b = bytes(self.mem.read(a + OFFFN_M, 0x1C))
+            bo, lx, ly, rx, ry, libre, seq = struct.unpack(">I4fII", b)
+            seq2, = struct.unpack(">I", bytes(self.mem.read(a + OFFFN_M_SEQ, 4)))
+            if seq2 == seq:
+                break
+        return {"seq": seq, "boutons": bo, "lx": lx, "ly": ly, "rx": rx, "ry": ry, "libre": libre}
+
+    def fen_counters(self) -> dict:
+        """{"cfg", "peremption", "d_boutons", "d_seq", "m_seq", compteurs du jeu...} ; zéros sans la zone."""
+        a = self.fen_addr()
+        vide = {"cfg": 0, "peremption": 0, "d_boutons": 0, "d_seq": 0, "m_seq": 0, **{k: 0 for k in FEN_COMPTEURS}}
+        if a is None:
+            return vide
+        b = bytes(self.mem.read(a, 0x6C))
+        out = {"cfg": struct.unpack_from(">I", b, OFFFN_CFG)[0],
+               "peremption": struct.unpack_from(">I", b, OFFFN_PEREMPTION)[0],
+               "d_boutons": struct.unpack_from(">I", b, OFFFN_D)[0], "d_seq": struct.unpack_from(">I", b, OFFFN_D_SEQ)[0],
+               "m_seq": struct.unpack_from(">I", b, OFFFN_M_SEQ)[0]}
+        for k, nom in enumerate(FEN_COMPTEURS):
+            out[nom], = struct.unpack_from(">I", b, OFFFN_COMPTEURS + 4 * k)
         return out
 
     def ten_counters(self) -> dict:

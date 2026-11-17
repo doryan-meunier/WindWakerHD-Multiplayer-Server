@@ -76,13 +76,15 @@ class RalliementServeur:
         return ESSAI_DELAI if self.essai else DELAI
 
     @staticmethod
-    def _occupe(j: dict) -> str:
-        """"" si ce joueur peut chanter / être appelé (vu du serveur), sinon la raison."""
+    def _occupe(j: dict, chant: bool = False) -> str:
+        """"" si ce joueur peut chanter / être appelé (vu du serveur), sinon la raison. ``chant`` : pour l'APPELANT,
+        la cinématique ne compte pas : jouer de la Baguette est lui-même un événement du jeu (``busy`` vrai jusqu'à
+        la fin du morceau ; rapport du 2026-11-17 : « appelant en cinématique » à chaque chant)."""
         if j.get("role") == "hanteur":
             return "Hanteur"
         if j.get("possede"):
             return "Link possédé"
-        if j.get("busy"):
+        if j.get("busy") and not chant:
             return "en cinématique"
         if j.get("nc"):
             return "occupé (menu, porté ou porteur)"
@@ -107,7 +109,7 @@ class RalliementServeur:
         faux = essai and msg.get("faux") in (1, True)        # ESSAI (2) : le faux coéquipier appelle src
         appelant = ID_ESSAI if faux else src
         if not faux:
-            r = self._occupe(es)
+            r = self._occupe(es, chant=True)
             if r:
                 return "appelant " + r, None, []
             if es.get("zone") != zone_de(stage, room):
