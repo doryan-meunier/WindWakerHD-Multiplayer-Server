@@ -347,6 +347,8 @@ from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de do
 from serveur import ralliement as ral_mod  # noqa: E402  (chant de ralliement : docs/etudes/autres_zelda.md §7)
 from serveur import courses as crs_mod  # noqa: E402  (courses en bateau : docs/etudes/autres_zelda.md §3)
 from serveur import bonheur as bon_mod  # noqa: E402  (Fragments du Bonheur : docs/etudes/autres_zelda.md §4)
+from serveur import tenues as ten_mod  # noqa: E402  (tenues à pouvoir : docs/etudes/autres_zelda.md §6)
+from commun import tenues as ten_commun  # noqa: E402
 from synchro.cles import KeyPool  # noqa: E402
 from synchro.compteurs import VALEURS as CNT_VALEURS, CompteurPool, valid_cnt, valid_pickup  # noqa: E402
 from commun.protocole import valid_coffre, valid_inv, valid_key_id, valid_key_slot  # noqa: E402
@@ -533,8 +535,18 @@ class Server:
                  ralliement: bool = True, essai_ralliement: bool = False, courses: bool = True,
                  essai_course: bool = False, bonheur: bool = True, essai_bonheur: bool = False,
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
-                 bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE):
+                 bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
+                 essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE):
         self.players: dict[int, Player] = {}
+        # tenues à pouvoir (serveur/tenues.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-tenues) ; aussi en mode
+        # Hanteurs (un Hanteur n'a pas de tenue, un Link possédé garde la sienne) ; jamais le robot. ESSAI
+        # (--essai-tenues, Réglages › Essais) : couleur de pouvoir changée à chaud, faux coéquipier de duo d'un client
+        # d'essai ; à retirer après validation
+        self.tenues = ten_mod.TenuesServeur(on=tenues, essai=essai_tenues, distance=tenues_distance)
+        self._tenues_t = 0.0
+        if self.tenues.essai:
+            log("tenues à pouvoir : ESSAI allumé (--essai-tenues) : couleur de pouvoir changée à chaud et faux "
+                "coéquipier de duo d'un client d'essai (Réglages › Essais du lanceur)")
         # Fragments du Bonheur (serveur/bonheur.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-bonheur), toujours
         # coupée en mode Hanteurs ; poches gardées dans le monde persistant. ESSAI (--essai-bonheur, Réglages › Essais) :
         # tirage à 1 sur 2, faux coéquipier assorti d'un client d'essai, récompenses forcées ; à retirer après validation
@@ -2454,6 +2466,7 @@ class Server:
                 self.courses_tick()              # courses en bateau : phases, faux concurrents (aussi courses_boucle)
             if self.bonheur.props:
                 self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
+            self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
 
     def mp_juger_hanteur(self, p: Player, msg: dict) -> None:
         """« progress » marqué ``jug`` : un client bloqué par le mode Hanteurs (Hanteur, ou quarantaine de 3 s après
@@ -2890,6 +2903,7 @@ class Server:
                     "ralliement": int(self.ralliement.on),  # chant de ralliement : règle de la partie (absent = non)
                     "bonheur": int(self.bonheur.on),      # Fragments du Bonheur : règle de la partie (absent = non)
                     "bonheur_poche": self.bonheur.poche(p.name),   # Fragments du Bonheur : ses moitiés (monde)
+                    "tenues": int(self.tenues.on),        # tenues à pouvoir : règle de la partie (absent = non)
                     "difficulte": self.dif_vue(),         # dégâts reçus, vie des monstres, nombre de Link
                     "epoque": self.mp.epoque(self, p) if self.mp is not None else self.epoque,
                     **({"monde": self.mp.bref()} if self.mp is not None else {}),
@@ -3058,6 +3072,8 @@ class Server:
                 self.players[holder].send({"type": "hit", "from": p.id, "zone": zone,
                                            "key": msg.get("key"), "dmg": int(msg.get("dmg", 1)),
                                            **coups_monstres.champs_hit(msg),
+                                           # tenues à pouvoir : épée, gadgets, dos de celui qui frappe (CALL 14)
+                                           **self.tenues.champ_hit(p.id),
                                            # bit 26 : coup d'un projectile, seulement à une autorité qui le rejoue
                                            **coups_projectiles.champ_serveur(msg, self.coups_proj_ok(holder))})
                 log(f"{p.name} touche {msg.get('key')} ({zone}) -> autorité {self.players[holder].name}")
@@ -3129,6 +3145,8 @@ class Server:
             self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
         elif t == "bonheur":
             self.handle_bonheur(p, msg)          # Fragments du Bonheur : assembler, annuler (menu), ESSAI
+        elif t == "tenue":
+            self.handle_tenue(p, msg)            # tenues à pouvoir : ESSAI seulement (couleur, faux coéquipier)
         elif t == "ralliement_rep":
             self.handle_ralliement_rep(p, msg)   # chant de ralliement : refus ou arrivée d'un appelé
         elif t == "pvp" and self.hanteurs is None:
@@ -3207,6 +3225,8 @@ class Server:
                  "depuis": round(now - o.connected), "silence": round(now - o.last_seen, 1)}
             if o.triches:
                 d["triches"] = list(o.triches)     # triches du portage chez lui (absent : aucune ; ancien lanceur : ignoré)
+            if self.tenues.partage.get(o.id):
+                d["tenue_partage"] = 1             # tenues à pouvoir : partage du duo actif (absent : non)
             if self.hanteurs is not None:
                 d["role"] = self.hanteurs.role(o.id)
                 d["points"] = int(self.hanteurs.points.get(o.id, 0.0)) if self.hanteurs.est_hanteur(o.id) else None
@@ -3214,7 +3234,7 @@ class Server:
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
                "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
-               "ralliement": self.ralliement.on, "bonheur": self.bonheur.on,
+               "ralliement": self.ralliement.on, "bonheur": self.bonheur.on, "tenues": self.tenues.on,
                "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.bonheur.actif() or self.bonheur.poches:
@@ -3956,6 +3976,46 @@ class Server:
             envois = list(envois) + [(p.id, {"type": "bonheur", "ev": "refus", "raison": raison[:120]})]
         self.bonheur_envoyer(envois)
 
+    # --- tenues à pouvoir (serveur/tenues.py, docs/etudes/autres_zelda.md §6) ----------------------------------------
+    def tenues_joueur(self, pid) -> dict | None:
+        """Ce que les tenues à pouvoir savent d'un joueur (serveur/tenues.TenuesServeur)."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        h = self.hanteurs
+        return {"nom": o.name, "couleur": o.couleur, "joueur": bool(o.joueur), "robot": self.robot_est(o),
+                "hanteur": bool(h is not None and h.est_hanteur(o.id)), "zone": o.zone, "pos": o.pos,
+                "t": o.state_t, "feat": o.feat, "leaving": bool(getattr(o, "leaving", False))}
+
+    def tenues_tick(self, force: bool = False) -> None:
+        """Tenue effective de chaque joueur (partage des duos, hystérésis) ; messages « tenue » aux clients qui savent
+        les appliquer (feat « tenues »), au plus 5 fois par seconde."""
+        now = time.monotonic()
+        if not force and now - self._tenues_t < 0.2:
+            return
+        self._tenues_t = now
+        tn = self.tenues
+        if not tn.actif() and not tn.envoye:
+            return
+        ids = [pid for pid, o in self.players.items() if o.joueur]
+        for pid, m in tn.tick(ids, self.tenues_joueur, now):
+            o = self.players.get(pid)
+            if o is not None and ten_commun.FEAT in o.feat:
+                o.send(m)
+        for ligne in tn.journal:
+            log(ligne)
+        tn.journal.clear()
+
+    def handle_tenue(self, p: Player, msg: dict) -> None:
+        """« tenue » d'un client : ESSAI seulement (``essai_couleur``, ``essai_faux``) ; refus dit au client."""
+        if not p.joueur or self.robot_est(p):
+            return
+        raison = self.tenues.essai_message(p.id, msg, self.tenues_joueur)
+        if raison:
+            p.send({"type": "tenue_rep", "ok": 0, "raison": raison[:120]})
+            return
+        self.tenues_tick(force=True)
+
     # --- courses en bateau (serveur/courses.py, docs/etudes/autres_zelda.md §3) ----------------------------------------
     def courses_joueur(self, pid) -> dict | None:
         """Ce que les courses savent d'un joueur (serveur/courses.CoursesServeur)."""
@@ -4177,6 +4237,14 @@ class Server:
                 self.bonheur.vu = True
                 log(f"fragments du Bonheur {'activés' if on else 'désactivés'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "tenues" in msg:
+            on = msg.get("tenues") in (1, True)
+            if on != self.tenues.on:
+                self.tenues.on = on
+                self.tenues.vu = True
+                self.tenues.reemettre()
+                log(f"tenues à pouvoir {'activées' if on else 'désactivées'} par l'hôte")
+                self.broadcast(self.regles_msg())
         if "coups_joueurs" in msg:
             on = msg.get("coups_joueurs") in (1, True)
             if on and self.hanteurs is not None:
@@ -4209,7 +4277,7 @@ class Server:
     def regles_rep(self) -> dict:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
                 "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
-                "bonheur": int(self.bonheur.on), "difficulte": self.dif_vue()}
+                "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
         """« regles » : le deathlink TOUJOURS (un client lit ce champ à chaque « regles »), la vie partagée dès qu'elle
@@ -4221,6 +4289,8 @@ class Server:
             m["ralliement"] = int(self.ralliement.on)  # chant de ralliement, dès qu'il a changé une fois (welcome sinon)
         if self.bonheur.vu:
             m["bonheur"] = int(self.bonheur.on)        # Fragments du Bonheur, dès qu'ils ont changé (welcome sinon)
+        if self.tenues.vu:
+            m["tenues"] = int(self.tenues.on)          # tenues à pouvoir, dès qu'elles ont changé (welcome sinon)
         if self.coups.vu:
             m["coups_joueurs"] = int(self.coups.on)   # coups entre joueurs, dès qu'ils ont été allumés une fois
         if difficulte:
@@ -5415,6 +5485,7 @@ class Server:
             self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
             self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
             self.bonheur_envoyer(self.bonheur.oublier(p.id))   # Fragments du Bonheur : propositions annulées
+            self.tenues.oublier(p.id)           # tenues à pouvoir : partage et essai oubliés (le duo est recalculé)
             self.courses.oublier(p.id)          # courses en bateau : un coureur qui part abandonne
             self.courses_envoyer()
             self.monde_depart(p)                # horloge commune : un joueur figé qui part ne l'arrête plus
@@ -6034,6 +6105,15 @@ def main(argv=None) -> int:
                     help="ESSAI (Réglages › Essais du lanceur) : 1 chance sur 2 par monstre ; le faux coéquipier d'un "
                          "client --essai-bonheur a toujours la moitié assortie, accepte et propose ; récompenses "
                          "forcées ; quart de cœur simulé ; pour essayer seul, jamais dans une vraie partie")
+    ap.add_argument("--no-tenues", action="store_true",
+                    help="règle de la partie : tenues à pouvoir coupées (allumées par défaut : chaque couleur de tenue a "
+                         "ses pouvoirs ; duos orange + violet et sombre + turquoise partagés quand proches)")
+    ap.add_argument("--tenues-distance", type=float, default=ten_commun.DISTANCE,
+                    help="tenues à pouvoir : distance (unités du jeu, 100 = 1 m) en dessous de laquelle les deux membres "
+                         "d'un duo partagent leurs pouvoirs (défaut 2000 = 20 m ; bornée à 3..100 m)")
+    ap.add_argument("--essai-tenues", action="store_true",
+                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-tenues change sa couleur de pouvoir à "
+                         "chaud et pose un faux coéquipier de duo ; pour essayer seul, jamais dans une vraie partie")
     ap.add_argument("--essai-course", action="store_true",
                     help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
                          "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
@@ -6335,7 +6415,9 @@ def main(argv=None) -> int:
                           courses=not args.no_courses, essai_course=args.essai_course,
                           bonheur=not args.no_bonheur, essai_bonheur=args.essai_bonheur,
                           bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
-                          bonheur_quarts_partie=max(0, args.bonheur_quarts_partie)))
+                          bonheur_quarts_partie=max(0, args.bonheur_quarts_partie),
+                          tenues=not args.no_tenues, essai_tenues=args.essai_tenues,
+                          tenues_distance=args.tenues_distance))
         if r == "redemarrer":
             log("redémarrage : le serveur s'arrête ; Docker le relance avec la nouvelle configuration (restart: "
                 "unless-stopped). Lancé à la main : relance-le")

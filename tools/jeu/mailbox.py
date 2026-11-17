@@ -527,6 +527,21 @@ TAC_MORCEAUX = (6, 7)              # morceaux inutilisés du jeu (6 : 3/4 haut, 
 OFFL_CFG, OFFL_MORCEAU, OFFL_DEMANDES, OFFL_POS, OFFL_ETAPE, OFFL_SALLE = 0x0C, 0x10, 0x14, 0x18, 0x24, 0x2C
 OFFL_JUGES, OFFL_IGNORES, OFFL_ANGLE = 0x30, 0x38, 0x3C
 TAC_MOD = 45                       # NATIF_VERSION_MOD qui a la zone
+# tenues à pouvoir, partie A (MOD NATIF SEULEMENT, 0.46.0 ; natif/mod_wwmp/tenues.c, client/tenues.py ;
+# docs/etudes/autres_zelda.md §6) : SANS bit : la zone wwmp_ten (magie « WWMPTEN1 », format 1), 0x40 octets à 0x72C0, EST
+# la capacité. Le PC écrit les facteurs (huitièmes, 8 = x1, 0 lu comme 8 ; le mod les borne), la couleur et le duo, puis
+# cfg EN DERNIER ; avant chaque CALL 14, les facteurs de l'attaquant distant (pris par le mod au CALL). Le jeu compte.
+MAGIC_TEN = b"WWMPTEN1"
+TEN_FORMAT = 1
+TEN_OFF = 0x72C0
+TEN_ALLUME, TEN_MAGIE, TEN_MUNITIONS = 0x1, 0x2, 0x4
+OFFU_CFG, OFFU_COULEUR, OFFU_DUO, OFFU_FACTEURS, OFFU_DISTANT, OFFU_COMPTEURS = 0x0C, 0x10, 0x11, 0x14, 0x20, 0x24
+# facteurs (octets à partir de +0x14), dans l'ordre de la zone
+TEN_FACTEURS = ("recu", "epee", "gadget", "dos", "sol", "nage", "bateau", "rubis", "prix", "esquive")
+# compteurs du jeu (u16 à partir de +0x24)
+TEN_COMPTEURS = ("esquives", "jets", "coups", "dans_dos", "rubis_plus", "rubis_rendus", "magie_gardee",
+                 "munitions_gardees", "recus", "pas_vite", "pas_bateau", "distants")
+TEN_MOD = 46                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_CARTE = b"WWMPCAR1"
 CARTE_FORMAT = 1
 OFFC_COUPE, OFFC_COULEURS, OFFC_DESSINS = 0x0C, 0x10, 0x2C
@@ -1871,6 +1886,62 @@ class Mailbox:
         ig, ang = struct.unpack(">Ii", bytes(self.mem.read(a + OFFL_IGNORES, 8)))
         return {"cfg": cfg, "morceau": mo, "demandes": n, "pos": (x, y, z), "etape": etape, "salle": salle,
                 "juges": juges, "ignores": ig, "angle": ang}
+    # --- tenues à pouvoir, partie A (0.46.0, mod natif seulement, sans bit : la zone est la capacité) ----------------
+    def ten_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_ten`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_ten", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_TEN, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != TEN_FORMAT:
+                return None
+            a = self._ten = hits[0]
+        return a
+
+    def ten_regler(self, cfg: int, couleur: int = 0, duo: int = 0, facteurs: dict | None = None) -> bool:
+        """Tenues : facteurs (huitièmes, 0..255 ; absents : 0 = x1), couleur et duo, puis cfg (TEN_*) EN DERNIER ; False
+        sans la zone."""
+        a = self.ten_addr()
+        if a is None:
+            return False
+        f = facteurs or {}
+
+        def octet(v):
+            return v if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 else 0
+        self.mem.write(a + OFFU_FACTEURS, bytes(octet(f.get(k, 0)) for k in TEN_FACTEURS))
+        self.mem.write(a + OFFU_COULEUR, bytes([octet(couleur) if 0 <= octet(couleur) <= 8 else 0,
+                                               octet(duo) if 0 <= octet(duo) <= 8 else 0]))
+        self.mem.write(a + OFFU_CFG, struct.pack(">I", cfg & (TEN_ALLUME | TEN_MAGIE | TEN_MUNITIONS)))
+        return True
+
+    def ten_distant(self, epee: int = 0, gadget: int = 0, dos: int = 0) -> bool:
+        """Avant un CALL 14 : facteurs de l'attaquant distant (huitièmes ; 0 = x1) ; False sans la zone."""
+        a = self.ten_addr()
+        if a is None:
+            return False
+
+        def octet(v):
+            return v if isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 else 0
+        self.mem.write(a + OFFU_DISTANT, bytes([octet(epee), octet(gadget), octet(dos), 0]))
+        return True
+
+    def ten_counters(self) -> dict:
+        """{"cfg", "couleur", "duo", facteurs..., compteurs du jeu...} ; zéros sans la zone."""
+        a = self.ten_addr()
+        vide = {"cfg": 0, "couleur": 0, "duo": 0, **{k: 0 for k in TEN_FACTEURS}, **{k: 0 for k in TEN_COMPTEURS}}
+        if a is None:
+            return vide
+        brut = bytes(self.mem.read(a + OFFU_CFG, 0x40 - OFFU_CFG))
+        cfg, = struct.unpack_from(">I", brut, 0)
+        out = {"cfg": cfg, "couleur": brut[OFFU_COULEUR - OFFU_CFG], "duo": brut[OFFU_DUO - OFFU_CFG]}
+        for k, nom in enumerate(TEN_FACTEURS):
+            out[nom] = brut[OFFU_FACTEURS - OFFU_CFG + k]
+        for k, nom in enumerate(TEN_COMPTEURS):
+            out[nom], = struct.unpack_from(">H", brut, OFFU_COMPTEURS - OFFU_CFG + 2 * k)
+        return out
     # --- enfermement des Hanteurs (0.35.0, mod natif seulement, sans bit : la zone est la capacité) ------------------
     def enf_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_enf`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
