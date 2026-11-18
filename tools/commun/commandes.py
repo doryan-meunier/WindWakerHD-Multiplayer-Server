@@ -17,8 +17,10 @@ modificateurs (comme les raccourcis du portage : Maj+F4 n'est pas F4).
 
 Manette : boutons de la Wii U (« L », « ZR », « DpadDown »… : ceux que le jeu reçoit, après l'affectation de l'onglet
 Link), joints par « + ». Lus par le mod natif (zone WWMPMAN1, ``natif/mod_wwmp/manette.c``, filtre d'entrée du SDK) :
-une combinaison COMPLÈTE est retirée au jeu (il ne la voit pas) jusqu'au relâchement de ses boutons. Cemu : pas de
-mod, pas de manette (touches seulement).
+une combinaison COMPLÈTE est retirée au jeu (il ne la voit pas) jusqu'au relâchement de ses boutons. Une seule table
+armée à la fois : celle du groupe « hanteur » quand le mode Hanteurs a pris la manette (Hanteur, Link possédé,
+synchro/hanteurs.Touches), celle du groupe « multi » sinon (client/manette_multi.py) ; les deux groupes peuvent donc
+reprendre les mêmes combinaisons. Cemu : pas de mod, pas de manette (touches seulement).
 """
 from __future__ import annotations
 
@@ -85,38 +87,37 @@ COMMANDES: tuple[Commande, ...] = (
              "A signal at your position, seen by the others for 8 s (native port: on their maps too).",
              "double clic du stick gauche (relevé par le mod, pas réglable ici)",
              "double click of the left stick (read by the mod, not set here)"),
-    # chant de ralliement (client/ralliement.py) : refuser un appel pendant ses 10 s ; touche seulement
-    Commande("refuser_ralliement", "multi", "Refuser le ralliement", "Refuse the rally call", "ForwardDelete", None, "",
-             "Pendant les 10 s d'un chant de ralliement d'un coéquipier : tu restes où tu es.",
-             "During the 10 s of a teammate's rally song: you stay where you are.",
-             "pas de manette : la touche, ou ouvre le menu du jeu (un joueur au menu n'est pas déplacé)",
-             "no controller: the key, or open the game menu (a player in the menu is not moved)"),
-    # Fragments du Bonheur (client/bonheur.py) : proposer d'assembler deux moitiés, ou accepter ; touche seulement
-    Commande("assembler", "multi", "Assembler (Fragments du Bonheur)", "Fuse (Kinstones)", "Ctrl+Insert", None, "",
+    # chant de ralliement (client/ralliement.py) : refuser un appel pendant ses 10 s
+    Commande("refuser_ralliement", "multi", "Refuser le ralliement", "Refuse the rally call", "ForwardDelete", None,
+             "L+B",
+             "Pendant les 10 s d'un chant de ralliement d'un coéquipier : tu restes où tu es (ouvrir le menu du jeu "
+             "marche aussi : un joueur au menu n'est pas déplacé).",
+             "During the 10 s of a teammate's rally song: you stay where you are (opening the game menu works too: a "
+             "player in the menu is not moved)."),
+    # Fragments du Bonheur (client/bonheur.py) : proposer d'assembler deux moitiés, ou accepter
+    Commande("assembler", "multi", "Assembler (Fragments du Bonheur)", "Fuse (Kinstones)", "Ctrl+Insert", None,
+             "L+DpadUp",
              "À moins de 3 m d'un coéquipier qui a la moitié assortie : propose d'assembler ; il appuie à son tour "
              "dans les 10 s pour accepter. Une récompense tombe pour les deux.",
              "Within 3 m of a teammate who has the matching half: offer to fuse; they press it too within 10 s to "
-             "accept. A reward drops for both.",
-             "pas de manette : la touche seulement", "no controller: the key only"),
-    # courses en bateau (client/courses.py) : tracer un parcours en naviguant, abandonner ; touches seulement
+             "accept. A reward drops for both."),
+    # courses en bateau (client/courses.py) : tracer un parcours en naviguant, abandonner
     Commande("poser_balise", "multi", "Poser une balise (tracé d'une course)", "Drop a buoy (race layout)", "HomeKey",
-             None, "",
+             None, "L+DpadRight",
              "En mer : la position du bateau. Le premier point est le départ, les suivants les balises (lanceur : "
              "Réglages › Courses en bateau).",
              "At sea: the boat's position. The first point is the start, the next ones the buoys (launcher: "
-             "Settings › Boat races).",
-             "pas de manette : la touche seulement", "no controller: the key only"),
-    Commande("abandon_course", "multi", "Abandonner la course", "Give up the race", "Ctrl+HomeKey", None, "",
+             "Settings › Boat races)."),
+    Commande("abandon_course", "multi", "Abandonner la course", "Give up the race", "Ctrl+HomeKey", None,
+             "L+DpadLeft",
              "Pendant une course en bateau : tu sors du classement (quitter la mer fait de même).",
-             "During a boat race: you leave the ranking (leaving the sea does the same).",
-             "pas de manette : la touche seulement", "no controller: the key only"),
-    # relever un coéquipier (client/releve.py) : relever tout de suite un coéquipier à terre à moins de 1,5 m ; touche
-    Commande("relever", "multi", "Relever un coéquipier", "Revive a teammate", "Ctrl+End", None, "",
+             "During a boat race: you leave the ranking (leaving the sea does the same)."),
+    # relever un coéquipier (client/releve.py) : relever tout de suite un coéquipier à terre à moins de 1,5 m
+    Commande("relever", "multi", "Relever un coéquipier", "Revive a teammate", "Ctrl+End", None, "L+DpadDown",
              "Deathlink : un coéquipier tombé à 0 cœur reste à terre 20 s ; à moins de 1,5 m de lui, la touche le relève "
              "tout de suite (sinon reste 2 s près de lui).",
              "Deathlink: a teammate at 0 hearts stays down for 20 s; within 1.5 m of them, the key revives them right "
-             "away (otherwise stay 2 s next to them).",
-             "pas de manette : la touche, ou reste 2 s près de lui", "no controller: the key, or stay 2 s next to them"),
+             "away (otherwise stay 2 s next to them)."),
 )
 # Commandes visibles mais pas configurables ici (pourquoi : ``aide``)
 LECTURE_SEULE: tuple[dict, ...] = (
@@ -347,10 +348,16 @@ def conflits(table: dict, natif: bool, touches_jeu: dict | None = None) -> list[
             mods, cle = analyser_touche(t)
             if not mods & {"Ctrl", "Alt"} and touches_jeu.get(cle):
                 out.append({"ids": [i], "genre": "jeu", "valeur": t, "avec": ", ".join(touches_jeu[cle])})
+    # manette : seulement dans un même groupe. Le mod n'arme qu'une table à la fois (celle du Hanteur quand le mode
+    # Hanteurs a pris la manette, celle du groupe « multi » sinon) : les deux groupes peuvent reprendre les mêmes
+    # boutons
+    groupe = {c.id: c.groupe for c in COMMANDES}
     combos = [(i, analyser_manette(val(table[i], 1)) or frozenset()) for i in ids]
     for a in range(len(combos)):
         for b in range(a + 1, len(combos)):
             (ia, ca), (ib, cb) = combos[a], combos[b]
+            if groupe.get(ia) != groupe.get(ib):
+                continue
             if ca and cb and (ca <= cb or cb <= ca):
                 out.append({"ids": [ia, ib], "genre": "manette", "valeur": normaliser_manette("+".join(ca)) or "",
                             "avec": normaliser_manette("+".join(cb)) or ""})

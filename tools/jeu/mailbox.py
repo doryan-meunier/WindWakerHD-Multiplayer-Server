@@ -2418,6 +2418,13 @@ class Mailbox:
         self.mem.write(a + OFFM_MASQUES, struct.pack(">16H", *m))
         return True
 
+    def manette_masques_lus(self) -> list[int]:
+        """Combinaisons armées en ce moment (code compact 16 bits, MAN_N emplacements ; vide sans la zone)."""
+        a = self.manette_addr()
+        if a is None:
+            return []
+        return list(struct.unpack(">16H", bytes(self.mem.read(a + OFFM_MASQUES, 2 * MAN_N))))
+
     def manette_fronts(self) -> list[int]:
         """Compteurs (u8) de combinaisons complétées, un par emplacement."""
         a = self.manette_addr()
