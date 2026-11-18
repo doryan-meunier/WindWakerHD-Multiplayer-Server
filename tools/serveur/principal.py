@@ -469,7 +469,6 @@ class Player:
         self.vie_times: list[float] = []
         self.signal_t = float("-inf")          # signal « viens ici » : heure du dernier relayé
         self.medailles_mort_t = float("-inf")  # médailles : dernier Game Over compté (« mort » du deathlink)
-        self.medailles_essai_t = float("-inf")  # ESSAI médailles : dernière fin simulée
         self.pickup_times: list[float] = []
         self.hit_times: dict[int, list[float]] = {}   # synchro v2 (A2) : victime -> heures des coups relayés
         self.saisie_times: dict[int, list[float]] = {}   # synchro v4 (saisie transmise) : victime -> heures relayées
@@ -538,9 +537,9 @@ class Server:
                  robot: str = robot_mod.DEFAUT, robot_cle: str | None = None, robot_commande=None,
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
-                 essai_medailles: bool = False, coups_joueurs: bool = False, essai_coups: bool = False,
-                 ralliement: bool = True, essai_ralliement: bool = False, courses: bool = True,
-                 essai_course: bool = False, bonheur: bool = True, essai_bonheur: bool = False,
+                 coups_joueurs: bool = False,
+                 ralliement: bool = True, courses: bool = True,
+                 bonheur: bool = True, essai_bonheur: bool = False,
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
                  essai_tenues: bool = False, tenues_distance: float = ten_commun.DISTANCE,
@@ -597,40 +596,21 @@ class Server:
             log("fragments du Bonheur : ESSAI allumé (--essai-bonheur) : 1 chance sur 2 par monstre, faux coéquipier "
                 "« Essai Assorti » d'un client d'essai, récompenses forcées (Réglages › Essais du lanceur)")
         # courses en bateau (serveur/courses.py) : lancées par le lanceur de l'hôte (« course_cmd »), jamais en mode
-        # Hanteurs. ESSAI (--essai-course, Réglages › Essais) : course d'essai d'un client contre de faux concurrents ;
-        # à retirer après validation
-        self.courses = crs_mod.CoursesServeur(on=courses and not mode_hanteurs,
-                                              essai=essai_course and not mode_hanteurs)
-        if self.courses.essai:
-            log("courses en bateau : ESSAI allumé (--essai-course) : course d'essai d'un client autour de son bateau, "
-                "contre de faux concurrents (Réglages › Essais du lanceur)")
+        # Hanteurs. Essai solo retiré le 2026-11-17 (validé en jeu)
+        self.courses = crs_mod.CoursesServeur(on=courses and not mode_hanteurs)
         # chant de ralliement (serveur/ralliement.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-ralliement),
-        # toujours coupée en mode Hanteurs. ESSAI (--essai-ralliement, Réglages › Essais) : faux coéquipier d'un client
-        # d'essai appelé et appelant, délai court ; à retirer après validation
-        if (ralliement or essai_ralliement) and mode_hanteurs:
+        # toujours coupée en mode Hanteurs. Essai solo retiré le 2026-11-17 (validé en jeu)
+        if ralliement and mode_hanteurs:
             log("chant de ralliement : coupé avec le mode Hanteurs")
-        self.ralliement = ral_mod.RalliementServeur(on=ralliement and not mode_hanteurs,
-                                                    essai=essai_ralliement and not mode_hanteurs)
-        if self.ralliement.essai:
-            log("chant de ralliement : ESSAI allumé (--essai-ralliement) : le faux coéquipier d'un client d'essai est "
-                f"appelé et peut appeler ; {ral_mod.ESSAI_DELAI:.0f} s entre deux chants (Réglages › Essais du lanceur)")
+        self.ralliement = ral_mod.RalliementServeur(on=ralliement and not mode_hanteurs)
         # coups entre joueurs (synchro/coups_joueurs.py) : règle de la PARTIE, coupée par défaut, jamais en mode
-        # Hanteurs (son PvP reste le sien) ; recul seul (aucun dégât). ESSAI (--essai-coups, Réglages › Essais) : faux
-        # coéquipier d'un client d'essai ; à retirer après validation
-        if (coups_joueurs or essai_coups) and mode_hanteurs:
+        # Hanteurs (son PvP reste le sien) ; recul seul (aucun dégât). Essai solo retiré le 2026-11-17 (validé en jeu)
+        if coups_joueurs and mode_hanteurs:
             log("coups entre joueurs : désactivés avec le mode Hanteurs (son PvP reste le sien)")
-        self.coups = cj_mod.CoupsServeur(on=coups_joueurs and not mode_hanteurs,
-                                         essai=essai_coups and not mode_hanteurs)
-        if self.coups.essai:
-            log("coups entre joueurs : ESSAI allumé (--essai-coups) : le faux coéquipier d'un client d'essai peut être "
-                "frappé et frapper (Réglages › Essais du lanceur)")
+        self.coups = cj_mod.CoupsServeur(on=coups_joueurs and not mode_hanteurs)
         # médailles de fin de donjon (serveur/medailles.py) : pour la gloire seule, classement montré à la fin du donjon
-        # (bandeau des clients, trackeur du lanceur). ESSAI (--essai-medailles, Réglages › Essais) : faux coéquipiers et
-        # fin simulée, pour essayer seul ; à retirer après validation
-        self.medailles = med_mod.Medailles(on=medailles, essai=medailles and essai_medailles)
-        if self.medailles.essai:
-            log("médailles : ESSAI allumé (--essai-medailles) : deux faux coéquipiers dans chaque donjon, la mer et les "
-                "îles comptées comme « Donjon d'essai », fin simulable (Réglages › Essais du lanceur)")
+        # (bandeau des clients, trackeur du lanceur). Essai solo retiré le 2026-11-17 (validé en jeu)
+        self.medailles = med_mod.Medailles(on=medailles)
         # joueur robot (serveur/robot.py) : autorité d'UNE zone partagée tenue par une instance sans joueur ; « off » :
         # rien ne change. Jamais avec le mode Hanteurs (le Link caché du robot serait visé comme celui d'un Hanteur).
         if robot_mod.actif(robot) and mode_hanteurs:
@@ -2500,7 +2480,7 @@ class Server:
             if self.hanteurs is not None:
                 self.h_flush()
             if self.courses.course is not None:
-                self.courses_tick()              # courses en bateau : phases, faux concurrents (aussi courses_boucle)
+                self.courses_tick()              # courses en bateau : phases (aussi courses_boucle)
             if self.bonheur.props:
                 self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
             self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
@@ -3168,8 +3148,6 @@ class Server:
             self.handle_mort(p)
         elif t == "vie":
             self.handle_vie(p, msg)
-        elif t == "medailles_essai":
-            self.handle_medailles_essai(p, msg)
         elif t == "signal":
             self.handle_signal(p, msg)
         elif t == "regles_cmd":
@@ -3186,7 +3164,7 @@ class Server:
             self.handle_influence(p, msg)
         elif t == "course_cmd":
             self.handle_course_cmd(p, msg)       # courses en bateau : lancer / annuler (lanceur de l'hôte)
-        elif t in ("course_passage", "course_faux", "course_dq", "course_abandon", "course_essai"):
+        elif t in ("course_passage", "course_faux", "course_dq", "course_abandon"):
             self.handle_course(p, msg)           # courses en bateau : passages, faux départ, disqualification…
         elif t == "ralliement":
             self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
@@ -3868,7 +3846,7 @@ class Server:
     def medailles_diffuser(self, res: dict, raison: str) -> None:
         lignes = med_mod.lignes_bandeau(res)
         out = {"type": "medailles", "donjon": res["donjon"], "nom": res["nom"], "lignes": [[t, c] for t, c in lignes],
-               "or": res["or"], **({"essai": 1} if res.get("essai") else {})}
+               "or": res["or"]}
         k = 0
         for o in list(self.players.values()):
             if o.joueur and not (self.hanteurs is not None and self.hanteurs.est_hanteur(o.id)):
@@ -3876,23 +3854,7 @@ class Server:
                 k += 1
         log(f"médailles : {res['nom']} fini ({raison}) : " + " | ".join(t for t, _c in lignes[1:])
             + f" ; envoyé à {k} joueur(s)")
-        if not res.get("essai"):
-            self.mp_marquer(rapide=True)
-
-    def handle_medailles_essai(self, p: Player, msg: dict) -> None:
-        """ESSAI (--essai-medailles seulement) : fin simulée du donjon où est le joueur (« Donjon d'essai » ailleurs),
-        au plus une toutes les 3 s ; refusé sans l'essai."""
-        if not self.medailles.essai or not self.medailles_compte(p) or msg.get("ev") != "fin":
-            return
-        now = time.monotonic()
-        if now - p.medailles_essai_t < 3.0:
-            return
-        p.medailles_essai_t = now
-        res = self.medailles.fin_essai(p.name)
-        if res is None:
-            log(f"médailles (essai) : fin simulée par {p.name} : aucun donjon commencé")
-            return
-        self.medailles_diffuser(res, f"ESSAI : fin simulée par {p.name}")
+        self.mp_marquer(rapide=True)
 
     def coups_joueur(self, pid) -> dict | None:
         """Ce que les coups entre joueurs savent d'un joueur (synchro/coups_joueurs.CoupsServeur)."""
@@ -3903,31 +3865,23 @@ class Server:
                 "feat": o.feat}
 
     def handle_coups(self, p: Player, msg: dict) -> None:
-        """« pvp » hors mode Hanteurs : coup d'épée d'un Link sur un coéquipier (règle de la partie), ou ESSAI (faux
-        coéquipier). Accepté : « coup_joueur » à la victime (recul par CALL 9, aucun dégât) ; essai : « coup_rep »."""
+        """« pvp » hors mode Hanteurs : coup d'épée d'un Link sur un coéquipier (règle de la partie). Accepté :
+        « coup_joueur » à la victime (recul par CALL 9, aucun dégât)."""
         if not p.joueur:
             return
         now = time.monotonic()
         raison, dest, out = self.coups.pvp(p.id, msg, self.coups_joueur, now, hanteurs=self.hanteurs is not None,
                                            robot_essai=bool(self.robot.essai))
-        essai = msg.get("essai") in (1, True) and self.coups.essai
         if raison:
-            if essai or (self.coups.on and raison != "trop de coups" and "invincible" not in raison):
-                log(f"coups entre joueurs{' (ESSAI)' if essai else ''} : {p.name} -> {msg.get('to')} refusé "
-                    f"({raison})")
-            if essai:
-                p.send({"type": "coup_rep", "ok": 0, "to": msg.get("to"), "raison": raison[:80], "essai": 1})
+            if self.coups.on and raison != "trop de coups" and "invincible" not in raison:
+                log(f"coups entre joueurs : {p.name} -> {msg.get('to')} refusé ({raison})")
             return
         o = self.players.get(dest)
         if o is None:
             return
         self.pref_combat(p.zone)
         o.send(out)
-        if out.get("type") == "coup_joueur":
-            qui = cj_mod.NOM_ESSAI if out["from"] == cj_mod.ID_ESSAI else p.name
-            log(f"coups entre joueurs{' (ESSAI)' if essai else ''} : {qui} frappe {o.name} : accepté, recul envoyé")
-        else:
-            log(f"coups entre joueurs (ESSAI) : {p.name} frappe le faux coéquipier « {cj_mod.NOM_ESSAI} » : accepté")
+        log(f"coups entre joueurs : {p.name} frappe {o.name} : accepté, recul envoyé")
 
     def ralliement_joueur(self, pid) -> dict | None:
         """Ce que le chant de ralliement sait d'un joueur (serveur/ralliement.RalliementServeur)."""
@@ -3947,11 +3901,10 @@ class Server:
                                                     now, hanteurs=self.hanteurs is not None,
                                                     cache=bool(self.cache.parties),
                                                     course=self.courses.en_cours())
-        essai = msg.get("essai") in (1, True) and self.ralliement.essai
-        quoi = "ESSAI, le faux coéquipier appelle " + p.name if msg.get("faux") in (1, True) and essai else p.name
+        quoi = p.name
         if raison:
-            log(f"chant de ralliement{' (ESSAI)' if essai else ''} : {quoi} refusé ({raison})")
-            p.send({"type": "ralliement_rep", "ok": 0, "raison": raison[:120], **({"essai": 1} if essai else {})})
+            log(f"chant de ralliement : {quoi} refusé ({raison})")
+            p.send({"type": "ralliement_rep", "ok": 0, "raison": raison[:120]})
             return
         for dest, m in envois:
             o = self.players.get(dest)
@@ -3959,8 +3912,8 @@ class Server:
                 o.send(m)
         p.send(rep)
         noms = [self.players[d].name for d, _m in envois if d in self.players]
-        log(f"chant de ralliement{' (ESSAI)' if essai else ''} : {quoi} appelle "
-            + (", ".join(noms) if noms else "personne") + (" et le faux coéquipier" if rep.get("faux_pos") else "")
+        log(f"chant de ralliement : {quoi} appelle "
+            + (", ".join(noms) if noms else "personne")
             + (f" ; exclus : {rep['exclus']}" if rep.get("exclus") else ""))
 
     def handle_ralliement_rep(self, p: Player, msg: dict) -> None:
@@ -4278,18 +4231,11 @@ class Server:
         self.courses_envoyer()
 
     def handle_course(self, p: Player, msg: dict) -> None:
-        """Messages d'un coureur : ``course_passage``, ``course_faux``, ``course_dq``, ``course_abandon`` ; ESSAI :
-        ``course_essai {parcours}`` (serveur --essai-course seulement)."""
+        """Messages d'un coureur : ``course_passage``, ``course_faux``, ``course_dq``, ``course_abandon``."""
         if not p.joueur or self.robot_est(p):
             return
         cs, t, now = self.courses, msg.get("type"), time.monotonic()
-        if t == "course_essai":                   # ESSAI : boucle générée autour du bateau de ce client
-            raison = cs.lancer(msg.get("parcours"), p.name, [], now, hanteurs=self.hanteurs is not None,
-                               cache=bool(self.cache.parties), essai_de=p.id)
-            if raison:
-                log(f"course (ESSAI) de {p.name} refusée : {raison}")
-                p.send({"type": "course_rep", "ok": 0, "raison": raison[:120], "essai": 1})
-        elif t == "course_passage":
+        if t == "course_passage":
             raison = cs.passage(p.id, msg, p.rtt, now)
             if raison and raison not in ("déjà passée", "pas de course", "autre course"):
                 log(f"course : passage de {p.name} refusé ({raison})")
@@ -5799,7 +5745,7 @@ async def robot_boucle(srv: Server, pas: float = 0.5) -> None:
 
 
 async def courses_boucle(srv: Server, pas: float = 0.25) -> None:
-    """Courses en bateau : décompte, faux concurrents de l'essai, fin de course, même sans message reçu."""
+    """Courses en bateau : décompte, fin de course, même sans message reçu."""
     while True:
         await asyncio.sleep(pas)
         try:
@@ -6382,21 +6328,9 @@ def main(argv=None) -> int:
                     help="vraie fusion des tenues : sans nouvel état de l'attaquant pendant ce temps (ms), le jeu du "
                          f"pilote relâche ses boutons et sa caméra (défaut {fus_commun.PEREMPTION_MS} ; borné à "
                          f"{fus_commun.PEREMPTION_MS_MIN}..{fus_commun.PEREMPTION_MS_MAX})")
-    ap.add_argument("--essai-course", action="store_true",
-                    help="ESSAI (Réglages › Essais du lanceur) : un client --essai-course court seul une boucle générée "
-                         "autour de son bateau, contre de faux concurrents ; pour essayer seul, jamais dans une vraie "
-                         "partie")
-    ap.add_argument("--essai-ralliement", action="store_true",
-                    help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-ralliement est "
-                         "appelé et peut appeler, 15 s entre deux chants ; pour essayer seul, jamais dans une vraie "
-                         "partie")
-    ap.add_argument("--essai-coups", action="store_true",
-                    help="ESSAI (Réglages › Essais du lanceur) : le faux coéquipier d'un client --essai-coups peut "
-                         "être frappé et frapper ; pour essayer seul, jamais dans une vraie partie")
-    ap.add_argument("--essai-medailles", action="store_true",
-                    help="ESSAI (Réglages › Essais du lanceur) : deux faux coéquipiers dans chaque donjon, la mer et "
-                         "les îles comptées comme un « Donjon d'essai », fin de donjon simulable par le client ; "
-                         "pour essayer seul, jamais dans une vraie partie")
+    # essais « coups entre joueurs » (--essai-coups), « bandeau et médailles » (--essai-medailles), « chant de
+    # ralliement » (--essai-ralliement) et « course en bateau » (--essai-course) retirés le 2026-11-17 après validation
+    # en jeu : ces options sont refusées (le lanceur ne les passe plus)
     ap.add_argument("--no-trackeur", action="store_true",
                     help="trackeur du randomizer désactivé : le serveur ne tient ni ne publie l'état commun (le "
                          "lanceur ne coche alors que les coffres ouverts)")
@@ -6677,10 +6611,10 @@ def main(argv=None) -> int:
                           robot_cle=args.robot_cle or os.environ.get("WWMP_ROBOT_CLE") or None,
                           robot_repos=args.robot_repos, robot_journal=args.robot_journal,
                           robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
-                          medailles=not args.no_medailles, essai_medailles=args.essai_medailles,
-                          coups_joueurs=args.coups_joueurs, essai_coups=args.essai_coups,
-                          ralliement=not args.no_ralliement, essai_ralliement=args.essai_ralliement,
-                          courses=not args.no_courses, essai_course=args.essai_course,
+                          medailles=not args.no_medailles,
+                          coups_joueurs=args.coups_joueurs,
+                          ralliement=not args.no_ralliement,
+                          courses=not args.no_courses,
                           bonheur=not args.no_bonheur, essai_bonheur=args.essai_bonheur,
                           bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
                           bonheur_quarts_partie=max(0, args.bonheur_quarts_partie),

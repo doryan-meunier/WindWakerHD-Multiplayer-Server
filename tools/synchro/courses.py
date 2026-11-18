@@ -1,22 +1,20 @@
 """Courses en bateau (Skyward Sword), lots C1 à C4 de docs/etudes/autres_zelda.md §3 : ce que le serveur
 (serveur/courses.py), le client (client/courses.py) et le lanceur (lanceur/courses.py) partagent : constantes,
-parcours (validation, empreinte), géométrie des passages, chrono, parcours d'essai et faux concurrents. Aucune
-entrée/sortie.
+parcours (validation, empreinte), géométrie des passages, chrono. Aucune entrée/sortie. L'essai solo (parcours généré
+autour du bateau, faux concurrents) a été retiré le 2026-11-17 après validation en jeu.
 
 Unités du jeu : 100 u = 1 m (synchro/ralliement.py : 200 u = 2 m). Angle y : 0 = +Z, 0x4000 = +X. Le plan de la mer
 est (x, z) ; la hauteur y ne compte jamais pour un passage.
 
 Parcours (fichier ``courses.json`` du lanceur, message ``course_cmd``) : ``{nom, etape: "sea", depart: {x, y, z},
 balises: [{x, y, z, r}], tours}``. Les coordonnées viennent TOUJOURS du jeu : tracé par l'hôte en naviguant (commande
-« Poser une balise » : le premier point posé est le départ, les suivants les balises) ou, pour l'ESSAI seul, généré
-autour de la position du bateau au moment du clic. Aucune coordonnée du jeu n'est écrite ici.
+« Poser une balise » : le premier point posé est le départ, les suivants les balises). Aucune coordonnée du jeu n'est écrite ici.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import math
-import random
 
 FEAT = "courses"            # hello : ce PC sait courir (passages, signal n° 3, chrono dans le bandeau)
 ETAPE = "sea"               # les courses : la mer seule (les îles sont des salles de « sea », à pied = abandon)
@@ -36,12 +34,6 @@ TOURS_MAX = 5
 BALISES_MIN, BALISES_MAX = 2, 40
 COORD_MAX = 1e6
 NOM_MAX = 40
-# ESSAI : parcours généré autour du bateau, faux concurrents
-ESSAI_BALISES = 6
-ESSAI_RAYON = 30000.0       # u : boucle d'environ 300 m de rayon
-ESSAI_NOM = "Course d'essai"
-RIVAUX = (("Essai Rival", 1300.0), ("Essai Rival 2", 1500.0))   # [HYPO] vitesses simulées (u/s)
-RIVAL_ECART = 0.06          # ± 6 % par tronçon
 
 
 def _num(v) -> bool:
@@ -152,33 +144,3 @@ def chrono(t) -> str:
 
 def rang(n: int) -> str:
     return "1er" if n == 1 else f"{n}e"
-
-
-# --- ESSAI : parcours généré, faux concurrents ----------------------------------------------------------------------
-def parcours_essai(pos, rot: int, n: int = ESSAI_BALISES, rayon: float = ESSAI_RAYON) -> dict:
-    """ESSAI : boucle de ``n`` balises de ``rayon`` u autour d'un centre placé sur le côté du bateau, départ à sa
-    position ``pos`` (x, y, z), première balise dans la direction ``rot`` du bateau, la dernière SUR le départ (on finit
-    là où on a commencé). Rien d'inventé : tout part de la position lue dans le jeu au moment du clic."""
-    x, y, z = (float(v) for v in pos[:3])
-    a = (int(rot) & 0xFFFF) * math.pi / 32768.0
-    cx, cz = x + rayon * math.sin(a + math.pi / 2), z + rayon * math.cos(a + math.pi / 2)
-    phi0 = a - math.pi / 2                       # angle du départ vu du centre ; φ croissant = sens du bateau
-    balises = []
-    for k in range(1, n + 1):
-        f = phi0 + 2.0 * math.pi * k / n
-        balises.append({"x": round(cx + rayon * math.sin(f), 1), "y": round(y, 1), "z": round(cz + rayon * math.cos(f), 1),
-                        "r": RAYON})
-    return {"nom": ESSAI_NOM, "etape": ETAPE, "depart": {"x": round(x, 1), "y": round(y, 1), "z": round(z, 1)},
-            "balises": balises, "tours": 1}
-
-
-def rival_temps(p: dict, vitesse: float, graine: int) -> list[float]:
-    """ESSAI : heures de passage (s après « Partez ») d'un faux concurrent à chaque balise de la séquence."""
-    rnd = random.Random(graine)
-    pts = [p["depart"]] + sequence(p)
-    t, out = 0.0, []
-    for a, b in zip(pts, pts[1:]):
-        v = vitesse * (1.0 + rnd.uniform(-RIVAL_ECART, RIVAL_ECART))
-        t += max(0.0, distance(a, b) - b["r"]) / max(1.0, v) + 0.5
-        out.append(round(t, 2))
-    return out

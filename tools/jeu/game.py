@@ -34,6 +34,7 @@ SYM_FOPACM_DELETE = 0x025DE1B8    # code : fopAcM_delete, sert de test de versio
 SYM_CUR_STAGE = 0x104741E4        # dStage_startStage_c : char[8] nom, s16 point, s8 salle, s8 layer
 SYM_NEXT_STAGE = 0x104741F0       # dStage_nextStage_c (même début)
 SYM_PLAYER = 0x10474BDC           # mPlayerInfo[0].mpPlayer -> daPy_lk_c (Link)
+LINK_PROC = 168                    # procName de daPy_lk_c (PROC_PLAYER)
 SYM_PLAYER_PTRS = 0x10474BE4      # mpPlayerPtr[3] : Link, partenaire, bateau
 SYM_ACTOR_NAMES = 0x101EBFDC      # table nom de stage -> procName : {char[8], s16, s8, pad} × 809
 SYM_FOPACM_CREATE = 0x025D5834    # désassemblé depuis fopAcM_createItem (proc ITEM = 0xFF)
@@ -429,11 +430,24 @@ def pick_link(actors: list[Actor], cfg: dict, mem: GuestMemory | None = None) ->
         for a in actors:
             if a.base == p:
                 return a
+        if p:
+            # Link absent du relevé (client lancé à l'écran titre : relevé partiel autour des acteurs de l'écran
+            # titre ; banc d'essai du 2026-11-18) : lu directement par son pointeur plutôt que deviné
+            try:
+                direct = read_actor(mem, p)
+            except Exception:                   # noqa: BLE001 : chargement en cours
+                direct = None
+            if direct is not None and direct.proc_name == LINK_PROC:
+                return direct
     pn = cfg.get("link_proc_name")
     if pn is not None:
         for a in actors:
             if a.proc_name == pn:
                 return a
+    # jamais un de NOS acteurs (le fantôme WwmpLink, plus gros que Link : le repli le prenait pour Link, et
+    # le faux coéquipier d'un essai se posait alors par rapport à lui-même)
+    nos_procs = {proc for proc, _v in CUSTOM_ACTORS.values()}
+    actors = [a for a in actors if a.proc_name not in nos_procs]
     players = [a for a in actors if a.group == 1]
     pool = players or actors
     if not pool:

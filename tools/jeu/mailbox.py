@@ -440,7 +440,7 @@ MAGIC_MAN = b"WWMPMAN1"
 MAN_FORMAT = 1
 OFFM_TENUS, OFFM_FRONTS, OFFM_MASQUES = 0x0C, 0x10, 0x20
 MAN_N, MAN_TAILLE = 16, 0x40
-# fantôme soulevable par Link (MOD NATIF SEULEMENT, 0.38.0 ; natif/mod_wwmp/porter.c, client/essai_porter.py, lot P0 de
+# fantôme soulevable par Link (MOD NATIF SEULEMENT, 0.38.0 ; natif/mod_wwmp/porter.c, lot P0 de
 # docs/etudes/porter_coequipier.md) : zone wwmp_por (magie « WWMPPOR1 », AUCUN bit), 0x80 octets à 0x6C00. Le PC lève
 # le bit de l'emplacement d'un fantôme « portable » (le mod lui pose les champs d'attention de Médolie : « Soulever » au
 # bouton A) ; le jeu le saisit, le porte, le pose, le lance ; le mod compte (prises, posés, lancés, lâchés, pas tenus).
@@ -469,7 +469,7 @@ PRG2_N, PRG2_TAILLE = 6, 0x40
 PRG2_MOD = 40                      # NATIF_VERSION_MOD qui a la zone
 POR_P2_MOD = 41                    # 0.41.0 : o retenu aux pas stables (GrabWait), o_brut, moyenne (o_somme / stables)
 OFFPO_O_BRUT = 0x98
-# le Link porté (MOD NATIF SEULEMENT, 0.41.0 ; natif/mod_wwmp/porte.c, client/essai_porte.py, lot P2 de
+# le Link porté (MOD NATIF SEULEMENT, 0.41.0 ; natif/mod_wwmp/porte.c, lot P2 de
 # docs/etudes/porter_coequipier.md) : zone wwmp_prt (magie « WWMPPRT1 », AUCUN bit), 0x100 octets à 0x6E00. CALL 22
 # PRT(vie 1..300, emplacement du fantôme du porteur 0..6, drapeaux | angle relatif << 16), o à +0x40 (3 f32, ±300) :
 # 1 armé, 2 entretenu, 0 libéré ; refus : -1 arguments / robot, -2 pas de partie, -3 événement, -4 o refusé, -5 porteur

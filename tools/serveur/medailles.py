@@ -20,15 +20,11 @@ pendant). Le reste : choix par défaut de l'étude.
 Étapes des donjons [HYPO : noms internes des étapes de la version GC (jeu/game.py KNOWN_STAGES, synchro/boss.py
 BOSS_STAGES), seul M_NewD2 relu en direct] ; numéro = celui de la sauvegarde (``mDan.mStageNo``, progress.py).
 
-**Essai solo** (``essai=True``, serveur ``--essai-medailles``, Réglages › Essais du lanceur ; à retirer après
-validation : tout ce qui sert à l'essai est marqué ESSAI) : deux faux coéquipiers (« Essai Ana », « Essai Bo »)
-entrent dans chaque fenêtre ouverte par un vrai joueur et « font » des actions de donjon à chaque action d'un vrai
-joueur (tirage déterministe), et le donjon 0 « Donjon d'essai » couvre tout ce qui n'est pas un donjon (mer, îles).
-Une fin de donjon se simule (message ``medailles_essai``).
+L'essai solo « bandeau et médailles » (faux coéquipiers, fin de donjon simulée) a été retiré le 2026-11-17 après
+validation en jeu.
 """
 from __future__ import annotations
 
-import random
 import time
 
 VERSION = 1
@@ -46,9 +42,6 @@ DONJONS: dict[int, tuple[str, frozenset[str]]] = {
     8: ("Tour de Ganon", frozenset({"GanonA", "GanonB", "GanonC", "GanonD", "GanonE", "GanonJ", "GanonK", "GanonL",
                                     "GanonM", "GanonN", "GTower", "Xboss0", "Xboss1", "Xboss2", "Xboss3"})),
 }
-ESSAI_DONJON = 0                       # ESSAI : tout ce qui n'est pas un donjon
-ESSAI_NOM = "Donjon d'essai"
-ESSAI_FAUX = ("Essai Ana", "Essai Bo")  # ESSAI : faux coéquipiers
 BOSS_OCTET, BOSS_MASQUE = 0x21, 0x08   # mDungeonItem bit 3 : boss vaincu (jeu/progress.py)
 COUP_FENETRE = 3.0                     # s : dernier coup qui compte pour un monstre vaincu
 FINIS_MAX = 64
@@ -71,7 +64,7 @@ def donjon_de(stage) -> int | None:
 
 
 def nom_donjon(n: int) -> str:
-    return ESSAI_NOM if n == ESSAI_DONJON else DONJONS.get(n, (f"donjon {n}",))[0]
+    return DONJONS.get(n, (f"donjon {n}",))[0]
 
 
 def fins_de_donjon(bits: dict) -> list[int]:
@@ -180,9 +173,8 @@ def lignes_bandeau(res: dict) -> list[tuple[str, int]]:
 class Medailles:
     """État des médailles d'une partie (serveur) : fenêtres en cours, donjons finis, attribution des monstres."""
 
-    def __init__(self, on: bool = True, essai: bool = False, horloge=time.monotonic, graine: int = 0):
+    def __init__(self, on: bool = True, horloge=time.monotonic):
         self.on = bool(on)
-        self.essai = bool(essai)                      # ESSAI
         self.horloge = horloge
         self.en_cours: dict[int, dict[str, dict]] = {}   # donjon -> joueur -> stats
         self.finis: list[dict] = []
@@ -191,19 +183,15 @@ class Medailles:
         self.coups: dict[tuple, tuple] = {}           # (zone, clé) -> (joueur, heure)
         self.vivants: dict[str, set] = {}             # zone -> clés vues vivantes
         self.morts_vus: dict[str, set] = {}           # zone -> clés déjà comptées
-        self.rng = random.Random(graine)              # ESSAI : tirages des faux coéquipiers
         self.rev = 0
 
     # --- fenêtres -------------------------------------------------------------------------------------------------
     def _fini(self, n: int) -> bool:
-        """Donjon déjà fini pour de bon (une fin simulée de l'essai ne ferme rien)."""
-        return any(r["donjon"] == n and not r.get("essai") for r in self.finis)
+        """Donjon déjà fini."""
+        return any(r["donjon"] == n for r in self.finis)
 
     def _donjon(self, stage) -> int | None:
-        n = donjon_de(stage)
-        if n is None and self.essai and isinstance(stage, str) and stage:
-            return ESSAI_DONJON                       # ESSAI : la mer et les îles comptent aussi
-        return n
+        return donjon_de(stage)
 
     def _ouvrir(self, n: int, nom: str) -> dict | None:
         if self._fini(n):
@@ -211,9 +199,6 @@ class Medailles:
         j = self.en_cours.setdefault(n, {})
         if nom not in j and len(j) < JOUEURS_MAX:
             j[nom] = _stats()
-            if self.essai:
-                for f in ESSAI_FAUX:                  # ESSAI : les faux coéquipiers entrent avec lui
-                    j.setdefault(f, _stats())
         return j.get(nom)
 
     def entree(self, nom: str, stage) -> None:
@@ -232,24 +217,6 @@ class Medailles:
             return None
         return self.en_cours[n].get(_nom(nom))
 
-    def _essai_suivre(self, nom: str, cle: str, v: int) -> None:
-        """ESSAI : les faux coéquipiers du même donjon font à peu près la même chose (tirage déterministe)."""
-        if not self.essai or nom in ESSAI_FAUX:
-            return
-        n = self.ou.get(nom)
-        if n is None or n not in self.en_cours:
-            return
-        for f in ESSAI_FAUX:
-            s = self.en_cours[n].get(f)
-            if s is None:
-                continue
-            if cle == "rubis":
-                s["rubis"] += int(round(v * self.rng.uniform(0.2, 1.8)))
-            elif cle == "morts":
-                continue
-            elif self.rng.random() < 0.75:
-                s[cle] += v if cle == "degats" else 1
-
     def _ajouter(self, nom: str, cle: str, v: int) -> bool:
         if not self.on:
             return False
@@ -258,7 +225,6 @@ class Medailles:
             return False
         s[cle] += v
         self.rev += 1
-        self._essai_suivre(_nom(nom), cle, v)
         return True
 
     def rubis(self, nom: str, v: int) -> bool:
@@ -338,41 +304,20 @@ class Medailles:
         return out
 
     # --- fin ------------------------------------------------------------------------------------------------------
-    def fin(self, n: int, essai: bool = False) -> dict | None:
-        """Boss vaincu (ou fin simulée) : classement du donjon ``n`` (None : personne n'y est entré, ou déjà fini)."""
+    def fin(self, n: int) -> dict | None:
+        """Boss vaincu : classement du donjon ``n`` (None : personne n'y est entré, ou déjà fini)."""
         if not self.on or self._fini(n):
             return None
         joueurs = self.en_cours.pop(n, None)
         if not joueurs:
             return None
-        if self.essai:                                # ESSAI : jamais une ligne vide chez les faux coéquipiers
-            for f in ESSAI_FAUX:
-                s = joueurs.get(f)
-                if s is not None and not any(s[k] for k in ("rubis", "monstres", "coffres")):
-                    s["rubis"] += self.rng.randint(5, 60)
-                    s["monstres"] += self.rng.randint(1, 6)
-                    s["degats"] += self.rng.randint(0, 8)
-                    s["coffres"] += self.rng.randint(0, 3)
         med, gagnants = attribuer(joueurs)
         res = {"donjon": n, "nom": nom_donjon(n), "joueurs": joueurs, "medailles": med, "or": gagnants,
                "t": int(time.time())}
-        if essai or n == ESSAI_DONJON:
-            res["essai"] = 1                          # ESSAI : jamais gardé dans le monde, ne ferme rien
-            self.finis = [r for r in self.finis if not (r.get("essai") and r["donjon"] == n)]
         self.finis.append(res)
         del self.finis[:-FINIS_MAX]
         self.rev += 1
         return res
-
-    def fin_essai(self, nom: str) -> dict | None:
-        """ESSAI : la fin du donjon où est ce joueur, simulée (mer et îles : « Donjon d'essai »)."""
-        if not self.essai:
-            return None
-        n = self.ou.get(_nom(nom))
-        if n is None:
-            n = ESSAI_DONJON
-        self._ouvrir(n, _nom(nom))
-        return self.fin(n, essai=True)
 
     # --- vue et monde persistant ----------------------------------------------------------------------------------
     def totaux(self) -> dict[str, dict]:
@@ -386,16 +331,15 @@ class Medailles:
 
     def vue(self) -> dict:
         """Ce que montre le trackeur (onglet Médailles) : seulement les donjons FINIS (classement à la fin)."""
-        return {"v": VERSION, "rev": self.rev, "essai": 1 if self.essai else 0,
-                "finis": [{k: r[k] for k in ("donjon", "nom", "joueurs", "medailles", "or", "t")}
-                          | ({"essai": 1} if r.get("essai") else {}) for r in self.finis],
+        return {"v": VERSION, "rev": self.rev,
+                "finis": [{k: r[k] for k in ("donjon", "nom", "joueurs", "medailles", "or", "t")} for r in self.finis],
                 "totaux": self.totaux(), "en_cours": sorted(self.en_cours)}
 
     def exporter(self) -> dict:
-        """Section « medailles » du monde persistant (donjons finis et fenêtres en cours ; jamais l'essai)."""
+        """Section « medailles » du monde persistant (donjons finis et fenêtres en cours)."""
         return {"v": VERSION,
-                "finis": [r for r in self.finis if not r.get("essai")],
-                "en_cours": {str(n): j for n, j in self.en_cours.items() if n != ESSAI_DONJON}}
+                "finis": list(self.finis),
+                "en_cours": {str(n): j for n, j in self.en_cours.items()}}
 
     def restaurer(self, doc) -> int:
         """Relit la section du monde (entrées abîmées ignorées) ; rend le nombre d'entrées ignorées."""

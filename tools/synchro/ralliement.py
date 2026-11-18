@@ -11,9 +11,7 @@ FEAT = "ralliement"         # hello : ce PC sait être appelé (CALL 15 PLACER /
 DELAI = 300.0               # s entre deux chants acceptés d'un même joueur (5 min)
 REFUS = 10.0                # s : un appelé peut refuser pendant ce temps
 RAYON = 200.0               # u : cercle d'arrivée autour de l'appelant (2 m)
-ESSAI_DELAI = 15.0          # ESSAI : délai entre deux chants (et deux appels du faux coéquipier)
-ID_ESSAI = 95               # ESSAI : faux coéquipier (pas ceux des essais porter 98, être porté 97, coups 96)
-NOM_ESSAI = "Essai Rallié"
+# (l'essai solo « Essai Rallié », ID 95, délai de 15 s, a été retiré le 2026-11-17 après validation en jeu)
 
 
 def _num(v) -> bool:

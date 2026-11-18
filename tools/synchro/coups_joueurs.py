@@ -25,12 +25,8 @@ Chemin d'un coup (aucun C : le mod natif 0.33.0 et suivants suffisent, CALL 9 ``
    ``-0`` à la vie en attente (doublé en mode Héros : toujours 0). Preuve : tests/test_coups_joueurs_rpx.py (les vraies
    fonctions du cking.rpx exécutées sous CpuEtendu). Sans le mod natif (Cemu) : RIEN (on n'écrit jamais la vie).
 
-Essai solo (ESSAI, Réglages › Essais › « Essai : coups entre joueurs », client et serveur ``--essai-coups`` ; à
-retirer après validation) : un faux coéquipier (``ID_ESSAI``, « Essai Cogneur ») se tient devant Link, sur ce PC
-seulement. (1) Le frapper à l'épée envoie un ``pvp {to: ID_ESSAI, essai: 1}`` que le serveur d'essai juge comme un
-vrai (salle, cinématique, intouchable, distance, cadence) et accepte (``coup_rep`` + journal) ; (2) toutes les
-``ESSAI_PERIODE`` s, Link assez près, le faux coéquipier « frappe » Link : ``pvp {to: moi, essai: 1, de: [x, y, z]}``,
-renvoyé par le serveur d'essai en ``coup_joueur {from: ID_ESSAI}``, appliqué comme un vrai coup (recul, invincibilité).
+L'essai solo (faux coéquipier « Essai Cogneur », client et serveur ``--essai-coups``) a été retiré le 2026-11-17
+après validation en jeu.
 """
 from __future__ import annotations
 
@@ -48,15 +44,6 @@ ESQUIVE = 450.0             # u : Link de la victime plus loin de l'attaquant ->
 CENTRE_Y = 60.0             # u : centre du corps au-dessus des pieds (comme potion.CENTRE_Y)
 ATP = 0                     # recul seul : AUCUN dégât (Q7.1)
 AT_EPEE, SE_EPEE, MARQUE_EPEE = 0x2, 1, 0xD     # AT de la lame de Link (COMBAT §1.2, comme potion.py)
-# ESSAI : faux coéquipier (ce PC seulement), qui frappe Link toutes les ESSAI_PERIODE s quand il est assez près
-ESSAI_SANS_REPONSE = 3      # coups d'essai sans réponse avant de dire pourquoi (serveur sans essai)
-ID_ESSAI = 96               # pas ceux des essais « porter » (98) et « être porté » (97)
-NOM_ESSAI = "Essai Cogneur"
-ESSAI_DISTANCE = 110.0      # u devant Link, reposé à chaque changement de salle
-ESSAI_PERIODE = 6.0
-ESSAI_RECUL = 70.0          # u : le faux coéquipier frappé recule (visible), puis revient à sa place
-ESSAI_RECUL_DUREE = 0.8    # s : aller et retour du recul
-ESSAI_PORTEE = 250.0        # u : Link plus loin du faux coéquipier : il ne frappe pas
 
 
 def _num(v) -> bool:
@@ -80,13 +67,12 @@ def _id(v) -> bool:
 class CoupsServeur:
     """``joueur(pid)`` des appels : dict {joueur, zone, busy, nc, pos, t, feat} (ou None : inconnu)."""
 
-    def __init__(self, on: bool = False, essai: bool = False):
+    def __init__(self, on: bool = False):
         self.on = bool(on)
         self.vu = self.on                        # allumés une fois dans ce processus : « regles » les annonce
-        self.essai = bool(essai)                 # ESSAI : coups vers / depuis le faux coéquipier acceptés
         self.paires: dict[tuple[int, int], list[float]] = {}
         self.touche_t: dict[int, float] = {}     # victime -> heure du dernier coup relayé (invincibilité)
-        self.n_acceptes = self.n_refus = self.n_essai = 0
+        self.n_acceptes = self.n_refus = 0
         self.seq = 0
 
     def oublier(self, pid: int) -> None:
@@ -121,7 +107,7 @@ class CoupsServeur:
     def pvp(self, src: int, msg: dict, joueur, now: float, hanteurs: bool = False,
             robot_essai: bool = False) -> tuple[str, int | None, dict | None]:
         """``pvp`` de ``src`` hors mode Hanteurs. Renvoie (raison du refus ou "", destinataire, message) : message
-        ``coup_joueur`` pour la victime, ou ``coup_rep`` (essai : le faux coéquipier touché) pour l'attaquant."""
+        ``coup_joueur`` pour la victime."""
         r, dest, out = self._pvp(src, msg, joueur, now, hanteurs, robot_essai)
         if r:
             self.n_refus += 1
@@ -134,8 +120,7 @@ class CoupsServeur:
             return "mode Hanteurs (son PvP reste le sien)", None, None
         if robot_essai:
             return "jamais avec le robot d'essai", None, None
-        essai = self.essai and msg.get("essai") in (1, True)
-        if not self.on and not essai:
+        if not self.on:
             return "règle de la partie coupée", None, None
         to, zone = msg.get("to"), msg.get("zone")
         if not _id(to) or not isinstance(zone, str) or not zone or len(zone) > 64:
@@ -144,33 +129,6 @@ class CoupsServeur:
         r = self._libre(es, zone, now)
         if r:
             return "attaquant " + r, None, None
-        if essai and to == ID_ESSAI:                     # ESSAI (1) : notre Link frappe le faux coéquipier
-            de = _pos3(msg.get("de"))
-            if de is not None and math.dist(de, es["pos"]) > DIST:
-                return "trop loin du faux coéquipier", None, None
-            r = self._cadence(src, to, now)
-            if r:
-                return r, None, None
-            self.n_essai += 1
-            return "", src, {"type": "coup_rep", "ok": 1, "to": ID_ESSAI, "zone": zone, "essai": 1}
-        if essai and to == src:                          # ESSAI (2) : le faux coéquipier frappe notre Link
-            de = _pos3(msg.get("de"))
-            if de is None or math.dist(de, es["pos"]) > DIST:
-                return "faux coéquipier trop loin", None, None
-            if FEAT not in (es.get("feat") or ()):
-                return "victime sans « coups » (client ancien)", None, None
-            if now - self.touche_t.get(src, float("-inf")) < INVULN:
-                return "victime invincible (coup de moins d'une seconde)", None, None
-            r = self._cadence(ID_ESSAI, src, now)
-            if r:
-                return r, None, None
-            self.touche_t[src] = now
-            self.seq += 1
-            self.n_essai += 1
-            return "", src, {"type": "coup_joueur", "from": ID_ESSAI, "zone": zone,
-                             "pos": [round(v, 1) for v in de], "seq": self.seq, "essai": 1}
-        if not self.on:
-            return "règle de la partie coupée", None, None
         if to == src:
             return "cible invalide", None, None
         ev = joueur(to)
@@ -192,30 +150,18 @@ class CoupsServeur:
                         "pos": [round(float(v), 1) for v in es["pos"]], "seq": self.seq}
 
     def vue(self) -> dict:
-        return {"on": self.on, "essai": self.essai, "acceptes": self.n_acceptes, "refus": self.n_refus}
+        return {"on": self.on, "acceptes": self.n_acceptes, "refus": self.n_refus}
 
 
 # =========================================================================================================
-# Client : cibles de la lame, coups envoyés, coups reçus (victime), faux coéquipier d'essai.
+# Client : cibles de la lame, coups envoyés, coups reçus (victime).
 # =========================================================================================================
-def ancre_essai(state: dict, distance: float = ESSAI_DISTANCE) -> dict:
-    """Place du faux coéquipier : ``distance`` devant Link (angle y du jeu : 0 = +Z, 0x4000 = +X), tourné vers lui."""
-    x, y, z = (float(v) for v in state["pos"][:3])
-    rot = int(state.get("rotY") or 0) & 0xFFFF
-    a = rot * math.pi / 32768.0
-    face = (rot + 0x8000) & 0xFFFF
-    return {"cle": (state.get("stage"), state.get("room")),
-            "pos": [round(x + distance * math.sin(a), 2), round(y, 2), round(z + distance * math.cos(a), 2)],
-            "rotY": face - 0x10000 if face >= 0x8000 else face}
-
-
 class CoupsClient:
     """Côté client. ``accepte`` : ce PC joue la règle (pas le robot, pas --no-coups-joueurs) ; ``on`` : règle du
-    serveur (welcome / regles) ; ``essai`` : ESSAI, faux coéquipier sur ce PC."""
+    serveur (welcome / regles)."""
 
-    def __init__(self, accepte: bool = True, essai: bool = False, clock=time.monotonic):
+    def __init__(self, accepte: bool = True, clock=time.monotonic):
         self.accepte = bool(accepte)
-        self.essai = bool(essai) and self.accepte
         self.on = False
         self.clock = clock
         self._lock = threading.Lock()
@@ -224,12 +170,7 @@ class CoupsClient:
         self.vus: list[int] = []
         self.dernier = float("-inf")        # dernier coup appliqué chez nous (invincibilité)
         self.notes: list[str] = []
-        self.place: dict | None = None      # ESSAI : {"cle", "pos", "rotY"}
-        self.essai_t = None                 # ESSAI : heure du dernier coup du faux coéquipier
-        self.recul_t = None                 # ESSAI : heure du dernier coup accepté sur lui (recul visible)
-        self.link_xz = None                 # ESSAI : dernière position de Link (sens du recul)
-        self.n_envoyes = self.n_recus = self.n_appliques = self.n_refuses = self.n_acceptes_essai = 0
-        self.n_essai_envoyes = 0             # ESSAI : coups sur le faux coéquipier (sans réponse : serveur sans essai)
+        self.n_envoyes = self.n_recus = self.n_appliques = self.n_refuses = 0
         self.refus_vus: set = set()
 
     # -- règle de la partie ------------------------------------------------------------------------------------------
@@ -243,7 +184,7 @@ class CoupsClient:
             self.on = on
 
     def actif(self) -> bool:
-        return self.accepte and (self.on or self.essai)
+        return self.accepte and self.on
 
     def _note(self, s: str) -> None:
         if len(self.notes) < 16:
@@ -258,73 +199,14 @@ class CoupsClient:
             out, self.sortie = self.sortie, []
         return out
 
-    # -- ESSAI : le faux coéquipier --------------------------------------------------------------------------------
-    def injecter(self, others: dict, local: dict | None, now_wall: float) -> dict:
-        """``others`` plus le faux coéquipier (nouveau dict). Rien sans l'essai ni partie chargée."""
-        if not self.essai or not local:
-            return others
-        st = local.get("state") or {}
-        if st.get("stage") is None or not st.get("pos"):
-            return others
-        cle = (st.get("stage"), st.get("room"))
-        if self.place is None or self.place["cle"] != cle:
-            self.place = ancre_essai(st)
-            x, y, z = self.place["pos"]
-            self._note(f"ESSAI : faux coéquipier « {NOM_ESSAI} » posé devant Link ({x:.0f}, {y:.0f}, {z:.0f}) ; "
-                       f"frappe-le à l'épée (Console : « coup accepté ») ; toutes les {ESSAI_PERIODE:.0f} s il te "
-                       f"frappe (recul, 1 s d'invincibilité, aucun dégât)")
-        self.link_xz = (float(st["pos"][0]), float(st["pos"][2]))
-        out = dict(others)
-        out[ID_ESSAI] = {"stage": st.get("stage"), "room": st.get("room"), "pos": self.pos_essai(),
-                         "rotY": self.place["rotY"], "_t": now_wall, "essai": True}
-        return out
-
-    def pos_essai(self) -> list:
-        """Place du faux coéquipier, reculée après un coup accepté (rapport du 2026-11-17 : le coup partait bien mais
-        rien ne se voyait) : jusqu'à ESSAI_RECUL u à l'opposé de Link, aller puis retour en ESSAI_RECUL_DUREE s."""
-        pos = list(self.place["pos"])
-        if self.recul_t is None or self.link_xz is None:
-            return pos
-        t = (self.clock() - self.recul_t) / ESSAI_RECUL_DUREE
-        if not 0.0 <= t < 1.0:
-            return pos
-        dx, dz = pos[0] - self.link_xz[0], pos[2] - self.link_xz[1]
-        d = math.hypot(dx, dz)
-        if d < 1e-3:
-            return pos
-        k = ESSAI_RECUL * math.sin(math.pi * t) / d
-        return [round(pos[0] + dx * k, 2), pos[1], round(pos[2] + dz * k, 2)]
-
-    def essai_frappe(self, now: float, zone, libre: bool, nc: bool, link_pos, me) -> bool:
-        """ESSAI (2) : toutes les ESSAI_PERIODE s, Link libre et à moins de ESSAI_PORTEE u, le faux coéquipier frappe
-        Link : ``pvp`` vers soi (le serveur d'essai le renvoie en ``coup_joueur``)."""
-        if not self.essai or self.place is None or zone is None or not libre or nc or not _id(me):
-            return False
-        lp = _pos3(link_pos)
-        if lp is None or math.dist(lp, tuple(self.place["pos"])) > ESSAI_PORTEE:
-            return False
-        if self.essai_t is not None and now - self.essai_t < ESSAI_PERIODE:
-            return False
-        if self.essai_t is None:
-            self.essai_t = now                 # premier passage : il attend une période avant de frapper
-            return False
-        self.essai_t = now
-        with self._lock:
-            self.sortie.append({"type": "pvp", "to": int(me), "zone": zone, "essai": 1,
-                                "de": [round(float(v), 1) for v in self.place["pos"]]})
-        return True
-
     # -- attaquant ---------------------------------------------------------------------------------------------------
     def cibles(self, others: dict, zone, libre: bool, nc: bool, t_now: float, y_off: float = 0.0) -> dict:
-        """Fantômes visés par la lame : coéquipiers de la même salle (règle allumée), libres, state frais ; le faux
-        coéquipier d'essai. Rien si nous ne sommes pas libres (cinématique, menu, porté, porteur)."""
+        """Fantômes visés par la lame : coéquipiers de la même salle (règle allumée), libres, state frais. Rien si nous
+        ne sommes pas libres (cinématique, menu, porté, porteur)."""
         if not self.actif() or zone is None or not libre or nc:
             return {}
         out = {}
         for j, o in dict(others).items():
-            essai = j == ID_ESSAI and self.essai and o.get("essai")
-            if not essai and not self.on:
-                continue
             if zone_de(o) != zone or o.get("busy") in (1, True) or o.get("nc") in (1, True) \
                     or t_now - o.get("_t", 0) > 1.0:
                 continue
@@ -340,30 +222,11 @@ class CoupsClient:
             if not _id(j) or zone is None or j == me:
                 continue
             m = {"type": "pvp", "to": int(j), "zone": zone}
-            if j == ID_ESSAI:
-                if not self.essai or self.place is None:
-                    continue
-                m.update(essai=1, de=[round(float(v), 1) for v in self.place["pos"]])
-                self._note(f"ESSAI : coup d'épée sur « {NOM_ESSAI} » envoyé au serveur")
-                self.n_essai_envoyes += 1
-                if self.n_essai_envoyes == ESSAI_SANS_REPONSE and not self.n_acceptes_essai:
-                    # rapport du 2026-11-17 : client d'essai branché sur le serveur dédié (Docker), qui ne fait
-                    # pas tourner l'essai : les coups partaient sans réponse et sans explication
-                    self._note(f"ESSAI : le serveur n'a répondu à aucun des {ESSAI_SANS_REPONSE} coups : l'essai "
-                               "ne marche qu'avec Jouer › Héberger sur ce PC, sans le mode Hanteurs (un serveur "
-                               "dédié ou Docker ne fait pas tourner les essais)")
             with self._lock:
                 self.sortie.append(m)
             self.n_envoyes += 1
             n += 1
         return n
-
-    def reponse(self, msg: dict) -> None:
-        """``coup_rep`` du serveur (essai : faux coéquipier touché, accepté)."""
-        if msg.get("ok") in (1, True) and msg.get("to") == ID_ESSAI:
-            self.n_acceptes_essai += 1
-            self.recul_t = self.clock()          # recul visible du faux coéquipier (pos_essai)
-            self._note(f"ESSAI : coup accepté par le serveur ({self.n_acceptes_essai})")
 
     # -- victime -----------------------------------------------------------------------------------------------------
     def receive(self, msg: dict) -> bool:
@@ -372,9 +235,7 @@ class CoupsClient:
         frm, zone, pos, seq = msg.get("from"), msg.get("zone"), _pos3(msg.get("pos")), msg.get("seq")
         if not (_id(frm) and isinstance(zone, str) and pos is not None):
             return False
-        if frm == ID_ESSAI and not self.essai:
-            return False
-        if not self.on and not (self.essai and frm == ID_ESSAI):
+        if not self.on:
             return False
         with self._lock:
             if _id(seq) and seq in self.vus:
@@ -393,7 +254,7 @@ class CoupsClient:
         n = 0
         noms = noms or {}
         for t, c in box:
-            qui = NOM_ESSAI if c["from"] == ID_ESSAI else noms.get(c["from"], "?")
+            qui = noms.get(c["from"], "?")
             if now - t > FRESH or c["zone"] != zone or not libre or nc:
                 self.n_refuses += 1
                 continue
@@ -432,12 +293,11 @@ class CoupsClient:
 
     def status(self) -> str:
         return (f"coups entre joueurs : {self.n_envoyes} envoyé(s), {self.n_recus} reçu(s), {self.n_appliques} "
-                f"appliqué(s)" + (f", essai : {self.n_acceptes_essai} accepté(s)" if self.essai else ""))
+                f"appliqué(s)")
 
     def vue(self) -> dict:
-        return {"on": self.on, "essai": self.essai, "envoyes": self.n_envoyes, "recus": self.n_recus,
-                "appliques": self.n_appliques, "refuses": self.n_refuses, "acceptes_essai": self.n_acceptes_essai,
-                "place": self.place["pos"] if self.place else None}
+        return {"on": self.on, "envoyes": self.n_envoyes, "recus": self.n_recus,
+                "appliques": self.n_appliques, "refuses": self.n_refuses}
 
 
 def zone_de(o: dict) -> str | None:
