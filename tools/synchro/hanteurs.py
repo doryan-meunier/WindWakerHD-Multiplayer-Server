@@ -338,6 +338,10 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         self.sortie: list[tuple] = []
         self.changes: list[int] = []               # joueurs dont le rôle a changé (le serveur réattribue)
         self.anciens: set[int] = set()             # joueurs qui ont été Hanteurs : inscriptions filtrées
+        # id -> zone où se trouvait son jeu quand il était Hanteur (marquée à chaque state de Hanteur, gardée quand il
+        # redevient Link, oubliée dès qu'il change de zone) : son jeu n'y a peut-être plus les monstres des Link, sa
+        # liste d'ennemis n'y est jamais relayée « full » (``liste_douteuse`` ; banc d'essai du 2026-11-18)
+        self.doute: dict[int, str] = {}
         self.n_invoques = self.n_refus = self.n_ignores = self.n_echanges = 0
         # échange « comme dans Crawl » : immunité après un échange (id -> fin), échanges qui attendent que le tueur
         # sorte d'un chargement ou d'une cinématique (victime -> {tueur, t, fin, pos, zone, raison})
@@ -402,6 +406,9 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
             self.points[pid] = 0.0          # sa mise repart de zéro quand il redeviendra Hanteur
             if ancien == ROLE_HANTEUR:
                 self.quarantaine[pid] = now + QUARANTAINE
+                z = self.etat.get(pid, {}).get("zone")
+                if isinstance(z, str):
+                    self.doute[pid] = z             # sa salle de Hanteur : liste_douteuse
             for inv in self.invoques.values():
                 if inv["owner"] == pid:
                     inv["owner"] = None     # ses monstres restent, sans propriétaire
@@ -430,7 +437,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
             self.enf_fin_joueur(pid, "départ", now)
             for d in (self.roles, self.depuis_role, self.quarantaine, self.etat, self.vie, self.dernier_degat,
                       self.coups, self.summon_t, self.poss_t, self.manif_t, self.exo_t, self.resist_t,
-                      self.potion_t, self.vie_ignore, self.immunite, self.v_ganon, self.apparitions):
+                      self.potion_t, self.vie_ignore, self.immunite, self.v_ganon, self.apparitions, self.doute):
                 d.pop(pid, None)
             # échange en attente : le tué ou le tueur est parti, il n'aura pas lieu (le nombre de Link ne bouge pas)
             for victime, a in list(self.echanges_attente.items()):
@@ -475,6 +482,14 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         self._au_moins_un_link(now)
         self.t_diffusion = float("-inf")
 
+    def liste_douteuse(self, pid, zone) -> bool:
+        """Vrai : la liste d'ennemis de ``pid`` (autorité de ``zone``) ne doit pas être relayée « full » : son jeu a
+        chargé cette salle quand il était Hanteur (le jeu d'un Hanteur n'est pas le monde des Link : il a pu y
+        supprimer des monstres sur la foi d'une liste fausse) et il n'en est pas sorti depuis. Relayée « full », une
+        liste vide ferait supprimer leurs vrais monstres aux autres joueurs (redevenu Link : plus aucun Link, échange
+        de Crawl, « Rotation maintenant », fin de manche, reconnexion)."""
+        return isinstance(zone, str) and self.doute.get(pid) == zone
+
     def ancien_hanteur(self, pid) -> bool:
         """Vrai : ce joueur a été Hanteur (ses inscriptions passent par ``filtre_inscription``)."""
         return pid in self.anciens
@@ -488,7 +503,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         self.potion_fin_joueur(ancien, "reconnexion", self.clock())   # potion : le clone ou le possédé est parti
         self.enf_heriter(nouveau, ancien)          # enfermement : son Hanteur ou ses Link suivent la reconnexion
         self.roles[nouveau] = self.roles[ancien]
-        for d in (self.points, self.depuis_role, self.quarantaine, self.v_scores, self.immunite):
+        for d in (self.points, self.depuis_role, self.quarantaine, self.v_scores, self.immunite, self.doute):
             if ancien in d:
                 d[nouveau] = d[ancien]
         self.apparitions.pop(ancien, None)         # reconnecté = rechargé : pas de fumée d'apparition en retard
@@ -560,6 +575,11 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         e.update(zone=zone, busy=bool(busy), stage=msg.get("stage") if isinstance(msg.get("stage"), str) else None,
                  room=msg.get("room") if isinstance(msg.get("room"), int) else None, t=now,
                  ship=bool(msg.get("ship")))
+        if isinstance(zone, str):
+            if self.roles.get(pid) == ROLE_HANTEUR:
+                self.doute[pid] = zone              # voir liste_douteuse
+            elif self.doute.get(pid) not in (None, zone):
+                del self.doute[pid]                 # Link entré dans une autre zone : salle chargée en Link
         if pos is not None:
             e["pos"] = pos
             # dernier sol sûr (échange Crawl) : là où il se tenait en vie, hors cinématique et hors bateau, sa
@@ -1898,7 +1918,7 @@ class HanteurSync:
         self.a_montrer = False              # NO_DRAW posé par nous : à effacer quand on redevient Link
         self.jeu_attente: tuple[dict, float] | None = None   # redevenu Link : vie et position, jeu libre
         self.derniere_note = ""
-        self.cmd_n = 0                      # dernière commande du lanceur exécutée
+        self.cmd_n: int | None = None       # dernière commande du lanceur exécutée (None : fichier pas encore lu)
         self.a_ete_hanteur = False          # a été Hanteur : inscriptions sans l'état de son jeu
         # phase 1 (possession par laisse, synchro/laisse.py)
         self.manifeste = False              # manifesté : marche libre (pas de suivi continu), peut posséder

@@ -3039,8 +3039,10 @@ class Server:
             lst = msg.get("list", [])
             out = {"type": "enemies", "from": p.id, "zone": zone, "epoch": epoch,
                    "list": lst if isinstance(lst, list) else []}
-            if msg.get("full") in (1, True) and isinstance(lst, list):
-                out["full"] = 1    # liste complète : les autres peuvent supprimer leurs ennemis orphelins
+            if msg.get("full") in (1, True) and isinstance(lst, list)                     and not (self.hanteurs is not None and self.hanteurs.liste_douteuse(p.id, zone)):
+                # liste complète : les autres peuvent supprimer leurs ennemis orphelins. Jamais celle d'un ancien
+                # Hanteur dans la salle que son jeu a chargée en Hanteur (synchro/hanteurs.Partie.liste_douteuse)
+                out["full"] = 1
             out.update(horodatage(msg))   # lot L2 de la latence : image, heure, aller-retour (optionnels)
             self.last_enemies[zone] = (time.monotonic(), out)
             if self.pref.actif or self.robot.actif:
