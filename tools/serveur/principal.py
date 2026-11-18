@@ -345,6 +345,8 @@ from serveur import robot as robot_mod  # noqa: E402  (joueur robot : docs/etude
 from serveur import maj as maj_serveur  # noqa: E402
 from serveur import medailles as med_mod  # noqa: E402  (médailles de fin de donjon : docs/etudes/autres_zelda.md §2)
 from serveur import ralliement as ral_mod  # noqa: E402  (chant de ralliement : docs/etudes/autres_zelda.md §7)
+from serveur import porter as por_mod  # noqa: E402  (porter un coéquipier, lot P3 : docs/etudes/porter_coequipier.md)
+from commun import porter as por_commun  # noqa: E402
 from serveur import courses as crs_mod  # noqa: E402  (courses en bateau : docs/etudes/autres_zelda.md §3)
 from serveur import bonheur as bon_mod  # noqa: E402  (Fragments du Bonheur : docs/etudes/autres_zelda.md §4)
 from serveur import tenues as ten_mod  # noqa: E402  (tenues à pouvoir : docs/etudes/autres_zelda.md §6)
@@ -438,6 +440,7 @@ class Player:
         self.group: str | None = None     # étape 8 : groupe de progression
         self.busy = False                 # A11 : en cinématique (champ optionnel « busy » de state)
         self.nc = False                   # coups entre joueurs : intouchable (champ « nc » de state : menu, porté, porteur)
+        self.prtbl = False                # porter un coéquipier : ce Link peut être porté (champ « prtbl » de state)
         self.tsw_group: str | None = None  # A7 : groupe des switches temporaires (None = pas inscrit)
         self.pos: list | None = None      # A3 : dernière position de Link (state), pour lâcher son bâton
         self.carried: list = []           # A3 : bâtons tenus pendant un passage sans zone
@@ -538,7 +541,7 @@ class Server:
                  robot_repos: float = robot_mod.REPOS_ARRET, robot_journal: str | None = None,
                  vie_partagee: bool = False, robot_latence: int = 0, medailles: bool = True,
                  coups_joueurs: bool = False,
-                 ralliement: bool = True, courses: bool = True,
+                 ralliement: bool = True, courses: bool = True, porter: bool = True,
                  bonheur: bool = True, essai_bonheur: bool = False,
                  bonheur_quarts_donjon: int = bon_mod.QUARTS_DONJON,
                  bonheur_quarts_partie: int = bon_mod.QUARTS_PARTIE, tenues: bool = True,
@@ -603,6 +606,10 @@ class Server:
         if ralliement and mode_hanteurs:
             log("chant de ralliement : coupé avec le mode Hanteurs")
         self.ralliement = ral_mod.RalliementServeur(on=ralliement and not mode_hanteurs)
+        # porter un coéquipier (lot P3, serveur/porter.py) : règle de la PARTIE, ALLUMÉE par défaut (--no-porter),
+        # jamais en mode Hanteurs ; arbitrage de la prise et relais seulement
+        self.porter = por_mod.PorterServeur(on=porter and not mode_hanteurs)
+        self._porter_t = 0.0
         # coups entre joueurs (synchro/coups_joueurs.py) : règle de la PARTIE, coupée par défaut, jamais en mode
         # Hanteurs (son PvP reste le sien) ; recul seul (aucun dégât). Essai solo retiré le 2026-11-17 (validé en jeu)
         if coups_joueurs and mode_hanteurs:
@@ -2485,6 +2492,7 @@ class Server:
                 self.bonheur_envoyer(self.bonheur.tick(self.bonheur_joueur))   # Fragments : délais, ESSAI accepte
             self.tenues_tick()                   # tenues à pouvoir : partage des duos (au plus 5 fois par seconde)
             self.fusions_tick()                  # fusions (partie B) : débuts et fins (au plus 5 fois par seconde)
+            self.porter_tick()                   # porter un coéquipier : départs, salles (au plus 5 fois par seconde)
             self.releve_tick()                   # relever un coéquipier : délais, releveurs proches (5 fois par s)
             self.camouflage_tick()               # camouflage de la tenue jaune : entrées de zone, fins (5 fois par s)
 
@@ -2921,6 +2929,7 @@ class Server:
                     "vie_partagee": int(self.vies.on),    # vie partagée : règle de la partie (absent = non)
                     "coups_joueurs": int(self.coups.on),  # coups entre joueurs : règle de la partie (absent = non)
                     "ralliement": int(self.ralliement.on),  # chant de ralliement : règle de la partie (absent = non)
+                    "porter": int(self.porter.on),        # porter un coéquipier : règle de la partie (absent = non)
                     "bonheur": int(self.bonheur.on),      # Fragments du Bonheur : règle de la partie (absent = non)
                     "bonheur_poche": self.bonheur.poche(p.name),   # Fragments du Bonheur : ses moitiés (monde)
                     "tenues": int(self.tenues.on),        # tenues à pouvoir : règle de la partie (absent = non)
@@ -2975,6 +2984,7 @@ class Server:
                 p.busy = busy
                 log(f"{p.name} : {'en cinématique' if busy else 'fin de cinématique'}")
             p.nc = msg.get("nc") in (1, True)    # coups entre joueurs : menu, porté ou porteur chez lui
+            p.prtbl = msg.get("prtbl") in (1, True)   # porter : ce Link peut être porté maintenant
             t_state = time.monotonic()
             if p.state_t is None or t_state - p.state_t > autorite.PREF_SILENCE:
                 p.frais_depuis = t_state     # S1 : il répond de nouveau (ou pour la première fois)
@@ -3170,6 +3180,8 @@ class Server:
             self.handle_course(p, msg)           # courses en bateau : passages, faux départ, disqualification…
         elif t == "ralliement":
             self.handle_ralliement(p, msg)       # chant de ralliement : un joueur appelle l'équipe
+        elif t == "porter":
+            self.handle_porter(p, msg)           # porter un coéquipier : prise, o, fin, descente
         elif t == "bonheur":
             self.handle_bonheur(p, msg)          # Fragments du Bonheur : assembler, annuler (menu), ESSAI
         elif t == "tenue":
@@ -3269,7 +3281,8 @@ class Server:
         lst.sort(key=lambda d: (not d["hote"], d["id"]))
         out = {"type": "lobby", "players": lst, "outils": CLIENT_VERSION, "version": VERSION,
                "deathlink": self.morts.on, "vie_partagee": self.vies.on, "coups_joueurs": self.coups.on,
-               "ralliement": self.ralliement.on, "bonheur": self.bonheur.on, "tenues": self.tenues.on,
+               "ralliement": self.ralliement.on, "porter": self.porter.on, "bonheur": self.bonheur.on,
+               "tenues": self.tenues.on,
                "releve": self.releve.on, "difficulte": self.dif_vue(), "difficulte_on": self.difficulte_on,
                "rando": self.rando_lobby()}
         if self.bonheur.actif() or self.bonheur.poches:
@@ -3893,6 +3906,42 @@ class Server:
         return {"nom": o.name, "joueur": o.joueur and not self.robot_est(o), "zone": o.zone, "busy": o.busy,
                 "nc": o.nc, "pos": o.pos, "t": o.state_t, "feat": o.feat, "role": None, "possede": False}
 
+    # --- porter un coéquipier, lot P3 (serveur/porter.py, docs/etudes/porter_coequipier.md §5) -------------------------
+    def porter_joueur(self, pid) -> dict | None:
+        """Ce que le port de coéquipier sait d'un joueur."""
+        o = self.players.get(pid) if isinstance(pid, int) and not isinstance(pid, bool) else None
+        if o is None:
+            return None
+        h = self.hanteurs
+        return {"nom": o.name, "joueur": bool(o.joueur), "robot": self.robot_est(o),
+                "hanteur": bool(h is not None and h.est_hanteur(o.id)), "zone": o.zone, "busy": bool(o.busy),
+                "prtbl": bool(getattr(o, "prtbl", False)), "pos": o.pos, "t": o.state_t, "feat": o.feat}
+
+    def porter_envoyer(self, envois) -> None:
+        for pid, m in envois:
+            o = self.players.get(pid)
+            if o is not None and por_commun.FEAT in o.feat:
+                o.send(m)
+        for ligne in self.porter.journal:
+            log(ligne)
+        self.porter.journal.clear()
+
+    def porter_tick(self, force: bool = False) -> None:
+        now = time.monotonic()
+        if not force and now - self._porter_t < 0.2:
+            return
+        self._porter_t = now
+        self.porter.hanteurs = self.hanteurs is not None
+        if self.porter.ports:
+            self.porter_envoyer(self.porter.tick(self.porter_joueur, now))
+
+    def handle_porter(self, p: Player, msg: dict) -> None:
+        """« porter » d'un client : prise (porteur), o, fin (porteur), descend (porté)."""
+        if not p.joueur or self.robot_est(p):
+            return
+        self.porter.hanteurs = self.hanteurs is not None
+        self.porter_envoyer(self.porter.message(p.id, msg, self.porter_joueur))
+
     def handle_ralliement(self, p: Player, msg: dict) -> None:
         """« ralliement » : le morceau 6 de la Baguette joué (mod natif 0.45.0). Accepté : « ralliement_appel » à chaque
         appelé (déplacé par son client après 10 s sans refus) et « ralliement_rep » à l'appelant ; sinon la raison."""
@@ -4382,6 +4431,18 @@ class Server:
                 self.ralliement.vu = True
                 log(f"chant de ralliement {'activé' if on else 'désactivé'} par l'hôte")
                 self.broadcast(self.regles_msg())
+        if "porter" in msg:
+            on = msg.get("porter") in (1, True)
+            if on and self.hanteurs is not None:
+                p.send({"type": "regles_rep", "ok": 0, **self.regles_rep(),
+                        "msg": "port de coéquipier impossible avec le mode Hanteurs"})
+                return
+            if on != self.porter.on:
+                self.porter.on = on
+                self.porter.vu = True
+                log(f"porter un coéquipier {'activé' if on else 'désactivé'} par l'hôte")
+                self.broadcast(self.regles_msg())
+                self.porter_tick(force=True)
         if "releve" in msg:
             on = msg.get("releve") in (1, True)
             if on != self.releve.on:
@@ -4454,7 +4515,7 @@ class Server:
     def regles_rep(self) -> dict:
         return {"deathlink": int(self.morts.on), "vie_partagee": int(self.vies.on),
                 "coups_joueurs": int(self.coups.on), "ralliement": int(self.ralliement.on),
-                "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "releve": int(self.releve.on),
+                "porter": int(self.porter.on), "bonheur": int(self.bonheur.on), "tenues": int(self.tenues.on), "releve": int(self.releve.on),
                 "camouflage": int(self.camouflage.on), "difficulte": self.dif_vue()}
 
     def regles_msg(self, difficulte: bool = False) -> dict:
@@ -4465,6 +4526,8 @@ class Server:
             m["vie_partagee"] = int(self.vies.on)
         if self.ralliement.vu:
             m["ralliement"] = int(self.ralliement.on)  # chant de ralliement, dès qu'il a changé une fois (welcome sinon)
+        if self.porter.vu:
+            m["porter"] = int(self.porter.on)          # porter un coéquipier, dès qu'il a changé une fois (welcome sinon)
         if self.bonheur.vu:
             m["bonheur"] = int(self.bonheur.on)        # Fragments du Bonheur, dès qu'ils ont changé (welcome sinon)
         if self.tenues.vu:
@@ -5666,6 +5729,7 @@ class Server:
             self.carry.left(p.id)
             self.coups.oublier(p.id)            # coups entre joueurs : cadences et invincibilité oubliées
             self.ralliement.oublier(p.id)       # chant de ralliement : délai et appels en cours oubliés
+            self.porter_envoyer(self.porter.oublier(p.id, self.porter_joueur))   # porter : port défait des deux côtés
             self.bonheur_envoyer(self.bonheur.oublier(p.id))   # Fragments du Bonheur : propositions annulées
             self.tenues.oublier(p.id)           # tenues à pouvoir : partage et essai oubliés (le duo est recalculé)
             self.fusions_envoyer(self.fusions.oublier(p.id))   # fusions : celle du partant finie pour les deux
@@ -6294,6 +6358,10 @@ def main(argv=None) -> int:
                     help="règle de la partie : chant de ralliement coupé (allumé par défaut : le morceau 6 de la "
                          "Baguette, 3/4 haut, bas, droite, appelle l'équipe ; une fois toutes les 5 min ; jamais avec "
                          "le mode Hanteurs)")
+    ap.add_argument("--no-porter", action="store_true",
+                    help="règle de la partie : porter un coéquipier coupé (allumé par défaut : « Soulever » (A) sur le "
+                         "fantôme d'un coéquipier ; porté, L3 pour descendre ; portage natif, mod 0.41.0 ; jamais avec "
+                         "le mode Hanteurs)")
     ap.add_argument("--no-courses", action="store_true",
                     help="pas de courses en bateau (lancées par le lanceur de l'hôte : parcours tracés en jeu)")
     ap.add_argument("--no-bonheur", action="store_true",
@@ -6615,7 +6683,7 @@ def main(argv=None) -> int:
                           robot_latence=robot_mod.latence_ok(args.robot_essai_latence),
                           medailles=not args.no_medailles,
                           coups_joueurs=args.coups_joueurs,
-                          ralliement=not args.no_ralliement,
+                          ralliement=not args.no_ralliement, porter=not args.no_porter,
                           courses=not args.no_courses,
                           bonheur=not args.no_bonheur, essai_bonheur=args.essai_bonheur,
                           bonheur_quarts_donjon=max(0, args.bonheur_quarts_donjon),
