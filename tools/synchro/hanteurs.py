@@ -159,6 +159,13 @@ BK_TYPES_REFUSES = {5, 6, 8, 9, 0xA, 0xB, 0xF}   # porté, switch, générateur,
 MO2_MODES_REFUSES = {1, 5, 0xF}                  # lanterne, porté, statue
 
 
+
+def a_bord(st) -> bool:
+    """Link à la barre de son bateau : ``abord`` de l'état (``mModeFlg & IN_SHIP``, synchro/houle.py). Jamais ``ship`` :
+    ce champ porte le bateau du joueur dès qu'il est chargé dans la salle (amarré à l'île, Link à pied), si bien que
+    toutes les îles en mer passaient pour « en bateau » (banc d'essai du 2026-11-18 : enfermement refusé sur sea:27)."""
+    return isinstance(st, dict) and st.get("abord") in (1, True)
+
 def params_invocation(proc: int, vu: int) -> int | None:
     """Paramètres de l'invocation à partir de ceux d'un exemplaire vivant de la stage (``vu``). None : refus."""
     try:
@@ -574,7 +581,7 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
         e = self.etat.setdefault(pid, {})
         e.update(zone=zone, busy=bool(busy), stage=msg.get("stage") if isinstance(msg.get("stage"), str) else None,
                  room=msg.get("room") if isinstance(msg.get("room"), int) else None, t=now,
-                 ship=bool(msg.get("ship")))
+                 ship=a_bord(msg))
         if isinstance(zone, str):
             if self.roles.get(pid) == ROLE_HANTEUR:
                 self.doute[pid] = zone              # voir liste_douteuse
@@ -2549,7 +2556,7 @@ class HanteurSync:
         pos = _pos3(st.get("pos")) if st else None
         po = self.possede
         actif = (self.pilote_on and self.role == ROLE_HANTEUR and self.clone is None and po is not None
-                 and po.get("pilotage") and pos is not None and not busy and not st.get("ship"))
+                 and po.get("pilotage") and pos is not None and not busy and not a_bord(st))
         if not actif:
             self.pil_vit = self.pil_prev = None
             if pp is not None and getattr(pp, "pilote_local", None) is not None:
@@ -2991,7 +2998,7 @@ class HanteurSync:
         Hanteur spectateur : caméra collée (``colle`` et suivi continu), Link suivi visible dans NOTRE salle, pas
         manifesté, pas de monstre possédé, pas de potion. Jamais sans état lu (le pack rend de toute façon Link
         au jeu pendant un événement)."""
-        if not self.actif() or st is None or st.get("ship"):
+        if not self.actif() or st is None or a_bord(st):
             return False
         if role == ROLE_LINK:
             return envoute is not None
@@ -3004,7 +3011,7 @@ class HanteurSync:
 
         o = others.get(self.cible)
         return bool(o is not None and o.get("stage") == st.get("stage") and o.get("room") == st.get("room")
-                    and _pos3(o.get("pos")) is not None and not o.get("ship"))
+                    and _pos3(o.get("pos")) is not None and not a_bord(o))
 
     def _coller(self, qui, st, others, mem, base, pid, can, busy) -> None:
         """Link GELÉ (zone du pack armée par nous) posé chaque tick sur le joueur ``qui`` (clone ou Link suivi),
@@ -3012,7 +3019,7 @@ class HanteurSync:
         o = others.get(qui)
         if o is None or st is None or mem is None or not can or busy or not self.teleport:
             return
-        if o.get("stage") != st.get("stage") or o.get("room") != st.get("room") or st.get("ship"):
+        if o.get("stage") != st.get("stage") or o.get("room") != st.get("room") or a_bord(st):
             return
         p = _pos3(o.get("pos"))
         if p is None or math.dist(p, st["pos"]) < 1.0:
@@ -3032,7 +3039,7 @@ class HanteurSync:
         clone["place"] = True
         pos = clone.get("pos")
         if pos is None or clone.get("stage") != st.get("stage") or clone.get("room") != st.get("room") \
-                or st.get("ship"):
+                or a_bord(st):
             return
         try:
             if teleporter(mem, base, pid, (pos[0], pos[1] + 5.0, pos[2])):
@@ -3067,7 +3074,7 @@ class HanteurSync:
         if o.get("stage") != st.get("stage") or o.get("room") != st.get("room"):
             return
         p = _pos3(o.get("pos"))
-        if p is None or busy or not can or mem is None or st.get("ship") or o.get("busy") in (1, True) \
+        if p is None or busy or not can or mem is None or a_bord(st) or o.get("busy") in (1, True) \
                 or not self.au_sol(envoute["par"], now):
             return
         if math.dist(p, st["pos"]) <= SUIVI_DIST or now - self.t_saut < SUIVI_PERIODE:
@@ -3097,7 +3104,7 @@ class HanteurSync:
                     baisser_vie(mem, nv)
             pos = lib.get("pos")
             if pos is not None and self.teleport and lib.get("stage") == st.get("stage") \
-                    and lib.get("room") == st.get("room") and not st.get("ship"):
+                    and lib.get("room") == st.get("room") and not a_bord(st):
                 if teleporter(mem, base, pid, (pos[0], pos[1] + 5.0, pos[2])):
                     self.n_sauts += 1
         except Exception as exc:
@@ -3219,7 +3226,7 @@ class HanteurSync:
                 baisser_vie(mem, vie)
             pos = _pos3(dev.get("pos"))
             meme_salle = dev.get("stage") == st.get("stage") and dev.get("room") == st.get("room")
-            if pos is not None and meme_salle and self.teleport and not st.get("ship"):
+            if pos is not None and meme_salle and self.teleport and not a_bord(st):
                 if teleporter(mem, base, pid, (pos[0], pos[1] + 5.0, pos[2])):
                     self.n_sauts += 1
         except Exception as exc:
@@ -3252,7 +3259,7 @@ class HanteurSync:
                 self.saut_demande = False
             return
         pos = _pos3(o.get("pos"))
-        if pos is None or busy or not can or mem is None or st.get("ship") or o.get("ship") \
+        if pos is None or busy or not can or mem is None or a_bord(st) or a_bord(o) \
                 or o.get("busy") in (1, True) or not self.au_sol(self.cible, now):
             return                                  # on réessaiera (demande gardée)
         loin = math.dist(pos, st["pos"]) > SUIVI_DIST
