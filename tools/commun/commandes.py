@@ -70,6 +70,12 @@ COMMANDES: tuple[Commande, ...] = (
              "F6", "Ctrl+F6", "L+DpadLeft"),
     Commande("espece", "hanteur", "Espèce suivante (en possession : viser le Link suivant)",
              "Next species (while possessing: target the next Link)", "F7", None, "L+RightStickClick"),
+    Commande("menu_invocation", "hanteur", "Menu d'invocation (ouvrir / fermer)", "Summon menu (open / close)",
+             "Ctrl+F10", None, "Minus",
+             "Appui court sur − : tous les monstres en bas de l'écran ; L / R pour choisir, A pour invoquer, B pour "
+             "fermer (portage natif). Tenu, − ouvre le menu du portage.",
+             "Short press on −: every monster at the bottom of the screen; L / R to choose, A to summon, B to close "
+             "(native port). Held, − opens the port's menu."),
     Commande("suivi", "hanteur", "Suivi continu de la caméra (on / off)", "Continuous camera follow (on / off)",
              "F8", None, "L+LeftStickClick"),
     Commande("manifester", "hanteur", "Se manifester / redevenir spectateur", "Manifest / back to spectator",

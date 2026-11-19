@@ -480,6 +480,7 @@ MAGIC_PRT = b"WWMPPRT1"
 PRT_FORMAT = 1
 PRT_VIE_MAX = 300
 PRT_ANGLE_GARDE, PRT_STICK_LIBRE = 0x1, 0x2
+PRT_FUSION = 0x4                   # (0.61.0) glissement long avec un saut : l'attaquant d'une fusion bondit dans le pilote
 OFFT_ARME = 0x0C
 OFFT_APPELS = 0x48
 OFFT_PROCS = 0x90
@@ -600,6 +601,15 @@ INV_N, INV_MAX = 16, 6
 INV_MOD = 56                       # NATIF_VERSION_MOD qui a la zone
 OFFI_MEDAILLE_DEMANDE, OFFI_MEDAILLE_PRISE = 0x39, 0x3A   # (0.57.0) médaillon assemblé brandi : compteurs 8 bits
 MEDAILLE_MOD = 57
+# menu d'invocation des Hanteurs (MOD NATIF SEULEMENT, 0.60.0 ; natif/mod_wwmp/menu.c, synchro/menu_invocation.py) :
+# SANS bit : la zone wwmp_mnu (magie « WWMPMNU1 », format 1), 0x160 octets à 0x7400. Le PC écrit tout, « seq » EN
+# DERNIER ; le mod dessine seulement.
+MAGIC_MNU = b"WWMPMNU1"
+MNU_FORMAT = 1
+MNU_OFF = 0x7400
+OFFU_SEQ, OFFU_OUVERT, OFFU_TITRE, OFFU_NOMS, OFFU_COUTS, OFFU_DESSINS = 0x0C, 0x10, 0x20, 0x4C, 0x13C, 0x154
+MNU_N, MNU_NOM, MNU_TITRE = 12, 20, 44
+MNU_MOD = 60
 PROC_MODELE = 0x1F1                # WwmpModel (natif/mod_wwmp/offsets.h WWMP_PROC_MODELE)
 ID_MOD_DECORS = "wwmp-decors"           # paquet de contenu des modèles originaux (natif/decors/paquet)
 
@@ -2289,6 +2299,47 @@ class Mailbox:
             self.mem.write(a + OFFI_VOULUS, bytes(v))
             self.mem.write(a + OFFI_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF or 1))
         return True
+
+    # --- menu d'invocation des Hanteurs (0.60.0, mod natif seulement, sans bit) ------------------------------------
+    def menu_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_mnu`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_mnu", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_MNU, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != MNU_FORMAT:
+                return None
+            a = self._mnu = hits[0]
+        return a
+
+    def menu_ecrire(self, etat: dict) -> bool:
+        """Le menu tel que le mod le dessine (``synchro/menu_invocation.MenuInvocation.etat``), puis « seq » ;
+        False sans la zone (mod < 0.60.0)."""
+        a = self.menu_addr()
+        if a is None:
+            return False
+        noms = [bytes(x)[:MNU_NOM] for x in list(etat.get("noms") or [])[:MNU_N]]
+        couts = [max(0, min(0xFFFF, int(v))) for v in list(etat.get("couts") or [])[:MNU_N]]
+        n = min(len(noms), len(couts))
+        choix = max(0, min(n - 1, int(etat.get("choix") or 0))) if n else 0
+        titre = bytes(etat.get("titre") or b"")[:MNU_TITRE]
+        corps = struct.pack(">4I", 1 if etat.get("ouvert") and n else 0, choix, n, int(etat.get("dispo") or 0)
+                            & 0xFFFFFFFF)
+        corps += titre + b"\0" * (MNU_TITRE - len(titre))
+        corps += b"".join(x + b"\0" * (MNU_NOM - len(x)) for x in noms + [b""] * (MNU_N - n))
+        corps += struct.pack(">12H", *(couts[:n] + [0] * (MNU_N - n)))
+        with Mailbox._lock:
+            seq, = struct.unpack(">I", bytes(self.mem.read(a + OFFU_SEQ, 4)))
+            self.mem.write(a + OFFU_OUVERT, corps)
+            self.mem.write(a + OFFU_SEQ, struct.pack(">I", (seq + 1) & 0xFFFFFFFF))
+        return True
+
+    def menu_dessins(self) -> int:
+        a = self.menu_addr()
+        return struct.unpack(">I", bytes(self.mem.read(a + OFFU_DESSINS, 4)))[0] if a is not None else 0
 
     def medaillon(self) -> bool:
         """Un médaillon assemblé de plus : le mod 0.57.0 donne l'objet « medaillon », que Link brandit avec la pose

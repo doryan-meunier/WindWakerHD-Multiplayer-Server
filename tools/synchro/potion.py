@@ -78,6 +78,12 @@ RESIST_RATE = 10            # appuis comptés au plus par seconde
 PVP_DEGATS = 2              # quarts par coup d'épée (réglage ``pvp_degats``, 1-8)
 PVP_RATE = 4                # coups relayés au plus par seconde et par paire (comme player_hit)
 PVP_DIST = 350.0            # u : positions (serveur) de l'attaquant et de la victime plus éloignées : refusé
+# LANCER (2026-11-19) : la potion est lancée comme un projectile guidé ; pendant VOL s, rien ne change encore (le Link
+# joue toujours son Link) : chaque PC de la salle montre la volute qui vole du Hanteur au Link et entre en lui
+# (« hpotion_lancer »), et le PC du Link visé le fait RECULER à FRAPPE s (vrai recul du jeu, comme les coups entre
+# joueurs : CALL 9, Atp 0, aucun dégât), vu de tous par son fantôme ; puis la possession commence (revalidée).
+VOL = 2.0                   # s entre le lancer et la possession
+FRAPPE = 0.85               # s : la volute touche le Link (client : recul)
 PVP_INVULN = 1.0            # s entre deux coups appliqués chez la victime (vie écrite : pas de mDamageWaitTimer)
 PVP_FRESH = 1.0             # s : coup reçu plus vieux -> jeté
 PVP_ESQUIVE = 450.0         # u : Link de la victime plus loin de l'attaquant -> esquivé (latence comprise)
@@ -193,6 +199,7 @@ class PotionPartie:
         self.potion_t: dict[int, list[float]] = {}
         self.vie_ignore: dict[int, list] = {}     # libéré -> [fin, quarts] : baisse de la libération pas comptée
         self.n_potions = self.n_pvp = self.n_pvp_refus = 0
+        self.lancers: dict[int, dict] = {}        # Hanteur -> {cible, t, a_potion} : potion en vol (VOL s)
 
     # --- requêtes ---------------------------------------------------------------------------------------
     def possede_par(self, pid) -> int | None:
@@ -225,6 +232,32 @@ class PotionPartie:
             self.n_refus += 1
             self.sortie.append((pid, {"type": "hrefus", "quoi": "potion", "raison": raison}))
             return raison
+        if VOL > 0:                           # la potion vole d'abord (VOL s) : la possession commence ensuite
+            e, ec = self.etat[pid], self.etat[cible]
+            self.lancers[pid] = {"cible": cible, "t": now, "a_potion": a_potion}
+            self.sortie.append((("zone", e["zone"]), {
+                "type": "hpotion_lancer", "par": pid, "cible": cible, "de": [round(v, 1) for v in e["pos"]],
+                "vers": [round(v, 1) for v in ec["pos"]], "stage": e["stage"], "room": e["room"],
+                "vol": VOL, "frappe": FRAPPE}))
+            self.log(f"Hanteurs : {self.noms.get(pid, pid)} lance la potion sur {self.noms.get(cible, '?')}")
+            return ""
+        return self._commencer(pid, cible, now)
+
+    def _lancers_tick(self, now: float) -> None:
+        """Potions en vol arrivées : la possession commence si elle est toujours permise (sinon refus au Hanteur)."""
+        for pid, la in list(self.lancers.items()):
+            if now - la["t"] < VOL:
+                continue
+            del self.lancers[pid]
+            raison, cible = self._refus_potion(pid, {"cible": la["cible"]}, la["a_potion"], now)
+            if raison:
+                self.n_refus += 1
+                self.sortie.append((pid, {"type": "hrefus", "quoi": "potion", "raison": f"la potion a manqué : {raison}"}))
+                continue
+            self._commencer(pid, cible, now)
+
+    def _commencer(self, pid: int, cible: int, now: float) -> str:
+        """La possession commence (après le vol de la potion)."""
         if pid in self.possessions:
             self.lacher(pid, "tu bois la potion", now)
         e, ec = self.etat[pid], self.etat[cible]
@@ -278,6 +311,8 @@ class PotionPartie:
         self.potion_t[pid] = t
         if pid in self.potions:
             return "tu joues déjà un Link", None
+        if self.lancers:
+            return "une potion est déjà lancée (une à la fois)", None
         if self.potions:
             return "une potion est déjà en cours dans la partie (une à la fois)", None
         if not a_potion(pid):
@@ -511,6 +546,7 @@ class PotionPartie:
             self.potion_fin(pid, "arrêtée", now)
 
     def potion_tick(self, now: float) -> None:
+        self._lancers_tick(now)
         for h, po in list(self.potions.items()):
             if now >= po["fin"]:
                 self.potion_fin(h, "durée écoulée", now)

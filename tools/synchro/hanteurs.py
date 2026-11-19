@@ -57,6 +57,7 @@ import threading
 import time
 
 from commun import difficulte as _dif
+from synchro import menu_invocation  # noqa: E402  (menu d'invocation à la manette, mod natif 0.60.0)
 from synchro import capacites, enfermement, laisse, ordres, pilotage, potion, victoire
 from synchro import effets_pack
 from commun import commandes as cmdes
@@ -1850,7 +1851,11 @@ class Touches:
         if mb is None or not getattr(mb, "manette_ok", False):
             return []
         combos = []
-        if actif:
+        if actif and getattr(self, "menu_ouvert", False):
+            # menu d'invocation ouvert (synchro/menu_invocation.py) : Select, L, R, A, B seulement
+            for k, ma in menu_invocation.TOUCHES_MENU:
+                combos.append((k, cmdes.compact(cmdes.bits_manette(ma))))
+        elif actif:
             for k, (_cl, ma) in self.lecteur.table.items():
                 m = cmdes.compact(cmdes.bits_manette(ma))
                 if m and len(combos) < cmdes.N_COMBOS:
@@ -1960,6 +1965,8 @@ class HanteurSync:
         # décors (client/decors.py) : (genre, pos ou None = notre Link, salle ou None = la nôtre), notés à la réception,
         # joués par l'étape des décors du client (fil de travail)
         self.decors_evts: list = []
+        self.recul_potion: dict | None = None   # potion lancée sur nous : {t, par} ; le recul est joué à ``t``
+        self.menu = menu_invocation.MenuInvocation()    # menu d'invocation à la manette (mod natif 0.60.0)
         # phase 2 : Link visé par le monstre possédé ; potion de possession d'un Link (synchro/potion.py)
         self.cible_laisse: int | None = None
         self.potion_on = False
@@ -2221,6 +2228,18 @@ class HanteurSync:
                     self._note(f"potion terminée ({str(msg.get('raison') or '?')[:80]}) : tu redeviens invisible"
                                + (f" ; tu lui as fait perdre {perdu}" if perdu else ""))
                 self.clone = None
+            elif t == "hpotion_lancer":
+                # potion lancée (synchro/potion.py VOL) : la volute vole du Hanteur au Link visé, chez tous ceux de
+                # la salle ; chez le Link visé, il recule quand elle le touche (``recul`` : joué par client/principal)
+                de, vers = _pos3(msg.get("de")), _pos3(msg.get("vers"))
+                room, cible = msg.get("room"), msg.get("cible")
+                vol = msg.get("frappe")
+                if de is not None and vers is not None and isinstance(room, int) and not isinstance(room, bool)                         and isinstance(cible, int) and not isinstance(cible, bool) and pilotage._nombre(vol)                         and 0.1 <= vol <= 5.0:
+                    self.decors_evts = (self.decors_evts + [("lancer", (list(de), list(vers), cible, float(vol)),
+                                                             room)])[-8:]
+                    if cible == me and self.role == ROLE_LINK:
+                        self.recul_potion = {"t": now + float(vol), "par": msg.get("par")}
+                        self._note("un Hanteur te lance la potion de possession !")
             elif t == "hpossede_link" and isinstance(msg.get("par"), int) and self.role == ROLE_LINK:
                 self.decors_evts = (self.decors_evts + [("possession", None, None)])[-8:]   # sur nous-mêmes
                 duree = msg.get("duree")
@@ -2691,6 +2710,17 @@ class HanteurSync:
     def liens(self) -> list[int]:
         return sorted(p for p, r in self.roles.items() if r == ROLE_LINK)
 
+    def _menu_mod(self, mb, stage) -> None:
+        """Le menu d'invocation tel que le mod le dessine (zone WWMPMNU1), réécrit seulement s'il a changé."""
+        etat = self.menu.etat(self.especes, self.especes_ici(stage) if stage else [], self.points)
+        if etat == self.menu.ecrit or mb is None or not callable(getattr(mb, "menu_ecrire", None)):
+            return
+        try:
+            if mb.menu_ecrire(etat):
+                self.menu.ecrit = etat
+        except Exception as exc:                          # noqa: BLE001 : jamais bloquant
+            self._note(f"menu d'invocation : écriture ignorée ({type(exc).__name__}: {exc})")
+
     def especes_ici(self, stage) -> list[int]:
         return [p for p in sorted(self.especes) if p in self.vues.get(stage, [])]
 
@@ -2722,6 +2752,23 @@ class HanteurSync:
                     self._sortir({"type": "hresister"})
             return
         if not self.hanteur():
+            return
+        if action == menu_invocation.COMMANDE or action in menu_invocation.ACTIONS:
+            with self._lock:
+                if self.clone is not None or self.possede is not None:
+                    self.menu.fermer()
+                    if action == menu_invocation.COMMANDE:
+                        self._note("menu d'invocation : pas pendant une possession ou une potion")
+                    return
+                ici = self.especes_ici(stage)
+                actuel = ici[self.choix % len(ici)] if ici else None
+                proc = self.menu.action(action, self.especes, ici, actuel)
+                if action == "menu_ok" and proc is None and self.menu.liste(self.especes, ici):
+                    self._note("pas encore vu vivant ici : le serveur le refuse (il faut un exemplaire vivant)")
+            if proc is not None:
+                if proc in ici:
+                    self.choix = ici.index(proc)
+                self.commande("invoquer", arg=proc, me=me, stage=stage)
             return
         with self._lock:
             if self.clone is not None and action in ("posseder", "lacher", "potion", "manifester", "invoquer",
@@ -2956,6 +3003,9 @@ class HanteurSync:
                 if natif and self.table_commandes is None:
                     self._note(RAISON_NATIF)
             if self.touches is not None:
+                if role != ROLE_HANTEUR or self.clone is not None or self.possede is not None:
+                    self.menu.fermer()
+                self.touches.menu_ouvert = self.menu.ouvert
                 actions = self.touches.lire_commandes()
                 try:                                      # combinaisons de manette (mod natif 0.37.0)
                     actions += self.touches.lire_manette(_boite(c), True)
@@ -2967,7 +3017,10 @@ class HanteurSync:
                             self.commande("resister")
                         continue
                     self.commande(action, me=c.me, stage=st["stage"] if st else None)
+                self._menu_mod(_boite(c), st["stage"] if st else None)
         elif self.touches is not None and self.touches.masques_ecrits:
+            self.menu.fermer()
+            self._menu_mod(_boite(c), None)
             try:                                          # redevenu Link : la manette entière rendue au jeu
                 self.touches.lire_manette(_boite(c), False)
             except Exception:                             # noqa: BLE001
