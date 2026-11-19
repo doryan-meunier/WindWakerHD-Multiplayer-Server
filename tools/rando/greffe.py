@@ -191,8 +191,14 @@ def fragments(analyse: dict) -> list[str]:
     return [n for n in nc.FRAGMENTS if n in analyse["fragments"] and n in nc.GREFFES]
 
 
+# sites refaits en C par le mod natif (0.58.0, rando_beedle.c) : la fonction qui les porte n'est plus recopiée.
+# daNpcPeople_c::getMsg (0x022C6C68) : le carnet du portage la remplace aussi, et un seul mod peut remplacer une
+# fonction ; recopiée, elle empêchait le carnet (et avec lui les pages en plus du Sac de livraison) de s'installer.
+SITES_EN_C = frozenset({0x022C7A4C, 0x022C7D4C, 0x022C7E40})
+
+
 def sites(analyse: dict) -> list[int]:
-    """Adresses des mots du programme réécrits par les fragments greffés."""
+    """Adresses des mots du programme réécrits par les fragments greffés (sans ceux refaits en C : SITES_EN_C)."""
     fr = set(fragments(analyse))
     out = set()
     for nom in fr:
@@ -201,7 +207,7 @@ def sites(analyse: dict) -> list[int]:
     for a, nom in nc._sites_fixes().items():
         if nom in fr:
             out.add(a)
-    return sorted(out)
+    return sorted(out - SITES_EN_C)
 
 
 def _lignes_cave(analyse: dict) -> list[str]:

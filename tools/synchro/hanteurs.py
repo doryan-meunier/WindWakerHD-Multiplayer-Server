@@ -1957,6 +1957,9 @@ class HanteurSync:
         self.pilote_note: str | None = None  # raison du repli déjà annoncée (une note par raison et par possession)
         self.recharges_gestes: dict[str, float] = {}      # geste -> heure locale de fin de recharge (serveur)
         self.durees_gestes: dict[str, float] = {}         # geste -> durée de sa recharge (``hpossede``)
+        # décors (client/decors.py) : (genre, pos ou None = notre Link, salle ou None = la nôtre), notés à la réception,
+        # joués par l'étape des décors du client (fil de travail)
+        self.decors_evts: list = []
         # phase 2 : Link visé par le monstre possédé ; potion de possession d'un Link (synchro/potion.py)
         self.cible_laisse: int | None = None
         self.potion_on = False
@@ -2116,6 +2119,8 @@ class HanteurSync:
                 self._nouveau_role(msg["role"], msg, now)
             elif t == "hspawn":
                 key = msg.get("key")
+                if _pos3(msg.get("pos")) is not None and isinstance(msg.get("room"), int):   # décors : la volute
+                    self.decors_evts = (self.decors_evts + [("invocation", list(_pos3(msg["pos"])), msg["room"])])[-8:]
                 if isinstance(key, str) and key not in self.a_creer and len(self.a_creer) < 64 \
                         and _pos3(msg.get("pos")) is not None and isinstance(msg.get("proc"), int) \
                         and isinstance(msg.get("params"), int) and isinstance(msg.get("room"), int):
@@ -2146,6 +2151,9 @@ class HanteurSync:
                                                               "enfermement") else "invocation"
                 self._note(f"{quoi} refusée : {str(msg.get('raison'))[:120]}")
             elif t == "hpossede" and isinstance(msg.get("key"), str):
+                k = parse_key(msg["key"])              # décors : la volute descend sur le monstre possédé
+                if k is not None:
+                    self.decors_evts = (self.decors_evts + [("possession", [float(v) for v in k[2]], None)])[-8:]
                 duree = msg.get("duree")
                 duree = float(duree) if pilotage._nombre(duree) else 0.0
                 pil = bool(msg.get("pilotage") in (1, True) and self.pilote_on)
@@ -2214,6 +2222,7 @@ class HanteurSync:
                                + (f" ; tu lui as fait perdre {perdu}" if perdu else ""))
                 self.clone = None
             elif t == "hpossede_link" and isinstance(msg.get("par"), int) and self.role == ROLE_LINK:
+                self.decors_evts = (self.decors_evts + [("possession", None, None)])[-8:]   # sur nous-mêmes
                 duree = msg.get("duree")
                 duree = float(duree) if pilotage._nombre(duree) else 0.0
                 # ``resister`` absent (ancien serveur) : la touche « Résister » existe ; 0 : durée fixe, on regarde

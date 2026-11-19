@@ -523,6 +523,7 @@ BAN_MOD = 44                       # NATIF_VERSION_MOD qui a la zone
 MAGIC_TAC = b"WWMPTAC1"
 TAC_FORMAT = 1
 TAC_ALLUME = 0x1
+TAC_SCENE = 0x2                    # 0.53.0 : avec TAC_ALLUME, la scène des chants est jouée pour le morceau voulu
 TAC_MORCEAUX = (6, 7)              # morceaux inutilisés du jeu (6 : 3/4 haut, bas, droite ; 7 : 4/4)
 OFFL_CFG, OFFL_MORCEAU, OFFL_DEMANDES, OFFL_POS, OFFL_ETAPE, OFFL_SALLE = 0x0C, 0x10, 0x14, 0x18, 0x24, 0x2C
 OFFL_JUGES, OFFL_IGNORES, OFFL_ANGLE = 0x30, 0x38, 0x3C
@@ -560,6 +561,55 @@ TEN_FACTEURS = ("recu", "epee", "gadget", "dos", "sol", "nage", "bateau", "rubis
 TEN_COMPTEURS = ("esquives", "jets", "coups", "dans_dos", "rubis_plus", "rubis_rendus", "magie_gardee",
                  "munitions_gardees", "recus", "pas_vite", "pas_bateau", "distants")
 TEN_MOD = 46                       # NATIF_VERSION_MOD qui a la zone
+# décors (MOD NATIF SEULEMENT, 0.52.0 ; natif/mod_wwmp/modele.c, client/decors.py) : SANS bit : la zone wwmp_dec (magie
+# « WWMPDEC1 », format 1), 0x40 octets à 0x7300, EST la capacité. Le PC écrit l'archive (« mod » + 28 hex : nom donné
+# par le portage à un modèle ORIGINAL du paquet) et l'index, puis crée un WwmpModel de paramètres DEC_PARAMS.
+MAGIC_DEC = b"WWMPDEC1"
+DEC_FORMAT = 1
+DEC_OFF = 0x7300
+DEC_PARAMS = 0x44454331            # « DEC1 » : mParameters d'un WwmpModel décor
+DEC_NOM = 32
+OFFD_INDEX, OFFD_NOM, OFFD_TOUR, OFFD_CREES, OFFD_DEMANDE, OFFD_PRISE = 0x0C, 0x10, 0x30, 0x34, 0x40, 0x44
+OFFD_CIBLE = 0x48                  # 3 f32, puis aller (u16), vie (u16), tour_fin (s16)
+DEC_IMAGES_MAX = 0xFFFF
+DEC_ATTENTE = 1.0                  # s : attente de l'accusé d'une demande de décor avant la suivante
+DEC_MOD = 52                       # NATIF_VERSION_MOD qui a la zone
+OFFD_SUIVRE = 0x5A                 # (0.55.0) u16 mode, puis u32 id du fantôme (+0x5C), f32 décalage en y (+0x60)
+DEC_SUIVRE_LINK, DEC_SUIVRE_FANTOME = 1, 2    # main droite du Link du joueur / d'un fantôme (articulation 12)
+# poses de Link (MOD NATIF SEULEMENT, 0.55.0 ; natif/mod_wwmp/pose.c, client/bonheur.py) : SANS bit : la zone wwmp_pos
+# (magie « WWMPPOS1 », format 1), 0x40 octets à 0x7380, EST la capacité. Le PC écrit pose et durée, puis « demande »
+# EN DERNIER ; le jeu la prend au pas suivant de Link (Link immobile : tendre/tenir sa moitié, brandir le médaillon).
+MAGIC_POS = b"WWMPPOS1"
+POS_FORMAT = 1
+POS_OFF = 0x7380
+OFFP_DEMANDE, OFFP_POSE, OFFP_DUREE, OFFP_PRISE = 0x0C, 0x10, 0x14, 0x18
+POS_ARRET, POS_ATTENTE, POS_ASSEMBLAGE = 0, 1, 2
+POS_DUREE_MAX = 450                # images (15 s) : borne du mod
+POS_COMPTEURS = ("prise", "etat", "reste", "debuts", "fins", "reprises", "refus", "raison")
+POS_MOD = 55                       # NATIF_VERSION_MOD qui a la zone
+# moitiés de médaillon dans le Sac de livraison (MOD NATIF SEULEMENT, 0.56.0 ; natif/mod_wwmp/inventaire.c,
+# client/bonheur.py) : SANS bit : la zone wwmp_inv (magie « WWMPINV1 », format 1), 0x40 octets à 0x73C0. Le PC écrit le
+# nombre voulu de chaque moitié (indice motif × 2 + côté), puis « demande » EN DERNIER ; le jeu donne ou retire la
+# différence (objets de mod du portage, manifest.json « items ») ; une moitié utilisée (Sac ou bouton) est comptée.
+MAGIC_INV = b"WWMPINV1"
+INV_FORMAT = 1
+INV_OFF = 0x73C0
+OFFI_DEMANDE, OFFI_VOULUS, OFFI_PRISE, OFFI_COMPTES, OFFI_UTILISES, OFFI_DERNIERE, OFFI_ECHECS = (
+    0x0C, 0x10, 0x20, 0x24, 0x34, 0x38, 0x3C)
+INV_N, INV_MAX = 16, 6
+INV_MOD = 56                       # NATIF_VERSION_MOD qui a la zone
+OFFI_MEDAILLE_DEMANDE, OFFI_MEDAILLE_PRISE = 0x39, 0x3A   # (0.57.0) médaillon assemblé brandi : compteurs 8 bits
+MEDAILLE_MOD = 57
+PROC_MODELE = 0x1F1                # WwmpModel (natif/mod_wwmp/offsets.h WWMP_PROC_MODELE)
+ID_MOD_DECORS = "wwmp-decors"           # paquet de contenu des modèles originaux (natif/decors/paquet)
+
+
+def archive_decor(modele: str, mod: str = ID_MOD_DECORS) -> str:
+    """Nom de l'archive que le portage donne au modèle ``modele`` (manifest.json « models ») du paquet ``mod`` :
+    « mod » + les 28 premiers chiffres hexadécimaux du SHA-256 de « mod\0modele » (runtime/src/mods/
+    actor_model_cache.cpp, ``prepare_once``). Montée à /vol/content/Common/Object/<nom>.szs."""
+    import hashlib
+    return "mod" + hashlib.sha256(f"{mod}\0{modele}".encode("utf-8")).hexdigest()[:28]
 # tenues à pouvoir, partie B : les FUSIONS (0.47.0 ; natif/mod_wwmp/fusions.c, client/fusions.py) : champs réservés de
 # WWMPTEN1 (+0x12 fusion en cours, +0x13 rôle, +0x1E facteur de fusion de tous nos coups, +0x1F des objets à magie ;
 # avant CALL 14 : +0x23 et +0x3C pour l'attaquant distant) ; zone wwmp_fus (magie « WWMPFUS1 », format 1), 0x80 octets
@@ -1932,14 +1982,15 @@ class Mailbox:
             a = self._tac = hits[0]
         return a
 
-    def tac_regler(self, on: bool, morceau: int = 6) -> bool:
-        """Chant de ralliement : morceau (6 ou 7) puis cfg ; False sans la zone."""
+    def tac_regler(self, on: bool, morceau: int = 6, scene: bool = True) -> bool:
+        """Chant de ralliement : morceau (6 ou 7) puis cfg (``scene`` : le mod 0.53.0 joue la scène des chants pour
+        le morceau, Link dirige et l'air est rejoué ; sans effet sur un mod plus ancien) ; False sans la zone."""
         a = self.tac_addr()
         if a is None:
             return False
         m = morceau if morceau in TAC_MORCEAUX else TAC_MORCEAUX[0]
         self.mem.write(a + OFFL_MORCEAU, struct.pack(">I", m))
-        self.mem.write(a + OFFL_CFG, struct.pack(">I", TAC_ALLUME if on else 0))
+        self.mem.write(a + OFFL_CFG, struct.pack(">I", (TAC_ALLUME | (TAC_SCENE if scene else 0)) if on else 0))
         return True
 
     def tac_counters(self) -> dict:
@@ -2113,6 +2164,168 @@ class Mailbox:
                 return None
             a = self._ten = hits[0]
         return a
+
+    def decor_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_dec`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_dec", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_DEC, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != DEC_FORMAT:
+                return None
+            a = self._dec = hits[0]
+        return a
+
+    def decor_creer(self, modele: str, pos, room: int, tour: int = 0, rot_y: int = 0, index: int = 1, cible=None,
+                    aller: int = 0, vie: int = 0, tour_fin: int = 0, suivre: int = 0, suivi: int = 0,
+                    suivre_haut: float = 0.0) -> int | None:
+        """Crée un DÉCOR : le modèle ORIGINAL ``modele`` du paquet (manifest.json « models »), converti par le portage,
+        à ``pos`` dans la salle ``room``, tourné de ``rot_y`` et de ``tour`` unités d'angle par image. Renvoie l'id de
+        process (création asynchrone : le jeu charge l'archive) ou None. MOUVEMENT (fait par le jeu, à 30 images/s) :
+        ``cible`` atteinte en ``aller`` images en ligne droite, puis rotation ``tour_fin`` ; ``vie`` images (0 : sans
+        fin) : il rétrécit sur les 15 dernières puis se supprime lui-même. 0.55.0 : ``suivre`` (DEC_SUIVRE_LINK, ou
+        DEC_SUIVRE_FANTOME avec l'id de process ``suivi``) : il suit la main droite, ``suivre_haut`` au-dessus (sans
+        effet sur un mod plus ancien). MailboxError sans la zone (mod < 0.52.0)."""
+        a = self.decor_addr()
+        if a is None:
+            raise MailboxError("décors : seulement le mod natif du portage à jour (0.52.0 ou plus)")
+        nom = archive_decor(modele).encode("ascii")
+        if not 0 < len(nom) < DEC_NOM or not 0 <= int(index) <= 0xFFFF or not -0x8000 <= int(tour) <= 0x7FFF:
+            raise ValueError("décor : nom, index ou tour hors bornes")
+        if not -0x8000 <= int(tour_fin) <= 0x7FFF or not 0 <= int(aller) <= DEC_IMAGES_MAX \
+                or not 0 <= int(vie) <= DEC_IMAGES_MAX:
+            raise ValueError("décor : mouvement hors bornes")
+        if int(suivre) not in (0, DEC_SUIVRE_LINK, DEC_SUIVRE_FANTOME) or not 0 <= int(suivi) <= 0xFFFFFFFF                 or not (suivre_haut == suivre_haut and abs(float(suivre_haut)) < 1000.0):
+            raise ValueError("décor : suivi hors bornes")
+        c = [float(v) for v in (cible if cible is not None else pos)][:3]
+        if len(c) != 3 or not all(v == v and abs(v) < 1e7 for v in c):
+            raise ValueError("décor : cible illisible")
+        # une demande à la fois : la précédente doit avoir été recopiée par son décor (accusé « prise »)
+        fin = time.monotonic() + DEC_ATTENTE
+        while True:
+            dem, pri = struct.unpack(">2I", bytes(self.mem.read(a + OFFD_DEMANDE, 8)))
+            if dem == pri or time.monotonic() > fin:
+                break
+            time.sleep(0.01)
+        with Mailbox._lock:
+            self.mem.write(a + OFFD_INDEX, struct.pack(">I", int(index)))
+            self.mem.write(a + OFFD_NOM, nom + b"\0" * (DEC_NOM - len(nom)))
+            self.mem.write(a + OFFD_TOUR, struct.pack(">h", int(tour)))
+            self.mem.write(a + OFFD_CIBLE, struct.pack(">3fHHh", *c, int(aller if cible is not None else 0), int(vie),
+                                                       int(tour_fin)))
+            self.mem.write(a + OFFD_SUIVRE, struct.pack(">HIf", int(suivre), int(suivi), float(suivre_haut)))
+            self.mem.write(a + OFFD_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF))
+        return self.create(PROC_MODELE, DEC_PARAMS, pos, room, rot_y=rot_y)
+
+    # --- poses de Link (0.55.0, mod natif seulement, sans bit : la zone est la capacité) ------------------------------
+    def pose_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_pos`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_pos", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_POS, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != POS_FORMAT:
+                return None
+            a = self._pos = hits[0]
+        return a
+
+    def pose(self, pose: int, duree: int = 1) -> bool:
+        """Pose de Link : POS_ATTENTE (tendre puis tenir sa moitié), POS_ASSEMBLAGE (brandir le médaillon) ou POS_ARRET,
+        pendant ``duree`` images (bornée à POS_DUREE_MAX par le mod) ; prise au pas suivant de Link, refusée par le
+        mod si Link n'est pas libre (``pose_compteurs``). False sans la zone (mod < 0.55.0)."""
+        if int(pose) not in (POS_ARRET, POS_ATTENTE, POS_ASSEMBLAGE):
+            raise ValueError("pose inconnue")
+        a = self.pose_addr()
+        if a is None:
+            return False
+        d = max(1, min(POS_DUREE_MAX, int(duree)))
+        with Mailbox._lock:
+            dem, = struct.unpack(">I", bytes(self.mem.read(a + OFFP_DEMANDE, 4)))
+            self.mem.write(a + OFFP_POSE, struct.pack(">2I", int(pose), d))
+            self.mem.write(a + OFFP_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF))
+        return True
+
+    def pose_compteurs(self) -> dict:
+        """{"prise", "etat", "reste", "debuts", "fins", "reprises", "refus", "raison"} ; {} sans la zone."""
+        a = self.pose_addr()
+        if a is None:
+            return {}
+        v = struct.unpack(">2Ii4Ii", bytes(self.mem.read(a + OFFP_PRISE, 0x20)))
+        return dict(zip(POS_COMPTEURS, v))
+
+    # --- moitiés de médaillon dans le Sac (0.56.0, mod natif seulement, sans bit : la zone est la capacité) ----------
+    def inv_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_inv`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_inv", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_INV, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != INV_FORMAT:
+                return None
+            a = self._inv = hits[0]
+        return a
+
+    def inv_regler(self, voulus) -> bool:
+        """Nombres voulus des 16 moitiés (indice motif × 2 + côté, bornés à INV_MAX), puis « demande » EN DERNIER ;
+        rien n'est écrit s'ils n'ont pas changé. False sans la zone (mod < 0.56.0)."""
+        v = [max(0, min(INV_MAX, int(n))) for n in list(voulus)[:INV_N]]
+        v += [0] * (INV_N - len(v))
+        a = self.inv_addr()
+        if a is None:
+            return False
+        with Mailbox._lock:
+            dem, = struct.unpack(">I", bytes(self.mem.read(a + OFFI_DEMANDE, 4)))
+            if dem and list(bytes(self.mem.read(a + OFFI_VOULUS, INV_N))) == v:
+                return True
+            self.mem.write(a + OFFI_VOULUS, bytes(v))
+            self.mem.write(a + OFFI_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF or 1))
+        return True
+
+    def medaillon(self) -> bool:
+        """Un médaillon assemblé de plus : le mod 0.57.0 donne l'objet « medaillon », que Link brandit avec la pose
+        d'obtention du jeu. False sans la zone ou avec un mod plus ancien (la demande y serait sans effet)."""
+        a = self.inv_addr()
+        if a is None or self.version_mod_natif() < MEDAILLE_MOD:
+            return False
+        with Mailbox._lock:
+            n = bytes(self.mem.read(a + OFFI_MEDAILLE_DEMANDE, 1))[0]
+            self.mem.write(a + OFFI_MEDAILLE_DEMANDE, bytes([(n + 1) & 0xFF]))
+        return True
+
+    def inv_compteurs(self) -> dict:
+        """{"demande", "prise", "comptes" (16, 0xFF : pas de partie), "utilises", "derniere", "echecs"} ; {} sans la
+        zone. « utilises » est lu D'ABORD (le jeu l'écrit en dernier)."""
+        a = self.inv_addr()
+        if a is None:
+            return {}
+        u, = struct.unpack(">I", bytes(self.mem.read(a + OFFI_UTILISES, 4)))
+        b = bytes(self.mem.read(a, 0x40))
+        return {"demande": struct.unpack_from(">I", b, OFFI_DEMANDE)[0],
+                "prise": struct.unpack_from(">I", b, OFFI_PRISE)[0],
+                "comptes": list(b[OFFI_COMPTES:OFFI_COMPTES + INV_N]), "utilises": u,
+                "derniere": b[OFFI_DERNIERE], "echecs": struct.unpack_from(">I", b, OFFI_ECHECS)[0],
+                "medailles": (b[OFFI_MEDAILLE_DEMANDE], b[OFFI_MEDAILLE_PRISE])}
+
+    def decor_compteurs(self) -> dict:
+        """{"crees", "echecs", "libres", "dessins", "nom"} : décors prêts, ratés, archives rendues, images dessinées
+        (tous décors, sur 16 bits) ; {} sans la zone."""
+        a = self.decor_addr()
+        if a is None:
+            return {}
+        b = bytes(self.mem.read(a, 0x40))
+        crees, echecs, libres = struct.unpack_from(">3I", b, OFFD_CREES)
+        dessins, = struct.unpack_from(">H", b, OFFD_TOUR + 2)
+        return {"crees": crees, "echecs": echecs, "libres": libres, "dessins": dessins,
+                "nom": b[OFFD_NOM:OFFD_NOM + DEC_NOM].split(b"\0", 1)[0].decode("ascii", "replace")}
 
     def ten_regler(self, cfg: int, couleur: int = 0, duo: int = 0, facteurs: dict | None = None) -> bool:
         """Tenues : facteurs (huitièmes, 0..255 ; absents : 0 = x1), couleur et duo, puis cfg (TEN_*) EN DERNIER ; False

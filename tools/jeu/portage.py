@@ -47,7 +47,11 @@ ID_PROTOTYPE = "wwmp-fantome-proto"       # prototype « un fantôme qui bouge �
 VERSION_MIN = (0, 5, 0)                   # SDK v2 (profils d'acteurs natifs) : catalogue du portage, « minimum 0.5.0 »
 VERSION_TESTEE = (0, 5, 1)                # release sur laquelle le mod a été construit et vérifié
 LANCEURS = {"win32": ("Wind Waker HD.exe",), "linux": ("wind-waker-hd",)}
-NOM_PAQUET = "mod_natif.json"             # paquet du mod embarqué sous tools/jeu (liste blanche des mises à jour)
+NOM_PAQUET = "mod_natif.json"
+# paquet de CONTENU des décors (modèles originaux, natif/decors/paquet ; mod natif 0.52.0) : installé à côté de
+# wwmp-natif, jamais nécessaire (sans lui, aucun décor n'est dessiné, le reste du mod marche)
+ID_DECORS = "wwmp-decors"
+NOM_PAQUET_DECORS = "mod_decors.json"             # paquet du mod embarqué sous tools/jeu (liste blanche des mises à jour)
 FORMAT_PAQUET = 1
 PIED_HISTOIRES = b"WSTB"
 GARDER_ANCIENS = 5
@@ -375,6 +379,32 @@ def etat_mod(inst: dict, ident: str = ID_MOD, paquet: dict | None = None) -> dic
 
 def chemin_paquet_embarque() -> str:
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), NOM_PAQUET)
+
+
+def chemin_paquet_decors() -> str:
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), NOM_PAQUET_DECORS)
+
+
+def decors_servis(inst: dict) -> list[str]:
+    """Les modèles du paquet ``wwmp-decors`` que le portage SERT en ce moment (le client ne demande que ceux-là : un
+    décor dont l'archive n'est pas servie fait chercher au jeu un fichier qui n'existe pas, et le jeu s'arrête) :
+    wwmp-decors et le carnet (story-notebook, sans lui le système des modèles de mods est éteint) installés et
+    allumés, et chaque modèle porté par un acteur déclaré (le portage ne sert l'archive que de ceux-là). [] au moindre
+    doute. Lecture seule."""
+    try:
+        d = etat_mod(inst, ID_DECORS)
+        n = etat_mod(inst, "story-notebook")
+        if not (d["installe"] and d["active"] and not d["probleme"] and n["installe"] and n["active"]):
+            return []
+        m = _lire_json(os.path.join(d["dossier"], "manifest.json"))
+        if not isinstance(m, dict):
+            return []
+        portes = {a.get("model") for a in m.get("actors") or [] if isinstance(a, dict) and a.get("kind") == "mod"
+                  and isinstance(a.get("collision"), dict)}
+        return sorted(x["id"] for x in m.get("models") or [] if isinstance(x, dict) and isinstance(x.get("id"), str)
+                      and x["id"] in portes and os.path.isfile(os.path.join(d["dossier"], str(x.get("source")))))
+    except (OSError, KeyError, TypeError, ValueError):
+        return []
 
 
 def lire_paquet(chemin: str | None = None) -> dict:
