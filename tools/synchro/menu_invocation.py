@@ -17,6 +17,9 @@ COMMANDE = "menu_invocation"
 TOUCHES_MENU = (("menu_invocation", "Minus"), ("menu_gauche", "L"), ("menu_droite", "R"), ("menu_ok", "A"),
                 ("menu_fermer", "B"))
 ACTIONS = frozenset(k for k, _b in TOUCHES_MENU)
+PRISON = 0xFFFE         # (0.62.0) entrée « Prison » : A enferme les Link proches (commande « enfermer ») ; le mod la
+                        # dessine avec l'image du paquet « prison.png » et sans coût (natif/mod_wwmp/menu.c MNU_PRISON)
+NOM_PRISON = "Prison"
 
 
 def latin1(s: str, n: int) -> bytes:
@@ -31,17 +34,21 @@ class MenuInvocation:
         self.ecrit = None               # dernier état écrit au mod (rien de réécrit s'il n'a pas changé)
 
     @staticmethod
-    def liste(especes: dict, ici) -> list[tuple[int, str, int, bool]]:
-        """[(proc, nom, coût, invocable ici)] : les espèces de la partie, par coût puis nom (au plus N)."""
+    def liste(especes: dict, ici, prison=None) -> list[tuple[int, str, int, bool]]:
+        """[(proc, nom, coût, invocable ici)] : les espèces de la partie, par coût puis nom, puis (``prison`` non
+        None : l'enfermement est permis dans la partie ; vrai : possible maintenant) la Prison ; au plus N."""
         ici = set(ici or ())
-        out = [(p, str(e.get("nom") or "?"), int(e.get("cout") or 0), p in ici) for p, e in especes.items()]
+        out = [(p, str(e.get("nom") or "?"), int(e.get("cout") or 0), p in ici) for p, e in especes.items()
+               if p != PRISON]
         out.sort(key=lambda x: (x[2], x[1], x[0]))
+        if prison is not None:
+            out = out[:N - 1] + [(PRISON, NOM_PRISON, 0, bool(prison))]
         return out[:N]
 
-    def action(self, a: str, especes: dict, ici, choisi=None) -> int | None:
-        """Une touche du menu. Rend le proc à invoquer (A sur un monstre invocable ici), sinon None. ``choisi`` :
-        proc de l'espèce déjà choisie (F7), où le menu s'ouvre."""
-        lst = self.liste(especes, ici)
+    def action(self, a: str, especes: dict, ici, choisi=None, prison=None) -> int | None:
+        """Une touche du menu. Rend le proc à invoquer (A sur un monstre invocable ici ; PRISON sur la Prison), sinon
+        None. ``choisi`` : proc de l'espèce déjà choisie (F7), où le menu s'ouvre."""
+        lst = self.liste(especes, ici, prison)
         if a == COMMANDE:
             if self.ouvert or not lst:
                 self.ouvert = False
@@ -72,12 +79,13 @@ class MenuInvocation:
     def fermer(self) -> None:
         self.ouvert = False
 
-    def etat(self, especes: dict, ici, points: int) -> dict:
-        """Ce que le mod dessine : {ouvert, choix, titre, noms, couts, dispo}."""
-        lst = self.liste(especes, ici) if self.ouvert else []
+    def etat(self, especes: dict, ici, points: int, prison=None) -> dict:
+        """Ce que le mod dessine : {ouvert, choix, titre, noms, couts, dispo, procs} (procs : portraits, 0.62.0)."""
+        lst = self.liste(especes, ici, prison) if self.ouvert else []
         if not lst:
-            return {"ouvert": 0, "choix": 0, "titre": b"", "noms": [], "couts": [], "dispo": 0}
+            return {"ouvert": 0, "choix": 0, "titre": b"", "noms": [], "couts": [], "dispo": 0, "procs": []}
         c = min(self.choix, len(lst) - 1)
-        return {"ouvert": 1, "choix": c, "titre": latin1(f"Invoquer un monstre : {int(points)} points", TITRE),
+        return {"ouvert": 1, "choix": c, "titre": latin1(f"{int(points)} points", TITRE),
                 "noms": [latin1(x[1], NOM) for x in lst], "couts": [max(0, min(0xFFFF, x[2])) for x in lst],
-                "dispo": sum(1 << k for k, x in enumerate(lst) if x[3])}
+                "dispo": sum(1 << k for k, x in enumerate(lst) if x[3]),
+                "procs": [max(0, min(0xFFFF, int(x[0]))) for x in lst]}

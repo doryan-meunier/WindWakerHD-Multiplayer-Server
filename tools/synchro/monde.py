@@ -295,7 +295,12 @@ class MondeServeur:
     persistant : elle reprend où elle était). Chaque « monde » reçoit l'horloge en réponse ; un changement d'état
     (arrêt, reprise, saut du Chant du temps qui passe) part à tout le groupe. Les envois attendent dans ``envois``
     ([(destinataires, message)], vidé par ``prendre_envois``). La première horloge d'un groupe part de ``init`` (heure
-    gardée par le monde persistant) ou, sans elle, de l'heure du premier joueur ; un nouveau venu se range ensuite."""
+    gardée par le monde persistant) ou, sans elle, de l'heure du premier joueur ; un nouveau venu se range ensuite.
+
+    Monde vivant sans joueur (``vivant``, --monde-vivant du serveur ; docs/etudes/serveur_jeu_v2.md, J3) : l'horloge
+    d'un groupe continue d'avancer quand il n'y a PERSONNE (le jour et la nuit passent serveur vide ; un jour de jeu
+    dure 10 minutes) ; elle ne s'arrête que si un joueur présent est figé, comme avant. Une horloge neuve qui part de
+    l'heure du monde persistant y ajoute le temps écoulé depuis le démarrage du serveur (``t0``)."""
 
     FRESH = 5.0
     MIN_GAP = 0.2               # s entre deux « monde » d'un même joueur
@@ -305,8 +310,10 @@ class MondeServeur:
     SAUT_MIN = 3.0              # Chant du temps qui passe : saut en avant plus grand que l'écart toléré...
     SAUT_MAX = 185.0            # ... et de 12 h au plus (jusqu'à 6 h ou 18 h ; un peu de marge pour la latence)
 
-    def __init__(self, clock=time.monotonic):
+    def __init__(self, clock=time.monotonic, vivant: bool = False):
         self.clock = clock
+        self.vivant = bool(vivant)
+        self.t0 = clock()                                    # démarrage du serveur (monde vivant : temps écoulé)
         self.seen: dict[int, tuple[str, float, bool]] = {}   # joueur -> (groupe, heure, hôte)
         self.vent: dict[str, dict] = {}                      # groupe -> {x, y, on, seq, kind, hote, from}
         self.last: dict[int, float] = {}
@@ -337,6 +344,8 @@ class MondeServeur:
             # jamais au-delà du moment où le dernier joueur du groupe était encore frais (personne : arrêtée)
             vus = [t for g, t, _h in self.seen.values() if g == group]
             fin = min(now, max(vus) + self.FRESH) if vus else c["base"]
+            if self.vivant:
+                fin = now                       # monde vivant : l'heure passe aussi sans personne
             t = c["t"] + max(0.0, fin - c["base"]) * self.RATE
             n = int(t // DAY)
             c["t"], c["d"] = t - n * DAY, (c["d"] + n) & 0xFFFF
@@ -352,7 +361,7 @@ class MondeServeur:
         self._avancer(c, group, now)
         membres = self.members(group, now)
         figes = sorted(p for p in membres if self.fig.get(p) is True)
-        run = bool(membres) and not figes
+        run = (bool(membres) or self.vivant) and not figes
         c["figes"] = figes
         if run != c["run"]:
             c["run"] = run
@@ -384,6 +393,10 @@ class MondeServeur:
         self.fig[pid] = None if robot else v.get("fig")     # le joueur robot n'arrête jamais l'heure des autres
         if g not in self.horloges:
             t, d = (init["t"], init["d"]) if init else (v["t"], v["d"])
+            if init and self.vivant:
+                # monde vivant : le monde a continué depuis le démarrage du serveur, même sans personne
+                t = float(t) + max(0.0, now - self.t0) * self.RATE
+                d = int(d) + int(t // DAY)
             self.horloges[g] = {"t": float(t) % DAY, "d": int(d) & 0xFFFF, "run": False, "base": now, "seq": 0,
                                 "figes": []}
         if self.horloge_maj(g, now):

@@ -103,8 +103,10 @@ def dossier_robot(env=None) -> str:
                         "wwmp", "robot")
 
 
-def fichier_pid_robot(env=None) -> str:
-    return os.path.join(dossier_robot(env), "jeu.pid")
+def fichier_pid_robot(env=None, rang: int = 0) -> str:
+    """``jeu.pid`` du robot de rang ``rang`` (0 : le premier ; --robots N du serveur : ``jeu-2.pid``, ``jeu-3.pid``…,
+    un fichier par robot pour qu'un robot qui démarre n'arrête jamais le jeu caché d'un autre)."""
+    return os.path.join(dossier_robot(env), "jeu.pid" if not rang else f"jeu-{int(rang) + 1}.pid")
 
 
 def creation_processus(pid: int) -> int | None:
@@ -136,8 +138,15 @@ def pids_robot(fichier: str | None = None) -> set[int]:
     """Pid(s) du jeu caché du robot encore valables (« pid création » par ligne ; création différente : pid réutilisé
     par un autre programme, ignoré)."""
     out: set[int] = set()
+    if fichier is None:
+        # tous les robots (jeu.pid, jeu-2.pid…) : le client du JOUEUR n'ouvre le jeu caché d'aucun d'eux
+        import glob
+        autres = [f for f in sorted(glob.glob(os.path.join(dossier_robot(), "jeu-*.pid")))]
+        for f in autres:
+            out |= pids_robot(f)
+        fichier = fichier_pid_robot()
     try:
-        with open(fichier or fichier_pid_robot(), encoding="ascii", errors="replace") as f:
+        with open(fichier, encoding="ascii", errors="replace") as f:
             lignes = f.read(4096).split("\n")
     except OSError:
         return out

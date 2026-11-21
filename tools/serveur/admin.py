@@ -277,9 +277,10 @@ def valider(d, max_players: int) -> tuple[dict, list[str]]:
                 continue
             out[k] = v
         elif k == "robot":
-            # joueur robot (serveur/robot.py) : off (défaut) ou auto
-            if v not in ("off", "auto"):
-                err.append("robot : off ou auto")
+            # joueur robot (serveur/robot.py) : off (défaut), auto, ou hote (le serveur fait tourner le jeu de toute
+            # zone occupée : docs/etudes/serveur_jeu_v2.md) ; jamais « essai » en dédié
+            if v not in ("off", "auto", "hote"):
+                err.append("robot : off, auto ou hote")
                 continue
             out[k] = v
     return out, err

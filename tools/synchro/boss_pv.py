@@ -88,7 +88,8 @@ OFF_PARENT_ID = 0x2E8           # u32 : id de process du parent [HD-ASM œil 0x0
 OFF_OCTA_YEUX = 0x25C0          # 12 x u32 : ids des yeux, dans le Grand Octo [HD-ASM 0x02119C08]
 OCTA_NB_YEUX = 12
 PROC_OCTA, PROC_OEIL = 225, 226
-PROCS_PARENTS = frozenset({PROC_OCTA})   # acteurs à fournir à ``tick`` en plus des boss (lecture seule)
+PROC_POE = 212                           # petits Poe (ceux de Jalhalla : synchro/boss_mort.py les fait mourir avec lui)
+PROCS_PARENTS = frozenset({PROC_OCTA, PROC_POE})   # acteurs à fournir à ``tick`` en plus des boss
 # Ennemis partagés par l'autorité dont un coup DISTANT ne donne jamais le dernier coup (apply_hit du
 # client) : Darknut (191 : armure et PV réécrits autour des coups, switch à la mort) et Mothula (204)
 FIN_LOCALE = frozenset({191, 204})
@@ -323,6 +324,8 @@ class BossPvSync:
                  exclus: frozenset = frozenset()):
         self.enabled, self.group, self.clock = enabled, group, clock
         self.exclus = frozenset(exclus)       # procs de la table non partagés ici (--no-boss-restants)
+        self.communs: frozenset = frozenset()  # procs dont la mort est commune (synchro/boss_unique.py) : jamais
+                                               # de « coup de grâce à donner chez toi » pour eux
         self.stage: str | None = None
         self.known: dict[str, int] = {}       # clé -> plus petite valeur connue (envoyée ou reçue)
         self.target: dict[str, int] = {}      # clé -> minimum reçu du serveur
@@ -460,8 +463,12 @@ class BossPvSync:
             if key not in self.intro:
                 self.intro.add(key)
                 fin = "à 0 PV" if t.plancher == 0 else "quand un autre l'a vaincu"
-                self.notes.append(f"PV de {t.nom} partagés (--boss-pv) : chaque coup qui compte chez l'un compte "
-                                  f"pour tous ; {fin}, {t.conseil}")
+                if b["proc"] in self.communs:
+                    self.notes.append(f"PV de {t.nom} partagés : chaque coup qui compte chez l'un compte pour tous")
+                else:
+                    self.notes.append(f"PV de {t.nom} partagés (--boss-pv) : chaque coup qui compte chez l'un "
+                                      f"compte "
+                                      f"pour tous ; {fin}, {t.conseil}")
             if t.compteur:
                 hp = read_pv(mem, b["base"], t)       # Molgera : le compteur, pas health
                 if hp is None:
@@ -518,7 +525,7 @@ class BossPvSync:
 
     def _said_zero(self, key: str, t: BossPv, hp: int) -> None:
         """Une fois par instance : un autre a vaincu le boss, le nôtre est à ``hp`` (plancher)."""
-        if key in self.zero_said:
+        if key in self.zero_said or key_proc(key) in self.communs:
             return
         self.zero_said.add(key)
         self.notes.append(f"{t.nom} est à {hp} PV chez toi ({self.by.get(key, 'un autre joueur')} a donné "

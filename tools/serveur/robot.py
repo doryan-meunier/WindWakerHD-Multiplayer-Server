@@ -18,7 +18,12 @@ Règles (choisies par l'utilisateur) :
 * **(3) Repos** : aucune zone avec ROBOT_MIN joueurs : le robot reçoit « dors » (son jeu ne fait plus rien) ; au bout de
   ``repos_arret`` s de repos (``--robot-repos``, 300 par défaut ; 0 = tout de suite), son processus est ARRÊTÉ (la
   mémoire est rendue) ; il est relancé dès qu'une zone le demande.
-* Une seule instance au plus.
+* Une instance par robot : ``--robots N`` (1 par défaut, ROBOTS_MAX au plus), un robot par zone, jamais deux dans la
+  même ; le premier robot choisit d'abord, les suivants parmi les zones restantes. Sans robot libre, la zone garde
+  l'autorité d'un joueur (comme sans robot).
+* **Serveur hôte** (``--robot hote``, docs/etudes/serveur_jeu_v2.md) : le serveur fait tourner le jeu pour TOUTE zone
+  occupée, même par un seul joueur (HOTE_MIN = 1), sans gain exigé : les monstres sont toujours ceux du serveur
+  (personne n'est l'hôte). Les zones les plus peuplées d'abord, dans la limite de ``--robots``.
 * **Essai solo** (``--robot essai``, serveur hébergé sur le PC du joueur seulement) : pour VOIR seul, sur un seul PC,
   les monstres comme les voit un joueur non autoritaire. Le robot prend la zone du joueur même s'il est seul
   (ESSAI_MIN = 1), sans gain exigé, sans repos (son processus tourne tant que le serveur tourne), et la suit quand le
@@ -56,7 +61,8 @@ import subprocess
 import sys
 import time
 
-MODES = ("off", "auto", "essai")
+MODES = ("off", "auto", "essai", "hote")
+ROBOTS_MAX = 8             # --robots au plus (un jeu caché par robot : environ 1 Go de mémoire chacun)
 DEFAUT = "off"
 ROLE = "robot"
 NOM = "robot du serveur"
@@ -67,10 +73,19 @@ SEJOUR_MIN = 20.0          # s : au moins… dans sa zone avant de partir pour u
 DELAI_QUITTER = 5.0        # s : sa zone sous ROBOT_MIN joueurs depuis… -> il la quitte
 REPONSE_MAX = 5.0          # s : un joueur sans « state » depuis… ne compte pas
 SNAP_ATTENTE = 3.0         # s : prêt, aucun instantané de l'autorité depuis son arrivée pendant… : zone sans monstre
+SNAP_REGLAGE = 6.0         # s : depuis le PREMIER instantané reçu de l'autorité, avant de prendre : le temps que le
+                           # jeu du robot supprime les monstres que le joueur a déjà tués (« orphelins » du client :
+                           # 3 s dans la zone, 3 s depuis le 1er instantané, un tour de relevé). Essai du 2026-11-20
+                           # avec un vrai jeu : prise en 0 s, ces monstres restaient vivants chez le serveur et
+                           # invisibles chez le joueur
 CALME_PRISE = 3.0          # s : sans combat dans la zone avant que le robot prenne l'autorité…
 PRISE_MAX = 15.0           # s : … au plus (ensuite, passation quand même)
 ORDRE_RAPPEL = 5.0         # s : ordre renvoyé tant qu'il n'est pas suivi
 TRAJET_MAX = 60.0          # s : envoyé vers une zone, pas prêt après… -> zone mise de côté
+HORS_PARTIE = ("sea_T", "Name", "ENDumi")   # étapes d'avant la partie (écran titre, nom, fin) : le jeu du robot
+                           # démarre encore ; le trajet ne compte qu'ensuite (essai Linux du 2026-11-20 : 55 s de
+                           # démarrage, zone écartée 2 min à tort)
+DEMARRAGE_MAX = 300.0      # s : … mais pas plus longtemps que cela
 ECHEC_PAUSE = 120.0        # s : zone mise de côté (le robot n'y arrive pas) pendant…
 SUIVI_PAS = 1.0            # s : position des joueurs de sa zone envoyée au robot (salles chargées autour d'eux)
 REPOS_ARRET = 300.0        # s : défaut de --robot-repos
@@ -85,8 +100,11 @@ REPRISE_APRES = 60.0       # s : après un retour « plus de gain », pas de rep
 ROBOT_RTT_DEFAUT = 2.0     # ms : robot sur la machine du serveur, s'il n'annonce rien
 ROBOT_SILENCE = 2.0        # s : robot qui tient une zone sans « state » depuis… -> retour forcé
 FPS_MIN = 25.0             # images/s : robot qui rame (rapport « etat ») -> retour forcé
+FPS_GRACE = 12.0           # s après son arrivée dans la zone : sa mesure d'images/s compte encore le chargement
+                           # (essai Linux du 2026-11-20 : 22 i/s annoncées 5 s après l'arrivée, zone rendue à tort)
 RTT_HIST = 20              # aller-retours gardés par joueur (gigue)
 # Essai solo (--robot essai) : un joueur suffit, aucun gain exigé, il suit le joueur d'une zone à l'autre
+HOTE_MIN = 1               # --robot hote : un joueur suffit (le serveur est l'hôte de toute zone occupée)
 ESSAI_MIN = 1              # joueurs humains au moins dans une zone (au lieu de ROBOT_MIN)
 ESSAI_PREMIER = 1.0        # s : au lieu de DELAI_PREMIER
 ESSAI_QUITTER = 1.0        # s : au lieu de DELAI_QUITTER (le joueur a changé de zone : le robot le suit)
@@ -107,7 +125,8 @@ def commande_defaut(commande, portage: str | None, tools: str, essai: bool = Fal
         return commande
     script = os.path.join(tools, "client", "robot.py")
     if portage and os.path.isfile(script):
-        argv = [sys.executable, script, "--hote", "{hote}", "--port", "{port}", "--portage", portage]
+        argv = [sys.executable, script, "--hote", "{hote}", "--port", "{port}", "--portage", portage,
+                "--rang", "{rang}"]
         if essai:
             argv.append("--recopier")
         if journal:
@@ -180,8 +199,17 @@ def normaliser(mode) -> str:
 
 
 def actif(mode) -> bool:
-    """« auto » ou « essai » : le robot tourne."""
-    return normaliser(mode) in ("auto", "essai")
+    """« auto », « essai » ou « hote » : le robot tourne."""
+    return normaliser(mode) in ("auto", "essai", "hote")
+
+
+def nombre_ok(n) -> int:
+    """--robots : entier de 1 à ROBOTS_MAX (illisible : 1)."""
+    try:
+        v = int(n)
+    except (TypeError, ValueError):
+        return 1
+    return min(max(v, 1), ROBOTS_MAX)
 
 
 def cle_valide(attendue: str | None, donnee) -> bool:
@@ -269,8 +297,10 @@ class Gestionnaire:
     ARRET_DELAI = 5.0          # s : terminate, puis kill
 
     def __init__(self, commande, hote: str = "127.0.0.1", port: int = 0, cle: str = "", log=print,
-                 horloge=time.monotonic, journal: str | None = None):
+                 horloge=time.monotonic, journal: str | None = None, rang: int = 0):
         self.commande = commande
+        self.rang = int(rang)             # n° du robot (0 : le premier) : {rang} de la commande, WWMP_ROBOT_RANG
+        self.pre = "robot" if not self.rang else f"robot {self.rang + 1}"
         self.hote, self.port, self.cle = hote, port, cle
         self.log, self.horloge = log, horloge
         self.journal = journal
@@ -293,7 +323,8 @@ class Gestionnaire:
                 parts = [a[1:-1] if len(a) >= 2 and a[0] == a[-1] and a[0] in "\"'" else a for a in parts]
         else:
             parts = list(cmd or [])
-        rep = {"hote": self.hote, "port": str(self.port), "cle": self.cle, "python": sys.executable}
+        rep = {"hote": self.hote, "port": str(self.port), "cle": self.cle, "python": sys.executable,
+               "rang": str(self.rang)}
         out = []
         for a in parts:
             try:
@@ -317,7 +348,7 @@ class Gestionnaire:
             return False
         # WWMP_ROBOT_PARENT : le lanceur du robot (client/robot.py) s'arrête, avec son jeu caché, si ce serveur meurt
         env = dict(os.environ, WWMP_ROBOT_CLE=self.cle, WWMP_ROBOT_HOTE=self.hote, WWMP_ROBOT_PORT=str(self.port),
-                   WWMP_ROBOT_PARENT=str(os.getpid()))
+                   WWMP_ROBOT_PARENT=str(os.getpid()), WWMP_ROBOT_RANG=str(self.rang))
         sortie = subprocess.DEVNULL
         if self.journal:
             try:
@@ -336,12 +367,12 @@ class Gestionnaire:
             self.proc = subprocess.Popen(argv, env=env, stdin=subprocess.DEVNULL, stdout=sortie,
                                          stderr=subprocess.STDOUT, **kw)
         except OSError as e:
-            self.log(f"robot : impossible de lancer « {argv[0]} » ({e})")
+            self.log(f"{self.pre} : impossible de lancer « {argv[0]} » ({e})")
             self._plante(None)
             return False
         self.demarrages += 1
         self.demarre_t = self.horloge()
-        self.log(f"robot : processus lancé (pid {self.proc.pid}, démarrage n° {self.demarrages})")
+        self.log(f"{self.pre} : processus lancé (pid {self.proc.pid}, démarrage n° {self.demarrages})")
         return True
 
     def arreter(self, raison: str = "") -> None:
@@ -378,7 +409,7 @@ class Gestionnaire:
         self.dernier_code = p.returncode
         self.demarre_t = None
         self._fermer_journal()
-        self.log("robot : processus arrêté" + (f" ({raison})" if raison else ""))
+        self.log(f"{self.pre} : processus arrêté" + (f" ({raison})" if raison else ""))
 
     def _fermer_journal(self) -> None:
         if self._fichier is not None:
@@ -394,12 +425,12 @@ class Gestionnaire:
         self.plantages = [t for t in self.plantages if now - t < self.RELANCES_FENETRE] + [now]
         if len(self.plantages) > self.RELANCES_MAX:
             self.abandon = True
-            self.log(f"robot : {len(self.plantages)} plantages en {self.RELANCES_FENETRE:.0f} s, plus de relance "
+            self.log(f"{self.pre} : {len(self.plantages)} plantages en {self.RELANCES_FENETRE:.0f} s, plus de relance "
                      "(autorité laissée aux joueurs ; redémarre le serveur ou « reprendre » après correction)")
             return
         attente = self.RELANCE_DELAI * (2 ** (len(self.plantages) - 1))
         self.prochain = now + attente
-        self.log(f"robot : processus terminé (code {code}), relance dans {attente:.0f} s")
+        self.log(f"{self.pre} : processus terminé (code {code}), relance dans {attente:.0f} s")
 
     def reprendre(self) -> None:
         self.abandon, self.plantages, self.prochain = False, [], 0.0
@@ -480,7 +511,10 @@ class Robot:
     """État du robot vu du serveur (la logique de passation est dans ``Server.robot_tick``)."""
 
     def __init__(self, mode: str = DEFAUT, cle: str | None = None, commande=None, repos_arret: float = REPOS_ARRET,
-                 log=print, horloge=time.monotonic):
+                 log=print, horloge=time.monotonic, rang: int = 0):
+        self.rang = int(rang)                    # 0 : le premier robot (--robots N : rangs 0 à N-1)
+        self.pre = "robot" if not self.rang else f"robot {self.rang + 1}"      # début des lignes du journal
+        self.nom = NOM if not self.rang else f"{NOM} {self.rang + 1}"
         self.mode = normaliser(mode)
         self.cle = cle or (nouvelle_cle() if actif(self.mode) else None)
         self.choix = ChoixZone()
@@ -489,7 +523,8 @@ class Robot:
         self.du_robot = Retard(0, horloge=horloge, log=log)        # robot -> serveur (latence / 2)
         self._regles()
         self.repos_arret = max(0.0, float(repos_arret))
-        self.gest = Gestionnaire(commande, cle=self.cle or "", log=log, horloge=horloge) if commande else None
+        self.gest = Gestionnaire(commande, cle=self.cle or "", log=log, horloge=horloge,
+                                 rang=self.rang) if commande else None
         self.pid: int | None = None          # id de la connexion du robot (None : pas connecté)
         self.zone_autorite: str | None = None   # zone où le robot doit (ou va) tenir l'autorité
         self.cible: str | None = None
@@ -515,12 +550,16 @@ class Robot:
 
     def mesurer_prise(self, zone: str, raison: str, attente: float, rtt_joueur, rtt_robot: float, now: float):
         self.tenue_t = now
-        return self.mesures.prise(zone, raison, attente, rtt_joueur, rtt_robot)
+        return self._pre(self.mesures.prise(zone, raison, attente, rtt_joueur, rtt_robot))
+
+    def _pre(self, ligne: str) -> str:
+        """Ligne de journal des mesures au nom de CE robot (« robot 2 : … » à partir du deuxième)."""
+        return ligne if not self.rang else self.pre + ligne[len("robot"):]
 
     def mesurer_rendu(self, zone: str, raison: str, force: bool, now: float):
         duree = now - self.tenue_t if self.tenue_t is not None else 0.0
         self.tenue_t = None
-        return self.mesures.rendu(zone, raison, force, duree)
+        return self._pre(self.mesures.rendu(zone, raison, force, duree))
 
     @property
     def actif(self) -> bool:
@@ -531,9 +570,16 @@ class Robot:
         """Essai solo (--robot essai) : un joueur suffit, aucun gain exigé, aucun repos."""
         return self.mode == "essai"
 
+    @property
+    def hote(self) -> bool:
+        """Serveur hôte (--robot hote) : toute zone occupée, même par un seul joueur, sans gain exigé."""
+        return self.mode == "hote"
+
     def _regles(self) -> None:
         if self.essai:
             self.choix.regler(ESSAI_MIN, ESSAI_PREMIER, ESSAI_QUITTER)
+        elif self.hote:
+            self.choix.regler(HOTE_MIN, ESSAI_PREMIER, ESSAI_QUITTER)   # il suit vite un joueur qui change de zone
         else:
             self.choix.regler()
 

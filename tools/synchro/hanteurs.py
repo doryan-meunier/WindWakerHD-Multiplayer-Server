@@ -155,6 +155,11 @@ ESPECES = {
     188: {"nom": "Moblin", "cout": 60, "recharge": 25.0, "hypo": False},
     206: {"nom": "Chuchu", "cout": 15, "recharge": 8.0, "hypo": True},
     215: {"nom": "Keese", "cout": 10, "recharge": 5.0, "hypo": True},
+    # 2026-11-19 : à l'essai (option especes_hypo) : paramètres relus dans le cking.rpx HD (Peahat create 0x023CF600,
+    # Miniblin create 0x02446E54 / delete 0x024468E4) et dans d_a_tn.cpp (Darknut, découpage identique en HD 0x024C0DAC)
+    247: {"nom": "Miniblin", "cout": 15, "recharge": 8.0, "hypo": True},
+    209: {"nom": "Peahat", "cout": 40, "recharge": 20.0, "hypo": True},
+    191: {"nom": "Darknut", "cout": 120, "recharge": 60.0, "hypo": True},
 }
 BK_TYPES_REFUSES = {5, 6, 8, 9, 0xA, 0xB, 0xF}   # porté, switch, générateur, chemin, scripté, figé
 MO2_MODES_REFUSES = {1, 5, 0xF}                  # lanterne, porté, statue
@@ -186,6 +191,17 @@ def params_invocation(proc: int, vu: int) -> int | None:
     if proc in (206, 215):
         from synchro import cibles
         return vu if cibles.eligible(proc, vu, None) else None
+    if proc == 191:
+        # Darknut : comportement forcé à 0 (rôde ; jamais garde 4, démo 12, mini-boss 13, embuscade 14, figé 15),
+        # couleur d'armure gardée, portée par défaut, sans chemin ni switch d'apparition (angle X = 0 : sans équipement)
+        return 0xFFFFFF00 | (vu & 0xF0)
+    if proc == 209:
+        # Peahat : octet bas 0 / 0xFF ; autre valeur = Seahat (le même proc, en mer) : refusé ; rayons par défaut
+        return 0xFFFFFFFF if (vu & 0xFF) in (0x00, 0xFF) else None
+    if proc == 247:
+        # Miniblin : type 0xF (le type 0 recrée un Miniblin à sa mort : des copies locales sur chaque PC), visible
+        # (0x10 effacé), portée par défaut, sans switch de mort ni d'activation
+        return 0xFFFFFFEF
     return None
 
 
@@ -740,8 +756,8 @@ class Partie(ordres.InfluencePartie, potion.PotionPartie, victoire.VictoireParti
             if k is None:
                 continue
             if not mort:
-                if k[0] in ESPECES and key not in self.invoques:
-                    self.especes.setdefault(stage, {})[k[0]] = k[1]
+                if k[0] in ESPECES and key not in self.invoques and params_invocation(k[0], k[1]) is not None:
+                    self.especes.setdefault(stage, {})[k[0]] = k[1]     # (un Seahat ne cache pas le Peahat vu avant)
                 vivants.add(key)
                 inv = self.invoques.get(key)
                 if inv is not None:
@@ -2288,6 +2304,10 @@ class HanteurSync:
         if role != ancien:
             self._note("tu es maintenant " + ("un HANTEUR (invisible pour les Link)" if role == ROLE_HANTEUR
                                               else "un LINK") + f" ({msg.get('raison', '?')})")
+            if ancien in (ROLE_LINK, ROLE_HANTEUR):     # 2026-11-19 : l'âme quitte notre Link (devenu Hanteur) ;
+                # redevenu Link, la volute qui entre en lui vient de l'effet « apparition » (sa vraie place)
+                if role == ROLE_HANTEUR:
+                    self.decors_evts = (self.decors_evts + [("ame", None, None)])[-8:]
 
     def reset_network(self) -> None:
         """Connexion perdue : le mode s'arrête chez nous (Link visible au prochain tick)."""
@@ -2416,6 +2436,9 @@ class HanteurSync:
                 return
             type_, echelle = EFFETS_FUMEE[f["quoi"]]
             self.fx_t.append(now)
+            if f["quoi"] in ("echange", "apparition"):    # 2026-11-19 : âme qui s'élève / volute qui entre en lui
+                g = "ame" if f["quoi"] == "echange" else "possession"
+                self.decors_evts = (self.decors_evts + [(g, list(p), f["room"])])[-8:]
             if self._effet_pack(sm, f["quoi"], p):
                 self.n_fx += 1
             elif sm.effet(p, f["room"], type_, echelle):
@@ -2710,9 +2733,14 @@ class HanteurSync:
     def liens(self) -> list[int]:
         return sorted(p for p, r in self.roles.items() if r == ROLE_LINK)
 
+    def prison_menu(self):
+        """La Prison dans le menu d'invocation : None si l'enfermement est coupé dans la partie (pas d'entrée), sinon
+        vrai (le serveur décide : Link proche, recharge)."""
+        return True if getattr(self, "enf_on", False) else None
+
     def _menu_mod(self, mb, stage) -> None:
         """Le menu d'invocation tel que le mod le dessine (zone WWMPMNU1), réécrit seulement s'il a changé."""
-        etat = self.menu.etat(self.especes, self.especes_ici(stage) if stage else [], self.points)
+        etat = self.menu.etat(self.especes, self.especes_ici(stage) if stage else [], self.points, self.prison_menu())
         if etat == self.menu.ecrit or mb is None or not callable(getattr(mb, "menu_ecrire", None)):
             return
         try:
@@ -2762,9 +2790,13 @@ class HanteurSync:
                     return
                 ici = self.especes_ici(stage)
                 actuel = ici[self.choix % len(ici)] if ici else None
-                proc = self.menu.action(action, self.especes, ici, actuel)
-                if action == "menu_ok" and proc is None and self.menu.liste(self.especes, ici):
+                prison = self.prison_menu()
+                proc = self.menu.action(action, self.especes, ici, actuel, prison)
+                if action == "menu_ok" and proc is None and self.menu.liste(self.especes, ici, prison):
                     self._note("pas encore vu vivant ici : le serveur le refuse (il faut un exemplaire vivant)")
+            if proc == menu_invocation.PRISON:                    # 0.62.0 : la Prison du menu : enfermer
+                self.commande("enfermer", me=me, stage=stage)
+                return
             if proc is not None:
                 if proc in ici:
                     self.choix = ici.index(proc)

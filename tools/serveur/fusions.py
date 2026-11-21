@@ -8,8 +8,12 @@ finit, et dit à chacun des deux son rôle ; le client applique (client/fusions.
   bombe en main) ; ev ``lancer`` (la bombe vient d'être lancée, ``age`` : depuis combien de temps elle était tenue) ;
   ev ``fin`` (le client constate la fin : mort, L3, port perdu).
 * **Tournoyante** (sombre + turquoise) : les deux chargent en même temps, collés (même zone, à moins de DISTANCE) :
-  le premier qui a chargé déplace. **Méga bombe** (orange + violet) : deux lancers à moins de ECART_LANCERS, chaque
-  bombe tenue depuis BOMBE_MURE au moins, collés : le premier qui a lancé déplace.
+  la paire est ARMÉE (``arme`` aux deux : leur mod garde B tenu pour le jeu) ; ils doivent alors RELÂCHER B ensemble,
+  à moins de ECART_RELACHE (le relâchement est la fin de « charge » de leur état) : la fusion commence (le premier qui
+  a chargé déplace) ; sinon (trop tôt, trop tard) les deux sont ÉTOURDIS (``etourdi``) et le duo se repose. **Méga bombe** (orange + violet) : deux lancers à moins de ECART_LANCERS, chaque
+  bombe tenue depuis BOMBE_MURE au moins, collés : le premier qui a lancé déplace. (2026-11-19) Comme la
+  tournoyante : deux Link collés qui tiennent chacun une bombe sont ARMÉS ; un lancer seul, des lancers trop
+  éloignés (ECART_LANCERS) ou une bombe pas mûre : les deux sont ÉTOURDIS.
 * Jamais : règle coupée, mode Hanteurs, Hanteur, robot, joueur sans « fusions » (mod 0.47.0), cinématique (busy),
   menu / porté / porteur (nc), coureur d'une course, état vieux, départ en cours, l'un déjà fusionné, duo au repos.
 * Fin (tick) : DUREE écoulée, départ, zone changée (étape ou salle), cinématique ; client : mort, L3, port perdu.
@@ -25,7 +29,8 @@ finit, et dit à chacun des deux son rôle ; le client applique (client/fusions.
 
 ESSAI « fusions de tenues » (``--essai-fusions``, Réglages › Essais ; à retirer après validation, tout ce qui sert à
 l'essai est marqué ESSAI) : un client d'essai annonce un faux coéquipier (``essai_faux`` : position, zone) ;
-``essai_tournoyante`` : il charge (20 s) ; ``essai_bombe`` : il tient une bombe (20 s) et la lance en même temps que
+``essai_tournoyante`` : il charge (20 s) et relâche B en même temps que le joueur ; ``essai_rate`` : il charge
+mais ne relâche jamais (timing raté : étourdis) ; ``essai_mega_direct`` : la méga bombe commence tout de suite (banc) ; ``essai_bombe`` : il tient une bombe (20 s) et la lance en même temps que
 le joueur ; ``essai_role`` : rôle voulu pour le joueur (0 : le premier qui a chargé ou lancé). Le faux coéquipier prend
 l'autre couleur du duo ; si la couleur du joueur n'est pas dans le duo du bouton, la fusion d'essai le traite comme
 la première couleur de ce duo (couleurs d'affichage seulement : rien d'autre ne change).
@@ -66,6 +71,8 @@ class FusionsServeur:
         self.par_joueur: dict[int, int] = {}  # pid -> id de fusion
         self.repos: dict[frozenset, float] = {}
         self.n = 0
+        self.armes: dict = {}                 # frozenset(paire) -> paire armée (tournoyante : relâchements attendus)
+        self.n_rates = 0
         self.journal: list[str] = []
         # ESSAI
         self.essai_faux: dict[int, dict] = {}     # pid -> {pos, zone, t, charge_jusqu, bombe_jusqu}
@@ -104,6 +111,7 @@ class FusionsServeur:
             e = self.etats.setdefault(pid, {"charge": False, "charge_t": None, "bombe": False, "bombe_t": None,
                                             "lancer_t": None, "age": 0.0})
             ch, bo = msg.get("charge") in (1, True), msg.get("bombe") in (1, True)
+            relache = e["charge"] and not ch
             if ch and not e["charge"]:
                 e["charge_t"] = now
             if not ch:
@@ -111,7 +119,8 @@ class FusionsServeur:
             if bo and not e["bombe"]:
                 e["bombe_t"] = now
             e["charge"], e["bombe"], e["t"] = ch, bo, now
-            return self.tick([pid] + [q for q in self.etats if q != pid], info, autorite, now)
+            envois = self._relache(pid, now) if relache else []
+            return envois + self.tick([pid] + [q for q in self.etats if q != pid], info, autorite, now)
         if ev == "lancer":
             e = self.etats.setdefault(pid, {"charge": False, "charge_t": None, "bombe": False, "bombe_t": None,
                                             "lancer_t": None, "age": 0.0})
@@ -119,7 +128,8 @@ class FusionsServeur:
             e["lancer_t"] = now
             e["age"] = float(age) if isinstance(age, (int, float)) and not isinstance(age, bool) and 0 <= age < 60 else 0.0
             e["bombe"], e["t"] = False, now
-            return self._mega(pid, info, autorite, now)
+            return self._mega(pid, info, autorite, now) + self.tick([pid] + [q for q in self.etats if q != pid],
+                                                                     info, autorite, now)
         if ev == "fin":
             f = self.en_fusion(pid)
             if f is None or msg.get("id") not in (None, f["id"]):
@@ -187,6 +197,19 @@ class FusionsServeur:
             envois += self._verifier(f, info, now)
         if not self.actif():
             return envois
+        envois += self._armer_mega(ids, info, now)
+        envois += self._armes_tick(info, autorite, now)
+        if self.essai:                              # ESSAI : méga bombe directe (sans vraie bombe : banc, vidéo)
+            for pid in list(ids):
+                f = self.essai_faux.get(pid) or {}
+                if now > f.get("mega_direct", -1e9) or self.en_fusion(pid):
+                    f.pop("mega_direct", None)
+                    continue
+                for q, j, c, cq, g in self._partenaires(pid, info, now):     # réessayé 5 s (faux pas encore là)
+                    if q == ID_ESSAI and g == fu.MEGA_BOMBE:
+                        f.pop("mega_direct", None)
+                        envois += self.commencer(g, pid, q, {pid: c, q: cq}, info, autorite, now)
+                        break
         for pid in list(ids):
             e = self.etats.get(pid)
             if not e or not e.get("charge") or self.en_fusion(pid):
@@ -197,39 +220,116 @@ class FusionsServeur:
                 eq = self._etat_faux(pid, now) if q == ID_ESSAI else self.etats.get(q, {})
                 if not eq.get("charge"):
                     continue
+                cle = frozenset((pid, q))
+                if cle in self.armes:
+                    break
                 tp, tq = e.get("charge_t") or now, eq.get("charge_t") or now
                 porteur = pid if tp <= tq else q
-                envois += self.commencer(g, porteur, q if porteur == pid else pid, {pid: c, q: cq}, info, autorite,
-                                         now)
+                self.armes[cle] = {"g": g, "porteur": porteur, "passager": q if porteur == pid else pid,
+                                   "cols": {pid: c, q: cq}, "t": now, "rel": {}}
+                for x, autre in ((pid, q), (q, pid)):
+                    if x != ID_ESSAI:
+                        envois.append((x, {"type": "fusion", "ev": "arme", "partenaire": autre,
+                                           "ecart": fu.ECART_RELACHE,
+                                           **({"essai": 1} if ID_ESSAI in (pid, q) else {})}))
+                self.journal.append(f"fusions : tournoyante armée ({(info(pid) or {}).get('nom', pid)}) : "
+                                    f"relâchez B ensemble ({fu.ECART_RELACHE:g} s)")
                 break
         return envois
 
+    # -- tournoyante : le relâchement des deux --------------------------------------------------------------------
+    def _relache(self, pid, now) -> list:
+        """``pid`` vient de relâcher B (fin de « charge ») : noté dans sa paire armée ; ESSAI : le faux coéquipier
+        relâche en même temps (ou jamais, « essai_rate »)."""
+        for cle, a in self.armes.items():
+            if pid not in cle or pid in a["rel"]:
+                continue
+            a["rel"][pid] = now
+            autre = next(iter(cle - {pid}))
+            if autre == ID_ESSAI and not (self.essai_faux.get(pid) or {}).get("rate"):
+                a["rel"][autre] = now
+            break
+        return []
+
+    def _armes_tick(self, info, autorite, now) -> list:
+        envois = []
+        for cle, a in list(self.armes.items()):
+            rel = a["rel"]
+            ecart = fu.ECART_LANCERS if a["g"] == fu.MEGA_BOMBE else fu.ECART_RELACHE
+            if len(rel) >= 2:
+                t1, t2 = sorted(rel.values())[:2]
+                del self.armes[cle]
+                mures = a["g"] != fu.MEGA_BOMBE or all(v >= fu.BOMBE_MURE for v in a.get("ages", {}).values())
+                if t2 - t1 <= ecart and mures:
+                    porteur, passager = a["porteur"], a["passager"]
+                    if a["g"] == fu.MEGA_BOMBE:             # le premier qui a lancé déplace
+                        porteur = min(rel, key=rel.get)
+                        passager = next(iter(cle - {porteur}))
+                    envois += self.commencer(a["g"], porteur, passager, a["cols"], info, autorite, now)
+                else:
+                    envois += self._rate(cle, now, "écart" if mures else "trop tôt")
+            elif len(rel) == 1 and now - next(iter(rel.values())) > ecart:
+                del self.armes[cle]
+                envois += self._rate(cle, now, "seul")
+            elif now - a["t"] > fu.ARME_MAX:
+                del self.armes[cle]
+                envois += [(x, {"type": "fusion", "ev": "desarme"}) for x in cle if x != ID_ESSAI]
+        return envois
+
+    def _rate(self, cle, now, pourquoi) -> list:
+        """Timing raté : les deux étourdis, le duo se repose."""
+        self.n_rates += 1
+        self.repos[cle] = now + fu.REPOS
+        self.journal.append(f"fusions : tournoyante ratée ({pourquoi}) : les deux sont étourdis")
+        return [(x, {"type": "fusion", "ev": "etourdi", "raison": pourquoi,
+                     **({"essai": 1} if ID_ESSAI in cle else {})}) for x in cle if x != ID_ESSAI]
+
     def _mega(self, pid, info, autorite, now) -> list:
+        """``pid`` vient de lancer sa bombe : noté dans sa paire armée (méga bombe) avec l'âge de sa bombe ; ESSAI :
+        le faux coéquipier lance en même temps, une bombe mûre (ou jamais, « essai_bombe_rate »)."""
         if not self.actif():
             return []
         e = self.etats.get(pid) or {}
-        if e.get("age", 0.0) < fu.BOMBE_MURE:
-            if self.essai and pid in self.essai_faux:
-                self.journal.append(f"fusions : ESSAI, lancer trop tôt ({e.get('age', 0.0):.1f} s < "
-                                    f"{fu.BOMBE_MURE:.1f} s) : pas de méga bombe")
-            return []
-        for q, j, c, cq, g in self._partenaires(pid, info, now):
-            if g != fu.MEGA_BOMBE:
+        for cle, a in self.armes.items():
+            if pid not in cle or a["g"] != fu.MEGA_BOMBE or pid in a["rel"]:
                 continue
-            if q == ID_ESSAI:
-                ef = self._etat_faux(pid, now)
-                if not ef.get("bombe"):
-                    continue
-                tq = now                            # ESSAI : le faux coéquipier lance en même temps
-                age_q = fu.BOMBE_MURE
-            else:
-                eq = self.etats.get(q) or {}
-                tq, age_q = eq.get("lancer_t"), eq.get("age", 0.0)
-                if tq is None or abs(now - tq) > fu.ECART_LANCERS or age_q < fu.BOMBE_MURE:
-                    continue
-            porteur = q if tq < now else pid        # le premier qui a lancé déplace
-            return self.commencer(g, porteur, q if porteur == pid else pid, {pid: c, q: cq}, info, autorite, now)
+            a["rel"][pid] = now
+            a.setdefault("ages", {})[pid] = e.get("age", 0.0)
+            autre = next(iter(cle - {pid}))
+            if autre == ID_ESSAI and not (self.essai_faux.get(pid) or {}).get("rate"):
+                a["rel"][autre] = now
+                a["ages"][autre] = fu.BOMBE_MURE
+            if self.essai and e.get("age", 0.0) < fu.BOMBE_MURE:
+                self.journal.append(f"fusions : ESSAI, lancer trop tôt ({e.get('age', 0.0):.1f} s < "
+                                    f"{fu.BOMBE_MURE:.1f} s)")
+            break
         return []
+
+    def _armer_mega(self, ids, info, now) -> list:
+        """Deux Link collés qui tiennent chacun une bombe : la paire est armée (méga bombe)."""
+        envois = []
+        for pid in list(ids):
+            e = self.etats.get(pid)
+            if not e or not e.get("bombe") or self.en_fusion(pid):
+                continue
+            for q, j, c, cq, g in self._partenaires(pid, info, now):
+                if g != fu.MEGA_BOMBE:
+                    continue
+                eq = self._etat_faux(pid, now) if q == ID_ESSAI else self.etats.get(q, {})
+                cle = frozenset((pid, q))
+                if not eq.get("bombe") or cle in self.armes:
+                    continue
+                self.armes[cle] = {"g": g, "porteur": None, "passager": None, "cols": {pid: c, q: cq}, "t": now,
+                                   "rel": {}, "ages": {}}
+                for x, autre in ((pid, q), (q, pid)):
+                    if x != ID_ESSAI:
+                        envois.append((x, {"type": "fusion", "ev": "arme", "partenaire": autre, "genre": g,
+                                           "ecart": fu.ECART_LANCERS,
+                                           **({"essai": 1} if ID_ESSAI in (pid, q) else {})}))
+                self.journal.append(f"fusions : méga bombe armée ({(info(pid) or {}).get('nom', pid)}) : "
+                                    f"lancez ensemble ({fu.ECART_LANCERS:g} s)")
+                break
+        return envois
 
     def commencer(self, genre, porteur, passager, cols: dict, info, autorite, now) -> list:
         # ESSAI : rôle voulu pour le joueur réel
@@ -385,13 +485,22 @@ class FusionsServeur:
                 return "faux coéquipier mal placé"
             f.update(pos=list(p), zone=z, t=now)
             return ""
-        if ev == "essai_tournoyante":
-            f.update(genre=fu.TOURNOYANTE, charge_jusqu=now + ESSAI_GESTE, charge_t=now, bombe_jusqu=-1e9)
+        if ev == "essai_bombe_rate":            # ESSAI : il tient une bombe mais ne la lancera pas
+            f.update(genre=fu.MEGA_BOMBE, bombe_jusqu=now + ESSAI_GESTE, charge_jusqu=-1e9, charge_t=None, rate=True)
+            return ""
+        if ev in ("essai_tournoyante", "essai_rate"):
+            f.update(genre=fu.TOURNOYANTE, charge_jusqu=now + ESSAI_GESTE, charge_t=now, bombe_jusqu=-1e9,
+                     rate=ev == "essai_rate")
             self.journal.append(f"fusions : ESSAI, le faux coéquipier de {i.get('nom', pid)} charge sa tournoyante")
             return ""
         if ev == "essai_bombe":
-            f.update(genre=fu.MEGA_BOMBE, bombe_jusqu=now + ESSAI_GESTE, charge_jusqu=-1e9, charge_t=None)
+            f.update(genre=fu.MEGA_BOMBE, bombe_jusqu=now + ESSAI_GESTE, charge_jusqu=-1e9, charge_t=None, rate=False)
             self.journal.append(f"fusions : ESSAI, le faux coéquipier de {i.get('nom', pid)} tient une bombe")
+            return ""
+        if ev == "essai_mega_direct":           # ESSAI : la méga bombe tout de suite (au prochain tick)
+            f.update(genre=fu.MEGA_BOMBE, bombe_jusqu=now + ESSAI_GESTE, charge_jusqu=-1e9, charge_t=None,
+                     mega_direct=now + 5.0)
+            self.journal.append(f"fusions : ESSAI, méga bombe directe pour {i.get('nom', pid)}")
             return ""
         if ev == "essai_role":
             r = msg.get("role")

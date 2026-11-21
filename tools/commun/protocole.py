@@ -299,7 +299,7 @@ import math
 import re
 
 VERSION = 2
-CLIENT_VERSION = "2026-11-15a"   # outils (client/serveur) : affiché dans les journaux du serveur
+CLIENT_VERSION = "2026-11-21a"   # outils (client/serveur) : affiché dans les journaux du serveur
 DEFAULT_PORT = 7777
 MAX_PLAYERS = 8        # joueurs au plus par partie (serveur, annonce de découverte, lanceurs)
 KEEPALIVE = 1.0        # s entre deux pings du client

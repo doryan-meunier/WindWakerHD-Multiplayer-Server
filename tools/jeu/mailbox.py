@@ -403,6 +403,14 @@ CAP_CARTE = 0x40000000           # bit 30
 # -8 Link absent, -9 message ou menu, -10 Link mort ou vie à 0, -11 variation de vie en attente, -12 vie incohérente.
 CALL_VIE = 18
 MAGIC_VIE = b"WWMPVIE1"
+# boss unique, orientation commune de Gohma (MOD NATIF SEULEMENT, 0.63.0 ; natif/mod_wwmp/boss.c, synchro/
+# boss_unique.py) : SANS bit de capacité : la zone wwmp_bos (magie « WWMPBOS1 », format 1, à +0x7000) trouvée dans la
+# boîte EST la capacité. Le PC écrit l'angle (+0x10, s16) puis « fin » (+0x0C, EN DERNIER) : l'image, au compteur de
+# la boîte, jusqu'à laquelle l'angle vaut ; le jeu fait tourner Gohma vers cet angle (accroche d'entrée de move).
+MAGIC_BOS = b"WWMPBOS1"
+BOS_FORMAT = 1
+OFFBOS_FIN, OFFBOS_ANGLE, OFFBOS_APPLIQUES = 0x0C, 0x10, 0x14
+BOS_IMAGES = 20                   # images de validité d'un angle écrit (repoussée à chaque tour du client)
 VIE_FORMAT = 1
 OFFV_APPELS, OFFV_FAITS, OFFV_REFUS, OFFV_DERNIER = 0x0C, 0x10, 0x14, 0x18
 # capacités des monstres possédés (MOD NATIF SEULEMENT, 0.34.0 ; natif/mod_wwmp/capacites.c, synchro/capacites.py) :
@@ -576,6 +584,7 @@ DEC_IMAGES_MAX = 0xFFFF
 DEC_ATTENTE = 1.0                  # s : attente de l'accusé d'une demande de décor avant la suivante
 DEC_MOD = 52                       # NATIF_VERSION_MOD qui a la zone
 OFFD_SUIVRE = 0x5A                 # (0.55.0) u16 mode, puis u32 id du fantôme (+0x5C), f32 décalage en y (+0x60)
+OFFD_ARC = 0x64                    # (0.62.0) f32 : trajet en cloche, hauteur du sommet (avant : réservé, ignoré)
 DEC_SUIVRE_LINK, DEC_SUIVRE_FANTOME = 1, 2    # main droite du Link du joueur / d'un fantôme (articulation 12)
 # poses de Link (MOD NATIF SEULEMENT, 0.55.0 ; natif/mod_wwmp/pose.c, client/bonheur.py) : SANS bit : la zone wwmp_pos
 # (magie « WWMPPOS1 », format 1), 0x40 octets à 0x7380, EST la capacité. Le PC écrit pose et durée, puis « demande »
@@ -602,7 +611,7 @@ INV_MOD = 56                       # NATIF_VERSION_MOD qui a la zone
 OFFI_MEDAILLE_DEMANDE, OFFI_MEDAILLE_PRISE = 0x39, 0x3A   # (0.57.0) médaillon assemblé brandi : compteurs 8 bits
 MEDAILLE_MOD = 57
 # menu d'invocation des Hanteurs (MOD NATIF SEULEMENT, 0.60.0 ; natif/mod_wwmp/menu.c, synchro/menu_invocation.py) :
-# SANS bit : la zone wwmp_mnu (magie « WWMPMNU1 », format 1), 0x160 octets à 0x7400. Le PC écrit tout, « seq » EN
+# SANS bit : la zone wwmp_mnu (magie « WWMPMNU1 », format 1), 0x160 octets à 0x7400 (0x178 depuis le 0.62.0). Le PC écrit tout, « seq » EN
 # DERNIER ; le mod dessine seulement.
 MAGIC_MNU = b"WWMPMNU1"
 MNU_FORMAT = 1
@@ -610,15 +619,34 @@ MNU_OFF = 0x7400
 OFFU_SEQ, OFFU_OUVERT, OFFU_TITRE, OFFU_NOMS, OFFU_COUTS, OFFU_DESSINS = 0x0C, 0x10, 0x20, 0x4C, 0x13C, 0x154
 MNU_N, MNU_NOM, MNU_TITRE = 12, 20, 44
 MNU_MOD = 60
+OFFU_PROCS = 0x158                 # (0.62.0) u16 x 12 : proc de chaque monstre (portrait « monstre_<proc>.png »)
+MNU_PORTRAITS_MOD = 62             # avant, la zone s'arrête à 0x160 : rien n'est écrit à +0x158
+# gestes de Link (MOD NATIF SEULEMENT, 0.62.0 ; natif/mod_wwmp/gestes.c, client/fusions.py) : SANS bit : la zone
+# wwmp_ges (magie « WWMPGES1 », format 1), 0x40 octets à 0x7580. Le PC écrit le geste puis « demande » EN DERNIER.
+MAGIC_GES = b"WWMPGES1"
+GES_FORMAT = 1
+GES_OFF = 0x7580
+OFFG_DEMANDE, OFFG_GESTE, OFFG_PRISE, OFFG_TENIR, OFFG_TOURBILLON = 0x0C, 0x10, 0x1C, 0x38, 0x3A
+GES_ROULADE, GES_TOURBILLON, GES_ETOURDI = 1, 2, 3
+GES_TB_JEU, GES_TB_INTERDITE, GES_TB_PERMISE = 0, 1, 2     # l'Attaque Tourbillon selon la tenue
+GES_TENIR_MAX = 90                 # images : B tenu pour le jeu (fusion tournoyante armée), rechargé par le PC
+GES_COMPTEURS = ("prise", "en_cours", "roulades", "tourbillons", "refus", "raison", "attente", "tenir_b",
+                 "tourbillon", "retenues", "offerts", "interdits", "etourdis")
+GES_MOD = 62
 PROC_MODELE = 0x1F1                # WwmpModel (natif/mod_wwmp/offsets.h WWMP_PROC_MODELE)
 ID_MOD_DECORS = "wwmp-decors"           # paquet de contenu des modèles originaux (natif/decors/paquet)
 
 
-def archive_decor(modele: str, mod: str = ID_MOD_DECORS) -> str:
+MOD_DES_MODELES = {n: "wwmp-decors2" for n in ("fiole", "eclat",                # (0.62.0) les autres : ID_MOD_DECORS
+                                                "fumee", "cercle", "halo", "etoile")}   # effets du 2026-11-20
+
+
+def archive_decor(modele: str, mod: str | None = None) -> str:
     """Nom de l'archive que le portage donne au modèle ``modele`` (manifest.json « models ») du paquet ``mod`` :
     « mod » + les 28 premiers chiffres hexadécimaux du SHA-256 de « mod\0modele » (runtime/src/mods/
     actor_model_cache.cpp, ``prepare_once``). Montée à /vol/content/Common/Object/<nom>.szs."""
     import hashlib
+    mod = mod or MOD_DES_MODELES.get(modele, ID_MOD_DECORS)
     return "mod" + hashlib.sha256(f"{mod}\0{modele}".encode("utf-8")).hexdigest()[:28]
 # tenues à pouvoir, partie B : les FUSIONS (0.47.0 ; natif/mod_wwmp/fusions.c, client/fusions.py) : champs réservés de
 # WWMPTEN1 (+0x12 fusion en cours, +0x13 rôle, +0x1E facteur de fusion de tous nos coups, +0x1F des objets à magie ;
@@ -1780,6 +1808,43 @@ class Mailbox:
         return a
 
     # --- vie partagée (0.30.0, mod natif seulement, sans bit : la zone est la capacité) ---------------------------
+    def bos_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_bos`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle
+        (mod natif avant 0.63.0, Cemu)."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_bos", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_BOS, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != BOS_FORMAT:
+                return None
+            a = self._bos = hits[0]
+        return a
+
+    @property
+    def bos_ok(self) -> bool:
+        return self.bos_addr() is not None
+
+    def gohma_angle(self, angle: int, images: int = BOS_IMAGES) -> bool:
+        """Orientation commune de Gohma : ``angle`` (s16) vaut pendant ``images`` images (1 à 90) à partir de
+        maintenant ; le jeu tourne Gohma vers lui avec sa propre vitesse. False sans la zone. ValueError hors bornes."""
+        if isinstance(angle, bool) or not isinstance(angle, int) or not -0x8000 <= angle <= 0x7FFF:
+            raise ValueError("gohma_angle : angle hors bornes")
+        if isinstance(images, bool) or not isinstance(images, int) or not 1 <= images <= 90:
+            raise ValueError("gohma_angle : durée hors bornes")
+        a = self.bos_addr()
+        if a is None:
+            return False
+        self.mem.write(a + OFFBOS_ANGLE, struct.pack(">h", angle))
+        self.mem.write(a + OFFBOS_FIN, struct.pack(">I", (self.frames() + images) & 0xFFFFFFFF))   # en dernier
+        return True
+
+    def gohma_angle_appliques(self) -> int | None:
+        a = self.bos_addr()
+        return None if a is None else struct.unpack(">I", bytes(self.mem.read(a + OFFBOS_APPLIQUES, 4)))[0]
+
     def vie_addr(self) -> int | None:
         """Adresse de la zone ``wwmp_vie`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
         if not self.pack >= V19:
@@ -2191,14 +2256,15 @@ class Mailbox:
 
     def decor_creer(self, modele: str, pos, room: int, tour: int = 0, rot_y: int = 0, index: int = 1, cible=None,
                     aller: int = 0, vie: int = 0, tour_fin: int = 0, suivre: int = 0, suivi: int = 0,
-                    suivre_haut: float = 0.0) -> int | None:
+                    suivre_haut: float = 0.0, arc: float = 0.0) -> int | None:
         """Crée un DÉCOR : le modèle ORIGINAL ``modele`` du paquet (manifest.json « models »), converti par le portage,
         à ``pos`` dans la salle ``room``, tourné de ``rot_y`` et de ``tour`` unités d'angle par image. Renvoie l'id de
         process (création asynchrone : le jeu charge l'archive) ou None. MOUVEMENT (fait par le jeu, à 30 images/s) :
         ``cible`` atteinte en ``aller`` images en ligne droite, puis rotation ``tour_fin`` ; ``vie`` images (0 : sans
         fin) : il rétrécit sur les 15 dernières puis se supprime lui-même. 0.55.0 : ``suivre`` (DEC_SUIVRE_LINK, ou
         DEC_SUIVRE_FANTOME avec l'id de process ``suivi``) : il suit la main droite, ``suivre_haut`` au-dessus (sans
-        effet sur un mod plus ancien). MailboxError sans la zone (mod < 0.52.0)."""
+        effet sur un mod plus ancien). 0.62.0 : ``arc`` : trajet en cloche, sommet ``arc`` u au-dessus de la ligne
+        droite (un mod plus ancien va en ligne droite). MailboxError sans la zone (mod < 0.52.0)."""
         a = self.decor_addr()
         if a is None:
             raise MailboxError("décors : seulement le mod natif du portage à jour (0.52.0 ou plus)")
@@ -2210,6 +2276,8 @@ class Mailbox:
             raise ValueError("décor : mouvement hors bornes")
         if int(suivre) not in (0, DEC_SUIVRE_LINK, DEC_SUIVRE_FANTOME) or not 0 <= int(suivi) <= 0xFFFFFFFF                 or not (suivre_haut == suivre_haut and abs(float(suivre_haut)) < 1000.0):
             raise ValueError("décor : suivi hors bornes")
+        if not (arc == arc and abs(float(arc)) < 2000.0):
+            raise ValueError("décor : arc hors bornes")
         c = [float(v) for v in (cible if cible is not None else pos)][:3]
         if len(c) != 3 or not all(v == v and abs(v) < 1e7 for v in c):
             raise ValueError("décor : cible illisible")
@@ -2227,6 +2295,7 @@ class Mailbox:
             self.mem.write(a + OFFD_CIBLE, struct.pack(">3fHHh", *c, int(aller if cible is not None else 0), int(vie),
                                                        int(tour_fin)))
             self.mem.write(a + OFFD_SUIVRE, struct.pack(">HIf", int(suivre), int(suivi), float(suivre_haut)))
+            self.mem.write(a + OFFD_ARC, struct.pack(">f", float(arc)))
             self.mem.write(a + OFFD_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF))
         return self.create(PROC_MODELE, DEC_PARAMS, pos, room, rot_y=rot_y)
 
@@ -2268,6 +2337,65 @@ class Mailbox:
             return {}
         v = struct.unpack(">2Ii4Ii", bytes(self.mem.read(a + OFFP_PRISE, 0x20)))
         return dict(zip(POS_COMPTEURS, v))
+
+    # --- gestes de Link (0.62.0, mod natif seulement, sans bit : la zone est la capacité) -----------------------------
+    def ges_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_ges`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_ges", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_GES, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != GES_FORMAT:
+                return None
+            a = self._ges = hits[0]
+        return a
+
+    def geste(self, geste: int, cible=None) -> bool:
+        """Geste de Link, pris au pas suivant (réessayé GES_ATTENTE images, puis refusé : ``ges_compteurs``) :
+        GES_ROULADE vers ``cible`` (x, y, z du monde ; seuls x et z servent), GES_TOURBILLON (l'Attaque Tourbillon du
+        jeu, offerte). False sans la zone (mod < 0.62.0)."""
+        if int(geste) not in (GES_ROULADE, GES_TOURBILLON, GES_ETOURDI):
+            raise ValueError("geste inconnu")
+        x = z = 0.0
+        if int(geste) == GES_ROULADE:
+            x, z = float(cible[0]), float(cible[2])
+            if not (math.isfinite(x) and math.isfinite(z)):
+                raise ValueError("cible invalide")
+        a = self.ges_addr()
+        if a is None:
+            return False
+        with Mailbox._lock:
+            dem, = struct.unpack(">I", bytes(self.mem.read(a + OFFG_DEMANDE, 4)))
+            self.mem.write(a + OFFG_GESTE, struct.pack(">Iff", int(geste), x, z))
+            self.mem.write(a + OFFG_DEMANDE, struct.pack(">I", (dem + 1) & 0xFFFFFFFF))
+        return True
+
+    def ges_compteurs(self) -> dict:
+        """{"prise", "en_cours", "roulades", "tourbillons", "refus", "raison", "attente"} ; {} sans la zone."""
+        a = self.ges_addr()
+        if a is None:
+            return {}
+        v = struct.unpack(">5IiIHBx4I", bytes(self.mem.read(a + OFFG_PRISE, 0x30)))
+        return dict(zip(GES_COMPTEURS, v))
+
+    def ges_regler(self, tenir_b: int | None = None, tourbillon: int | None = None) -> bool:
+        """``tenir_b`` : images pendant lesquelles B reste tenu pour le jeu si Link charge la tournoyante (fusion
+        tournoyante armée ; borné à GES_TENIR_MAX ; 0 : rendu) ; ``tourbillon`` : GES_TB_* (l'Attaque Tourbillon selon
+        la tenue). None : inchangé. False sans la zone (mod < 0.62.0)."""
+        a = self.ges_addr()
+        if a is None:
+            return False
+        with Mailbox._lock:
+            if tenir_b is not None:
+                self.mem.write(a + OFFG_TENIR, struct.pack(">H", max(0, min(GES_TENIR_MAX, int(tenir_b)))))
+            if tourbillon is not None:
+                t = int(tourbillon)
+                self.mem.write(a + OFFG_TOURBILLON, bytes([t if t in (GES_TB_JEU, GES_TB_INTERDITE, GES_TB_PERMISE)
+                                                           else GES_TB_JEU]))
+        return True
 
     # --- moitiés de médaillon dans le Sac (0.56.0, mod natif seulement, sans bit : la zone est la capacité) ----------
     def inv_addr(self) -> int | None:
@@ -2331,9 +2459,15 @@ class Mailbox:
         corps += titre + b"\0" * (MNU_TITRE - len(titre))
         corps += b"".join(x + b"\0" * (MNU_NOM - len(x)) for x in noms + [b""] * (MNU_N - n))
         corps += struct.pack(">12H", *(couts[:n] + [0] * (MNU_N - n)))
+        procs = None
+        if self.version_mod_natif() >= MNU_PORTRAITS_MOD:      # zone plus longue : jamais écrite hors d'un ancien mod
+            p = [max(0, min(0xFFFF, int(v))) for v in list(etat.get("procs") or [])[:n]]
+            procs = struct.pack(">12H", *(p + [0] * (MNU_N - len(p))))
         with Mailbox._lock:
             seq, = struct.unpack(">I", bytes(self.mem.read(a + OFFU_SEQ, 4)))
             self.mem.write(a + OFFU_OUVERT, corps)
+            if procs is not None:
+                self.mem.write(a + OFFU_PROCS, procs)
             self.mem.write(a + OFFU_SEQ, struct.pack(">I", (seq + 1) & 0xFFFFFFFF))
         return True
 

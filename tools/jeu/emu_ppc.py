@@ -266,14 +266,19 @@ class Memoire:
         return p
 
     def lire(self, a: int, n: int) -> bytes:
+        # page par page (2026-11-21 : octet par octet, relire les 0x8000 octets de la boîte coûtait 0,6 s par
+        # vérification de tests/test_natif_emulation.py, des minutes par test) ; même résultat, mêmes lectures_hors
         out = bytearray()
-        for i in range(n):
-            p = self._page(a + i, False)
+        fin = a + n
+        while a < fin:
+            k = min(fin, (a | 0xFFF) + 1) - a
+            p = self._page(a, False)             # (pas self.pages : des sous-classes chargent la page à la demande)
             if p is None:
-                self.lectures_hors.append(a + i)
-                out.append(0)
+                self.lectures_hors.extend(range(a, a + k))
+                out += bytes(k)
             else:
-                out.append(p[(a + i) & 0xFFF])
+                out += p[a & 0xFFF:(a & 0xFFF) + k]
+            a += k
         return bytes(out)
 
     def ecrire(self, a: int, data: bytes) -> None:

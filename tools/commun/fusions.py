@@ -48,6 +48,9 @@ CHARGE_MIN = 1.0            # s : B tenu sans rien porter = tournoyante chargée
 BOMBE_MURE = 2.5            # s : bombe tenue depuis au moins ce temps au lancer (« juste avant l'explosion ») [HYPO :
                             # mèche de 5 s, comme le minuteur de Bomb2, 150 images]
 ECART_LANCERS = 0.5         # s : les deux lancers à moins de ce temps l'un de l'autre
+ECART_RELACHE = 0.5         # s (2026-11-19) : tournoyante : les deux relâchent B à moins de ça l'un de l'autre, sinon
+                            # ils sont étourdis (l'étourdissement de fin de l'Attaque Tourbillon)
+ARME_MAX = 30.0             # s : une paire armée qui ne relâche pas est oubliée
 REPOS = 10.0                # s : pas de nouvelle fusion pour ce duo juste après la fin
 ETAT_AGE = 5.0              # s : état plus vieux : le joueur n'est plus « en jeu » pour une fusion
 FACTEUR = 24                # x3 (huitièmes)

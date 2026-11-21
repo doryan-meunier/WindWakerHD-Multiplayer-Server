@@ -52,6 +52,10 @@ NOM_PAQUET = "mod_natif.json"
 # wwmp-natif, jamais nécessaire (sans lui, aucun décor n'est dessiné, le reste du mod marche)
 ID_DECORS = "wwmp-decors"
 NOM_PAQUET_DECORS = "mod_decors.json"             # paquet du mod embarqué sous tools/jeu (liste blanche des mises à jour)
+# second paquet de contenu (0.62.0 : fiole et éclat de la potion des Hanteurs) : le portage limite un paquet à 8 modèles
+ID_DECORS2 = "wwmp-decors2"
+NOM_PAQUET_DECORS2 = "mod_decors2.json"
+PAQUETS_DECORS = ((ID_DECORS, NOM_PAQUET_DECORS), (ID_DECORS2, NOM_PAQUET_DECORS2))
 FORMAT_PAQUET = 1
 PIED_HISTOIRES = b"WSTB"
 GARDER_ANCIENS = 5
@@ -381,31 +385,38 @@ def chemin_paquet_embarque() -> str:
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), NOM_PAQUET)
 
 
-def chemin_paquet_decors() -> str:
-    return os.path.join(os.path.dirname(os.path.abspath(__file__)), NOM_PAQUET_DECORS)
+def chemin_paquet_decors(nom: str = NOM_PAQUET_DECORS) -> str:
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), nom)
 
 
 def decors_servis(inst: dict) -> list[str]:
-    """Les modèles du paquet ``wwmp-decors`` que le portage SERT en ce moment (le client ne demande que ceux-là : un
-    décor dont l'archive n'est pas servie fait chercher au jeu un fichier qui n'existe pas, et le jeu s'arrête) :
-    wwmp-decors et le carnet (story-notebook, sans lui le système des modèles de mods est éteint) installés et
-    allumés, et chaque modèle porté par un acteur déclaré (le portage ne sert l'archive que de ceux-là). [] au moindre
-    doute. Lecture seule."""
+    """Les modèles des paquets de décors (``wwmp-decors`` et, 0.62.0, ``wwmp-decors2``) que le portage SERT en ce moment
+    (le client ne demande que ceux-là : un décor dont l'archive n'est pas servie fait chercher au jeu un fichier qui
+    n'existe pas, et le jeu s'arrête) : le paquet et le carnet (story-notebook, sans lui le système des modèles de mods
+    est éteint) installés et allumés, et chaque modèle porté par un acteur déclaré (le portage ne sert l'archive que de
+    ceux-là). Un paquet douteux ne compte pas (l'autre reste servi). Lecture seule."""
     try:
-        d = etat_mod(inst, ID_DECORS)
         n = etat_mod(inst, "story-notebook")
-        if not (d["installe"] and d["active"] and not d["probleme"] and n["installe"] and n["active"]):
+        if not (n["installe"] and n["active"]):
             return []
-        m = _lire_json(os.path.join(d["dossier"], "manifest.json"))
-        if not isinstance(m, dict):
-            return []
-        portes = {a.get("model") for a in m.get("actors") or [] if isinstance(a, dict) and a.get("kind") == "mod"
-                  and isinstance(a.get("collision"), dict)}
-        return sorted(x["id"] for x in m.get("models") or [] if isinstance(x, dict) and isinstance(x.get("id"), str)
-                      and x["id"] in portes and os.path.isfile(os.path.join(d["dossier"], str(x.get("source")))))
     except (OSError, KeyError, TypeError, ValueError):
         return []
-
+    out = set()
+    for ident, _nom in PAQUETS_DECORS:
+        try:
+            d = etat_mod(inst, ident)
+            if not (d["installe"] and d["active"] and not d["probleme"]):
+                continue
+            m = _lire_json(os.path.join(d["dossier"], "manifest.json"))
+            if not isinstance(m, dict):
+                continue
+            portes = {a.get("model") for a in m.get("actors") or [] if isinstance(a, dict) and a.get("kind") == "mod"
+                      and isinstance(a.get("collision"), dict)}
+            out |= {x["id"] for x in m.get("models") or [] if isinstance(x, dict) and isinstance(x.get("id"), str)
+                    and x["id"] in portes and os.path.isfile(os.path.join(d["dossier"], str(x.get("source"))))}
+        except (OSError, KeyError, TypeError, ValueError):
+            continue
+    return sorted(out)
 
 def lire_paquet(chemin: str | None = None) -> dict:
     """Paquet du mod embarqué (``tools/jeu/mod_natif.json``, fabriqué par ``outils/paquet_natif.py`` depuis
