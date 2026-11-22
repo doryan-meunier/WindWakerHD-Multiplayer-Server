@@ -299,7 +299,7 @@ import math
 import re
 
 VERSION = 2
-CLIENT_VERSION = "2026-11-21a"   # outils (client/serveur) : affiché dans les journaux du serveur
+CLIENT_VERSION = "2026-11-22a"   # outils (client/serveur) : affiché dans les journaux du serveur
 DEFAULT_PORT = 7777
 MAX_PLAYERS = 8        # joueurs au plus par partie (serveur, annonce de découverte, lanceurs)
 KEEPALIVE = 1.0        # s entre deux pings du client
@@ -460,6 +460,14 @@ def valid_inv(msg) -> dict | None:
 
 SIGNAL_ENTRE = 3.0              # s : un signal « viens ici » au plus toutes les 3 s par joueur (serveur, client, mod)
 SIGNAL_POS_MAX = 2.0e6           # |coordonnée| d'un signal (la mer : ±350000)
+SIGNAL_CASE_DUREE = 60.0         # s : une case marquée sur la carte marine (signal avec « case ») reste montrée 60 s
+SIGNAL_CASES = 49                # carrés de la mer (salles 1..49 de la stage « sea », 7 par rangée)
+SIGNAL_CASE_STAGE = "sea"
+
+
+def centre_case(case: int) -> list[float]:
+    """Centre du carré ``case`` (1..49) de la mer : x = (colonne - 3) * 100000, z = (rangée - 3) * 100000."""
+    return [((case - 1) % 7 - 3) * 100000.0, 0.0, ((case - 1) // 7 - 3) * 100000.0]
 
 
 def valid_signal(msg) -> dict | None:
@@ -478,7 +486,16 @@ def valid_signal(msg) -> dict | None:
     p = [float(v) for v in pos]
     if any(not math.isfinite(v) or abs(v) > SIGNAL_POS_MAX for v in p):
         return None
-    return {"stage": stage, "room": room, "pos": [round(v, 1) for v in p]}
+    out = {"stage": stage, "room": room, "pos": [round(v, 1) for v in p]}
+    case = msg.get("case")
+    if case is not None:
+        # case marquée sur la carte marine (client/carte_marine.py) : toujours en mer, au centre du carré (la
+        # position envoyée ne compte pas). Un serveur ancien ne relaie pas « case » : un signal ordinaire, 8 s
+        if isinstance(case, bool) or not isinstance(case, int) or not 1 <= case <= SIGNAL_CASES \
+                or stage != SIGNAL_CASE_STAGE:
+            return None
+        out["case"], out["room"], out["pos"] = case, case, centre_case(case)
+    return out
 
 
 def zone_of(stage: str, room: int) -> str:

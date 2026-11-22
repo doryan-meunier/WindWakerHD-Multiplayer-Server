@@ -512,6 +512,16 @@ SIG_NOMS, SIG_SIGNAUX, SIG_MANETTE = 0x1, 0x2, 0x4
 OFFS_CFG, OFFS_DEMANDES, OFFS_POS, OFFS_IDS, OFFS_VUS, OFFS_NOMS, OFFS_SIG = 0x0C, 0x10, 0x14, 0x20, 0x3C, 0x40, 0xB0
 SIG_N, SIG_NOM, SIG_ENTREE = 4, 16, 0x14
 SIG_MOD = 33                       # NATIF_VERSION_MOD qui a la zone
+# carte marine partagée (MOD NATIF SEULEMENT, 0.64.0 ; natif/mod_wwmp/carte.c, client/carte_marine.py) : SANS bit : la
+# zone wwmp_crt (magie « WWMPCRT1 », format 1), 0xE0 octets à 0x7020, EST la capacité. Le PC écrit cfg et les joueurs
+# lointains {x, z, rgba EN DERNIER (0 : libre), nom Latin-1 12 octets} ; le jeu relève le clic du stick gauche dans la
+# carte marine : carré sous le curseur (+0x14, 1..49) puis le compteur (+0x10) EN DERNIER.
+MAGIC_CRT = b"WWMPCRT1"
+CRT_FORMAT = 1
+CRT_NOMS, CRT_LOINTAINS, CRT_PING = 0x1, 0x2, 0x4
+CRT_N, CRT_NOM, CRT_ENTREE = 7, 12, 0x18
+OFFC2_CFG, OFFC2_PINGS, OFFC2_CASE, OFFC2_NOMS_VUS, OFFC2_LOIN_VUS, OFFC2_LOIN, OFFC2_CURSEUR = \
+    0x0C, 0x10, 0x14, 0x18, 0x1C, 0x20, 0xC8
 # bandeau (MOD NATIF SEULEMENT, 0.44.0 ; natif/mod_wwmp/bandeau.c, client/bandeau.py ; lot 0 de
 # docs/etudes/autres_zelda.md §1.3) : SANS bit : la zone wwmp_ban (magie « WWMPBAN1 », format 1), 0x100 octets à 0x7100,
 # EST la capacité. Le PC écrit les 4 lignes {rgba, taille, Latin-1 44 octets}, la durée (pas) et l'ancre, puis seq EN
@@ -1985,6 +1995,60 @@ class Mailbox:
         if duree > 0:
             self.mem.w_u32(e, min(int(duree), 0xFFFF))
         return True
+
+    # --- carte marine partagée (0.64.0, mod natif seulement, sans bit ; client/carte_marine.py) -------------------
+    def crt_addr(self) -> int | None:
+        """Adresse de la zone ``wwmp_crt`` (magie cherchée une fois, unique, alignée, format attendu) ; None sans elle."""
+        if not self.pack >= V19:
+            return None
+        a = getattr(self, "_crt", None)
+        if a is None:
+            hits = [h for h in self.mem.find_bytes(MAGIC_CRT, self.addr, self.addr + 0x8000, limit=4) if h % 4 == 0]
+            if len(hits) != 1:
+                return None
+            if struct.unpack(">I", bytes(self.mem.read(hits[0] + 8, 4)))[0] != CRT_FORMAT:
+                return None
+            a = self._crt = hits[0]
+        return a
+
+    def set_crt_cfg(self, cfg: int) -> bool:
+        a = self.crt_addr()
+        if a is None:
+            return False
+        self.mem.w_u32(a + OFFC2_CFG, int(cfg) & (CRT_NOMS | CRT_LOINTAINS | CRT_PING))
+        return True
+
+    def set_lointain(self, k: int, x: float, z: float, rgba: int, nom: bytes) -> bool:
+        """Joueur lointain ``k`` (0..6) : couleur à 0 d'abord (entrée libre), position et nom, puis la couleur EN
+        DERNIER (0 : l'entrée reste libre)."""
+        a = self.crt_addr()
+        if a is None:
+            return False
+        if not 0 <= int(k) < CRT_N:
+            raise ValueError(f"joueur lointain : entrée {k!r}")
+        e = a + OFFC2_LOIN + CRT_ENTREE * int(k)
+        self.mem.w_u32(e + 8, 0)
+        self.mem.write(e, struct.pack(">2f", float(x), float(z)))
+        self.mem.write(e + 0x0C, bytes(nom or b"")[:CRT_NOM].ljust(CRT_NOM, b"\0"))
+        if int(rgba) & 0xFFFFFFFF:
+            self.mem.w_u32(e + 8, int(rgba) & 0xFFFFFFFF)
+        return True
+
+    def lire_ping_carte(self) -> tuple[int, int] | None:
+        """(compteur des cases marquées depuis la carte marine, carré de la dernière) ; None sans la zone."""
+        a = self.crt_addr()
+        if a is None:
+            return None
+        n, case = struct.unpack(">2I", bytes(self.mem.read(a + OFFC2_PINGS, 8)))
+        return n, case
+
+    def crt_counters(self) -> dict:
+        a = self.crt_addr()
+        if a is None:
+            return {"cfg": 0, "pings": 0, "case": 0, "noms_vus": 0, "lointains_vus": 0, "curseur": 0}
+        cfg, pings, case, noms, loin = struct.unpack(">5I", bytes(self.mem.read(a + OFFC2_CFG, 20)))
+        curseur, = struct.unpack(">I", bytes(self.mem.read(a + OFFC2_CURSEUR, 4)))
+        return {"cfg": cfg, "pings": pings, "case": case, "noms_vus": noms, "lointains_vus": loin, "curseur": curseur}
 
     def lire_demande_signal(self) -> tuple[int, tuple[float, float, float]] | None:
         """(compteur des doubles clics du stick gauche, position de Link au dernier) ; None sans la zone."""

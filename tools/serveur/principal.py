@@ -305,6 +305,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import itertools
+import math
 import os
 import socket
 import sys
@@ -392,6 +393,8 @@ SNAPSHOT_KEEP = 2.0  # s : âge max du dernier snapshot renvoyé à qui entre da
 # puis on coupe. Les messages d'événements (autorité, hit, join/leave…) passent toujours.
 SLOW_SKIP = 1 << 20
 SLOW_DROP = 16 << 20
+CARTE_PAS = 2.0            # s : carte marine partagée, entre deux envois des positions en mer
+CARTE_MER_MAX = 350000.0   # la mer : 7 x 7 carrés de 100000, centrés sur 0
 DROPPABLE = {"state", "enemies", "epos", "fen"}   # epos : lot L2 de la latence (positions remplaçables) ; fen : états
                                                  # complets des entrées de l'attaquant d'une vraie fusion (le suivant
                                                  # remplace, le mod du pilote relâche tout sans nouvelles)
@@ -485,6 +488,7 @@ class Player:
         self.vie_trou: int | None = None       # vie partagée : seq du premier événement refusé (débit)
         self.vie_times: list[float] = []
         self.signal_t = float("-inf")          # signal « viens ici » : heure du dernier relayé
+        self.mer: tuple[float, float] | None = None   # carte marine partagée : dernière position en mer (x, z)
         self.medailles_mort_t = float("-inf")  # médailles : dernier Game Over compté (« mort » du deathlink)
         self.pickup_times: list[float] = []
         self.hit_times: dict[int, list[float]] = {}   # synchro v2 (A2) : victime -> heures des coups relayés
@@ -3085,6 +3089,8 @@ class Server:
             pos = msg.get("pos")
             if isinstance(pos, list) and len(pos) == 3 and all(isinstance(v, (int, float)) for v in pos):
                 p.pos = pos
+                if stage == "sea" and all(math.isfinite(v) and abs(v) <= CARTE_MER_MAX for v in (pos[0], pos[2])):
+                    p.mer = (round(float(pos[0])), round(float(pos[2])))    # carte marine partagée (carte_tick)
             if busy != p.busy:
                 p.busy = busy
                 log(f"{p.name} : {'en cinématique' if busy else 'fin de cinématique'}")
@@ -4586,6 +4592,24 @@ class Server:
             cs.abandon(p.id, msg, now)
         self.courses_envoyer()
 
+    def carte_tick(self) -> int:
+        """Carte marine partagée (client/carte_marine.py) : la dernière position en mer de chaque joueur, envoyée à
+        tous les joueurs (toutes les CARTE_PAS s, dès qu'ils sont deux). Un Hanteur est invisible des Link : il n'y
+        figure pas. Renvoie le nombre de destinataires."""
+        h = self.hanteurs
+        joueurs = [p for p in self.players.values() if p.joueur]
+        if len(joueurs) < 2:
+            return 0
+        liste = [[p.id, p.mer[0], p.mer[1]] for p in joueurs
+                 if p.mer is not None and not (h is not None and h.est_hanteur(p.id))
+                 and self.robot_de(p) is None]          # le robot du serveur n'est pas un joueur à retrouver
+        if not liste:
+            return 0
+        out = {"type": "carte", "j": liste}
+        for p in joueurs:
+            p.send(out)
+        return len(joueurs)
+
     def handle_signal(self, p: Player, msg: dict) -> None:
         """Signal « viens ici » (client/reperes.py) : relayé avec « from » à tous les autres joueurs, au plus un toutes
         les SIGNAL_ENTRE s par joueur. Un Hanteur est invisible des Link : son signal ne part qu'aux autres Hanteurs."""
@@ -4605,7 +4629,10 @@ class Server:
                 continue
             o.send(out)
             n += 1
-        log(f"signal « viens ici » de {p.name} ({v['stage']}, salle {v['room']}) relayé à {n} joueur(s)")
+        if "case" in v:
+            log(f"case {v['case']} marquée sur la carte marine par {p.name}, relayée à {n} joueur(s)")
+        else:
+            log(f"signal « viens ici » de {p.name} ({v['stage']}, salle {v['room']}) relayé à {n} joueur(s)")
 
     def handle_vie(self, p: Player, msg: dict) -> None:
         """Vie commune par groupe : deltas appliqués dans l'ordre d'arrivée, bornés à [0, vie max du groupe],
@@ -5175,6 +5202,9 @@ class Server:
         out = {"type": "inv", "from": p.id, "nom": p.name, "group": group}
         if new_acq:
             out["acq"] = new_acq
+            st_j, rm_j = p.where()               # journal de la partie (client/journal.py) : où il les a trouvés
+            if st_j and rm_j is not None:
+                out["stage"], out["room"] = st_j, rm_j
         if new_bits:
             out["bits"] = [[o, m] for o, m in sorted(new_bits.items())]
         if cap_up:
@@ -6113,6 +6143,16 @@ async def robot_boucle(srv: Server, pas: float = 0.5) -> None:
             log(f"robot : erreur ignorée ({type(e).__name__}: {e})")
 
 
+async def carte_boucle(srv: Server, pas: float = CARTE_PAS) -> None:
+    """Carte marine partagée : positions en mer de tous les joueurs, toutes les 2 s."""
+    while True:
+        await asyncio.sleep(pas)
+        try:
+            srv.carte_tick()
+        except Exception as e:                 # jamais fatal : le serveur continue de relayer
+            log(f"carte marine : erreur ignorée ({type(e).__name__}: {e})")
+
+
 async def courses_boucle(srv: Server, pas: float = 0.25) -> None:
     """Courses en bateau : décompte, fin de course, même sans message reçu."""
     while True:
@@ -6392,6 +6432,7 @@ async def amain(host: str, port: int, stats: float = 0.0, busy_defer: bool = Tru
     # toujours : le robot peut être allumé à chaud depuis « Administrer le serveur » (robot_tick ne fait rien sur off)
     robot_task = asyncio.create_task(robot_boucle(srv))  # noqa: F841 (référence gardée)
     courses_task = asyncio.create_task(courses_boucle(srv))  # noqa: F841 (courses en bateau : phases, faux rivaux)
+    carte_task = asyncio.create_task(carte_boucle(srv))  # noqa: F841 (carte marine partagée : positions en mer)
     # A16 : on n'utilise pas serve_forever() : annulé, il attend la fermeture de TOUTES les
     # connexions (Python ≥ 3.12) avant qu'on puisse envoyer « bye ». Le serveur écoute déjà.
     try:
